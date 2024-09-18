@@ -1,0 +1,129 @@
+package com.rafael.inclusimap.ui
+
+import android.Manifest
+import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionStatus
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.CameraPositionState
+import com.google.maps.android.compose.ComposeMapColorScheme
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapType
+import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+@SuppressLint("MissingPermission")
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun InclusiMapGoogleMapScreen(
+    modifier: Modifier = Modifier,
+) {
+    val scope = rememberCoroutineScope()
+    val activity = LocalContext.current
+    val fusedLocationClient by lazy { LocationServices.getFusedLocationProviderClient(activity) }
+    var isMyLocationFound by remember { mutableStateOf(false) }
+    var latlang by remember { mutableStateOf(LatLng(-10.0, -50.0)) }
+    var isMapLoaded by remember { mutableStateOf(false) }
+    val cameraPositionState by remember(isMyLocationFound) {
+        mutableStateOf(
+            CameraPositionState(
+                CameraPosition(
+                    LatLng(-10.0, -50.0),
+                    15f,
+                    0f,
+                    0f
+                )
+            )
+        )
+    }
+    val locationPermissionState = rememberPermissionState(
+        permission = Manifest.permission.ACCESS_FINE_LOCATION
+    )
+    val locationPermissionGranted by remember(locationPermissionState.status) {
+        mutableStateOf(locationPermissionState.status == PermissionStatus.Granted)
+    }
+    var markerState by remember {
+        mutableStateOf(MarkerState(position = latlang))
+    }
+    LaunchedEffect(locationPermissionGranted) {
+        if (locationPermissionGranted) {
+            fusedLocationClient?.lastLocation?.addOnSuccessListener { location ->
+                location?.let {
+                    latlang = LatLng(it.latitude, it.longitude)
+                    isMyLocationFound = true
+                }
+            }
+
+        }
+    }
+
+    LaunchedEffect(isMapLoaded, locationPermissionGranted) {
+        if (locationPermissionGranted && isMapLoaded) {
+            cameraPositionState.animate(
+                update = CameraUpdateFactory.newLatLngZoom(latlang, 55f),
+                durationMs = 4000
+            )
+        }
+    }
+
+    GoogleMap(
+        modifier = modifier.fillMaxSize(),
+        properties = MapProperties(
+            isBuildingEnabled = true,
+            mapType = MapType.NORMAL,
+            isMyLocationEnabled = locationPermissionGranted && isMyLocationFound,
+        ),
+        uiSettings = MapUiSettings(
+            zoomControlsEnabled = true,
+            zoomGesturesEnabled = true,
+            compassEnabled = true,
+            myLocationButtonEnabled = true,
+            mapToolbarEnabled = true,
+            rotationGesturesEnabled = true
+        ),
+        cameraPositionState = cameraPositionState,
+        mapColorScheme = ComposeMapColorScheme.FOLLOW_SYSTEM,
+        onMapLoaded = {
+            isMapLoaded = true
+            scope.launch {
+                if (isMyLocationFound) {
+                    cameraPositionState.animate(
+                        update = CameraUpdateFactory.newLatLngZoom(latlang, 55f),
+                        durationMs = 4000
+                    )
+                }
+            }
+        }
+    ) {
+        Marker(
+            state = markerState,
+            title = "Minha casa",
+            snippet = "MInha localização é acessivel",
+            icon = BitmapDescriptorFactory.defaultMarker(
+                BitmapDescriptorFactory.HUE_GREEN
+            )
+        )
+    }
+    LaunchedEffect(Unit) {
+        locationPermissionState.launchPermissionRequest()
+    }
+}
