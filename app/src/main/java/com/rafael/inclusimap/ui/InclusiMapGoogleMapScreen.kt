@@ -27,8 +27,7 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.MarkerState
-import kotlinx.coroutines.delay
+import com.rafael.inclusimap.domain.repository.mappedPlaces
 import kotlinx.coroutines.launch
 
 @SuppressLint("MissingPermission")
@@ -61,12 +60,10 @@ fun InclusiMapGoogleMapScreen(
     val locationPermissionGranted by remember(locationPermissionState.status) {
         mutableStateOf(locationPermissionState.status == PermissionStatus.Granted)
     }
-    var markerState by remember {
-        mutableStateOf(MarkerState(position = latlang))
-    }
+
     LaunchedEffect(locationPermissionGranted) {
         if (locationPermissionGranted) {
-            fusedLocationClient?.lastLocation?.addOnSuccessListener { location ->
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 location?.let {
                     latlang = LatLng(it.latitude, it.longitude)
                     isMyLocationFound = true
@@ -101,6 +98,9 @@ fun InclusiMapGoogleMapScreen(
             rotationGesturesEnabled = true
         ),
         cameraPositionState = cameraPositionState,
+        onMapClick = {
+            println("latitude ${it.latitude}" + "," + it.longitude)
+        },
         mapColorScheme = ComposeMapColorScheme.FOLLOW_SYSTEM,
         onMapLoaded = {
             isMapLoaded = true
@@ -114,14 +114,16 @@ fun InclusiMapGoogleMapScreen(
             }
         }
     ) {
-        Marker(
-            state = markerState,
-            title = "Minha casa",
-            snippet = "MInha localização é acessivel",
-            icon = BitmapDescriptorFactory.defaultMarker(
-                BitmapDescriptorFactory.HUE_GREEN
+        mappedPlaces.forEach { place ->
+            Marker(
+                state = place.markerState,
+                title = place.title,
+                snippet = place.description,
+                icon = BitmapDescriptorFactory.defaultMarker(
+                    if (place.isAccessible) BitmapDescriptorFactory.HUE_GREEN else BitmapDescriptorFactory.HUE_RED
+                )
             )
-        )
+        }
     }
     LaunchedEffect(Unit) {
         locationPermissionState.launchPermissionRequest()
