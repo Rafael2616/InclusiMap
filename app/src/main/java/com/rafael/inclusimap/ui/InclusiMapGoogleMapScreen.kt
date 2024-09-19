@@ -2,6 +2,7 @@ package com.rafael.inclusimap.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,6 +28,7 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
+import com.rafael.inclusimap.domain.AccessibleLocalMarker
 import com.rafael.inclusimap.domain.repository.mappedPlaces
 import kotlinx.coroutines.launch
 
@@ -40,13 +42,13 @@ fun InclusiMapGoogleMapScreen(
     val activity = LocalContext.current
     val fusedLocationClient by lazy { LocationServices.getFusedLocationProviderClient(activity) }
     var isMyLocationFound by remember { mutableStateOf(false) }
-    var latlang by remember { mutableStateOf(LatLng(-10.0, -50.0)) }
+    var latlang = LatLng(-2.98, -47.35)
     var isMapLoaded by remember { mutableStateOf(false) }
-    val cameraPositionState by remember(isMyLocationFound) {
+    val cameraPositionState by remember {
         mutableStateOf(
             CameraPositionState(
                 CameraPosition(
-                    LatLng(-10.0, -50.0),
+                    latlang,
                     15f,
                     0f,
                     0f
@@ -60,6 +62,8 @@ fun InclusiMapGoogleMapScreen(
     val locationPermissionGranted by remember(locationPermissionState.status) {
         mutableStateOf(locationPermissionState.status == PermissionStatus.Granted)
     }
+    var showBottomSheet by remember { mutableStateOf(false) }
+    var currentPlaceDetais by remember { mutableStateOf<AccessibleLocalMarker?>(null) }
 
     LaunchedEffect(locationPermissionGranted) {
         if (locationPermissionGranted) {
@@ -76,7 +80,7 @@ fun InclusiMapGoogleMapScreen(
     LaunchedEffect(isMapLoaded, locationPermissionGranted) {
         if (locationPermissionGranted && isMapLoaded) {
             cameraPositionState.animate(
-                update = CameraUpdateFactory.newLatLngZoom(latlang, 55f),
+                update = CameraUpdateFactory.newLatLngZoom(latlang, 15f),
                 durationMs = 4000
             )
         }
@@ -121,11 +125,26 @@ fun InclusiMapGoogleMapScreen(
                 snippet = place.description,
                 icon = BitmapDescriptorFactory.defaultMarker(
                     if (place.isAccessible) BitmapDescriptorFactory.HUE_GREEN else BitmapDescriptorFactory.HUE_RED
-                )
+                ),
+                onClick = {
+                    showBottomSheet = true
+                    currentPlaceDetais = place
+                    false
+                }
             )
         }
     }
     LaunchedEffect(Unit) {
         locationPermissionState.launchPermissionRequest()
     }
+    AnimatedVisibility(showBottomSheet) {
+        PlaceDetainsBottomSheet(
+            localMarker = currentPlaceDetais!!,
+            onDismiss = {
+                showBottomSheet = false
+            }
+        )
+    }
 }
+
+
