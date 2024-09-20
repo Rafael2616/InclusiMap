@@ -92,13 +92,12 @@ fun PlaceDetainsBottomSheet(
                         text = accessibilityAverage?.toMessage() ?: "Sem dados de\nacessibilidade",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimary,
+                        color = Color.Black,
                         textAlign = TextAlign.Center,
                         lineHeight = 18.sp,
                     )
                 }
             }
-
             Text(
                 text = "Imagens de ${localMarker.title}",
                 fontSize = 22.sp,
