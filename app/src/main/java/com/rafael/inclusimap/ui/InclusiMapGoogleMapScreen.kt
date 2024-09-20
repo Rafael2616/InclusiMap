@@ -40,15 +40,14 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.ComposeMapColorScheme
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.rememberCameraPositionState
 import com.rafael.inclusimap.R
 import com.rafael.inclusimap.data.toHUE
 import com.rafael.inclusimap.domain.AccessibleLocalMarker
@@ -67,18 +66,7 @@ fun InclusiMapGoogleMapScreen(
     var isMyLocationFound by remember { mutableStateOf(false) }
     var latlang = LatLng(-2.98, -47.35)
     var isMapLoaded by remember { mutableStateOf(false) }
-    val cameraPositionState by remember {
-        mutableStateOf(
-            CameraPositionState(
-                CameraPosition(
-                    latlang,
-                    15f,
-                    0f,
-                    0f
-                )
-            )
-        )
-    }
+    val cameraPositionState = rememberCameraPositionState()
     val locationPermissionState = rememberPermissionState(
         permission = Manifest.permission.ACCESS_FINE_LOCATION
     )
@@ -129,7 +117,7 @@ fun InclusiMapGoogleMapScreen(
                     expanded = false
                 },
                 expanded = expanded,
-                onExpandedChange = {  },
+                onExpandedChange = { },
                 placeholder = { Text("Pesquise algo aqui") },
                 leadingIcon = {
                     Image(
@@ -192,12 +180,12 @@ fun InclusiMapGoogleMapScreen(
                     )
                 }
             }
-        }
+        },
     ) {
         if (isMapLoaded) {
-
             mappedPlaces.forEach { place ->
-                val accessibilityAverage = place.comments?.map { it.accessibilityRate }?.average()?.toFloat()
+                val accessibilityAverage =
+                    place.comments?.map { it.accessibilityRate }?.average()?.toFloat()
                 Marker(
                     state = place.markerState,
                     title = place.title,
@@ -226,5 +214,3 @@ fun InclusiMapGoogleMapScreen(
         )
     }
 }
-
-
