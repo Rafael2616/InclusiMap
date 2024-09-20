@@ -16,15 +16,10 @@ import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,13 +27,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
@@ -58,6 +50,7 @@ import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.rafael.inclusimap.R
+import com.rafael.inclusimap.data.toHUE
 import com.rafael.inclusimap.domain.AccessibleLocalMarker
 import com.rafael.inclusimap.domain.repository.mappedPlaces
 import kotlinx.coroutines.launch
@@ -201,20 +194,24 @@ fun InclusiMapGoogleMapScreen(
             }
         }
     ) {
-        mappedPlaces.forEach { place ->
-            Marker(
-                state = place.markerState,
-                title = place.title,
-                snippet = place.description,
-                icon = BitmapDescriptorFactory.defaultMarker(
-                    if (place.isAccessible) BitmapDescriptorFactory.HUE_GREEN else BitmapDescriptorFactory.HUE_RED
-                ),
-                onClick = {
-                    showBottomSheet = true
-                    currentPlaceDetais = place
-                    false
-                }
-            )
+        if (isMapLoaded) {
+
+            mappedPlaces.forEach { place ->
+                val accessibilityAverage = place.comments?.map { it.accessibilityRate }?.average()?.toFloat()
+                Marker(
+                    state = place.markerState,
+                    title = place.title,
+                    snippet = place.description,
+                    icon = BitmapDescriptorFactory.defaultMarker(
+                        accessibilityAverage?.toHUE() ?: BitmapDescriptorFactory.HUE_AZURE
+                    ),
+                    onClick = {
+                        showBottomSheet = true
+                        currentPlaceDetais = place
+                        false
+                    }
+                )
+            }
         }
     }
     LaunchedEffect(Unit) {

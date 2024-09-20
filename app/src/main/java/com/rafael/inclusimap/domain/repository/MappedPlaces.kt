@@ -28,7 +28,7 @@ val mappedPlaces = listOf(
                 name = "Alcilia Maria",
                 body = "Lugar bom pra sorrir de cadeirante \nRecomendo \nMuito bom",
                 email = "",
-                accessibilityRate = 2,
+                accessibilityRate = 1,
             )
         )
     ),
@@ -38,7 +38,17 @@ val mappedPlaces = listOf(
         ),
         title = "Top Alimentos",
         description = "Supermercado",
-        isAccessible = true
+        isAccessible = true,
+        comments = listOf(
+            Comment(
+                postDate = "17/08/2024",
+                id = 1,
+                name = "Rafael Moura",
+                body = "O local possui uma certa acessibilidade, como um estacionamento acessível e algumas rampas, embora não seja completa",
+                email = "",
+                accessibilityRate = 2,
+            ),
+        )
     ),
     AccessibleLocalMarker(
         markerState = MarkerState(
@@ -46,7 +56,17 @@ val mappedPlaces = listOf(
         ),
         title = "Mix Mateus",
         description = "Supermercado",
-        isAccessible = true
+        isAccessible = true,
+        comments = listOf(
+            Comment(
+                postDate = "17/08/2024",
+                id = 1,
+                name = "Cléber Felix",
+                body = "O local possui acessibilidade, perfeito! \nRecomendo",
+                email = "",
+                accessibilityRate = 3,
+            ),
+        )
     ),
     AccessibleLocalMarker(
         markerState = MarkerState(
@@ -54,6 +74,16 @@ val mappedPlaces = listOf(
         ),
         title = "UEPA",
         description = "Universidade",
-        isAccessible = false
+        isAccessible = false,
+        comments = listOf(
+            Comment(
+                postDate = "15/08/2024",
+                id = 1,
+                name = "Alcilia Maria",
+                body = "Não exite acessibilidade significativa nesse local, como um estacionamento acessivel ou rampas, nem mesmo banheiros adaptados",
+                email = "",
+                accessibilityRate = 1,
+            ),
+        )
     )
 )
