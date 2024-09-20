@@ -12,7 +12,6 @@ val mappedPlaces = listOf(
         ),
         title = "Lago Verde",
         description = "Ponto Turístico",
-        isAccessible = false,
         comments = listOf(
             Comment(
                 postDate = "21/08/2024",
@@ -38,7 +37,6 @@ val mappedPlaces = listOf(
         ),
         title = "Top Alimentos",
         description = "Supermercado",
-        isAccessible = true,
         comments = listOf(
             Comment(
                 postDate = "17/08/2024",
@@ -56,7 +54,6 @@ val mappedPlaces = listOf(
         ),
         title = "Mix Mateus",
         description = "Supermercado",
-        isAccessible = true,
         comments = listOf(
             Comment(
                 postDate = "17/08/2024",
@@ -74,7 +71,6 @@ val mappedPlaces = listOf(
         ),
         title = "UEPA",
         description = "Universidade",
-        isAccessible = false,
         comments = listOf(
             Comment(
                 postDate = "15/08/2024",

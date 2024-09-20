@@ -6,6 +6,5 @@ data class AccessibleLocalMarker(
     val markerState: MarkerState,
     val title: String,
     val description: String,
-    val isAccessible: Boolean,
     val comments: List<Comment>? = null
 )
