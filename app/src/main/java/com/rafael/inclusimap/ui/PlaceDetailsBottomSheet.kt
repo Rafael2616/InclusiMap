@@ -4,27 +4,35 @@ import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.staggeredgrid.LazyHorizontalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
@@ -52,6 +60,7 @@ import com.rafael.inclusimap.data.GoogleDriveService
 import com.rafael.inclusimap.data.toColor
 import com.rafael.inclusimap.data.toMessage
 import com.rafael.inclusimap.domain.AccessibleLocalMarker
+import com.rafael.inclusimap.domain.Comment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -67,6 +76,10 @@ fun PlaceDetailsBottomSheet(
     val scope = rememberCoroutineScope()
     val localMarkerImages = remember { mutableStateListOf<ImageBitmap?>() }
     var allImagesLoaded by remember { mutableStateOf(false) }
+    var userComment by remember { mutableStateOf("") }
+    var updatedLocalMarker by remember { mutableStateOf(localMarker) }
+    var userAcessibilityRate by remember { mutableStateOf(0) }
+    var trySendComment by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         scope.launch(Dispatchers.IO) {
@@ -129,8 +142,12 @@ fun PlaceDetailsBottomSheet(
                         fontSize = 16.sp,
                     )
                 }
-                val accessibilityAverage =
-                    localMarker.comments?.map { it.accessibilityRate }?.average()?.toFloat()
+                val accessibilityAverage by remember(trySendComment) {
+                    mutableStateOf(
+                        updatedLocalMarker.comments?.map { it.accessibilityRate }?.average()
+                            ?.toFloat()
+                    )
+                }
                 Box(
                     modifier = Modifier
                         .height(45.dp)
@@ -150,150 +167,243 @@ fun PlaceDetailsBottomSheet(
                     )
                 }
             }
-            Text(
-                text = "Imagens de ${localMarker.title}",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-            )
-            if (localMarkerImages.isNotEmpty()) {
-                LazyHorizontalStaggeredGrid(
-                    rows = StaggeredGridCells.Fixed(if (localMarkerImages.size < 5) 1 else 2),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(
-                            when (localMarkerImages.size) {
-                                in 1..4 -> 170.dp
-                                in 5..Int.MAX_VALUE -> 330.dp
-                                else -> 50.dp
-                            }
-                        )
-                ) {
-                    localMarkerImages.forEach { image ->
-                        image?.let {
-                            item {
-                                Image(
-                                    bitmap = it,
-                                    contentDescription = null,
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier
-                                        .width(140.dp)
-                                        .height(170.dp)
-                                        .padding(4.dp)
-                                        .clip(RoundedCornerShape(20.dp))
-                                )
-                            }
-                        }
-                    }
-                    if (!allImagesLoaded) {
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .width(140.dp)
-                                    .height(170.dp)
-                                    .clip(RoundedCornerShape(24.dp)),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier
-                                        .size(50.dp),
-                                    strokeCap = StrokeCap.Round,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    strokeWidth = 5.dp
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-            if (localMarkerImages.isEmpty() && !allImagesLoaded) {
-                Box(
-                    modifier = Modifier
-                        .size(140.dp)
-                        .clip(RoundedCornerShape(24.dp)),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .size(50.dp),
-                        strokeCap = StrokeCap.Round,
-                        color = MaterialTheme.colorScheme.primary,
-                        strokeWidth = 5.dp
-                    )
-                }
-            }
-            if (localMarkerImages.isEmpty() && allImagesLoaded) {
-                Text(
-                    text = "Nenhuma imagem disponível desse local",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Normal,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-            Text(
-                text = "Comentários" + " (${localMarker.comments?.size ?: 0})",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-            )
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(MaterialTheme.colorScheme.surfaceColorAtElevation(30.dp))
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .fillMaxWidth()
-                ) {
-                    localMarker.comments?.forEachIndexed { index, comment ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Start,
+                item {
+                    Text(
+                        text = "Imagens de ${localMarker.title}",
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .padding(vertical = 4.dp)
+                    )
+                    if (localMarkerImages.isNotEmpty()) {
+                        LazyHorizontalStaggeredGrid(
+                            rows = StaggeredGridCells.Fixed(if (localMarkerImages.size < 5) 1 else 2),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(
+                                    when (localMarkerImages.size) {
+                                        in 1..4 -> 170.dp
+                                        in 5..Int.MAX_VALUE -> 330.dp
+                                        else -> 50.dp
+                                    }
+                                )
                         ) {
-                            Text(
-                                text = comment.name,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.weight(1f)
-                            )
-                            for (i in 1..comment.accessibilityRate) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(15.dp)
-                                        .padding(1.5.dp)
-                                        .clip(CircleShape)
-                                        .background(
-                                            comment.accessibilityRate
-                                                .toFloat()
-                                                .toColor()
+                            localMarkerImages.forEach { image ->
+                                image?.let {
+                                    item {
+                                        Image(
+                                            bitmap = it,
+                                            contentDescription = null,
+                                            contentScale = ContentScale.Crop,
+                                            modifier = Modifier
+                                                .width(140.dp)
+                                                .height(170.dp)
+                                                .padding(4.dp)
+                                                .clip(RoundedCornerShape(20.dp))
                                         )
-                                        .border(1.25.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f), CircleShape)
+                                    }
+                                }
+                            }
+                            if (!allImagesLoaded) {
+                                item {
+                                    Box(
+                                        modifier = Modifier
+                                            .width(140.dp)
+                                            .height(170.dp)
+                                            .clip(RoundedCornerShape(24.dp)),
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier
+                                                .size(50.dp),
+                                            strokeCap = StrokeCap.Round,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            strokeWidth = 5.dp
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (localMarkerImages.isEmpty() && !allImagesLoaded) {
+                        Box(
+                            modifier = Modifier
+                                .size(140.dp)
+                                .clip(RoundedCornerShape(24.dp)),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier
+                                    .size(50.dp),
+                                strokeCap = StrokeCap.Round,
+                                color = MaterialTheme.colorScheme.primary,
+                                strokeWidth = 5.dp
+                            )
+                        }
+                    }
+                    if (localMarkerImages.isEmpty() && allImagesLoaded) {
+                        Text(
+                            text = "Nenhuma imagem disponível desse local",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Normal,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    Text(
+                        text = "Comentários" + " (${updatedLocalMarker.comments?.size ?: 0})",
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .padding(vertical = 4.dp)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(24.dp))
+                            .background(MaterialTheme.colorScheme.surfaceColorAtElevation(30.dp))
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .fillMaxWidth()
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = "Qual o nível de acessibilidade do local?",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                (1..3).forEach {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(20.dp)
+                                            .padding(1.5.dp)
+                                            .clip(CircleShape)
+                                            .then(
+                                                if (userAcessibilityRate != 0 && userAcessibilityRate >= it) {
+                                                    Modifier.background(
+                                                        userAcessibilityRate
+                                                            .toFloat()
+                                                            .toColor()
+                                                    )
+                                                } else Modifier
+                                            )
+                                            .border(
+                                                1.25.dp,
+                                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                                                CircleShape
+                                            )
+                                            .clickable {
+                                                userAcessibilityRate = it
+                                            }
+                                    )
+                                }
+                            }
+                            TextField(
+                                value = userComment,
+                                onValueChange = {
+                                    userComment = it
+                                    trySendComment = false
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                placeholder = {
+                                    Text(text = "Adicione um comentário sobre a acessibilidade desse local")
+                                },
+                                maxLines = 6,
+                                shape = RoundedCornerShape(16.dp),
+                                trailingIcon = {
+                                    IconButton(
+                                        onClick = {
+                                            trySendComment = true
+                                            if (userComment.isNotEmpty() && userAcessibilityRate != 0) {
+                                                updatedLocalMarker.comments =
+                                                    updatedLocalMarker.comments?.plus(
+                                                        Comment(
+                                                            postDate = "21/08/2024",
+                                                            id = updatedLocalMarker.comments?.size?.plus(
+                                                                1
+                                                            ) ?: 1,
+                                                            name = "<Sem Nome>",
+                                                            body = userComment,
+                                                            email = "",
+                                                            accessibilityRate = userAcessibilityRate,
+                                                        )
+                                                    )
+                                                trySendComment = false
+                                                userComment = ""
+                                                userAcessibilityRate = 0
+                                            }
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Filled.Send,
+                                            contentDescription = null
+                                        )
+                                    }
+                                },
+                                isError =
+                                (userAcessibilityRate == 0 || userComment.isEmpty()) && trySendComment,
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            updatedLocalMarker.comments?.forEachIndexed { index, comment ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Start,
+                                ) {
+                                    Text(
+                                        text = comment.name,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    for (i in 1..comment.accessibilityRate) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(15.dp)
+                                                .padding(1.5.dp)
+                                                .clip(CircleShape)
+                                                .background(
+                                                    comment.accessibilityRate
+                                                        .toFloat()
+                                                        .toColor()
+                                                )
+                                                .border(
+                                                    1.25.dp,
+                                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                                                    CircleShape
+                                                )
+                                        )
+                                    }
+                                }
+                                Text(
+                                    text = comment.body,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Normal,
+                                )
+                                if (index != updatedLocalMarker.comments!!.size - 1) {
+                                    HorizontalDivider()
+                                }
+                            }
+                            if (updatedLocalMarker.comments.isNullOrEmpty()) {
+                                Text(
+                                    text = "Nenhum comentário adicionado até agora",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Normal,
                                 )
                             }
                         }
-                        Text(
-                            text = comment.body,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Normal,
-                        )
-                        if (index != localMarker.comments.size - 1) {
-                            HorizontalDivider()
-                        }
-                    }
-                    if (localMarker.comments.isNullOrEmpty()) {
-                        Text(
-                            text = "Nenhum comentário adicionado até agora",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Normal,
-                        )
                     }
                 }
             }
