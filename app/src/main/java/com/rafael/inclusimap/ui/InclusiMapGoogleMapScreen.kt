@@ -49,6 +49,7 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.rafael.inclusimap.R
+import com.rafael.inclusimap.data.GoogleDriveService
 import com.rafael.inclusimap.data.toHUE
 import com.rafael.inclusimap.domain.AccessibleLocalMarker
 import com.rafael.inclusimap.domain.repository.mappedPlaces
@@ -58,6 +59,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun InclusiMapGoogleMapScreen(
+    driveService: GoogleDriveService,
     modifier: Modifier = Modifier,
 ) {
     val scope = rememberCoroutineScope()
@@ -206,7 +208,8 @@ fun InclusiMapGoogleMapScreen(
         locationPermissionState.launchPermissionRequest()
     }
     AnimatedVisibility(showBottomSheet) {
-        PlaceDetainsBottomSheet(
+        PlaceDetailsBottomSheet(
+            driveService = driveService,
             localMarker = currentPlaceDetais!!,
             onDismiss = {
                 showBottomSheet = false

@@ -29,7 +29,7 @@ val mappedPlaces = listOf(
                 email = "",
                 accessibilityRate = 1,
             )
-        )
+        ),
     ),
     AccessibleLocalMarker(
         markerState = MarkerState(

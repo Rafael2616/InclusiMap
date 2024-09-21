@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority
+import com.rafael.inclusimap.data.GoogleDriveService
 import com.rafael.inclusimap.ui.InclusiMapGoogleMapScreen
 import com.rafael.inclusimap.ui.theme.InclusiMapTheme
 
@@ -19,7 +20,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         enableLocation()
-
+        val driveService = GoogleDriveService()
         setContent {
             InclusiMapTheme {
                 Scaffold(
@@ -27,6 +28,7 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize()
                 ) { innerPadding ->
                     InclusiMapGoogleMapScreen(
+                        driveService = driveService,
                         modifier = Modifier
                             .consumeWindowInsets(innerPadding)
                     )

@@ -22,5 +22,4 @@ fun Float.toHUE(): Float = when (this) {
     in 1f..2f -> BitmapDescriptorFactory.HUE_YELLOW
     in 2f..3f -> BitmapDescriptorFactory.HUE_GREEN
     else -> throw IllegalArgumentException("Invalid value for float: $this")
-
 }
