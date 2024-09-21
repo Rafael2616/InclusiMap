@@ -1,4 +1,4 @@
-package com.rafael.inclusimap.data
+package com.rafael.inclusimap.data.repository
 
 import com.google.android.gms.maps.model.LatLng
 import com.rafael.inclusimap.domain.AccessibleLocalMarker

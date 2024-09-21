@@ -1,4 +1,4 @@
-package com.rafael.inclusimap.domain.repository
+package com.rafael.inclusimap.data.repository
 
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.MarkerState
@@ -79,6 +79,31 @@ val mappedPlaces = listOf(
                 body = "Não exite acessibilidade significativa nesse local, como um estacionamento acessivel ou rampas, nem mesmo banheiros adaptados",
                 email = "",
                 accessibilityRate = 1,
+            ),
+        )
+    ),
+    AccessibleLocalMarker(
+        markerState = MarkerState(
+            position = LatLng(-2.9951669634580633,-47.35554747283459)
+        ),
+        title = "Shopping Diamond",
+        description = "Shopping",
+        comments = listOf(
+            Comment(
+                postDate = "22/07/2024",
+                id = 1,
+                name = "Rogério Baena",
+                body = "O local é até bem acessível, exixtem algumas cadeiras adaptadas e também banheiros, com um tamanho bem grande para pessoas com mobilidade reduzida, além de rampas",
+                email = "",
+                accessibilityRate = 3,
+            ),
+            Comment(
+                postDate = "01/08/2024",
+                id = 1,
+                name = "Abner Farias",
+                body = "Quanto a acessibilidade para cadeirantes o local realmente cumpre com as expectativas, possui uma estrutura super acessível",
+                email = "",
+                accessibilityRate = 3,
             ),
         )
     )

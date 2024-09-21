@@ -50,9 +50,9 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.rafael.inclusimap.R
 import com.rafael.inclusimap.data.GoogleDriveService
+import com.rafael.inclusimap.data.repository.mappedPlaces
 import com.rafael.inclusimap.data.toHUE
 import com.rafael.inclusimap.domain.AccessibleLocalMarker
-import com.rafael.inclusimap.domain.repository.mappedPlaces
 import kotlinx.coroutines.launch
 
 @SuppressLint("MissingPermission")

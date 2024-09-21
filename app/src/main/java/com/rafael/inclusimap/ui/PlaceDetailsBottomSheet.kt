@@ -45,6 +45,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastForEach
 import com.rafael.inclusimap.data.GoogleDriveService
 import com.rafael.inclusimap.data.toColor
 import com.rafael.inclusimap.data.toMessage
@@ -75,10 +76,10 @@ fun PlaceDetailsBottomSheet(
                 return@launch
             }
             val localMarkerFiles = driveService.listFiles(localMarkerFolder)
-            localMarkerFiles.forEach {
-                val fileContent =
-                    driveService.driveService.files().get(it.id).executeMediaAsInputStream()
+            localMarkerFiles.fastForEach {
                 try {
+                    val fileContent =
+                        driveService.driveService.files().get(it.id).executeMediaAsInputStream()
                     val options = BitmapFactory.Options()
                     options.inSampleSize = 3
                     BitmapFactory.decodeStream(fileContent, null, options)
@@ -157,13 +158,13 @@ fun PlaceDetailsBottomSheet(
             )
             if (localMarkerImages.isNotEmpty()) {
                 LazyHorizontalStaggeredGrid(
-                    rows = StaggeredGridCells.Fixed(if (localMarkerImages.size < 4) 1 else 2),
+                    rows = StaggeredGridCells.Fixed(if (localMarkerImages.size < 5) 1 else 2),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(
                             when (localMarkerImages.size) {
-                                in 1..3 -> 170.dp
-                                in 4..Int.MAX_VALUE -> 320.dp
+                                in 1..4 -> 170.dp
+                                in 5..Int.MAX_VALUE -> 330.dp
                                 else -> 50.dp
                             }
                         )
