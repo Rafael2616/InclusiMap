@@ -60,9 +60,7 @@ fun PlaceDetailsBottomSheet(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val bottomSheetScaffoldState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
-    )
+    val bottomSheetScaffoldState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     val localMarkerImages = remember { mutableStateListOf<ImageBitmap?>() }
     var allImagesLoaded by remember { mutableStateOf(false) }
