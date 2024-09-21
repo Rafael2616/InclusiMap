@@ -103,7 +103,7 @@ val mappedPlaces = listOf(
                 name = "Abner Farias",
                 body = "Quanto a acessibilidade para cadeirantes o local realmente cumpre com as expectativas, possui uma estrutura super acessível",
                 email = "",
-                accessibilityRate = 3,
+                accessibilityRate = 2,
             ),
         )
     )

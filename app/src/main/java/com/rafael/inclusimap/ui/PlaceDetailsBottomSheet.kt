@@ -3,6 +3,7 @@ package com.rafael.inclusimap.ui
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.staggeredgrid.LazyHorizontalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -179,8 +181,8 @@ fun PlaceDetailsBottomSheet(
                                     modifier = Modifier
                                         .width(140.dp)
                                         .height(170.dp)
-                                        .padding(6.dp)
-                                        .clip(RoundedCornerShape(24.dp))
+                                        .padding(4.dp)
+                                        .clip(RoundedCornerShape(20.dp))
                                 )
                             }
                         }
@@ -231,7 +233,7 @@ fun PlaceDetailsBottomSheet(
                 )
             }
             Text(
-                text = "Comentários",
+                text = "Comentários" + " (${localMarker.comments?.size ?: 0})",
                 fontSize = 22.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.primary,
@@ -251,11 +253,32 @@ fun PlaceDetailsBottomSheet(
                         .fillMaxWidth()
                 ) {
                     localMarker.comments?.forEachIndexed { index, comment ->
-                        Text(
-                            text = comment.name,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Start,
+                        ) {
+                            Text(
+                                text = comment.name,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.weight(1f)
+                            )
+                            for (i in 1..comment.accessibilityRate) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(15.dp)
+                                        .padding(1.5.dp)
+                                        .clip(CircleShape)
+                                        .background(
+                                            comment.accessibilityRate
+                                                .toFloat()
+                                                .toColor()
+                                        )
+                                        .border(1.25.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f), CircleShape)
+                                )
+                            }
+                        }
                         Text(
                             text = comment.body,
                             fontSize = 14.sp,
