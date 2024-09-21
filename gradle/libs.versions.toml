@@ -39,6 +39,7 @@ play-services-location = { group = "com.google.android.gms", name = "play-servic
 google-accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissionsVersion" }
 google-api-client = { module = "com.google.api-client:google-api-client", version.ref = "googleApiClientVersion" }
 google-api-services-drive = { module = "com.google.apis:google-api-services-drive", version.ref = "googleApiServicesDriveVersion" }
+google-auth-library-oauth2-http = { module = "com.google.auth:google-auth-library-oauth2-http", version.ref = "googleAuthLibraryOauth2HttpVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
