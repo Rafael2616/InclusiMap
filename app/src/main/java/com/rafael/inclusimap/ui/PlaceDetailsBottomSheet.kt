@@ -30,7 +30,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddAPhoto
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.twotone.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -99,6 +100,8 @@ fun PlaceDetailsBottomSheet(
     var trySendComment by remember { mutableStateOf(false) }
     val userName by remember { mutableStateOf("<Sem Nome>") }
     val context = LocalContext.current
+    var isUserCommented by remember { mutableStateOf(false) }
+
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             uri?.let {
@@ -179,7 +182,8 @@ fun PlaceDetailsBottomSheet(
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -223,7 +227,8 @@ fun PlaceDetailsBottomSheet(
                 }
             }
             LazyColumn(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 item {
                     Text(
@@ -367,7 +372,7 @@ fun PlaceDetailsBottomSheet(
                                         verticalArrangement = Arrangement.Center,
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Default.Add,
+                                            imageVector = Icons.Default.AddAPhoto,
                                             contentDescription = null,
                                             modifier = Modifier
                                                 .size(40.dp)
@@ -382,6 +387,7 @@ fun PlaceDetailsBottomSheet(
                             }
                         }
                     }
+                    Spacer(Modifier.height(8.dp))
                     Text(
                         text = "Comentários" + " (${updatedLocalMarker.comments?.size ?: 0})",
                         fontSize = 22.sp,
@@ -397,7 +403,7 @@ fun PlaceDetailsBottomSheet(
                             .background(MaterialTheme.colorScheme.surfaceColorAtElevation(30.dp))
                     ) {
                         Column(
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
                             modifier = Modifier
                                 .padding(16.dp)
                                 .fillMaxWidth()
@@ -407,7 +413,7 @@ fun PlaceDetailsBottomSheet(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(
-                                    text = "Qual o nível de acessibilidade do local?",
+                                    text = if (!isUserCommented) "Qual o nível de acessibilidade do local?" else "Sua avaliação",
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.weight(1f)
@@ -424,71 +430,122 @@ fun PlaceDetailsBottomSheet(
                                                         userAcessibilityRate
                                                             .toFloat()
                                                             .toColor()
+                                                            .copy(
+                                                                alpha = if (isUserCommented) 0.4f else 1f
+                                                            )
                                                     )
                                                 } else Modifier
                                             )
                                             .border(
                                                 1.25.dp,
-                                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                                                MaterialTheme.colorScheme.onSurface.copy(alpha = if (isUserCommented) 0.4f else 0.8f),
                                                 CircleShape
                                             )
                                             .clickable {
+                                                if (isUserCommented) return@clickable
                                                 userAcessibilityRate = it
                                             }
                                     )
                                 }
                             }
                             val sheetScope = rememberCoroutineScope()
-                            TextField(
-                                value = userComment,
-                                onValueChange = {
-                                    userComment = it
-                                    trySendComment = false
-                                    sheetScope.launch {
-                                        bottomSheetScaffoldState.expand()
-                                    }
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                placeholder = {
-                                    Text(text = "Adicione um comentário sobre a acessibilidade desse local")
-                                },
-                                maxLines = 6,
-                                shape = RoundedCornerShape(16.dp),
-                                trailingIcon = {
+                            if (!isUserCommented) {
+                                TextField(
+                                    value = userComment,
+                                    onValueChange = {
+                                        userComment = it
+                                        trySendComment = false
+                                        sheetScope.launch {
+                                            bottomSheetScaffoldState.expand()
+                                        }
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    placeholder = {
+                                        Text(text = "Adicione um comentário sobre a acessibilidade desse local")
+                                    },
+                                    maxLines = 6,
+                                    shape = RoundedCornerShape(16.dp),
+                                    trailingIcon = {
+                                        IconButton(
+                                            onClick = {
+                                                trySendComment = true
+                                                updatedLocalMarker.comments =
+                                                    updatedLocalMarker.comments?.filter { it.name != userName }
+                                                if (userComment.isNotEmpty() && userAcessibilityRate != 0) {
+                                                    updatedLocalMarker.comments =
+                                                        updatedLocalMarker.comments?.plus(
+                                                            Comment(
+                                                                postDate = System.currentTimeMillis()
+                                                                    .toString(),
+                                                                id = updatedLocalMarker.comments?.size?.plus(
+                                                                    1
+                                                                ) ?: 1,
+                                                                name = userName,
+                                                                body = userComment,
+                                                                email = "",
+                                                                accessibilityRate = userAcessibilityRate,
+                                                            )
+                                                        )
+                                                    trySendComment = false
+                                                    isUserCommented = true
+                                                }
+                                            }
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.AutoMirrored.Filled.Send,
+                                                contentDescription = null
+                                            )
+                                        }
+                                    },
+                                    isError =
+                                    (userAcessibilityRate == 0 || userComment.isEmpty()) && trySendComment,
+                                )
+                            } else {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Text(
+                                        text = userComment,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        modifier = Modifier.weight(1f)
+                                    )
                                     IconButton(
                                         onClick = {
-                                            trySendComment = true
-                                            if (userComment.isNotEmpty() && userAcessibilityRate != 0) {
-                                                updatedLocalMarker.comments =
-                                                    updatedLocalMarker.comments?.plus(
-                                                        Comment(
-                                                            postDate = System.currentTimeMillis()
-                                                                .toString(),
-                                                            id = updatedLocalMarker.comments?.size?.plus(
-                                                                1
-                                                            ) ?: 1,
-                                                            name = userName,
-                                                            body = userComment,
-                                                            email = "",
-                                                            accessibilityRate = userAcessibilityRate,
-                                                        )
-                                                    )
-                                                trySendComment = false
-                                                userComment = ""
-                                                userAcessibilityRate = 0
-                                            }
-                                        }
+                                            isUserCommented = false
+                                        },
+                                        modifier = Modifier
+                                            .size(30.dp)
+                                            .clip(CircleShape)
                                     ) {
                                         Icon(
-                                            imageVector = Icons.AutoMirrored.Filled.Send,
+                                            imageVector = Icons.Filled.Edit,
+                                            contentDescription = "Edit"
+                                        )
+                                    }
+                                    IconButton(
+                                        onClick = {
+                                            userComment = ""
+                                            trySendComment = false
+                                            userAcessibilityRate = 0
+                                            isUserCommented = false
+                                            updatedLocalMarker.comments =
+                                                updatedLocalMarker.comments?.filter { it.name != userName }
+                                        },
+                                        modifier = Modifier
+                                            .size(30.dp)
+                                            .clip(CircleShape)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.TwoTone.Delete,
                                             contentDescription = null
                                         )
                                     }
-                                },
-                                isError =
-                                (userAcessibilityRate == 0 || userComment.isEmpty()) && trySendComment,
-                            )
+                                }
+                            }
                         }
                     }
                     Spacer(Modifier.height(8.dp))
@@ -508,7 +565,6 @@ fun PlaceDetailsBottomSheet(
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Start,
                                 ) {
                                     Text(
                                         text = comment.name,
@@ -560,5 +616,3 @@ fun PlaceDetailsBottomSheet(
         }
     }
 }
-
-
