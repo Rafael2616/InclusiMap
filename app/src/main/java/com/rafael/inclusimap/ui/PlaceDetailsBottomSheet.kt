@@ -562,6 +562,7 @@ fun PlaceDetailsBottomSheet(
                                 .fillMaxWidth()
                         ) {
                             updatedLocalMarker.comments?.forEachIndexed { index, comment ->
+                                if (comment.name == userName) return@forEachIndexed
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically,
@@ -598,7 +599,7 @@ fun PlaceDetailsBottomSheet(
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Normal,
                                 )
-                                if (index != updatedLocalMarker.comments!!.size - 1) {
+                                if (index != (updatedLocalMarker.comments!!.size - 1).plus(if (isUserCommented) -1 else 0)) {
                                     HorizontalDivider()
                                 }
                             }
