@@ -1,6 +1,10 @@
 package com.rafael.inclusimap.ui
 
 import android.graphics.BitmapFactory
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -10,6 +14,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -23,6 +29,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -30,7 +38,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -38,6 +45,7 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,11 +59,14 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEach
+import com.google.api.services.drive.model.File
 import com.rafael.inclusimap.data.GoogleDriveService
 import com.rafael.inclusimap.data.toColor
 import com.rafael.inclusimap.data.toMessage
@@ -74,23 +85,42 @@ fun PlaceDetailsBottomSheet(
 ) {
     val bottomSheetScaffoldState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
+    var sharedFolders : List<File> by remember { mutableStateOf(emptyList()) }
+    var localMarkerFolder by remember { mutableStateOf<String?>(null) }
     val localMarkerImages = remember { mutableStateListOf<ImageBitmap?>() }
     var allImagesLoaded by remember { mutableStateOf(false) }
     var userComment by remember { mutableStateOf("") }
-    var updatedLocalMarker by remember { mutableStateOf(localMarker) }
-    var userAcessibilityRate by remember { mutableStateOf(0) }
+    val updatedLocalMarker by remember { mutableStateOf(localMarker) }
+    var userAcessibilityRate by remember { mutableIntStateOf(0) }
     var trySendComment by remember { mutableStateOf(false) }
-
+    val context = LocalContext.current
+    val launcher =
+        rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+            uri?.let {
+                localMarkerImages.add(
+                    BitmapFactory.decodeStream(
+                        context.contentResolver.openInputStream(it)
+                    ).asImageBitmap()
+                )
+                scope.launch(Dispatchers.IO) {
+                    driveService.uploadFile(
+                        context.contentResolver.openInputStream(it),
+                        "${localMarker.title}-${System.currentTimeMillis()}.jpg",
+                        localMarkerFolder.orEmpty()
+                    )
+                }
+            }
+        }
     LaunchedEffect(Unit) {
         scope.launch(Dispatchers.IO) {
-            val sharedFolders = driveService.listFiles("18C_8JhqLKaLUVif_Vh1_nl0LzfF5zVYM")
-            val localMarkerFolder = sharedFolders.find { it.name == localMarker.title }?.id
+            sharedFolders = driveService.listFiles("18C_8JhqLKaLUVif_Vh1_nl0LzfF5zVYM")
+            localMarkerFolder = sharedFolders.find { it.name == localMarker.title }?.id
 
             if (localMarkerFolder.isNullOrEmpty()) {
                 allImagesLoaded = true
                 return@launch
             }
-            val localMarkerFiles = driveService.listFiles(localMarkerFolder)
+            val localMarkerFiles = driveService.listFiles(localMarkerFolder!!)
             localMarkerFiles.fastForEach {
                 try {
                     val fileContent =
@@ -114,14 +144,8 @@ fun PlaceDetailsBottomSheet(
     ModalBottomSheet(
         sheetState = bottomSheetScaffoldState,
         onDismissRequest = {
-            scope.launch {
-                bottomSheetScaffoldState.hide()
-            }
             onDismiss()
         },
-        properties = ModalBottomSheetProperties(
-            shouldDismissOnBackPress = true,
-        )
     ) {
         Column(
             modifier = modifier
@@ -142,7 +166,7 @@ fun PlaceDetailsBottomSheet(
                         fontSize = 16.sp,
                     )
                 }
-                val accessibilityAverage by remember(trySendComment) {
+                val accessibilityAverage by remember(trySendComment, updatedLocalMarker.comments) {
                     mutableStateOf(
                         updatedLocalMarker.comments?.map { it.accessibilityRate }?.average()
                             ?.toFloat()
@@ -179,41 +203,65 @@ fun PlaceDetailsBottomSheet(
                         modifier = Modifier
                             .padding(vertical = 4.dp)
                     )
-                    if (localMarkerImages.isNotEmpty()) {
-                        LazyHorizontalStaggeredGrid(
-                            rows = StaggeredGridCells.Fixed(if (localMarkerImages.size < 5) 1 else 2),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(
-                                    when (localMarkerImages.size) {
-                                        in 1..4 -> 170.dp
-                                        in 5..Int.MAX_VALUE -> 330.dp
-                                        else -> 50.dp
-                                    }
-                                )
-                        ) {
-                            localMarkerImages.forEach { image ->
-                                image?.let {
-                                    item {
-                                        Image(
-                                            bitmap = it,
-                                            contentDescription = null,
-                                            contentScale = ContentScale.Crop,
-                                            modifier = Modifier
-                                                .width(140.dp)
-                                                .height(170.dp)
-                                                .padding(4.dp)
-                                                .clip(RoundedCornerShape(20.dp))
-                                        )
-                                    }
+                    val gridHeight by animateDpAsState(
+
+                        260.dp
+                    )
+                    val imageWidth by animateDpAsState(
+                        185.dp
+                    )
+                    LazyHorizontalStaggeredGrid(
+                        rows = StaggeredGridCells.Fixed(1),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(gridHeight),
+                        verticalArrangement = Arrangement.spacedBy(
+                            8.dp,
+                            Alignment.CenterVertically
+                        ),
+                        horizontalItemSpacing = 8.dp
+                    ) {
+                        localMarkerImages.forEach { image ->
+                            image?.let {
+                                item {
+                                    Image(
+                                        bitmap = it,
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .width(185.dp)
+                                            .height(250.dp)
+                                            .clip(RoundedCornerShape(20.dp))
+                                    )
                                 }
                             }
-                            if (!allImagesLoaded) {
-                                item {
+                        }
+                        item {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(260.dp),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                if (localMarkerImages.isEmpty() && allImagesLoaded) {
+                                    Text(
+                                        text = "Nenhuma imagem disponível desse local",
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        textAlign = TextAlign.Center,
+                                        style = TextStyle(
+                                            lineHeight = 16.sp
+                                        ),
+                                        modifier = Modifier
+                                            .width(imageWidth)
+                                    )
+                                }
+                                if (!allImagesLoaded) {
                                     Box(
                                         modifier = Modifier
-                                            .width(140.dp)
-                                            .height(170.dp)
+                                            .fillMaxHeight()
+                                            .width(imageWidth)
                                             .clip(RoundedCornerShape(24.dp)),
                                         contentAlignment = Alignment.Center,
                                     ) {
@@ -226,32 +274,38 @@ fun PlaceDetailsBottomSheet(
                                         )
                                     }
                                 }
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .width(imageWidth)
+                                        .clip(RoundedCornerShape(24.dp))
+                                        .clickable {
+                                            launcher.launch(
+                                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                            )
+                                        }
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxSize(),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center,
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Add,
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .size(40.dp)
+                                        )
+                                        Text(
+                                            text = "Adicionar imagem",
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.Normal,
+                                        )
+                                    }
+                                }
                             }
                         }
-                    }
-                    if (localMarkerImages.isEmpty() && !allImagesLoaded) {
-                        Box(
-                            modifier = Modifier
-                                .size(140.dp)
-                                .clip(RoundedCornerShape(24.dp)),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier
-                                    .size(50.dp),
-                                strokeCap = StrokeCap.Round,
-                                color = MaterialTheme.colorScheme.primary,
-                                strokeWidth = 5.dp
-                            )
-                        }
-                    }
-                    if (localMarkerImages.isEmpty() && allImagesLoaded) {
-                        Text(
-                            text = "Nenhuma imagem disponível desse local",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Normal,
-                            modifier = Modifier.fillMaxWidth()
-                        )
                     }
                     Text(
                         text = "Comentários" + " (${updatedLocalMarker.comments?.size ?: 0})",
@@ -309,11 +363,15 @@ fun PlaceDetailsBottomSheet(
                                     )
                                 }
                             }
+                            val sheetScope = rememberCoroutineScope()
                             TextField(
                                 value = userComment,
                                 onValueChange = {
                                     userComment = it
                                     trySendComment = false
+                                    sheetScope.launch {
+                                        bottomSheetScaffoldState.expand()
+                                    }
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth(),
@@ -381,7 +439,9 @@ fun PlaceDetailsBottomSheet(
                                                 )
                                                 .border(
                                                     1.25.dp,
-                                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                                                    MaterialTheme.colorScheme.onSurface.copy(
+                                                        alpha = 0.8f
+                                                    ),
                                                     CircleShape
                                                 )
                                         )
@@ -410,3 +470,5 @@ fun PlaceDetailsBottomSheet(
         }
     }
 }
+
+

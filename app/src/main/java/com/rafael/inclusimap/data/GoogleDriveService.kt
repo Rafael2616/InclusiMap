@@ -1,12 +1,14 @@
 package com.rafael.inclusimap.data
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
+import com.google.api.client.http.InputStreamContent
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.model.File
 import com.google.auth.http.HttpCredentialsAdapter
 import com.google.auth.oauth2.GoogleCredentials
 import java.io.FileNotFoundException
+import java.io.InputStream
 
 class GoogleDriveService {
     val driveService: Drive
@@ -70,4 +72,31 @@ class GoogleDriveService {
 
         return result
     }
+    fun uploadFile(fileContent: InputStream?, fileName: String, folderId: String): String? {
+        return try {
+            val fileMetadata = File()
+            fileMetadata.name = fileName
+            fileMetadata.parents = listOf(folderId)
+
+            val mimeType = when {
+                fileName.endsWith(".jpg", true) || fileName.endsWith(".jpeg", true) -> "image/jpeg"
+                fileName.endsWith(".png", true) -> "image/png"
+                fileName.endsWith(".gif", true) -> "image/gif"
+                fileName.endsWith(".bmp", true) -> "image/bmp"
+                fileName.endsWith(".webp", true) -> "image/webp"
+                else -> "application/octet-stream"
+            }
+            val mediaContent = InputStreamContent(mimeType, fileContent)
+
+            val file = driveService.files().create(fileMetadata, mediaContent)
+                .setFields("id")
+                .execute()
+
+            file.id
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
 }
