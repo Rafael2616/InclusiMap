@@ -179,6 +179,9 @@ fun PlaceDetailsBottomSheet(
     ModalBottomSheet(
         sheetState = bottomSheetScaffoldState,
         onDismissRequest = {
+            // Remove this when migrating to ViewModel
+            updatedLocalMarker.comments =
+                updatedLocalMarker.comments?.filter { it.name != userName }
             onDismiss()
         },
     ) {
@@ -202,12 +205,14 @@ fun PlaceDetailsBottomSheet(
                         fontSize = 16.sp,
                     )
                 }
-                val accessibilityAverage by remember(trySendComment, updatedLocalMarker.comments) {
+                val accessibilityAverage by remember(
+                    trySendComment,
+                    updatedLocalMarker.comments,
+                    isUserCommented
+                ) {
                     mutableStateOf(
                         updatedLocalMarker.comments?.map { it.accessibilityRate }?.average()
-                            ?.toFloat().also {
-                                println(it)
-                            }
+                            ?.toFloat()
                     )
                 }
                 Box(
