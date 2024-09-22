@@ -66,7 +66,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.util.fastForEach
 import com.google.api.services.drive.model.File
 import com.rafael.inclusimap.data.GoogleDriveService
 import com.rafael.inclusimap.data.extractUserName
@@ -77,6 +76,7 @@ import com.rafael.inclusimap.domain.Comment
 import com.rafael.inclusimap.domain.PlaceImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -97,7 +97,7 @@ fun PlaceDetailsBottomSheet(
     val updatedLocalMarker by remember { mutableStateOf(localMarker) }
     var userAcessibilityRate by remember { mutableIntStateOf(0) }
     var trySendComment by remember { mutableStateOf(false) }
-    var userName by remember { mutableStateOf("<Sem Nome>") }
+    val userName by remember { mutableStateOf("<Sem Nome>") }
     val context = LocalContext.current
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
@@ -138,33 +138,33 @@ fun PlaceDetailsBottomSheet(
             sharedFolders = driveService.listFiles("18C_8JhqLKaLUVif_Vh1_nl0LzfF5zVYM")
             localMarkerFolder = sharedFolders.find { it.name == localMarker.title }?.id
 
-            if (localMarkerFolder.isNullOrEmpty() || driveService.listFiles(localMarkerFolder!!)
-                    .isEmpty()
-            ) {
+            if (localMarkerFolder.isNullOrEmpty() || driveService.listFiles(localMarkerFolder!!).isEmpty()) {
                 allImagesLoaded = true
                 return@launch
             }
             val localMarkerFiles = driveService.listFiles(localMarkerFolder!!)
-            localMarkerFiles.fastForEach { file ->
-                try {
-                    val fileContent =
-                        driveService.driveService.files().get(file.id).executeMediaAsInputStream()
-                    val options = BitmapFactory.Options()
-                    options.inSampleSize = 3
-                    BitmapFactory.decodeStream(fileContent, null, options)
-                        ?.asImageBitmap()?.also { image ->
-                            localMarkerImages += PlaceImage(
-                                userName = file.name.extractUserName(),
-                                image = image
-                            )
-                            if (localMarkerImages.size == localMarkerFiles.size) {
-                                allImagesLoaded = true
+            localMarkerFiles.map { file ->
+                async {
+                    try {
+                        val fileContent = driveService.driveService.files().get(file.id)
+                                .executeMediaAsInputStream()
+                        val options = BitmapFactory.Options()
+                        options.inSampleSize = 3
+                        BitmapFactory.decodeStream(fileContent, null, options)
+                            ?.asImageBitmap()?.also { image ->
+                                localMarkerImages += PlaceImage(
+                                    userName = file.name.extractUserName(),
+                                    image = image
+                                )
+                                if (localMarkerImages.size == localMarkerFiles.size) {
+                                    allImagesLoaded = true
+                                }
                             }
-                        }
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
-            }
+            }.awaitAll()
         }
     }
 
@@ -235,7 +235,6 @@ fun PlaceDetailsBottomSheet(
                     val gridHeight = 260.dp
                     val imageWidth = 185.dp
                     val deleteImageScope = rememberCoroutineScope()
-                    val createFolderScope = rememberCoroutineScope()
                     LazyHorizontalStaggeredGrid(
                         rows = StaggeredGridCells.Fixed(1),
                         modifier = Modifier
