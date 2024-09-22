@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -171,7 +172,7 @@ fun InclusiMapGoogleMapScreen(
         onMapClick = {
             println("latitude ${it.latitude}" + "," + it.longitude)
         },
-        mapColorScheme = ComposeMapColorScheme.FOLLOW_SYSTEM,
+        mapColorScheme = if (isSystemInDarkTheme()) ComposeMapColorScheme.DARK else ComposeMapColorScheme.LIGHT,
         onMapLoaded = {
             isMapLoaded = true
             scope.launch {

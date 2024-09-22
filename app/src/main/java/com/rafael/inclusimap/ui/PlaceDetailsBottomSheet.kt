@@ -4,11 +4,12 @@ import android.graphics.BitmapFactory
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +31,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.twotone.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -55,7 +57,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -68,14 +69,17 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEach
 import com.google.api.services.drive.model.File
 import com.rafael.inclusimap.data.GoogleDriveService
+import com.rafael.inclusimap.data.extractUserName
 import com.rafael.inclusimap.data.toColor
 import com.rafael.inclusimap.data.toMessage
 import com.rafael.inclusimap.domain.AccessibleLocalMarker
 import com.rafael.inclusimap.domain.Comment
+import com.rafael.inclusimap.domain.PlaceImage
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun PlaceDetailsBottomSheet(
     driveService: GoogleDriveService,
@@ -85,28 +89,46 @@ fun PlaceDetailsBottomSheet(
 ) {
     val bottomSheetScaffoldState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
-    var sharedFolders : List<File> by remember { mutableStateOf(emptyList()) }
+    var sharedFolders: List<File> by remember { mutableStateOf(emptyList()) }
     var localMarkerFolder by remember { mutableStateOf<String?>(null) }
-    val localMarkerImages = remember { mutableStateListOf<ImageBitmap?>() }
+    val localMarkerImages = remember { mutableStateListOf<PlaceImage?>() }
     var allImagesLoaded by remember { mutableStateOf(false) }
     var userComment by remember { mutableStateOf("") }
     val updatedLocalMarker by remember { mutableStateOf(localMarker) }
     var userAcessibilityRate by remember { mutableIntStateOf(0) }
     var trySendComment by remember { mutableStateOf(false) }
+    var userName by remember { mutableStateOf("<Sem Nome>") }
     val context = LocalContext.current
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             uri?.let {
                 localMarkerImages.add(
-                    BitmapFactory.decodeStream(
-                        context.contentResolver.openInputStream(it)
-                    ).asImageBitmap()
+                    PlaceImage(
+                        userName = userName,
+                        BitmapFactory.decodeStream(
+                            context.contentResolver.openInputStream(it)
+                        ).asImageBitmap()
+                    )
                 )
                 scope.launch(Dispatchers.IO) {
+                    async {
+                        if (localMarkerFolder.isNullOrEmpty()) {
+                            localMarkerFolder = driveService.createFolder(
+                                localMarker.title,
+                                "18C_8JhqLKaLUVif_Vh1_nl0LzfF5zVYM"
+                            )
+                        }
+                    }.await()
                     driveService.uploadFile(
                         context.contentResolver.openInputStream(it),
-                        "${localMarker.title}-${System.currentTimeMillis()}.jpg",
-                        localMarkerFolder.orEmpty()
+                        "${
+                            localMarker.title.replace(
+                                " ",
+                                ""
+                            )
+                        }-${userName}-${System.currentTimeMillis()}.jpg",
+                        localMarkerFolder
+                            ?: throw IllegalStateException("Folder not found: Maybe an issue has occurred while creating the folder")
                     )
                 }
             }
@@ -116,20 +138,25 @@ fun PlaceDetailsBottomSheet(
             sharedFolders = driveService.listFiles("18C_8JhqLKaLUVif_Vh1_nl0LzfF5zVYM")
             localMarkerFolder = sharedFolders.find { it.name == localMarker.title }?.id
 
-            if (localMarkerFolder.isNullOrEmpty()) {
+            if (localMarkerFolder.isNullOrEmpty() || driveService.listFiles(localMarkerFolder!!)
+                    .isEmpty()
+            ) {
                 allImagesLoaded = true
                 return@launch
             }
             val localMarkerFiles = driveService.listFiles(localMarkerFolder!!)
-            localMarkerFiles.fastForEach {
+            localMarkerFiles.fastForEach { file ->
                 try {
                     val fileContent =
-                        driveService.driveService.files().get(it.id).executeMediaAsInputStream()
+                        driveService.driveService.files().get(file.id).executeMediaAsInputStream()
                     val options = BitmapFactory.Options()
                     options.inSampleSize = 3
                     BitmapFactory.decodeStream(fileContent, null, options)
                         ?.asImageBitmap()?.also { image ->
-                            localMarkerImages += image
+                            localMarkerImages += PlaceImage(
+                                userName = file.name.extractUserName(),
+                                image = image
+                            )
                             if (localMarkerImages.size == localMarkerFiles.size) {
                                 allImagesLoaded = true
                             }
@@ -169,7 +196,9 @@ fun PlaceDetailsBottomSheet(
                 val accessibilityAverage by remember(trySendComment, updatedLocalMarker.comments) {
                     mutableStateOf(
                         updatedLocalMarker.comments?.map { it.accessibilityRate }?.average()
-                            ?.toFloat()
+                            ?.toFloat().also {
+                                println(it)
+                            }
                     )
                 }
                 Box(
@@ -203,13 +232,10 @@ fun PlaceDetailsBottomSheet(
                         modifier = Modifier
                             .padding(vertical = 4.dp)
                     )
-                    val gridHeight by animateDpAsState(
-
-                        260.dp
-                    )
-                    val imageWidth by animateDpAsState(
-                        185.dp
-                    )
+                    val gridHeight = 260.dp
+                    val imageWidth = 185.dp
+                    val deleteImageScope = rememberCoroutineScope()
+                    val createFolderScope = rememberCoroutineScope()
                     LazyHorizontalStaggeredGrid(
                         rows = StaggeredGridCells.Fixed(1),
                         modifier = Modifier
@@ -224,15 +250,63 @@ fun PlaceDetailsBottomSheet(
                         localMarkerImages.forEach { image ->
                             image?.let {
                                 item {
+                                    var showRemoveImageBtn by remember { mutableStateOf(false) }
                                     Image(
-                                        bitmap = it,
+                                        bitmap = it.image,
                                         contentDescription = null,
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
                                             .width(185.dp)
                                             .height(250.dp)
                                             .clip(RoundedCornerShape(20.dp))
+                                            .combinedClickable(
+                                                onClick = {
+                                                    // Do nothing
+                                                },
+                                                onLongClick = {
+                                                    showRemoveImageBtn = true
+                                                }
+                                            )
                                     )
+                                    if (image.userName == userName) {
+                                        Box(
+                                            modifier = Modifier
+                                                .width(185.dp)
+                                                .height(250.dp)
+                                                .padding(12.dp)
+                                        ) {
+                                            IconButton(
+                                                onClick = {
+                                                    localMarkerImages.remove(image)
+                                                    deleteImageScope.launch(Dispatchers.Default) {
+                                                        val localMarkerFiles =
+                                                            driveService.listFiles(localMarkerFolder.orEmpty())
+                                                        val imageId =
+                                                            localMarkerFiles.find { it.name.extractUserName() == image.userName }?.id.orEmpty()
+                                                        driveService.deleteFile(imageId)
+                                                    }.invokeOnCompletion {
+                                                        showRemoveImageBtn = false
+                                                    }
+                                                },
+                                                modifier = Modifier
+                                                    .align(Alignment.TopEnd)
+                                                    .size(35.dp)
+                                                    .clip(RoundedCornerShape(16.dp))
+                                                    .background(
+                                                        MaterialTheme.colorScheme.surface.copy(
+                                                            alpha = 0.5f
+                                                        )
+                                                    )
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.TwoTone.Delete,
+                                                    contentDescription = null,
+                                                    tint = MaterialTheme.colorScheme.primary,
+                                                    modifier = Modifier.size(30.dp)
+                                                )
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -388,11 +462,12 @@ fun PlaceDetailsBottomSheet(
                                                 updatedLocalMarker.comments =
                                                     updatedLocalMarker.comments?.plus(
                                                         Comment(
-                                                            postDate = "21/08/2024",
+                                                            postDate = System.currentTimeMillis()
+                                                                .toString(),
                                                             id = updatedLocalMarker.comments?.size?.plus(
                                                                 1
                                                             ) ?: 1,
-                                                            name = "<Sem Nome>",
+                                                            name = userName,
                                                             body = userComment,
                                                             email = "",
                                                             accessibilityRate = userAcessibilityRate,

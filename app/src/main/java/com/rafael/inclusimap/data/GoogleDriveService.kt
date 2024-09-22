@@ -7,6 +7,8 @@ import com.google.api.services.drive.Drive
 import com.google.api.services.drive.model.File
 import com.google.auth.http.HttpCredentialsAdapter
 import com.google.auth.oauth2.GoogleCredentials
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.FileNotFoundException
 import java.io.InputStream
 
@@ -72,6 +74,7 @@ class GoogleDriveService {
 
         return result
     }
+
     fun uploadFile(fileContent: InputStream?, fileName: String, folderId: String): String? {
         return try {
             val fileMetadata = File()
@@ -81,9 +84,6 @@ class GoogleDriveService {
             val mimeType = when {
                 fileName.endsWith(".jpg", true) || fileName.endsWith(".jpeg", true) -> "image/jpeg"
                 fileName.endsWith(".png", true) -> "image/png"
-                fileName.endsWith(".gif", true) -> "image/gif"
-                fileName.endsWith(".bmp", true) -> "image/bmp"
-                fileName.endsWith(".webp", true) -> "image/webp"
                 else -> "application/octet-stream"
             }
             val mediaContent = InputStreamContent(mimeType, fileContent)
@@ -99,4 +99,38 @@ class GoogleDriveService {
         }
     }
 
+    suspend fun deleteFile(fileId: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                driveService.files().delete(fileId).execute()
+                true
+            } catch (e: Exception) {
+                e.printStackTrace()
+                false
+            }
+        }
+    }
+
+    suspend fun createFolder(folderName: String, parentFolderId: String? = null): String? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val folderMetadata = File().apply {
+                    name = folderName
+                    mimeType = "application/vnd.google-apps.folder"
+                    if (parentFolderId != null) {
+                        parents = listOf(parentFolderId)
+                    }
+                }
+
+                val folder = driveService.files().create(folderMetadata)
+                    .setFields("id")
+                    .execute()
+
+                folder.id
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        }
+    }
 }
