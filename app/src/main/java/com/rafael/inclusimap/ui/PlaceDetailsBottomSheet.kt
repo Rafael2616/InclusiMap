@@ -138,7 +138,9 @@ fun PlaceDetailsBottomSheet(
             sharedFolders = driveService.listFiles("18C_8JhqLKaLUVif_Vh1_nl0LzfF5zVYM")
             localMarkerFolder = sharedFolders.find { it.name == localMarker.title }?.id
 
-            if (localMarkerFolder.isNullOrEmpty() || driveService.listFiles(localMarkerFolder!!).isEmpty()) {
+            if (localMarkerFolder.isNullOrEmpty() || driveService.listFiles(localMarkerFolder!!)
+                    .isEmpty()
+            ) {
                 allImagesLoaded = true
                 return@launch
             }
@@ -147,7 +149,7 @@ fun PlaceDetailsBottomSheet(
                 async {
                     try {
                         val fileContent = driveService.driveService.files().get(file.id)
-                                .executeMediaAsInputStream()
+                            .executeMediaAsInputStream()
                         val options = BitmapFactory.Options()
                         options.inSampleSize = 3
                         BitmapFactory.decodeStream(fileContent, null, options)
@@ -487,7 +489,21 @@ fun PlaceDetailsBottomSheet(
                                 isError =
                                 (userAcessibilityRate == 0 || userComment.isEmpty()) && trySendComment,
                             )
-                            Spacer(Modifier.height(8.dp))
+                        }
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(24.dp))
+                            .background(MaterialTheme.colorScheme.surfaceColorAtElevation(30.dp))
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .fillMaxWidth()
+                        ) {
                             updatedLocalMarker.comments?.forEachIndexed { index, comment ->
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
