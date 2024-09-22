@@ -503,8 +503,8 @@ fun PlaceDetailsBottomSheet(
                                     },
                                     keyboardOptions = KeyboardOptions(
                                         keyboardType = KeyboardType.Text,
-                                        capitalization = KeyboardCapitalization.Words,
-                                        autoCorrect = true
+                                        capitalization = KeyboardCapitalization.Sentences,
+                                        autoCorrectEnabled = true
                                     ),
                                     isError =
                                     (userAcessibilityRate == 0 || userComment.isEmpty()) && trySendComment,
