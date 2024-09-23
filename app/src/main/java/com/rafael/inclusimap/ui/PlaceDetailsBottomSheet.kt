@@ -4,6 +4,7 @@ import android.graphics.BitmapFactory
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -191,6 +192,7 @@ fun PlaceDetailsBottomSheet(
     ModalBottomSheet(
         sheetState = bottomSheetScaffoldState,
         onDismissRequest = {
+            updatedLocalMarker.comments = updatedLocalMarker.comments?.filter { it.name != userName }
             onDismiss()
         },
         modifier = Modifier.imeNestedScroll(),
@@ -225,12 +227,15 @@ fun PlaceDetailsBottomSheet(
                             ?.toFloat()
                     )
                 }
+                val acessibilityColor by animateColorAsState(
+                    accessibilityAverage?.toColor() ?: Color.Gray
+                )
                 Box(
                     modifier = Modifier
                         .height(45.dp)
                         .widthIn(120.dp, 150.dp)
                         .clip(RoundedCornerShape(16.dp))
-                        .background(accessibilityAverage?.toColor() ?: Color.Gray)
+                        .background(acessibilityColor)
                         .padding(horizontal = 10.dp),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -452,6 +457,9 @@ fun PlaceDetailsBottomSheet(
                                         modifier = Modifier.weight(1f)
                                     )
                                 }
+                                val userAccessibilityColor by animateColorAsState(
+                                    userAcessibilityRate.toFloat().coerceAtLeast(1f).toColor()
+                                )
                                 (1..3).forEach {
                                     Box(
                                         modifier = Modifier
@@ -461,9 +469,7 @@ fun PlaceDetailsBottomSheet(
                                             .then(
                                                 if (userAcessibilityRate != 0 && userAcessibilityRate >= it) {
                                                     Modifier.background(
-                                                        userAcessibilityRate
-                                                            .toFloat()
-                                                            .toColor()
+                                                        userAccessibilityColor
                                                             .copy(
                                                                 alpha = if (isUserCommented) 0.4f else 1f
                                                             )
