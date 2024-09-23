@@ -198,7 +198,7 @@ fun PlaceDetailsBottomSheet(
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Row(
@@ -255,7 +255,7 @@ fun PlaceDetailsBottomSheet(
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
-                            .padding(bottom = 4.dp)
+                            .padding(bottom = 8.dp)
                     )
                     val gridHeight = 260.dp
                     val imageWidth = 185.dp
@@ -420,7 +420,7 @@ fun PlaceDetailsBottomSheet(
                             .clip(RoundedCornerShape(24.dp))
                             .background(MaterialTheme.colorScheme.surfaceColorAtElevation(30.dp))
                             .border(
-                                1.5.dp,
+                                1.25.dp,
                                 MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
                                 RoundedCornerShape(24.dp)
                             )
