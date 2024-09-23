@@ -106,5 +106,22 @@ val mappedPlaces = listOf(
                 accessibilityRate = 2,
             ),
         )
-    )
+    ),
+    AccessibleLocalMarker(
+        markerState = MarkerState(
+            position = LatLng(-2.9948525691968286,-47.35381476581097)
+        ),
+        title = "Banco do Brasil",
+        description = "Banco",
+        comments = listOf(
+            Comment(
+                postDate = "12/10/2024",
+                id = 1,
+                name = "Rafael de Moura",
+                body = "O local é bastante acessível, não há nenhum incoveniente notável para cadeirantes",
+                email = "",
+                accessibilityRate = 0,
+            ),
+        )
+    ),
 )
