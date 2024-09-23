@@ -198,7 +198,7 @@ fun PlaceDetailsBottomSheet(
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Row(
@@ -421,7 +421,7 @@ fun PlaceDetailsBottomSheet(
                             .background(MaterialTheme.colorScheme.surfaceColorAtElevation(30.dp))
                             .border(
                                 1.25.dp,
-                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
                                 RoundedCornerShape(24.dp)
                             )
                     ) {
