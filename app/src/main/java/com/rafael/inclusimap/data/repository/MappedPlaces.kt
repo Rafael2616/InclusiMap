@@ -120,7 +120,7 @@ val mappedPlaces = listOf(
                 name = "Rafael de Moura",
                 body = "O local é bastante acessível, não há nenhum incoveniente notável para cadeirantes",
                 email = "",
-                accessibilityRate = 0,
+                accessibilityRate = 3,
             ),
         )
     ),
