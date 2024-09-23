@@ -21,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -70,13 +71,14 @@ fun InclusiMapGoogleMapScreen(
     var latlang = LatLng(-2.98, -47.35)
     var isMapLoaded by remember { mutableStateOf(false) }
     val cameraPositionState = rememberCameraPositionState()
+    val bottomSheetScaffoldState = rememberModalBottomSheetState()
+    val bottomSheetScope = rememberCoroutineScope()
     val locationPermissionState = rememberPermissionState(
         permission = Manifest.permission.ACCESS_FINE_LOCATION
     )
     val locationPermissionGranted by remember(locationPermissionState.status) {
         mutableStateOf(locationPermissionState.status == PermissionStatus.Granted)
     }
-    var showBottomSheet by remember { mutableStateOf(false) }
     var currentPlaceDetais by remember { mutableStateOf<AccessibleLocalMarker?>(null) }
 
     LaunchedEffect(locationPermissionGranted) {
@@ -87,7 +89,6 @@ fun InclusiMapGoogleMapScreen(
                     isMyLocationFound = true
                 }
             }
-
         }
     }
 
@@ -197,7 +198,9 @@ fun InclusiMapGoogleMapScreen(
                         accessibilityAverage?.toHUE() ?: BitmapDescriptorFactory.HUE_AZURE
                     ),
                     onClick = {
-                        showBottomSheet = true
+                        bottomSheetScope.launch {
+                            bottomSheetScaffoldState.show()
+                        }
                         currentPlaceDetais = place
                         false
                     }
@@ -208,12 +211,15 @@ fun InclusiMapGoogleMapScreen(
     LaunchedEffect(Unit) {
         locationPermissionState.launchPermissionRequest()
     }
-    AnimatedVisibility(showBottomSheet) {
+    AnimatedVisibility(bottomSheetScaffoldState.isVisible) {
         PlaceDetailsBottomSheet(
             driveService = driveService,
             localMarker = currentPlaceDetais!!,
+            bottomSheetScaffoldState = bottomSheetScaffoldState,
             onDismiss = {
-                showBottomSheet = false
+                bottomSheetScope.launch {
+                    bottomSheetScaffoldState.hide()
+                }
             }
         )
     }

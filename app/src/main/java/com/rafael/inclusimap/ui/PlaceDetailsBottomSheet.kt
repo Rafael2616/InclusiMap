@@ -13,12 +13,14 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imeNestedScroll
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -28,6 +30,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyHorizontalStaggeredGri
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
@@ -42,9 +45,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -56,15 +59,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -83,15 +91,19 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class,
+    ExperimentalFoundationApi::class,
+    ExperimentalLayoutApi::class, ExperimentalComposeUiApi::class
+)
 @Composable
 fun PlaceDetailsBottomSheet(
     driveService: GoogleDriveService,
     localMarker: AccessibleLocalMarker,
+    bottomSheetScaffoldState: SheetState,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val bottomSheetScaffoldState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     var sharedFolders: List<File> by remember { mutableStateOf(emptyList()) }
     var localMarkerFolder by remember { mutableStateOf<String?>(null) }
@@ -104,7 +116,7 @@ fun PlaceDetailsBottomSheet(
     val userName by remember { mutableStateOf("<Sem Nome>") }
     val context = LocalContext.current
     var isUserCommented by remember { mutableStateOf(false) }
-
+    val focusRequester = remember { FocusRequester() }
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             uri?.let {
@@ -179,17 +191,15 @@ fun PlaceDetailsBottomSheet(
     ModalBottomSheet(
         sheetState = bottomSheetScaffoldState,
         onDismissRequest = {
-            // Remove this when migrating to ViewModel
-            updatedLocalMarker.comments =
-                updatedLocalMarker.comments?.filter { it.name != userName }
             onDismiss()
         },
+        modifier = Modifier.imeNestedScroll(),
     ) {
         Column(
             modifier = modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -245,7 +255,7 @@ fun PlaceDetailsBottomSheet(
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
-                            .padding(vertical = 4.dp)
+                            .padding(bottom = 4.dp)
                     )
                     val gridHeight = 260.dp
                     val imageWidth = 185.dp
@@ -395,7 +405,7 @@ fun PlaceDetailsBottomSheet(
                             }
                         }
                     }
-                    Spacer(Modifier.height(8.dp))
+                    Spacer(Modifier.height(6.dp))
                     Text(
                         text = "Comentários" + " (${updatedLocalMarker.comments?.size ?: 0})",
                         fontSize = 22.sp,
@@ -409,6 +419,11 @@ fun PlaceDetailsBottomSheet(
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(24.dp))
                             .background(MaterialTheme.colorScheme.surfaceColorAtElevation(30.dp))
+                            .border(
+                                1.5.dp,
+                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                                RoundedCornerShape(24.dp)
+                            )
                     ) {
                         Column(
                             verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -420,12 +435,23 @@ fun PlaceDetailsBottomSheet(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                Text(
-                                    text = if (!isUserCommented) "Qual o nível de acessibilidade do local?" else "Sua avaliação",
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.weight(1f)
-                                )
+                                if (isUserCommented) {
+                                    Text(
+                                        text = "Sua avaliação:",
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontFamily = FontFamily.SansSerif,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                } else {
+                                    Text(
+                                        text = "Qual o nível de acessibilidade do local?",
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
                                 (1..3).forEach {
                                     Box(
                                         modifier = Modifier
@@ -456,19 +482,39 @@ fun PlaceDetailsBottomSheet(
                                     )
                                 }
                             }
-                            val sheetScope = rememberCoroutineScope()
+                            val onSend = {
+                                trySendComment = true
+                                updatedLocalMarker.comments =
+                                    updatedLocalMarker.comments?.filter { it.name != userName }
+                                if (userComment.isNotEmpty() && userAcessibilityRate != 0) {
+                                    updatedLocalMarker.comments =
+                                        updatedLocalMarker.comments?.plus(
+                                            Comment(
+                                                postDate = System.currentTimeMillis()
+                                                    .toString(),
+                                                id = updatedLocalMarker.comments?.size?.plus(
+                                                    1
+                                                ) ?: 1,
+                                                name = userName,
+                                                body = userComment,
+                                                email = "",
+                                                accessibilityRate = userAcessibilityRate,
+                                            )
+                                        )
+                                    trySendComment = false
+                                    isUserCommented = true
+                                }
+                            }
                             if (!isUserCommented) {
                                 TextField(
                                     value = userComment,
                                     onValueChange = {
                                         userComment = it
                                         trySendComment = false
-                                        sheetScope.launch {
-                                            bottomSheetScaffoldState.expand()
-                                        }
                                     },
                                     modifier = Modifier
-                                        .fillMaxWidth(),
+                                        .fillMaxWidth()
+                                        .focusRequester(focusRequester),
                                     placeholder = {
                                         Text(text = "Adicione um comentário sobre a acessibilidade desse local")
                                     },
@@ -477,27 +523,7 @@ fun PlaceDetailsBottomSheet(
                                     trailingIcon = {
                                         IconButton(
                                             onClick = {
-                                                trySendComment = true
-                                                updatedLocalMarker.comments =
-                                                    updatedLocalMarker.comments?.filter { it.name != userName }
-                                                if (userComment.isNotEmpty() && userAcessibilityRate != 0) {
-                                                    updatedLocalMarker.comments =
-                                                        updatedLocalMarker.comments?.plus(
-                                                            Comment(
-                                                                postDate = System.currentTimeMillis()
-                                                                    .toString(),
-                                                                id = updatedLocalMarker.comments?.size?.plus(
-                                                                    1
-                                                                ) ?: 1,
-                                                                name = userName,
-                                                                body = userComment,
-                                                                email = "",
-                                                                accessibilityRate = userAcessibilityRate,
-                                                            )
-                                                        )
-                                                    trySendComment = false
-                                                    isUserCommented = true
-                                                }
+                                                onSend()
                                             }
                                         ) {
                                             Icon(
@@ -509,7 +535,13 @@ fun PlaceDetailsBottomSheet(
                                     keyboardOptions = KeyboardOptions(
                                         keyboardType = KeyboardType.Text,
                                         capitalization = KeyboardCapitalization.Sentences,
-                                        autoCorrectEnabled = true
+                                        autoCorrectEnabled = true,
+                                        imeAction = ImeAction.Send
+                                    ),
+                                    keyboardActions = KeyboardActions(
+                                        onSend = {
+                                            onSend()
+                                        }
                                     ),
                                     isError =
                                     (userAcessibilityRate == 0 || userComment.isEmpty()) && trySendComment,
@@ -529,9 +561,13 @@ fun PlaceDetailsBottomSheet(
                                     IconButton(
                                         onClick = {
                                             isUserCommented = false
+                                            scope.launch {
+                                                async { bottomSheetScaffoldState.expand() }.await()
+                                                focusRequester.requestFocus()
+                                            }
                                         },
                                         modifier = Modifier
-                                            .size(30.dp)
+                                            .size(35.dp)
                                             .clip(CircleShape)
                                     ) {
                                         Icon(
@@ -549,7 +585,7 @@ fun PlaceDetailsBottomSheet(
                                                 updatedLocalMarker.comments?.filter { it.name != userName }
                                         },
                                         modifier = Modifier
-                                            .size(30.dp)
+                                            .size(35.dp)
                                             .clip(CircleShape)
                                     ) {
                                         Icon(
@@ -561,7 +597,7 @@ fun PlaceDetailsBottomSheet(
                             }
                         }
                     }
-                    Spacer(Modifier.height(8.dp))
+                    Spacer(Modifier.height(10.dp))
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
