@@ -44,7 +44,8 @@ import java.util.Date
 fun AddPlaceBottomSheet(
     latLng: LatLng,
     bottomSheetScaffoldState: SheetState,
-    onDismiss: (AccessibleLocalMarker?) -> Unit,
+    onAddNewPlace: (AccessibleLocalMarker) -> Unit,
+    onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var placeName by remember { mutableStateOf("") }
@@ -54,7 +55,7 @@ fun AddPlaceBottomSheet(
 
     ModalBottomSheet(
         sheetState = bottomSheetScaffoldState,
-        onDismissRequest = { onDismiss(null) },
+        onDismissRequest = onDismiss,
         modifier = modifier,
     ) {
         Column(
@@ -121,7 +122,7 @@ fun AddPlaceBottomSheet(
             ) {
                 Button(
                     onClick = {
-                        onDismiss(
+                        onAddNewPlace(
                             AccessibleLocalMarker(
                                 title = placeName,
                                 description = placeCategory,
@@ -135,23 +136,6 @@ fun AddPlaceBottomSheet(
                     Text(text = "Adicionar")
                 }
             }
-//            TextField(
-//                value = newMappedPlace.description,
-//                onValueChange = {
-//                    newMappedPlace.description = it
-//                },
-//                label = {
-//                    Text(text = "Qual a categoria desse lugar?")
-//                },
-//                maxLines = 1,
-//                singleLine = true,
-//                leadingIcon = {
-//                    Icon(
-//                        imageVector = Icons.Default.Category,
-//                        contentDescription = null
-//                    )
-//                }
-//            )
         }
     }
 }

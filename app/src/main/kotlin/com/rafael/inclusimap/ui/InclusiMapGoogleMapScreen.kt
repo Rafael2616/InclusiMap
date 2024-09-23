@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -55,54 +56,48 @@ import com.rafael.inclusimap.data.GoogleDriveService
 import com.rafael.inclusimap.data.repository.mappedPlaces
 import com.rafael.inclusimap.data.toHUE
 import com.rafael.inclusimap.domain.AccessibleLocalMarker
+import com.rafael.inclusimap.domain.InclusiMapEvent
+import com.rafael.inclusimap.domain.InclusiMapState
 import kotlinx.coroutines.launch
 
 @SuppressLint("MissingPermission")
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun InclusiMapGoogleMapScreen(
+    state: InclusiMapState,
+    onEvent: (InclusiMapEvent) -> Unit,
     driveService: GoogleDriveService,
+    fusedLocationClient: FusedLocationProviderClient,
     modifier: Modifier = Modifier,
 ) {
-    val scope = rememberCoroutineScope()
-    val activity = LocalContext.current
-    val fusedLocationClient by lazy { LocationServices.getFusedLocationProviderClient(activity) }
-    var isMyLocationFound by remember { mutableStateOf(false) }
-    var latlang = LatLng(-2.98, -47.35)
-    var isMapLoaded by remember { mutableStateOf(false) }
     val cameraPositionState = rememberCameraPositionState()
+    val scope = rememberCoroutineScope()
     val bottomSheetScaffoldState = rememberModalBottomSheetState()
     val addPlaceBottomSheetScaffoldState = rememberModalBottomSheetState()
     val bottomSheetScope = rememberCoroutineScope()
     val addPlaceBottomSheetScope = rememberCoroutineScope()
+    val locationPermission = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
 
-    val locationPermissionState = rememberPermissionState(
-        permission = Manifest.permission.ACCESS_FINE_LOCATION
-    )
-    val locationPermissionGranted by remember(locationPermissionState.status) {
-        mutableStateOf(locationPermissionState.status == PermissionStatus.Granted)
+    LaunchedEffect(Unit) {
+        locationPermission.launchPermissionRequest()
     }
-    var currentPlaceDetais by remember { mutableStateOf<AccessibleLocalMarker?>(null) }
-    var addPlacePos by remember { mutableStateOf<LatLng?>(null) }
-    var currentMappedPlaces by remember { mutableStateOf(mappedPlaces) }
 
-    LaunchedEffect(locationPermissionGranted) {
-        if (locationPermissionGranted) {
+    LaunchedEffect(Unit, locationPermission.status) {
+        onEvent(InclusiMapEvent.SetLocationPermissionGranted(locationPermission.status == PermissionStatus.Granted))
+
+        if (state.isLocationPermissionGranted) {
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 location?.let {
-                    latlang = LatLng(it.latitude, it.longitude)
-                    isMyLocationFound = true
+                    onEvent(
+                        InclusiMapEvent.UpdateMapCameraPosition(
+                            LatLng(
+                                it.latitude,
+                                it.longitude
+                            ), true
+                        )
+                    )
                 }
             }
-        }
-    }
-
-    LaunchedEffect(isMapLoaded, locationPermissionGranted) {
-        if (locationPermissionGranted && isMapLoaded) {
-            cameraPositionState.animate(
-                update = CameraUpdateFactory.newLatLngZoom(latlang, 15f),
-                durationMs = 4000
-            )
         }
     }
 
@@ -166,7 +161,7 @@ fun InclusiMapGoogleMapScreen(
         properties = MapProperties(
             isBuildingEnabled = true,
             mapType = MapType.NORMAL,
-            isMyLocationEnabled = locationPermissionGranted && isMyLocationFound,
+            isMyLocationEnabled = state.isLocationPermissionGranted && state.isMyLocationFound,
         ),
         uiSettings = MapUiSettings(
             zoomControlsEnabled = true,
@@ -180,25 +175,26 @@ fun InclusiMapGoogleMapScreen(
         },
         mapColorScheme = if (isSystemInDarkTheme()) ComposeMapColorScheme.DARK else ComposeMapColorScheme.LIGHT,
         onMapLoaded = {
-            isMapLoaded = true
             scope.launch {
-                if (isMyLocationFound) {
-                    cameraPositionState.animate(
-                        update = CameraUpdateFactory.newLatLngZoom(latlang, 55f),
-                        durationMs = 4000
-                    )
-                }
+                cameraPositionState.animate(
+                    update = CameraUpdateFactory.newLatLngZoom(
+                        state.defaultLocationLatLng,
+                        15f
+                    ),
+                    durationMs = 3500
+                )
             }
+            onEvent(InclusiMapEvent.OnMapLoaded)
         },
         onMapLongClick = {
-            addPlacePos = it
+            onEvent(InclusiMapEvent.OnUnmappedPlaceSelected(it))
             addPlaceBottomSheetScope.launch {
                 addPlaceBottomSheetScaffoldState.show()
             }
         }
     ) {
-        if (isMapLoaded) {
-            currentMappedPlaces.forEach { place ->
+        if (state.isMapLoaded) {
+            state.allMappedPlaces.forEach { place ->
                 val accessibilityAverage =
                     place.comments?.map { it.accessibilityRate }?.average()?.toFloat()
                 Marker(
@@ -212,20 +208,18 @@ fun InclusiMapGoogleMapScreen(
                         bottomSheetScope.launch {
                             bottomSheetScaffoldState.show()
                         }
-                        currentPlaceDetais = place
+                        onEvent(InclusiMapEvent.OnMappedPlaceSelected(place))
                         false
                     },
                 )
             }
         }
     }
-    LaunchedEffect(Unit) {
-        locationPermissionState.launchPermissionRequest()
-    }
+
     AnimatedVisibility(bottomSheetScaffoldState.isVisible) {
         PlaceDetailsBottomSheet(
             driveService = driveService,
-            localMarker = currentPlaceDetais!!,
+            localMarker = state.selectedMappedPlace!!,
             bottomSheetScaffoldState = bottomSheetScaffoldState,
             onDismiss = {
                 bottomSheetScope.launch {
@@ -236,15 +230,15 @@ fun InclusiMapGoogleMapScreen(
     }
     AnimatedVisibility(addPlaceBottomSheetScaffoldState.isVisible) {
         AddPlaceBottomSheet(
-            latLng = addPlacePos!!,
+            latLng = state.selectedUnmappedPlaceLatLng!!,
             bottomSheetScaffoldState = addPlaceBottomSheetScaffoldState,
-            onDismiss = { newLocal ->
-                newLocal?.let {
-                    currentMappedPlaces = currentMappedPlaces + it
-                }
+            onDismiss = {
                 addPlaceBottomSheetScope.launch {
                     addPlaceBottomSheetScaffoldState.hide()
                 }
+            },
+            onAddNewPlace = { newPlace ->
+                onEvent(InclusiMapEvent.OnAddNewMappedPlace(newPlace))
             }
         )
     }

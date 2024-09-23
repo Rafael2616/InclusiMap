@@ -97,7 +97,7 @@ import kotlinx.coroutines.launch
 @OptIn(
     ExperimentalMaterial3Api::class,
     ExperimentalFoundationApi::class,
-    ExperimentalLayoutApi::class, ExperimentalComposeUiApi::class
+    ExperimentalLayoutApi::class,
 )
 @Composable
 fun PlaceDetailsBottomSheet(

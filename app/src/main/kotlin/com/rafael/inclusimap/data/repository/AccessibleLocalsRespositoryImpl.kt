@@ -6,7 +6,7 @@ import com.rafael.inclusimap.domain.repository.AccessibleLocalsRepository
 
 class AccessibleLocalsRepositoryImpl : AccessibleLocalsRepository {
     override fun getAccessibleLocals(): List<AccessibleLocalMarker> {
-        return emptyList()
+        return mappedPlaces
     }
     override fun saveAccessibleLocal(accessibleLocal: AccessibleLocalMarker) {
 
