@@ -4,6 +4,7 @@ import android.graphics.BitmapFactory
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -37,6 +38,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.twotone.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -118,6 +120,8 @@ fun PlaceDetailsBottomSheet(
     val context = LocalContext.current
     var isUserCommented by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
+    var showPlaceInfo by remember { mutableStateOf(false) }
+
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             uri?.let {
@@ -215,6 +219,14 @@ fun PlaceDetailsBottomSheet(
                     Text(
                         text = localMarker.description,
                         fontSize = 16.sp,
+                    )
+                }
+                IconButton(onClick = {
+                    showPlaceInfo = true
+                }) {
+                    Icon(
+                        imageVector = Icons.Outlined.Info,
+                        contentDescription = null
                     )
                 }
                 val accessibilityAverage by remember(
@@ -670,5 +682,13 @@ fun PlaceDetailsBottomSheet(
                 }
             }
         }
+    }
+    AnimatedVisibility(showPlaceInfo) {
+        PlaceInfoDialog(
+            localMarker = updatedLocalMarker,
+            onDismiss = {
+                showPlaceInfo = false
+            }
+        )
     }
 }

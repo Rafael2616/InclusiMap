@@ -11,6 +11,7 @@ val mappedPlaces = listOf(
             position = LatLng(-2.9961928457018034, -47.34839804470539)
         ),
         title = "Lago Verde",
+        author = "@InclusiMap",
         description = "Ponto Turístico",
         comments = listOf(
             Comment(
@@ -36,6 +37,7 @@ val mappedPlaces = listOf(
             position = LatLng(-2.9751372910178024, -47.360620871186256)
         ),
         title = "Top Alimentos",
+        author = "@InclusiMap",
         description = "Supermercado",
         comments = listOf(
             Comment(
@@ -53,6 +55,7 @@ val mappedPlaces = listOf(
             position = LatLng(-2.987957301132429, -47.357158809900284)
         ),
         title = "Mix Mateus",
+        author = "@InclusiMap",
         description = "Supermercado",
         comments = listOf(
             Comment(
@@ -70,6 +73,7 @@ val mappedPlaces = listOf(
             position = LatLng(-2.985339672724703, -47.35865514725447)
         ),
         title = "UEPA",
+        author = "@InclusiMap",
         description = "Universidade",
         comments = listOf(
             Comment(
@@ -87,6 +91,7 @@ val mappedPlaces = listOf(
             position = LatLng(-2.9951669634580633,-47.35554747283459)
         ),
         title = "Shopping Diamond",
+        author = "@InclusiMap",
         description = "Shopping",
         comments = listOf(
             Comment(
@@ -112,6 +117,7 @@ val mappedPlaces = listOf(
             position = LatLng(-2.9948525691968286,-47.35381476581097)
         ),
         title = "Banco do Brasil",
+        author = "@InclusiMap",
         description = "Banco",
         comments = listOf(
             Comment(

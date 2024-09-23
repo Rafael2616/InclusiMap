@@ -72,7 +72,10 @@ fun InclusiMapGoogleMapScreen(
     var isMapLoaded by remember { mutableStateOf(false) }
     val cameraPositionState = rememberCameraPositionState()
     val bottomSheetScaffoldState = rememberModalBottomSheetState()
+    val addPlaceBottomSheetScaffoldState = rememberModalBottomSheetState()
     val bottomSheetScope = rememberCoroutineScope()
+    val addPlaceBottomSheetScope = rememberCoroutineScope()
+
     val locationPermissionState = rememberPermissionState(
         permission = Manifest.permission.ACCESS_FINE_LOCATION
     )
@@ -80,6 +83,8 @@ fun InclusiMapGoogleMapScreen(
         mutableStateOf(locationPermissionState.status == PermissionStatus.Granted)
     }
     var currentPlaceDetais by remember { mutableStateOf<AccessibleLocalMarker?>(null) }
+    var addPlacePos by remember { mutableStateOf<LatLng?>(null) }
+    var currentMappedPlaces by remember { mutableStateOf(mappedPlaces) }
 
     LaunchedEffect(locationPermissionGranted) {
         if (locationPermissionGranted) {
@@ -185,9 +190,15 @@ fun InclusiMapGoogleMapScreen(
                 }
             }
         },
+        onMapLongClick = {
+            addPlacePos = it
+            addPlaceBottomSheetScope.launch {
+                addPlaceBottomSheetScaffoldState.show()
+            }
+        }
     ) {
         if (isMapLoaded) {
-            mappedPlaces.forEach { place ->
+            currentMappedPlaces.forEach { place ->
                 val accessibilityAverage =
                     place.comments?.map { it.accessibilityRate }?.average()?.toFloat()
                 Marker(
@@ -195,7 +206,7 @@ fun InclusiMapGoogleMapScreen(
                     title = place.title,
                     snippet = place.description,
                     icon = BitmapDescriptorFactory.defaultMarker(
-                        accessibilityAverage?.toHUE() ?: BitmapDescriptorFactory.HUE_AZURE
+                        accessibilityAverage?.toHUE() ?: BitmapDescriptorFactory.HUE_ORANGE
                     ),
                     onClick = {
                         bottomSheetScope.launch {
@@ -203,7 +214,7 @@ fun InclusiMapGoogleMapScreen(
                         }
                         currentPlaceDetais = place
                         false
-                    }
+                    },
                 )
             }
         }
@@ -219,6 +230,20 @@ fun InclusiMapGoogleMapScreen(
             onDismiss = {
                 bottomSheetScope.launch {
                     bottomSheetScaffoldState.hide()
+                }
+            }
+        )
+    }
+    AnimatedVisibility(addPlaceBottomSheetScaffoldState.isVisible) {
+        AddPlaceBottomSheet(
+            latLng = addPlacePos!!,
+            bottomSheetScaffoldState = addPlaceBottomSheetScaffoldState,
+            onDismiss = { newLocal ->
+                newLocal?.let {
+                    currentMappedPlaces = currentMappedPlaces + it
+                }
+                addPlaceBottomSheetScope.launch {
+                    addPlaceBottomSheetScaffoldState.hide()
                 }
             }
         )
