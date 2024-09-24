@@ -14,7 +14,7 @@ fun Float.toMessage(): String = when (this) {
     in 1f..1.666f -> "Sem Acessibilidade"
     in 1.666f..2.333f -> "Acessibilidade\nModerada"
     in 2.333f..3f -> "Local Acessível"
-    else -> "Sem dados\nde Acessibilidade"
+    else -> "Sem dados de\nacessibilidade"
 }
 
 fun Float.toHUE(): Float = when (this) {
