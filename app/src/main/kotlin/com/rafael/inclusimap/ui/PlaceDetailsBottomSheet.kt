@@ -508,67 +508,69 @@ fun PlaceDetailsBottomSheet(
                             }
                         }
                     }
-                    Spacer(Modifier.height(10.dp))
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(24.dp))
-                            .background(MaterialTheme.colorScheme.surfaceColorAtElevation(30.dp))
-                    ) {
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                    if (state.currentPlace.comments.size != 1 && !state.isUserCommented) {
+                        Spacer(Modifier.height(10.dp))
+                        Box(
                             modifier = Modifier
-                                .padding(16.dp)
                                 .fillMaxWidth()
+                                .clip(RoundedCornerShape(24.dp))
+                                .background(MaterialTheme.colorScheme.surfaceColorAtElevation(30.dp))
                         ) {
-                            state.currentPlace.comments.forEachIndexed { index, comment ->
-                                if (comment.name == USER_NAME) return@forEachIndexed
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Text(
-                                        text = comment.name,
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        modifier = Modifier.weight(1f)
-                                    )
-                                    for (i in 1..comment.accessibilityRate) {
-                                        Box(
-                                            modifier = Modifier
-                                                .size(15.dp)
-                                                .padding(1.5.dp)
-                                                .clip(CircleShape)
-                                                .background(
-                                                    comment.accessibilityRate
-                                                        .toFloat()
-                                                        .toColor()
-                                                )
-                                                .border(
-                                                    1.25.dp,
-                                                    MaterialTheme.colorScheme.onSurface.copy(
-                                                        alpha = 0.8f
-                                                    ),
-                                                    CircleShape
-                                                )
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                modifier = Modifier
+                                    .padding(16.dp)
+                                    .fillMaxWidth()
+                            ) {
+                                state.currentPlace.comments.forEachIndexed { index, comment ->
+                                    if (comment.name == USER_NAME) return@forEachIndexed
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        Text(
+                                            text = comment.name,
+                                            fontSize = 16.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            modifier = Modifier.weight(1f)
                                         )
+                                        for (i in 1..comment.accessibilityRate) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(15.dp)
+                                                    .padding(1.5.dp)
+                                                    .clip(CircleShape)
+                                                    .background(
+                                                        comment.accessibilityRate
+                                                            .toFloat()
+                                                            .toColor()
+                                                    )
+                                                    .border(
+                                                        1.25.dp,
+                                                        MaterialTheme.colorScheme.onSurface.copy(
+                                                            alpha = 0.8f
+                                                        ),
+                                                        CircleShape
+                                                    )
+                                            )
+                                        }
+                                    }
+                                    Text(
+                                        text = comment.body,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Normal,
+                                    )
+                                    if (index != (state.currentPlace.comments.size - 1).plus(if (state.isUserCommented) -1 else 0)) {
+                                        HorizontalDivider()
                                     }
                                 }
-                                Text(
-                                    text = comment.body,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Normal,
-                                )
-                                if (index != (state.currentPlace.comments.size - 1).plus(if (state.isUserCommented) -1 else 0)) {
-                                    HorizontalDivider()
+                                if (state.currentPlace.comments.isEmpty()) {
+                                    Text(
+                                        text = "Nenhum comentário adicionado até agora",
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Normal,
+                                    )
                                 }
-                            }
-                            if (state.currentPlace.comments.isEmpty()) {
-                                Text(
-                                    text = "Nenhum comentário adicionado até agora",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Normal,
-                                )
                             }
                         }
                     }
