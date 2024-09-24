@@ -136,7 +136,9 @@ fun PlaceDetailsBottomSheet(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column {
+                Column(
+                    modifier = Modifier.weight(0.5f)
+                ) {
                     Text(
                         text = localMarker.title,
                         fontSize = 24.sp,
@@ -290,6 +292,7 @@ fun PlaceDetailsBottomSheet(
                                         ),
                                         modifier = Modifier
                                             .width(imageWidth)
+                                            .padding(horizontal = 12.dp)
                                     )
                                 }
                                 if (!state.allImagesLoaded) {
