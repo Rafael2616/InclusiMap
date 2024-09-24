@@ -51,7 +51,7 @@ fun AddPlaceBottomSheet(
     var placeName by remember { mutableStateOf("") }
     var placeCategory by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
-    var focusManager = LocalFocusManager.current
+    val focusManager = LocalFocusManager.current
 
     ModalBottomSheet(
         sheetState = bottomSheetScaffoldState,

@@ -57,7 +57,6 @@ class InclusiMapGoogleMapScreenViewModel : ViewModel() {
 
     private fun onAddNewMappedPlace(newPlace: AccessibleLocalMarker) {
         _state.value = _state.value.copy(
-            selectedUnmappedPlaceLatLng = null,
             allMappedPlaces = _state.value.allMappedPlaces + newPlace
         )
     }

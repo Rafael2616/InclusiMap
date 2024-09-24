@@ -20,10 +20,12 @@ import com.rafael.inclusimap.data.GoogleDriveService
 import com.rafael.inclusimap.ui.InclusiMapGoogleMapScreen
 import com.rafael.inclusimap.ui.theme.InclusiMapTheme
 import com.rafael.inclusimap.ui.viewmodel.InclusiMapGoogleMapScreenViewModel
+import com.rafael.inclusimap.ui.viewmodel.PlaceDetailsViewModel
 
 class MainActivity : ComponentActivity() {
     private val fusedLocationClient by lazy { LocationServices.getFusedLocationProviderClient(this) }
     private val inclusiMapViewModel: InclusiMapGoogleMapScreenViewModel by viewModels()
+    private val placeDetailsViewModel: PlaceDetailsViewModel by viewModels()
     private val driveService = GoogleDriveService()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,6 +35,7 @@ class MainActivity : ComponentActivity() {
         enableLocation()
         setContent {
             val state by inclusiMapViewModel.state.collectAsStateWithLifecycle()
+            val placeDetailsState by placeDetailsViewModel.state.collectAsStateWithLifecycle()
             InclusiMapTheme {
                 Scaffold(
                     modifier = Modifier
@@ -41,6 +44,8 @@ class MainActivity : ComponentActivity() {
                     InclusiMapGoogleMapScreen(
                         state = state,
                         onEvent = inclusiMapViewModel::onEvent,
+                        placeDetailsState = placeDetailsState,
+                        onPlaceDetailsEvent = placeDetailsViewModel::onEvent,
                         driveService = driveService,
                         fusedLocationClient = fusedLocationClient,
                         modifier = Modifier

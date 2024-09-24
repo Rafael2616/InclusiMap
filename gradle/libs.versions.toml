@@ -16,6 +16,7 @@ mapsCompose = "6.1.2"
 playServicesMaps = "19.0.0"
 playServicesLocation = "21.3.0"
 core-splashscreen = "1.2.0-alpha02"
+kotlinx-coroutines = "1.9.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -44,6 +45,8 @@ google-accompanist-permissions = { module = "com.google.accompanist:accompanist-
 google-api-client = { module = "com.google.api-client:google-api-client", version.ref = "googleApiClientVersion" }
 google-api-services-drive = { module = "com.google.apis:google-api-services-drive", version.ref = "googleApiServicesDriveVersion" }
 google-auth-library-oauth2-http = { module = "com.google.auth:google-auth-library-oauth2-http", version.ref = "googleAuthLibraryOauth2HttpVersion" }
+
+kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -2,6 +2,8 @@ package com.rafael.inclusimap.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
+import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -58,6 +60,8 @@ import com.rafael.inclusimap.data.toHUE
 import com.rafael.inclusimap.domain.AccessibleLocalMarker
 import com.rafael.inclusimap.domain.InclusiMapEvent
 import com.rafael.inclusimap.domain.InclusiMapState
+import com.rafael.inclusimap.domain.PlaceDetailsEvent
+import com.rafael.inclusimap.domain.PlaceDetailsState
 import kotlinx.coroutines.launch
 
 @SuppressLint("MissingPermission")
@@ -66,6 +70,8 @@ import kotlinx.coroutines.launch
 fun InclusiMapGoogleMapScreen(
     state: InclusiMapState,
     onEvent: (InclusiMapEvent) -> Unit,
+    placeDetailsState: PlaceDetailsState,
+    onPlaceDetailsEvent: (PlaceDetailsEvent) -> Unit,
     driveService: GoogleDriveService,
     fusedLocationClient: FusedLocationProviderClient,
     modifier: Modifier = Modifier,
@@ -219,9 +225,12 @@ fun InclusiMapGoogleMapScreen(
     AnimatedVisibility(bottomSheetScaffoldState.isVisible) {
         PlaceDetailsBottomSheet(
             driveService = driveService,
+            state = placeDetailsState,
+            onEvent = onPlaceDetailsEvent,
             localMarker = state.selectedMappedPlace!!,
             bottomSheetScaffoldState = bottomSheetScaffoldState,
             onDismiss = {
+                onPlaceDetailsEvent(PlaceDetailsEvent.OnDetroyPlaceDetails)
                 bottomSheetScope.launch {
                     bottomSheetScaffoldState.hide()
                 }
