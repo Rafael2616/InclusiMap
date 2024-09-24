@@ -131,6 +131,7 @@ fun AddPlaceBottomSheet(
                                 time = Date().toInstant().toString(),
                             )
                         )
+                        onDismiss()
                     }
                 ) {
                     Text(text = "Adicionar")

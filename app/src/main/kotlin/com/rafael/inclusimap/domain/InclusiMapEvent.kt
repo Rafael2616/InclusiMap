@@ -9,4 +9,5 @@ sealed interface InclusiMapEvent {
     data class OnUnmappedPlaceSelected(val latLng: LatLng) : InclusiMapEvent
     data class OnAddNewMappedPlace(val newPlace: AccessibleLocalMarker) : InclusiMapEvent
     data class SetLocationPermissionGranted(val isGranted: Boolean) : InclusiMapEvent
+    data class OnUpdateMappedPlace(val placeUpdated: AccessibleLocalMarker) : InclusiMapEvent
 }

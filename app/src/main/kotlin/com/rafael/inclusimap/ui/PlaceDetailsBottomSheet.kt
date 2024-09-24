@@ -54,6 +54,7 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -76,16 +77,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.rafael.inclusimap.data.GoogleDriveService
-import com.rafael.inclusimap.data.extractUserName
 import com.rafael.inclusimap.data.toColor
 import com.rafael.inclusimap.data.toMessage
 import com.rafael.inclusimap.domain.AccessibleLocalMarker
-import com.rafael.inclusimap.domain.Comment
 import com.rafael.inclusimap.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.domain.PlaceDetailsState
 import com.rafael.inclusimap.domain.USER_NAME
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
@@ -96,19 +93,18 @@ import kotlinx.coroutines.launch
 )
 @Composable
 fun PlaceDetailsBottomSheet(
-    driveService: GoogleDriveService,
     localMarker: AccessibleLocalMarker,
     bottomSheetScaffoldState: SheetState,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     state: PlaceDetailsState,
     onEvent: (PlaceDetailsEvent) -> Unit,
+    onUpdateMappedPlace: (AccessibleLocalMarker) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
-    val updatedLocalMarker by remember { mutableStateOf(localMarker) }
     val context = LocalContext.current
     val focusRequester = remember { FocusRequester() }
-
+    var showPlaceInfo by remember { mutableStateOf(false) }
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             uri?.let {
@@ -119,11 +115,13 @@ fun PlaceDetailsBottomSheet(
         onEvent(PlaceDetailsEvent.SetCurrentPlace(localMarker))
     }
 
+    LaunchedEffect(state.currentPlace) {
+        println("Executing this..")
+        onUpdateMappedPlace(state.currentPlace)
+    }
     ModalBottomSheet(
         sheetState = bottomSheetScaffoldState,
         onDismissRequest = {
-            updatedLocalMarker.comments =
-                updatedLocalMarker.comments?.filter { it.name != USER_NAME }
             onDismiss()
         },
         modifier = Modifier.imeNestedScroll(),
@@ -149,7 +147,7 @@ fun PlaceDetailsBottomSheet(
                     )
                 }
                 IconButton(onClick = {
-                    //showPlaceInfo = true todo()
+                    showPlaceInfo = true
                 }) {
                     Icon(
                         imageVector = Icons.Outlined.Info,
@@ -158,31 +156,31 @@ fun PlaceDetailsBottomSheet(
                 }
                 val accessibilityAverage by remember(
                     state.trySendComment,
-                    updatedLocalMarker.comments,
+                    state.currentPlace.comments,
                     state.isUserCommented
                 ) {
-                    mutableStateOf(
-                        updatedLocalMarker.comments?.map { it.accessibilityRate }?.average()
-                            ?.toFloat()
+                    mutableFloatStateOf(
+                        state.currentPlace.comments.map { it.accessibilityRate }.average()
+                            .toFloat()
                     )
                 }
-                val acessibilityColor by animateColorAsState(
-                    accessibilityAverage?.toColor() ?: Color.Gray
+                val accessibilityColor by animateColorAsState(
+                    accessibilityAverage.toColor(), label = ""
                 )
                 Box(
                     modifier = Modifier
                         .height(45.dp)
                         .widthIn(120.dp, 150.dp)
                         .clip(RoundedCornerShape(16.dp))
-                        .background(acessibilityColor)
+                        .background(accessibilityColor)
                         .padding(horizontal = 10.dp),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = accessibilityAverage?.toMessage() ?: "Sem dados de\nacessibilidade",
+                        text = accessibilityAverage.toMessage(),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = if (accessibilityAverage?.toColor() == Color.Red) Color.White else Color.Black,
+                        color = if (accessibilityAverage.toColor() == Color.Red) Color.White else Color.Black,
                         textAlign = TextAlign.Center,
                         lineHeight = 18.sp,
                     )
@@ -203,7 +201,6 @@ fun PlaceDetailsBottomSheet(
                     )
                     val gridHeight = 260.dp
                     val imageWidth = 185.dp
-                    val deleteImageScope = rememberCoroutineScope()
                     LazyHorizontalStaggeredGrid(
                         rows = StaggeredGridCells.Fixed(1),
                         modifier = Modifier
@@ -215,62 +212,60 @@ fun PlaceDetailsBottomSheet(
                         ),
                         horizontalItemSpacing = 8.dp
                     ) {
-                        state.currentPlaceImages?.forEach { image ->
-                            item {
-                                var showRemoveImageBtn by remember { mutableStateOf(false) }
-                                Image(
-                                    bitmap = image.image,
-                                    contentDescription = null,
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier
-                                        .width(185.dp)
-                                        .height(250.dp)
-                                        .clip(RoundedCornerShape(20.dp))
-                                        .combinedClickable(
-                                            onClick = {
-                                                // Do nothing
-                                            },
-                                            onLongClick = {
-                                                showRemoveImageBtn = true
-                                            }
-                                        )
-                                )
-                                if (image.userName == USER_NAME) {
-                                    Box(
+                        state.currentPlaceImages.forEach { image ->
+                            image?.let {
+                                item {
+                                    var showRemoveImageBtn by remember { mutableStateOf(false) }
+                                    Image(
+                                        bitmap = it.image,
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Crop,
                                         modifier = Modifier
                                             .width(185.dp)
                                             .height(250.dp)
-                                            .padding(12.dp)
-                                    ) {
-                                        IconButton(
-                                            onClick = {
-                                                //localMarkerImages.remove(image) // TODO()
-                                                deleteImageScope.launch(Dispatchers.Default) {
-                                                    val localMarkerFiles =
-                                                        driveService.listFiles(state.currentPlaceFolderID.orEmpty())
-                                                    val imageId =
-                                                        localMarkerFiles.find { it.name.extractUserName() == image.userName }?.id.orEmpty()
-                                                    driveService.deleteFile(imageId)
-                                                }.invokeOnCompletion {
-                                                    showRemoveImageBtn = false
+                                            .clip(RoundedCornerShape(20.dp))
+                                            .combinedClickable(
+                                                onClick = {
+                                                    // Do nothing
+                                                },
+                                                onLongClick = {
+                                                    showRemoveImageBtn = true
                                                 }
-                                            },
-                                            modifier = Modifier
-                                                .align(Alignment.TopEnd)
-                                                .size(35.dp)
-                                                .clip(RoundedCornerShape(16.dp))
-                                                .background(
-                                                    MaterialTheme.colorScheme.surface.copy(
-                                                        alpha = 0.5f
-                                                    )
-                                                )
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.TwoTone.Delete,
-                                                contentDescription = null,
-                                                tint = MaterialTheme.colorScheme.primary,
-                                                modifier = Modifier.size(30.dp)
                                             )
+                                    )
+                                    if (image.userName == USER_NAME) {
+                                        Box(
+                                            modifier = Modifier
+                                                .width(185.dp)
+                                                .height(250.dp)
+                                                .padding(12.dp)
+                                        ) {
+                                            IconButton(
+                                                onClick = {
+                                                    onEvent(
+                                                        PlaceDetailsEvent.OnDeletePlaceImage(
+                                                            image
+                                                        )
+                                                    )
+                                                    showRemoveImageBtn = false
+                                                },
+                                                modifier = Modifier
+                                                    .align(Alignment.TopEnd)
+                                                    .size(35.dp)
+                                                    .clip(RoundedCornerShape(16.dp))
+                                                    .background(
+                                                        MaterialTheme.colorScheme.surface.copy(
+                                                            alpha = 0.5f
+                                                        )
+                                                    )
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.TwoTone.Delete,
+                                                    contentDescription = null,
+                                                    tint = MaterialTheme.colorScheme.primary,
+                                                    modifier = Modifier.size(30.dp)
+                                                )
+                                            }
                                         }
                                     }
                                 }
@@ -284,7 +279,7 @@ fun PlaceDetailsBottomSheet(
                                 horizontalArrangement = Arrangement.Center,
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                if (state.currentPlaceImages.isNullOrEmpty() && state.allImagesLoaded) {
+                                if (state.currentPlaceImages.isEmpty() && state.allImagesLoaded) {
                                     Text(
                                         text = "Nenhuma imagem disponível desse local",
                                         fontSize = 14.sp,
@@ -349,7 +344,7 @@ fun PlaceDetailsBottomSheet(
                     }
                     Spacer(Modifier.height(6.dp))
                     Text(
-                        text = "Comentários" + " (${updatedLocalMarker.comments?.size ?: 0})",
+                        text = "Comentários" + " (${state.currentPlace.comments.size})",
                         fontSize = 22.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary,
@@ -395,7 +390,8 @@ fun PlaceDetailsBottomSheet(
                                     )
                                 }
                                 val userAccessibilityColor by animateColorAsState(
-                                    state.userAccessibilityRate.toFloat().coerceAtLeast(1f).toColor()
+                                    state.userAccessibilityRate.toFloat().coerceAtLeast(1f)
+                                        .toColor(), label = ""
                                 )
                                 (1..3).forEach {
                                     Box(
@@ -419,41 +415,18 @@ fun PlaceDetailsBottomSheet(
                                                 CircleShape
                                             )
                                             .clickable {
-                                                if (state.isUserCommented) return@clickable
-                                                //userAcessibilityRate = it todo()
+                                                onEvent(
+                                                    PlaceDetailsEvent.SetUserAccessibilityRate(it)
+                                                )
                                             }
                                     )
-                                }
-                            }
-                            val onSend = {
-                                // trySendComment = true // todo()
-                                updatedLocalMarker.comments =
-                                    updatedLocalMarker.comments?.filter { it.name != USER_NAME }
-                                if (state.userComment.isNotEmpty() && state.userAccessibilityRate != 0) {
-                                    updatedLocalMarker.comments =
-                                        updatedLocalMarker.comments?.plus(
-                                            Comment(
-                                                postDate = System.currentTimeMillis()
-                                                    .toString(),
-                                                id = updatedLocalMarker.comments?.size?.plus(
-                                                    1
-                                                ) ?: 1,
-                                                name = USER_NAME,
-                                                body = state.userComment,
-                                                email = "",
-                                                accessibilityRate = state.userAccessibilityRate,
-                                            )
-                                        )
-                                    //trySendComment = false todo()
-                                    //isUserCommented = true todo()
                                 }
                             }
                             if (!state.isUserCommented) {
                                 TextField(
                                     value = state.userComment,
                                     onValueChange = {
-                                        //userComment = it todo()
-                                       // trySendComment = false todo()
+                                        onEvent(PlaceDetailsEvent.SetUserComment(it))
                                     },
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -466,7 +439,7 @@ fun PlaceDetailsBottomSheet(
                                     trailingIcon = {
                                         IconButton(
                                             onClick = {
-                                                onSend()
+                                                onEvent(PlaceDetailsEvent.OnSendComment)
                                             }
                                         ) {
                                             Icon(
@@ -483,7 +456,7 @@ fun PlaceDetailsBottomSheet(
                                     ),
                                     keyboardActions = KeyboardActions(
                                         onSend = {
-                                            onSend()
+                                            onEvent(PlaceDetailsEvent.OnSendComment)
                                         }
                                     ),
                                     isError =
@@ -503,7 +476,7 @@ fun PlaceDetailsBottomSheet(
                                     )
                                     IconButton(
                                         onClick = {
-                                            //isUserCommented = false todo()
+                                            onEvent(PlaceDetailsEvent.SetIsUserCommented(false))
                                             scope.launch {
                                                 async { bottomSheetScaffoldState.expand() }.await()
                                                 focusRequester.requestFocus()
@@ -520,12 +493,7 @@ fun PlaceDetailsBottomSheet(
                                     }
                                     IconButton(
                                         onClick = {
-                                            //userComment = "" todo()
-                                            //trySendComment = false todo()
-                                            //userAcessibilityRate = 0 todo()
-                                           // isUserCommented = false todo()
-                                            updatedLocalMarker.comments =
-                                                updatedLocalMarker.comments?.filter { it.name != USER_NAME }
+                                            onEvent(PlaceDetailsEvent.OnDeleteComment)
                                         },
                                         modifier = Modifier
                                             .size(35.dp)
@@ -553,7 +521,7 @@ fun PlaceDetailsBottomSheet(
                                 .padding(16.dp)
                                 .fillMaxWidth()
                         ) {
-                            updatedLocalMarker.comments?.forEachIndexed { index, comment ->
+                            state.currentPlace.comments.forEachIndexed { index, comment ->
                                 if (comment.name == USER_NAME) return@forEachIndexed
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
@@ -591,11 +559,11 @@ fun PlaceDetailsBottomSheet(
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Normal,
                                 )
-                                if (index != (updatedLocalMarker.comments!!.size - 1).plus(if (state.isUserCommented) -1 else 0)) {
+                                if (index != (state.currentPlace.comments.size - 1).plus(if (state.isUserCommented) -1 else 0)) {
                                     HorizontalDivider()
                                 }
                             }
-                            if (updatedLocalMarker.comments.isNullOrEmpty()) {
+                            if (state.currentPlace.comments.isEmpty()) {
                                 Text(
                                     text = "Nenhum comentário adicionado até agora",
                                     fontSize = 14.sp,
@@ -608,11 +576,11 @@ fun PlaceDetailsBottomSheet(
             }
         }
     }
-    AnimatedVisibility(state.showPlaceInfo) {
+    AnimatedVisibility(showPlaceInfo) {
         PlaceInfoDialog(
-            localMarker = updatedLocalMarker,
+            localMarker = state.currentPlace,
             onDismiss = {
-               // showPlaceInfo = false todo()
+                showPlaceInfo = false
             }
         )
     }

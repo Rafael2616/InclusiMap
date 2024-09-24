@@ -54,10 +54,7 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.rafael.inclusimap.R
-import com.rafael.inclusimap.data.GoogleDriveService
-import com.rafael.inclusimap.data.repository.mappedPlaces
 import com.rafael.inclusimap.data.toHUE
-import com.rafael.inclusimap.domain.AccessibleLocalMarker
 import com.rafael.inclusimap.domain.InclusiMapEvent
 import com.rafael.inclusimap.domain.InclusiMapState
 import com.rafael.inclusimap.domain.PlaceDetailsEvent
@@ -72,15 +69,14 @@ fun InclusiMapGoogleMapScreen(
     onEvent: (InclusiMapEvent) -> Unit,
     placeDetailsState: PlaceDetailsState,
     onPlaceDetailsEvent: (PlaceDetailsEvent) -> Unit,
-    driveService: GoogleDriveService,
     fusedLocationClient: FusedLocationProviderClient,
     modifier: Modifier = Modifier,
 ) {
     val cameraPositionState = rememberCameraPositionState()
     val scope = rememberCoroutineScope()
     val bottomSheetScaffoldState = rememberModalBottomSheetState()
-    val addPlaceBottomSheetScaffoldState = rememberModalBottomSheetState()
     val bottomSheetScope = rememberCoroutineScope()
+    val addPlaceBottomSheetScaffoldState = rememberModalBottomSheetState()
     val addPlaceBottomSheetScope = rememberCoroutineScope()
     val locationPermission = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
 
@@ -202,13 +198,13 @@ fun InclusiMapGoogleMapScreen(
         if (state.isMapLoaded) {
             state.allMappedPlaces.forEach { place ->
                 val accessibilityAverage =
-                    place.comments?.map { it.accessibilityRate }?.average()?.toFloat()
+                    place.comments.map { it.accessibilityRate }.average().toFloat()
                 Marker(
                     state = place.markerState,
                     title = place.title,
                     snippet = place.description,
                     icon = BitmapDescriptorFactory.defaultMarker(
-                        accessibilityAverage?.toHUE() ?: BitmapDescriptorFactory.HUE_ORANGE
+                        accessibilityAverage.toHUE()
                     ),
                     onClick = {
                         bottomSheetScope.launch {
@@ -224,16 +220,18 @@ fun InclusiMapGoogleMapScreen(
 
     AnimatedVisibility(bottomSheetScaffoldState.isVisible) {
         PlaceDetailsBottomSheet(
-            driveService = driveService,
             state = placeDetailsState,
             onEvent = onPlaceDetailsEvent,
             localMarker = state.selectedMappedPlace!!,
             bottomSheetScaffoldState = bottomSheetScaffoldState,
             onDismiss = {
-                onPlaceDetailsEvent(PlaceDetailsEvent.OnDetroyPlaceDetails)
+                onPlaceDetailsEvent(PlaceDetailsEvent.OnDestroyPlaceDetails)
                 bottomSheetScope.launch {
                     bottomSheetScaffoldState.hide()
                 }
+            },
+            onUpdateMappedPlace = { placeUpdated ->
+                onEvent(InclusiMapEvent.OnUpdateMappedPlace(placeUpdated))
             }
         )
     }
@@ -248,7 +246,7 @@ fun InclusiMapGoogleMapScreen(
             },
             onAddNewPlace = { newPlace ->
                 onEvent(InclusiMapEvent.OnAddNewMappedPlace(newPlace))
-            }
+            },
         )
     }
 }

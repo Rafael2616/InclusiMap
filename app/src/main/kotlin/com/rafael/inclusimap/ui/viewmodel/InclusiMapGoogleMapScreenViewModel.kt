@@ -12,21 +12,19 @@ class InclusiMapGoogleMapScreenViewModel : ViewModel() {
     private val _state = MutableStateFlow(InclusiMapState())
     val state = _state.asStateFlow()
 
-    init {
-        println("InclusiMapGoogleMapScreenViewModel Initialized")
-    }
-
     fun onEvent(event: InclusiMapEvent) {
         when (event) {
             is InclusiMapEvent.UpdateMapCameraPosition -> updateMapCameraPosition(
                 event.latLng,
                 event.isMyLocationFounded
             )
+
             InclusiMapEvent.OnMapLoaded -> onMapLoaded()
             is InclusiMapEvent.OnMappedPlaceSelected -> onMappedPlaceSelected(event.place)
             is InclusiMapEvent.OnUnmappedPlaceSelected -> onUnmappedPlaceSelected(event.latLng)
             is InclusiMapEvent.OnAddNewMappedPlace -> onAddNewMappedPlace(event.newPlace)
             is InclusiMapEvent.SetLocationPermissionGranted -> setLocationPermissionGranted(event.isGranted)
+            is InclusiMapEvent.OnUpdateMappedPlace -> onUpdateMappedPlace(event.placeUpdated)
         }
     }
 
@@ -64,6 +62,16 @@ class InclusiMapGoogleMapScreenViewModel : ViewModel() {
     private fun setLocationPermissionGranted(isGranted: Boolean) {
         _state.value = _state.value.copy(
             isLocationPermissionGranted = isGranted
+        )
+    }
+
+    private fun onUpdateMappedPlace(placeUpdated: AccessibleLocalMarker) {
+        _state.value = _state.value.copy(
+            allMappedPlaces = _state.value.allMappedPlaces.map {
+                if (it.title == placeUpdated.title) {
+                    placeUpdated
+                } else it
+            }
         )
     }
 }

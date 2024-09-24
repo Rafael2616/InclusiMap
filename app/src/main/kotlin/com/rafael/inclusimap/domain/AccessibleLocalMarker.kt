@@ -10,7 +10,7 @@ data class AccessibleLocalMarker(
     override var title: String = "",
     override var description: String = "",
     override var author: String = "",
-    override var comments: List<Comment>? = null,
+    override var comments: List<Comment> = emptyList(),
     override var time: String = Date().toInstant().toString(),
 ) : BaseLocalMarker
 
@@ -19,7 +19,7 @@ interface BaseLocalMarker {
     var title: String
     var description: String
     var author: String
-    var comments: List<Comment>?
+    var comments: List<Comment>
     var time: String
 }
 
@@ -28,25 +28,24 @@ data class FullAccessibleLocalMarker(
     override var title: String = "",
     override var description: String = "",
     override var author: String = "",
-    override var comments: List<Comment>? = null,
+    override var comments: List<Comment> = emptyList(),
     override var time: String = Date().toInstant().toString(),
-    val images: List<PlaceImage>? = null
+    val images: List<PlaceImage?> = emptyList(),
 ) : BaseLocalMarker
 
-
-fun FullAccessibleLocalMarker.toAccessibleLocalMarker(): AccessibleLocalMarker = AccessibleLocalMarker(
-    markerState = this.markerState,
-    title = this.title,
-    description = this.description,
-    author = this.author,
-    comments = this.comments
-)
-
-fun AccessibleLocalMarker.toFullAccessibleLocalMarker(images: List<PlaceImage>?): FullAccessibleLocalMarker = FullAccessibleLocalMarker(
+fun AccessibleLocalMarker.toFullAccessibleLocalMarker(images: List<PlaceImage?>): FullAccessibleLocalMarker = FullAccessibleLocalMarker(
     markerState = this.markerState,
     title = this.title,
     description = this.description,
     author = this.author,
     comments = this.comments,
     images = images
+)
+
+fun FullAccessibleLocalMarker.toAccessibleLocalMarker(): AccessibleLocalMarker = AccessibleLocalMarker(
+    markerState = this.markerState,
+    title = this.title,
+    description = this.description,
+    author = this.author,
+    comments = this.comments,
 )

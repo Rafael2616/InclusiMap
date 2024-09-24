@@ -16,7 +16,6 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority
-import com.rafael.inclusimap.data.GoogleDriveService
 import com.rafael.inclusimap.ui.InclusiMapGoogleMapScreen
 import com.rafael.inclusimap.ui.theme.InclusiMapTheme
 import com.rafael.inclusimap.ui.viewmodel.InclusiMapGoogleMapScreenViewModel
@@ -26,7 +25,6 @@ class MainActivity : ComponentActivity() {
     private val fusedLocationClient by lazy { LocationServices.getFusedLocationProviderClient(this) }
     private val inclusiMapViewModel: InclusiMapGoogleMapScreenViewModel by viewModels()
     private val placeDetailsViewModel: PlaceDetailsViewModel by viewModels()
-    private val driveService = GoogleDriveService()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -46,7 +44,6 @@ class MainActivity : ComponentActivity() {
                         onEvent = inclusiMapViewModel::onEvent,
                         placeDetailsState = placeDetailsState,
                         onPlaceDetailsEvent = placeDetailsViewModel::onEvent,
-                        driveService = driveService,
                         fusedLocationClient = fusedLocationClient,
                         modifier = Modifier
                             .consumeWindowInsets(innerPadding)

@@ -9,7 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.rafael.inclusimap.data.GoogleDriveService
 import com.rafael.inclusimap.data.extractUserName
 import com.rafael.inclusimap.domain.AccessibleLocalMarker
-import com.rafael.inclusimap.domain.FullAccessibleLocalMarker
+import com.rafael.inclusimap.domain.Comment
 import com.rafael.inclusimap.domain.INCLUSIMAP_IMAGE_FOLDER_ID
 import com.rafael.inclusimap.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.domain.PlaceDetailsState
@@ -38,8 +38,14 @@ class PlaceDetailsViewModel : ViewModel() {
                 event.context
             )
 
-            PlaceDetailsEvent.OnDetroyPlaceDetails -> onDestroyPlaceDetailsScreen()
+            PlaceDetailsEvent.OnDestroyPlaceDetails -> onDestroyPlaceDetailsScreen()
             is PlaceDetailsEvent.SetCurrentPlace -> setCurrentPlace(event.place)
+            is PlaceDetailsEvent.OnDeletePlaceImage -> onDeletePlaceImage(event.image)
+            is PlaceDetailsEvent.SetUserAccessibilityRate -> setUserAccessibilityRate(event.rate)
+            PlaceDetailsEvent.OnSendComment -> onSendComment()
+            is PlaceDetailsEvent.SetUserComment -> setUserComment(event.comment)
+            is PlaceDetailsEvent.SetIsUserCommented -> _state.update { it.copy(isUserCommented = event.isCommented) }
+            PlaceDetailsEvent.OnDeleteComment -> onDeleteComment()
         }
     }
 
@@ -48,8 +54,13 @@ class PlaceDetailsViewModel : ViewModel() {
             it.copy(
                 isCurrentPlaceLoaded = it.loadedPlaces.any { existingPlace -> existingPlace.title == place.title },
                 allImagesLoaded = it.loadedPlaces.any { existingPlace -> existingPlace.title == place.title },
+                isUserCommented = it.loadedPlaces.find { existingPlace -> existingPlace.title == place.title }?.comments?.any { comment -> comment.name == USER_NAME } ?: false,
+                userComment = it.loadedPlaces.find { existingPlace -> existingPlace.title == place.title }?.comments?.find { comment -> comment.name == USER_NAME }?.body ?: "",
+                userAccessibilityRate = it.loadedPlaces.find { existingPlace -> existingPlace.title == place.title }?.comments?.find { comment -> comment.name == USER_NAME }?.accessibilityRate ?: 0,
                 currentPlace = place,
-                loadedPlaces = state.value.loadedPlaces + place.toFullAccessibleLocalMarker(null)
+                loadedPlaces = state.value.loadedPlaces + place.toFullAccessibleLocalMarker(
+                    emptyList()
+                )
             ).also {
                 println("Place ${place.title} already loaded? ${state.value.isCurrentPlaceLoaded}")
             }
@@ -58,6 +69,9 @@ class PlaceDetailsViewModel : ViewModel() {
             loadImages(place)
         } else {
             loadImagesFromCache()
+        }
+        for (comment in place.comments) {
+            println(comment)
         }
     }
 
@@ -68,10 +82,11 @@ class PlaceDetailsViewModel : ViewModel() {
                 currentPlaceImagesFolder = emptyList(),
                 currentPlaceFolderID = null,
                 currentPlace = AccessibleLocalMarker(),
+                isUserCommented = false,
+                userComment = "",
                 allImagesLoaded = false,
             )
         }
-        println("Place details screen destroyed")
     }
 
     private fun loadImages(placeDetails: AccessibleLocalMarker) {
@@ -99,7 +114,7 @@ class PlaceDetailsViewModel : ViewModel() {
             }
             _state.update { it.copy(currentPlaceImagesFolder = driveService.listFiles(state.value.currentPlaceFolderID!!)) }
 
-            state.value.currentPlaceImagesFolder.map { file ->
+            _state.value.currentPlaceImagesFolder.map { file ->
                 async {
                     try {
                         val fileContent = driveService.driveService.files().get(file.id)
@@ -154,7 +169,7 @@ class PlaceDetailsViewModel : ViewModel() {
                     currentPlaceImages = _state.value.loadedPlaces.find { it.title == _state.value.currentPlace.title }?.images
                         ?: emptyList()
                 ).also {
-                    println("Loading images from cache" + it.currentPlaceImages.size)
+                    println("Loading images from cache +" + it.currentPlaceImages.size)
                 }
             }
         }
@@ -162,15 +177,22 @@ class PlaceDetailsViewModel : ViewModel() {
 
     private fun onUploadPlaceImages(uri: Uri, context: Context) {
         // Add the image to the list of images tobe showed in the app UI
+        val newImage = PlaceImage(
+            userName = USER_NAME,
+            BitmapFactory.decodeStream(
+                context.contentResolver.openInputStream(uri)
+            ).asImageBitmap()
+        )
         _state.update {
             it.copy(
-                currentPlaceImages = it.currentPlaceImages +
-                        PlaceImage(
-                            userName = USER_NAME,
-                            BitmapFactory.decodeStream(
-                                context.contentResolver.openInputStream(uri)
-                            ).asImageBitmap()
-                        )
+                currentPlaceImages = it.currentPlaceImages + newImage,
+                loadedPlaces = it.loadedPlaces.map { place ->
+                    if (place.title == it.currentPlace.title) {
+                        place.copy(images = it.currentPlaceImages + newImage)
+                    } else {
+                        place
+                    }
+                }
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -196,6 +218,109 @@ class PlaceDetailsViewModel : ViewModel() {
                 }-$USER_NAME-${Date().toInstant()}.jpg",
                 _state.value.currentPlaceFolderID
                     ?: throw IllegalStateException("Folder not found: Maybe an issue has occurred while creating the folder")
+            )
+        }
+    }
+
+    private fun onDeletePlaceImage(image: PlaceImage) {
+        _state.update {
+            it.copy(
+                currentPlaceImages = it.currentPlaceImages - image,
+                loadedPlaces = it.loadedPlaces.map { place ->
+                    if (place.title == it.currentPlace.title) {
+                        place.copy(images = it.currentPlaceImages - image)
+                    } else {
+                        place
+                    }
+                },
+                currentPlaceFolderID = state.value.inclusiMapImageRepositoryFolder.find { subPaths ->
+                    subPaths.name == _state.value.currentPlace.title
+                }?.id
+            )
+        }
+        viewModelScope.launch(Dispatchers.Default) {
+            val localMarkerFiles =
+                driveService.listFiles(state.value.currentPlaceFolderID.orEmpty())
+            val imageId =
+                localMarkerFiles.find { it.name.extractUserName() == image.userName }?.id.orEmpty()
+            driveService.deleteFile(imageId)
+        }
+    }
+
+    private fun onSendComment() {
+        _state.update {
+            it.copy(
+                trySendComment = true,
+                currentPlace = it.currentPlace.copy(
+                    comments = it.currentPlace.comments.filter { comment -> comment.name != USER_NAME }
+                )
+            )
+        }
+        if (state.value.userComment.isNotEmpty() && state.value.userAccessibilityRate != 0) {
+            var userComment =
+                    Comment(
+                        postDate = System.currentTimeMillis()
+                            .toString(),
+                        id = _state.value.currentPlace.comments.size.plus(
+                            1
+                        ),
+                        name = USER_NAME,
+                        body = state.value.userComment,
+                        email = "",
+                        accessibilityRate = state.value.userAccessibilityRate,
+                    )
+            _state.update {
+                it.copy(
+                    currentPlace = it.currentPlace.copy(
+                        comments = it.currentPlace.comments + userComment,
+                    ),
+                    trySendComment = false,
+                    isUserCommented = true,
+                    loadedPlaces = it.loadedPlaces.map { place ->
+                        if (place.title == _state.value.currentPlace.title) {
+                            place.copy(comments = place.comments + userComment)
+                        } else {
+                            place
+                        }
+                    }
+                )
+            }
+        }
+    }
+
+    private fun onDeleteComment() {
+        _state.update {
+            it.copy(
+                userComment = "",
+                trySendComment = false,
+                userAccessibilityRate = 0,
+                isUserCommented = false,
+                currentPlace = it.currentPlace.copy(
+                    comments = it.currentPlace.comments.filter { comment -> comment.name != USER_NAME }
+                ),
+                loadedPlaces = it.loadedPlaces.map { place ->
+                    if (place.title == it.currentPlace.title) {
+                        place.copy(comments = place.comments.filter { comment -> comment.name != USER_NAME })
+                    } else {
+                        place
+                    }
+                }
+            )
+        }
+    }
+
+    private fun setUserAccessibilityRate(rate: Int) {
+        if (_state.value.isUserCommented) return
+        _state.update {
+            it.copy(userAccessibilityRate = rate)
+        }
+    }
+
+    private fun setUserComment(comment: String) {
+        _state.update {
+            it.copy(
+                trySendComment = false,
+                userComment = comment
             )
         }
     }
