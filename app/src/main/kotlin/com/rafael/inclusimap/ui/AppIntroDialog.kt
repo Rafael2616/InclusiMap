@@ -68,11 +68,11 @@ fun AppIntroDialog(
                             )
                     ) {
                         Text(
-                            text = "Bem vindo ao InclusiMap,\nRafael",
+                            text = "Bem vindo ao InclusiMap,\n<Sem nome>>",
                             fontSize = 24.sp,
                             color = Color.Black,
                             fontWeight = FontWeight.W400,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp)
+                            modifier = Modifier.padding(12.dp)
                         )
                     }
                     Column(
@@ -84,7 +84,6 @@ fun AppIntroDialog(
                             text = "Como funciona o sistema de acessibilidade do app?",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.padding(horizontal = 8.dp)
                         )
                         AccessibilityChipItem.get().forEach { item ->
                             Row(
@@ -97,12 +96,12 @@ fun AppIntroDialog(
                                 Column(
                                     modifier = Modifier
                                         .fillMaxWidth(),
-                                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                                    verticalArrangement = Arrangement.spacedBy(2.dp),
                                     horizontalAlignment = Alignment.Start
                                 ) {
                                     Text(
                                         text = item.name,
-                                       // color = item.color,
+                                        color = MaterialTheme.colorScheme.primary,
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.Bold
                                     )

@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.jetbrains.compose.compiler)
     alias(libs.plugins.androidx.room)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 room {
@@ -66,6 +67,9 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.navigation)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.material.motion.compose)
 
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))

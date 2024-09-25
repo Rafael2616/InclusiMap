@@ -33,7 +33,7 @@ data class AccessibilityChipItem(
                     name = "Sem dados de acessibilidade",
                     type = AccessibilityType.UNKNOWN,
                     color = Color.Cyan,
-                    description = "Poucas pessoas avaliaram o local ou o mesmo é um local recentemente cadastrado e não dá pra inferer a acessibilidade. Considere contribuir com a avaliação para ajudar a comunidade"
+                    description = "Poucas pessoas avaliaram o local ou ele foi recentemente cadastrado. Considere contribuir com uma avaliação para ajudar a comunidade"
                 ),
             )
         }

@@ -34,14 +34,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.ComposeMapColorScheme
 import com.google.maps.android.compose.GoogleMap
@@ -52,13 +50,12 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.rafael.inclusimap.R
 import com.rafael.inclusimap.data.toHUE
+import com.rafael.inclusimap.domain.AppIntroState
 import com.rafael.inclusimap.domain.InclusiMapEvent
 import com.rafael.inclusimap.domain.InclusiMapState
 import com.rafael.inclusimap.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.domain.PlaceDetailsState
-import com.rafael.inclusimap.ui.viewmodel.AppIntroViewModel
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -67,6 +64,8 @@ fun InclusiMapGoogleMapScreen(
     onEvent: (InclusiMapEvent) -> Unit,
     placeDetailsState: PlaceDetailsState,
     onPlaceDetailsEvent: (PlaceDetailsEvent) -> Unit,
+    appIntroState: AppIntroState,
+    onDismissAppIntro: (Boolean) -> Unit,
     fusedLocationClient: FusedLocationProviderClient,
     modifier: Modifier = Modifier,
 ) {
@@ -77,8 +76,6 @@ fun InclusiMapGoogleMapScreen(
     val addPlaceBottomSheetScaffoldState = rememberModalBottomSheetState()
     val addPlaceBottomSheetScope = rememberCoroutineScope()
     val locationPermission = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
-    val appIntroViewModel = koinViewModel<AppIntroViewModel>()
-    val appIntroState by appIntroViewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         locationPermission.launchPermissionRequest()
@@ -228,10 +225,10 @@ fun InclusiMapGoogleMapScreen(
         }
     }
 
-    AnimatedVisibility(appIntroState.showAppIntro) {
+    AnimatedVisibility(true) {
         AppIntroDialog(
             onDismiss = {
-                appIntroViewModel.setShowAppIntro(false)
+               onDismissAppIntro(false)
             }
         )
     }

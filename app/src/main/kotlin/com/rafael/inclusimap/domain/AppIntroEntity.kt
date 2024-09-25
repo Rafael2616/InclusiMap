@@ -7,12 +7,14 @@ import androidx.room.PrimaryKey
 data class AppIntroEntity(
     @PrimaryKey
     var id: Int,
-    var showAppIntro: Boolean
+    var showAppIntro: Boolean,
+    var isFirstTime: Boolean
 ) {
     companion object {
         fun getDefault() = AppIntroEntity(
             id = 1,
-            showAppIntro = true
+            showAppIntro = false,
+            isFirstTime = true
         )
     }
 }

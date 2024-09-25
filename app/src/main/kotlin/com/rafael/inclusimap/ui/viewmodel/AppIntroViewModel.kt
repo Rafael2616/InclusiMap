@@ -19,9 +19,12 @@ class AppIntroViewModel(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
+            val appIntroEntity = appIntroRepository.getAppIntro(1) ?: AppIntroEntity.getDefault()
             _state.update {
+
                 it.copy(
-                    showAppIntro = appIntroRepository.getAppIntro(1)?.showAppIntro ?: true
+                    showAppIntro = appIntroEntity.showAppIntro,
+                    isFirstTime = appIntroEntity.isFirstTime
                 )
             }
         }
@@ -36,6 +39,19 @@ class AppIntroViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val appIntroEntity = appIntroRepository.getAppIntro(1) ?: AppIntroEntity.getDefault()
             appIntroEntity.showAppIntro = showAppIntro
+            appIntroRepository.updateAppIntro(appIntroEntity)
+        }
+    }
+
+    fun setIsFirstTime(isFirstTime: Boolean) {
+        _state.update {
+            it.copy(
+                isFirstTime = isFirstTime
+            )
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            val appIntroEntity = appIntroRepository.getAppIntro(1) ?: AppIntroEntity.getDefault()
+            appIntroEntity.isFirstTime = isFirstTime
             appIntroRepository.updateAppIntro(appIntroEntity)
         }
     }

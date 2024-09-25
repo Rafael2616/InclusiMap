@@ -25,8 +25,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Date
 
-class PlaceDetailsViewModel : ViewModel() {
-    private val driveService: GoogleDriveService = GoogleDriveService()
+class PlaceDetailsViewModel(
+    private val driveService: GoogleDriveService
+) : ViewModel() {
 
     private val _state = MutableStateFlow(PlaceDetailsState())
     val state = _state.asStateFlow()
@@ -62,16 +63,13 @@ class PlaceDetailsViewModel : ViewModel() {
                     emptyList()
                 )
             ).also {
-                println("Place ${place.title} already loaded? ${state.value.isCurrentPlaceLoaded}")
+                println("Is place ${place.title} already loaded? ${state.value.isCurrentPlaceLoaded}")
             }
         }
         if (!_state.value.isCurrentPlaceLoaded) {
             loadImages(place)
         } else {
             loadImagesFromCache()
-        }
-        for (comment in place.comments) {
-            println(comment)
         }
     }
 
@@ -109,7 +107,7 @@ class PlaceDetailsViewModel : ViewModel() {
                     .isEmpty()
             ) {
                 _state.update { it.copy(allImagesLoaded = true) }
-                println("No images found for ${placeDetails.title}")
+                println("No images found for place ${placeDetails.title}")
                 return@launch
             }
             _state.update { it.copy(currentPlaceImagesFolder = driveService.listFiles(state.value.currentPlaceFolderID!!)) }
@@ -156,7 +154,7 @@ class PlaceDetailsViewModel : ViewModel() {
                         }
                     }
                 ).also {
-                    println("Images cached successfully for ${it.currentPlace.title} + ${it.currentPlaceImages.size}")
+                    println("Images cached successfully for ${it.currentPlace.title} + size: ${it.currentPlaceImages.size}")
                 }
             }
         }
@@ -169,7 +167,7 @@ class PlaceDetailsViewModel : ViewModel() {
                     currentPlaceImages = _state.value.loadedPlaces.find { it.title == _state.value.currentPlace.title }?.images
                         ?: emptyList()
                 ).also {
-                    println("Loading images from cache +" + it.currentPlaceImages.size)
+                    println("Loading images from cache + size: ${it.currentPlaceImages.size}")
                 }
             }
         }

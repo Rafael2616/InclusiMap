@@ -116,9 +116,9 @@ fun PlaceDetailsBottomSheet(
     }
 
     LaunchedEffect(state.currentPlace) {
-        println("Executing this..")
         onUpdateMappedPlace(state.currentPlace)
     }
+
     ModalBottomSheet(
         sheetState = bottomSheetScaffoldState,
         onDismissRequest = {
@@ -525,47 +525,48 @@ fun PlaceDetailsBottomSheet(
                                 .padding(16.dp)
                                 .fillMaxWidth()
                         ) {
-                            state.currentPlace.comments.filter { comment -> comment.name != USER_NAME }.forEachIndexed { index, comment ->
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Text(
-                                        text = comment.name,
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        modifier = Modifier.weight(1f)
-                                    )
-                                    for (i in 1..comment.accessibilityRate) {
-                                        Box(
-                                            modifier = Modifier
-                                                .size(15.dp)
-                                                .padding(1.5.dp)
-                                                .clip(CircleShape)
-                                                .background(
-                                                    comment.accessibilityRate
-                                                        .toFloat()
-                                                        .toColor()
-                                                )
-                                                .border(
-                                                    1.25.dp,
-                                                    MaterialTheme.colorScheme.onSurface.copy(
-                                                        alpha = 0.8f
-                                                    ),
-                                                    CircleShape
-                                                )
+                            state.currentPlace.comments.filter { comment -> comment.name != USER_NAME }
+                                .forEachIndexed { index, comment ->
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        Text(
+                                            text = comment.name,
+                                            fontSize = 16.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            modifier = Modifier.weight(1f)
                                         )
+                                        for (i in 1..comment.accessibilityRate) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(15.dp)
+                                                    .padding(1.5.dp)
+                                                    .clip(CircleShape)
+                                                    .background(
+                                                        comment.accessibilityRate
+                                                            .toFloat()
+                                                            .toColor()
+                                                    )
+                                                    .border(
+                                                        1.25.dp,
+                                                        MaterialTheme.colorScheme.onSurface.copy(
+                                                            alpha = 0.8f
+                                                        ),
+                                                        CircleShape
+                                                    )
+                                            )
+                                        }
+                                    }
+                                    Text(
+                                        text = comment.body,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Normal,
+                                    )
+                                    if (index != (state.currentPlace.comments.filter { it.name != USER_NAME }.size - 1)) {
+                                        HorizontalDivider()
                                     }
                                 }
-                                Text(
-                                    text = comment.body,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Normal,
-                                )
-                                if (index != (state.currentPlace.comments.filter { it.name != USER_NAME }.size - 1)) {
-                                    HorizontalDivider()
-                                }
-                            }
                             if (state.currentPlace.comments.isEmpty()) {
                                 Text(
                                     text = "Nenhum comentário adicionado até agora",
