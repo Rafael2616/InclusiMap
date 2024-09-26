@@ -60,7 +60,8 @@ fun InclusiMapNavHost(
                         onRegister = { },
                         onBack = {
                             appIntroViewModel.setIsFirstTime(false)
-                            appIntroViewModel.setShowAppIntro(true) },
+                            appIntroViewModel.setShowAppIntro(true)
+                        },
                         modifier = Modifier.consumeWindowInsets(innerPadding)
                     )
                 }

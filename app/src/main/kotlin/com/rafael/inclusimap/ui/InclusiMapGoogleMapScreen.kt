@@ -76,8 +76,9 @@ fun InclusiMapGoogleMapScreen(
     val addPlaceBottomSheetScaffoldState = rememberModalBottomSheetState()
     val addPlaceBottomSheetScope = rememberCoroutineScope()
     val locationPermission = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
+    var showLocationPermission by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(showLocationPermission) {
         locationPermission.launchPermissionRequest()
     }
 
@@ -225,10 +226,11 @@ fun InclusiMapGoogleMapScreen(
         }
     }
 
-    AnimatedVisibility(true) {
+    AnimatedVisibility(appIntroState.showAppIntro) {
         AppIntroDialog(
             onDismiss = {
-               onDismissAppIntro(false)
+                onDismissAppIntro(false)
+                showLocationPermission = true
             }
         )
     }

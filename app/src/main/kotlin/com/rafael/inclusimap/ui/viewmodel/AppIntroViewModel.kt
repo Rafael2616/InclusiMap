@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class AppIntroViewModel(
-    private val appIntroRepository: AppIntroRepository
+    private val appIntroRepository: AppIntroRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(AppIntroState())
     val state = _state.asStateFlow()
@@ -21,10 +21,9 @@ class AppIntroViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val appIntroEntity = appIntroRepository.getAppIntro(1) ?: AppIntroEntity.getDefault()
             _state.update {
-
                 it.copy(
+                    isFirstTime = appIntroEntity.isFirstTime,
                     showAppIntro = appIntroEntity.showAppIntro,
-                    isFirstTime = appIntroEntity.isFirstTime
                 )
             }
         }
