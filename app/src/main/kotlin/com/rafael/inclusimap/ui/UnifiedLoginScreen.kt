@@ -7,11 +7,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imeNestedScroll
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,17 +42,19 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rafael.inclusimap.R
+import com.rafael.inclusimap.domain.RegisteredUser
+import com.rafael.inclusimap.domain.User
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 @Composable
 fun UnifiedLoginScreen(
-    onLogin: () -> Unit,
-    onRegister: () -> Unit,
-    onBack: () -> Unit,
+    onLogin: (RegisteredUser) -> Unit,
+    onRegister: (User) -> Unit,
+    onPop: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var cadastreNewUser by remember { mutableStateOf(false) }
-    val context = LocalContext.current
-    val toast = Toast.makeText(context, "Not yet implemented", Toast.LENGTH_SHORT)
 
     Column(
         modifier = modifier
@@ -111,38 +115,16 @@ fun UnifiedLoginScreen(
                     label = ""
                 ) {
                     if (it) {
-                        RegistrationScreen()
+                        RegistrationScreen(
+                            onRegister = { registredUser -> onRegister(registredUser) },
+                            onBack = { cadastreNewUser = false },
+                        )
                     } else {
                         LoginScreen(
-                            onRegister = { cadastreNewUser = true }
+                            onGoToRegister = { cadastreNewUser = true },
+                            onLogin = { user -> onLogin(user) },
+                            onPop = { onPop() },
                         )
-                    }
-                }
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (cadastreNewUser) {
-                    OutlinedButton(
-                        onClick = { cadastreNewUser = false },
-                    ) {
-                        Text(text = "Voltar")
-                    }
-                    Button(onClick = { onRegister(); toast.show() } ) {
-                        Text(text = "Cadastrar")
-                    }
-                } else {
-                    OutlinedButton(
-                        onClick = { onBack() },
-                    ) {
-                        Text(text = "Pular")
-                    }
-                    Button(onClick = { onLogin(); toast.show() }) {
-                        Text(text = "Entrar")
                     }
                 }
             }
@@ -150,86 +132,239 @@ fun UnifiedLoginScreen(
     }
 }
 
+@OptIn(ExperimentalUuidApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun RegistrationScreen(
-    modifier: Modifier = Modifier,
+    onRegister: (User) -> Unit,
+    onBack: () -> Unit,
     defaultRoundedShape: Shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
 ) {
+    var userName by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var canLogin by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val toast = Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT)
+    val differentPassworsToast = Toast.makeText(context, "A senha deve ser igual", Toast.LENGTH_SHORT)
 
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
     ) {
-        Text(
-            text = "Bem-vindo",
-            fontSize = 18.sp
-        )
-        TextField(
-            value = "",
-            onValueChange = {},
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
             modifier = Modifier
-                .fillMaxWidth()
-                .clip(defaultRoundedShape),
-            placeholder = {
-                Text(text = "Nome")
-            }
-        )
-        TextField(
-            value = "",
-            onValueChange = {},
+                .imeNestedScroll()
+        ) {
+            Text(
+                text = "Bem-vindo",
+                fontSize = 18.sp
+            )
+            TextField(
+                value = userName,
+                onValueChange = {
+                    userName = it
+                    canLogin = false
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(defaultRoundedShape),
+                placeholder = {
+                    Text(text = "Nome")
+                },
+                isError = canLogin && userName.isEmpty().also {
+                    if (it) {
+                        toast.show()
+                    }
+                }
+            )
+            TextField(
+                value = email,
+                onValueChange = {
+                    email = it
+                    canLogin = false
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(defaultRoundedShape),
+                placeholder = {
+                    Text(text = "E-mail")
+                },
+                isError = canLogin && email.isEmpty().also {
+                    if (it) {
+                        toast.show()
+                    }
+                }
+            )
+            TextField(
+                value = password,
+                onValueChange = {
+                    password = it
+                    canLogin = false
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(defaultRoundedShape),
+                placeholder = {
+                    Text(text = "Senha")
+                },
+                isError = canLogin && password.isEmpty().also {
+                    if (it) {
+                        toast.show()
+                    }
+                }
+            )
+            TextField(
+                value = confirmPassword,
+                onValueChange = {
+                    confirmPassword = it
+                    canLogin = false
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(defaultRoundedShape),
+                placeholder = {
+                    Text(text = "Confirmar senha")
+                },
+                isError = canLogin && confirmPassword.isEmpty().also {
+                    if (it) {
+                        toast.show()
+                    }
+                }
+            )
+        }
+        Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .clip(defaultRoundedShape),
-            placeholder = {
-                Text(text = "E-mail")
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedButton(
+                onClick = { onBack() },
+            ) {
+                Text(text = "Voltar")
             }
-        )
+            Button(onClick = {
+                canLogin = true
+                if (userName.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty() && confirmPassword.isNotEmpty()) {
+                    if (password != confirmPassword) {
+                        differentPassworsToast.show()
+                        return@Button
+                    }
+                    onRegister(
+                        User(
+                            id = Uuid.random().toString(),
+                            name = userName,
+                            email = email,
+                            password = password
+                        )
+                    )
+                }
+            }) {
+                Text(text = "Cadastrar")
+            }
+        }
     }
 }
 
-
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun LoginScreen(
-    onRegister: () -> Unit,
-    modifier: Modifier = Modifier,
+    onGoToRegister: () -> Unit,
+    onLogin: (RegisteredUser) -> Unit,
+    onPop: () -> Unit,
     defaultRoundedShape: Shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
 ) {
-    Column(
+    var password by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var canLogin by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val toast = Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT)
+
+    Column (
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
-    ) {
-        Text(
-            text = "Bem-vindo de volta!",
-            fontSize = 18.sp
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        TextField(
-            value = "",
-            onValueChange = {},
+    ){
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
             modifier = Modifier
-                .fillMaxWidth()
-                .clip(defaultRoundedShape),
-            placeholder = {
-                Text(text = "E-mail")
-            }
-        )
-        TextField(
-            value = "",
-            onValueChange = {},
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(defaultRoundedShape),
-            placeholder = {
-                Text(text = "Senha")
-            }
-        )
-        Text(
-            text = "Cadastrar-se?",
-            fontSize = 12.sp,
-            color = MaterialTheme.colorScheme.primary,
-            textDecoration = TextDecoration.Underline,
-            modifier = Modifier
-                .clickable {
-                    onRegister()
+                .imeNestedScroll()
+        ) {
+            Text(
+                text = "Bem-vindo de volta!",
+                fontSize = 18.sp
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            TextField(
+                value = email,
+                onValueChange = {
+                    email = it
+                    canLogin = false
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(defaultRoundedShape),
+                placeholder = {
+                    Text(text = "E-mail")
+                },
+                isError = canLogin && email.isEmpty().also {
+                    if (it) {
+                        toast.show()
+                    }
                 }
-        )
+            )
+            TextField(
+                value = password,
+                onValueChange = {
+                    password = it
+                    canLogin = false
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(defaultRoundedShape),
+                placeholder = {
+                    Text(text = "Senha")
+                },
+                isError = canLogin && password.isEmpty().also {
+                    if (it) {
+                        toast.show()
+                    }
+                }
+            )
+            Text(
+                text = "Cadastre-se",
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.primary,
+                textDecoration = TextDecoration.Underline,
+                modifier = Modifier
+                    .clickable {
+                        onGoToRegister()
+                    }
+            )
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedButton(
+                onClick = { onPop() },
+            ) {
+                Text(text = "Pular")
+            }
+            Button(onClick = {
+                canLogin = true
+                if (email.isNotEmpty() && password.isNotEmpty()) {
+                    onLogin(
+                        RegisteredUser(
+                            email = email,
+                            password = password
+                        )
+                    )
+                }
+            }) {
+                Text(text = "Entrar")
+            }
+        }
     }
 }

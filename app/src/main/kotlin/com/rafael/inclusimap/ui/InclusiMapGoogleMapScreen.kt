@@ -1,6 +1,7 @@
 package com.rafael.inclusimap.ui
 
 import android.Manifest
+import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -57,6 +58,7 @@ import com.rafael.inclusimap.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.domain.PlaceDetailsState
 import kotlinx.coroutines.launch
 
+@SuppressLint("MissingPermission")
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun InclusiMapGoogleMapScreen(
@@ -76,39 +78,34 @@ fun InclusiMapGoogleMapScreen(
     val addPlaceBottomSheetScaffoldState = rememberModalBottomSheetState()
     val addPlaceBottomSheetScope = rememberCoroutineScope()
     val locationPermission = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
-    var showLocationPermission by remember { mutableStateOf(false) }
 
-    LaunchedEffect(showLocationPermission) {
-        locationPermission.launchPermissionRequest()
-    }
-
-    LaunchedEffect(state.isMapLoaded) {
-        onEvent(InclusiMapEvent.SetLocationPermissionGranted(locationPermission.status == PermissionStatus.Granted))
-
-        if (state.isMapLoaded) {
-            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                location?.let {
-                    onEvent(
-                        InclusiMapEvent.UpdateMapCameraPosition(
-                            LatLng(
-                                it.latitude,
-                                it.longitude
-                            ), true
-                        ).also { pos ->
-                            launch {
-                                cameraPositionState.animate(
-                                    update = CameraUpdateFactory.newLatLngZoom(
-                                        pos.latLng,
-                                        25f
-                                    ),
-                                    durationMs = 3500
-                                )
-                            }
+    LaunchedEffect(state.isLocationPermissionGranted) {
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            location?.let {
+                onEvent(
+                    InclusiMapEvent.UpdateMapCameraPosition(
+                        LatLng(
+                            it.latitude,
+                            it.longitude
+                        ), true
+                    ).also { pos ->
+                        launch {
+                            cameraPositionState.animate(
+                                update = CameraUpdateFactory.newLatLngZoom(
+                                    pos.latLng,
+                                    25f
+                                ),
+                                durationMs = 3500
+                            )
                         }
-                    )
-                }
+                    }
+                )
             }
         }
+    }
+
+    LaunchedEffect(locationPermission.status) {
+        onEvent(InclusiMapEvent.SetLocationPermissionGranted(locationPermission.status == PermissionStatus.Granted))
     }
 
     var expanded by remember { mutableStateOf(false) }
@@ -230,7 +227,9 @@ fun InclusiMapGoogleMapScreen(
         AppIntroDialog(
             onDismiss = {
                 onDismissAppIntro(false)
-                showLocationPermission = true
+                scope.launch {
+                    locationPermission.launchPermissionRequest()
+                }
             }
         )
     }
