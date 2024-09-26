@@ -262,7 +262,7 @@ fun RegistrationScreen(
                     }
                 },
                 singleLine = true,
-                visualTransformation = if (showPassword) {
+                visualTransformation = if (!showPassword) {
                     PasswordVisualTransformation('*')
                 } else VisualTransformation.None,
                 keyboardOptions = KeyboardOptions(
@@ -287,7 +287,7 @@ fun RegistrationScreen(
                     }
                 },
                 singleLine = true,
-                visualTransformation = if (showPassword) {
+                visualTransformation = if (!showPassword) {
                     PasswordVisualTransformation('*')
                 } else VisualTransformation.None,
                 keyboardOptions = KeyboardOptions(
@@ -419,7 +419,7 @@ fun LoginScreen(
                     }
                 },
                 singleLine = true,
-                visualTransformation = if (showPassword) {
+                visualTransformation = if (!showPassword) {
                     PasswordVisualTransformation('*')
                 } else VisualTransformation.None,
                 keyboardOptions = KeyboardOptions(
