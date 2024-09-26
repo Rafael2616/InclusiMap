@@ -171,7 +171,6 @@ fun InclusiMapGoogleMapScreen(
             isMyLocationEnabled = state.isLocationPermissionGranted && state.isMyLocationFound,
         ),
         uiSettings = MapUiSettings(
-            zoomControlsEnabled = true,
             zoomGesturesEnabled = true,
             compassEnabled = true,
             rotationGesturesEnabled = true

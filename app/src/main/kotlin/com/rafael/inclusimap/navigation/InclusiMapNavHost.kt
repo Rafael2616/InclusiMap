@@ -56,11 +56,15 @@ fun InclusiMapNavHost(
             ) {
                 composable<Destination.AppIntroScreen> {
                     UnifiedLoginScreen(
-                        onLogin = { navController.navigate(Destination.MapScreen) },
-                        onRegister = { },
-                        onPop = {
+                        onLogin = {
                             appIntroViewModel.setIsFirstTime(false)
                             appIntroViewModel.setShowAppIntro(true)
+                            navController.navigate(Destination.MapScreen)
+                        },
+                        onRegister = {
+                            appIntroViewModel.setIsFirstTime(false)
+                            appIntroViewModel.setShowAppIntro(true)
+                            navController.navigate(Destination.MapScreen)
                         },
                         modifier = Modifier.consumeWindowInsets(innerPadding)
                     )

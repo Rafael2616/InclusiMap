@@ -20,8 +20,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.surfaceColorAtElevation
@@ -51,7 +51,6 @@ import kotlin.uuid.Uuid
 fun UnifiedLoginScreen(
     onLogin: (RegisteredUser) -> Unit,
     onRegister: (User) -> Unit,
-    onPop: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var cadastreNewUser by remember { mutableStateOf(false) }
@@ -117,13 +116,12 @@ fun UnifiedLoginScreen(
                     if (it) {
                         RegistrationScreen(
                             onRegister = { registredUser -> onRegister(registredUser) },
-                            onBack = { cadastreNewUser = false },
+                            onGoToLogin = { cadastreNewUser = false },
                         )
                     } else {
                         LoginScreen(
-                            onGoToRegister = { cadastreNewUser = true },
                             onLogin = { user -> onLogin(user) },
-                            onPop = { onPop() },
+                            onGoToRegister = { cadastreNewUser = true },
                         )
                     }
                 }
@@ -136,7 +134,7 @@ fun UnifiedLoginScreen(
 @Composable
 fun RegistrationScreen(
     onRegister: (User) -> Unit,
-    onBack: () -> Unit,
+    onGoToLogin: () -> Unit,
     defaultRoundedShape: Shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
 ) {
     var userName by remember { mutableStateOf("") }
@@ -146,7 +144,8 @@ fun RegistrationScreen(
     var canLogin by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val toast = Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT)
-    val differentPassworsToast = Toast.makeText(context, "A senha deve ser igual", Toast.LENGTH_SHORT)
+    val differentPasswordToast = Toast.makeText(context, "A senha deve ser igual", Toast.LENGTH_SHORT)
+    var isRegistering by remember { mutableStateOf(false) }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
@@ -154,11 +153,15 @@ fun RegistrationScreen(
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
             modifier = Modifier
+                .fillMaxWidth()
                 .imeNestedScroll()
         ) {
             Text(
                 text = "Bem-vindo",
-                fontSize = 18.sp
+                fontSize = 18.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
             )
             TextField(
                 value = userName,
@@ -232,6 +235,16 @@ fun RegistrationScreen(
                     }
                 }
             )
+            Text(
+                text = "Já tem uma conta? Entrar",
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.primary,
+                textDecoration = TextDecoration.Underline,
+                modifier = Modifier
+                    .clickable {
+                        onGoToLogin()
+                    }
+            )
         }
         Row(
             modifier = Modifier
@@ -239,18 +252,17 @@ fun RegistrationScreen(
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            OutlinedButton(
-                onClick = { onBack() },
-            ) {
-                Text(text = "Voltar")
+            if (isRegistering) {
+                CircularProgressIndicator()
             }
             Button(onClick = {
                 canLogin = true
                 if (userName.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty() && confirmPassword.isNotEmpty()) {
                     if (password != confirmPassword) {
-                        differentPassworsToast.show()
+                        differentPasswordToast.show()
                         return@Button
                     }
+                    isRegistering = true
                     onRegister(
                         User(
                             id = Uuid.random().toString(),
@@ -272,7 +284,6 @@ fun RegistrationScreen(
 fun LoginScreen(
     onGoToRegister: () -> Unit,
     onLogin: (RegisteredUser) -> Unit,
-    onPop: () -> Unit,
     defaultRoundedShape: Shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
 ) {
     var password by remember { mutableStateOf("") }
@@ -280,6 +291,7 @@ fun LoginScreen(
     var canLogin by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val toast = Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT)
+    var isRegistering by remember { mutableStateOf(false) }
 
     Column (
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
@@ -287,11 +299,15 @@ fun LoginScreen(
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
             modifier = Modifier
+                .fillMaxWidth()
                 .imeNestedScroll()
         ) {
             Text(
                 text = "Bem-vindo de volta!",
-                fontSize = 18.sp
+                fontSize = 18.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(4.dp))
             TextField(
@@ -347,14 +363,13 @@ fun LoginScreen(
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            OutlinedButton(
-                onClick = { onPop() },
-            ) {
-                Text(text = "Pular")
+            if (isRegistering) {
+                CircularProgressIndicator()
             }
             Button(onClick = {
                 canLogin = true
                 if (email.isNotEmpty() && password.isNotEmpty()) {
+                    isRegistering = true
                     onLogin(
                         RegisteredUser(
                             email = email,
