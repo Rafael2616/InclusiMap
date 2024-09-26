@@ -62,9 +62,9 @@ fun InclusiMapNavHost(
                     UnifiedLoginScreen(
                         loginState = loginState,
                         onLogin = {
-                            appIntroViewModel.setIsFirstTime(false)
-                            appIntroViewModel.setShowAppIntro(true)
-                            navController.navigate(Destination.MapScreen)
+                            loginViewModel.onEvent(
+                                LoginEvent.OnLogin(it)
+                            )
                         },
                         onRegister = {
                             loginViewModel.onEvent(
@@ -96,6 +96,5 @@ fun InclusiMapNavHost(
             appIntroViewModel.setIsFirstTime(false)
             navController.navigate(Destination.MapScreen)
         }
-
     }
 }

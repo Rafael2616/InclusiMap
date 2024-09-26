@@ -6,7 +6,6 @@ import com.rafael.inclusimap.data.GoogleDriveService
 import com.rafael.inclusimap.domain.LoginEvent
 import com.rafael.inclusimap.domain.LoginState
 import com.rafael.inclusimap.domain.RegisteredUser
-import com.rafael.inclusimap.domain.USER_NAME
 import com.rafael.inclusimap.domain.User
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -16,7 +15,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import java.util.Date
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -62,20 +60,15 @@ class LoginViewModel : ViewModel() {
                             INCLUSIMAP_USERS_FOLDER_ID
                         ).any { userFile ->
                             userFile.name.split(".json")[0] == newUser.email
-                        }.also { isR ->
-                            println("User already registered? $isR")
-                        }
+                        }.also { isRegistered ->
+                            println("User already registered? $isRegistered")
+                        },
+                        isRegistering = false
                     )
                 }
             }.await()
 
             if (_state.value.userAlreadyRegistered) {
-                _state.update {
-                    it.copy(
-                        userAlreadyRegistered = true,
-                        isRegistering = false
-                    )
-                }
                 return@launch
             }
 
@@ -115,19 +108,81 @@ class LoginViewModel : ViewModel() {
     private fun login(registeredUser: RegisteredUser) {
         _state.update {
             it.copy(
-                user = registeredUser.toUser()
+                isRegistering = true
             )
         }
-    }
+        viewModelScope.launch(Dispatchers.IO) {
+            async {
+                _state.update {
+                    it.copy(
+                        userAlreadyRegistered = driveService.listFiles(
+                            INCLUSIMAP_USERS_FOLDER_ID
+                        ).any { userFile ->
+                            userFile.name.split(".json")[0] == registeredUser.email
+                        }.also { isRegistered ->
+                            println("User already registered? $isRegistered")
+                        },
+                    )
+                }
+            }.await()
 
-    private fun RegisteredUser.toUser(): User {
-        return User(
-            id = "1",//todo id,
-            name = "",//  name, todo
-            email = email,
-            password = password,
-        )
+            if (!_state.value.userAlreadyRegistered) {
+                println("User not found")
+                _state.update {
+                    it.copy(
+                        isRegistering = false
+                    )
+                }
+                return@launch
+            }
+
+            val json = Json { ignoreUnknownKeys = true }
+            async {
+                val user = driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).find { userFile ->
+                    userFile.name.split(".json")[0] == registeredUser.email
+                }
+
+                val userLoginFile = driveService.listFiles(user?.id ?: "").find { userFile ->
+                    userFile.name.endsWith(".json")
+                }
+
+                val userLoginFileContent = driveService.getFileContent(userLoginFile?.id ?: throw IllegalStateException("User not found")).decodeToString()
+                println("User file content: $userLoginFileContent")
+
+                val userObj = json.decodeFromString<User>(userLoginFileContent)
+                if (userObj.password != registeredUser.password) {
+                    _state.update {
+                        it.copy(
+                            isPasswordCorrect = false,
+                            isRegistering = false
+                        )
+                    }
+                    println("Password is incorrect")
+                    return@async
+                }
+                _state.update {
+                    it.copy(
+                        isPasswordCorrect = true,
+                        user = User(
+                            id = userObj.id,
+                            name = userObj.name,
+                            email = userObj.email,
+                            password = userObj.password,
+                        )
+                    )
+                }
+            }.await()
+        }.invokeOnCompletion {
+            if (_state.value.userAlreadyRegistered && _state.value.isPasswordCorrect) {
+                _state.update {
+                    it.copy(
+                        isLoggedIn = true,
+                        isRegistering = false
+                    )
+                }
+            }
+        }
     }
 }
 
-val INCLUSIMAP_USERS_FOLDER_ID = "1Vz3Ac1P9SkkNwObYB51eMo2IcVIQwmjD"
+const val INCLUSIMAP_USERS_FOLDER_ID = "1Vz3Ac1P9SkkNwObYB51eMo2IcVIQwmjD"

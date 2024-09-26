@@ -31,7 +31,7 @@ class GoogleDriveService {
     }
 
     fun getFileContent(fileId: String): ByteArray {
-        return driveService.files().get(fileId).executeAsInputStream().readBytes()
+        return driveService.files().get(fileId).executeMediaAsInputStream().readBytes()
     }
 
     fun getFileMetadata(fileId: String): File? {

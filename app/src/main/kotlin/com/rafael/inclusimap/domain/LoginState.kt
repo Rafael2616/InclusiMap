@@ -6,5 +6,6 @@ data class LoginState(
     val userPathID: String? = null,
     val isLoggedIn: Boolean = false,
     val isRegistering : Boolean = false,
-    val userAlreadyRegistered : Boolean = false,
+    val userAlreadyRegistered : Boolean = true,
+    val isPasswordCorrect : Boolean = true
 )

@@ -32,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,11 +42,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -141,6 +140,7 @@ fun UnifiedLoginScreen(
                         )
                     } else {
                         LoginScreen(
+                            state = loginState,
                             onLogin = { user -> onLogin(user) },
                             onGoToRegister = { cadastreNewUser = true },
                         )
@@ -202,11 +202,7 @@ fun RegistrationScreen(
                 placeholder = {
                     Text(text = "Nome")
                 },
-                isError = canLogin && userName.isEmpty().also {
-                    if (it) {
-                        toast.show()
-                    }
-                },
+                isError = canLogin && userName.isEmpty(),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text
@@ -224,11 +220,7 @@ fun RegistrationScreen(
                 placeholder = {
                     Text(text = "E-mail")
                 },
-                isError = canLogin && email.isEmpty() || state.userAlreadyRegistered.also {
-                    if (it) {
-                        toast.show()
-                    }
-                },
+                isError = canLogin && email.isEmpty() || state.userAlreadyRegistered,
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email
@@ -256,11 +248,7 @@ fun RegistrationScreen(
                         )
                     }
                 },
-                isError = canLogin && password.isEmpty().also {
-                    if (it) {
-                        toast.show()
-                    }
-                },
+                isError = canLogin && password.isEmpty(),
                 singleLine = true,
                 visualTransformation = if (!showPassword) {
                     PasswordVisualTransformation('*')
@@ -281,11 +269,7 @@ fun RegistrationScreen(
                 placeholder = {
                     Text(text = "Confirmar senha")
                 },
-                isError = canLogin && confirmPassword.isEmpty().also {
-                    if (it) {
-                        toast.show()
-                    }
-                },
+                isError = canLogin && confirmPassword.isEmpty(),
                 singleLine = true,
                 visualTransformation = if (!showPassword) {
                     PasswordVisualTransformation('*')
@@ -316,20 +300,23 @@ fun RegistrationScreen(
             }
             Button(onClick = {
                 canLogin = true
-                if (userName.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty() && confirmPassword.isNotEmpty()) {
-                    if (password != confirmPassword) {
-                        differentPasswordToast.show()
-                        return@Button
-                    }
-                    onRegister(
-                        User(
-                            id = Uuid.random().toString(),
-                            name = userName,
-                            email = email,
-                            password = password
-                        )
-                    )
+                if (userName.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+                    toast.show()
+                    return@Button
                 }
+                if (password != confirmPassword) {
+                    differentPasswordToast.show()
+                    return@Button
+                }
+                onRegister(
+                    User(
+                        id = Uuid.random().toString(),
+                        name = userName,
+                        email = email,
+                        password = password
+                    )
+                )
+
             }) {
                 Text(text = "Cadastrar")
             }
@@ -340,6 +327,7 @@ fun RegistrationScreen(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun LoginScreen(
+    state: LoginState,
     onGoToRegister: () -> Unit,
     onLogin: (RegisteredUser) -> Unit,
     defaultRoundedShape: Shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
@@ -349,7 +337,11 @@ fun LoginScreen(
     var canLogin by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val toast = Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT)
-    var isRegistering by remember { mutableStateOf(false) }
+    val passwordIncorrectToast =
+        Toast.makeText(context, "A senha está incorreta", Toast.LENGTH_SHORT)
+    val inexistentUserToast =
+        Toast.makeText(context, "Não foi encontrado um usuário com esse email!", Toast.LENGTH_SHORT)
+
     var showPassword by remember { mutableStateOf(false) }
 
     Column(
@@ -381,11 +373,7 @@ fun LoginScreen(
                 placeholder = {
                     Text(text = "E-mail")
                 },
-                isError = canLogin && email.isEmpty().also {
-                    if (it) {
-                        toast.show()
-                    }
-                },
+                isError = canLogin && (email.isEmpty() || !state.userAlreadyRegistered),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email
@@ -413,11 +401,7 @@ fun LoginScreen(
                         )
                     }
                 },
-                isError = canLogin && password.isEmpty().also {
-                    if (it) {
-                        toast.show()
-                    }
-                },
+                isError = canLogin && (password.isEmpty() || !state.isPasswordCorrect),
                 singleLine = true,
                 visualTransformation = if (!showPassword) {
                     PasswordVisualTransformation('*')
@@ -443,23 +427,30 @@ fun LoginScreen(
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (isRegistering) {
+            if (state.isRegistering) {
                 CircularProgressIndicator()
             }
             Button(onClick = {
                 canLogin = true
-                if (email.isNotEmpty() && password.isNotEmpty()) {
-                    isRegistering = true
-                    onLogin(
-                        RegisteredUser(
-                            email = email,
-                            password = password
-                        )
-                    )
+                if (email.isEmpty() || password.isEmpty()) {
+                    toast.show()
+                    return@Button
                 }
+                onLogin(
+                    RegisteredUser(
+                        email = email,
+                        password = password
+                    )
+                )
             }) {
                 Text(text = "Entrar")
             }
         }
     }
+        if (!state.isPasswordCorrect && canLogin) {
+            passwordIncorrectToast.show()
+        }
+        if (!state.userAlreadyRegistered && canLogin) {
+            inexistentUserToast.show()
+        }
 }
