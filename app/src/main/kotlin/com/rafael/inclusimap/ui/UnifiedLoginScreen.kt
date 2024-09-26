@@ -17,10 +17,16 @@ import androidx.compose.foundation.layout.imeNestedScroll
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -33,15 +39,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rafael.inclusimap.R
+import com.rafael.inclusimap.domain.LoginState
 import com.rafael.inclusimap.domain.RegisteredUser
 import com.rafael.inclusimap.domain.User
 import kotlin.uuid.ExperimentalUuidApi
@@ -49,6 +62,7 @@ import kotlin.uuid.Uuid
 
 @Composable
 fun UnifiedLoginScreen(
+    loginState: LoginState,
     onLogin: (RegisteredUser) -> Unit,
     onRegister: (User) -> Unit,
     modifier: Modifier = Modifier,
@@ -72,6 +86,12 @@ fun UnifiedLoginScreen(
         Card(
             modifier = Modifier
                 .fillMaxWidth(0.8f)
+                .shadow(
+                    elevation = 20.dp,
+                    shape = RoundedCornerShape(38.dp),
+                    spotColor = MaterialTheme.colorScheme.onSurface,
+                    clip = true,
+                )
                 .clip(RoundedCornerShape(38.dp)),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(20.dp)
@@ -115,6 +135,7 @@ fun UnifiedLoginScreen(
                 ) {
                     if (it) {
                         RegistrationScreen(
+                            state = loginState,
                             onRegister = { registredUser -> onRegister(registredUser) },
                             onGoToLogin = { cadastreNewUser = false },
                         )
@@ -133,6 +154,7 @@ fun UnifiedLoginScreen(
 @OptIn(ExperimentalUuidApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun RegistrationScreen(
+    state: LoginState,
     onRegister: (User) -> Unit,
     onGoToLogin: () -> Unit,
     defaultRoundedShape: Shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
@@ -143,9 +165,14 @@ fun RegistrationScreen(
     var email by remember { mutableStateOf("") }
     var canLogin by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val toast = Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT)
-    val differentPasswordToast = Toast.makeText(context, "A senha deve ser igual", Toast.LENGTH_SHORT)
-    var isRegistering by remember { mutableStateOf(false) }
+    val toast = Toast.makeText(
+        context,
+        if (state.userAlreadyRegistered) "Já existe um usuário com esse email!" else "Preencha todos os campos",
+        Toast.LENGTH_SHORT
+    )
+    val differentPasswordToast =
+        Toast.makeText(context, "A senha deve ser igual", Toast.LENGTH_SHORT)
+    var showPassword by remember { mutableStateOf(false) }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
@@ -179,7 +206,11 @@ fun RegistrationScreen(
                     if (it) {
                         toast.show()
                     }
-                }
+                },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text
+                )
             )
             TextField(
                 value = email,
@@ -193,11 +224,15 @@ fun RegistrationScreen(
                 placeholder = {
                     Text(text = "E-mail")
                 },
-                isError = canLogin && email.isEmpty().also {
+                isError = canLogin && email.isEmpty() || state.userAlreadyRegistered.also {
                     if (it) {
                         toast.show()
                     }
-                }
+                },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email
+                )
             )
             TextField(
                 value = password,
@@ -211,11 +246,28 @@ fun RegistrationScreen(
                 placeholder = {
                     Text(text = "Senha")
                 },
+                trailingIcon = {
+                    IconButton(onClick = {
+                        showPassword = !showPassword
+                    }) {
+                        Icon(
+                            imageVector = if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                            contentDescription = if (showPassword) "Hide password" else "Show password",
+                        )
+                    }
+                },
                 isError = canLogin && password.isEmpty().also {
                     if (it) {
                         toast.show()
                     }
-                }
+                },
+                singleLine = true,
+                visualTransformation = if (showPassword) {
+                    PasswordVisualTransformation('*')
+                } else VisualTransformation.None,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password
+                )
             )
             TextField(
                 value = confirmPassword,
@@ -233,7 +285,14 @@ fun RegistrationScreen(
                     if (it) {
                         toast.show()
                     }
-                }
+                },
+                singleLine = true,
+                visualTransformation = if (showPassword) {
+                    PasswordVisualTransformation('*')
+                } else VisualTransformation.None,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password
+                )
             )
             Text(
                 text = "Já tem uma conta? Entrar",
@@ -252,7 +311,7 @@ fun RegistrationScreen(
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (isRegistering) {
+            if (state.isRegistering) {
                 CircularProgressIndicator()
             }
             Button(onClick = {
@@ -262,7 +321,6 @@ fun RegistrationScreen(
                         differentPasswordToast.show()
                         return@Button
                     }
-                    isRegistering = true
                     onRegister(
                         User(
                             id = Uuid.random().toString(),
@@ -292,10 +350,11 @@ fun LoginScreen(
     val context = LocalContext.current
     val toast = Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT)
     var isRegistering by remember { mutableStateOf(false) }
+    var showPassword by remember { mutableStateOf(false) }
 
-    Column (
+    Column(
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
-    ){
+    ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
             modifier = Modifier
@@ -326,7 +385,11 @@ fun LoginScreen(
                     if (it) {
                         toast.show()
                     }
-                }
+                },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email
+                )
             )
             TextField(
                 value = password,
@@ -340,11 +403,28 @@ fun LoginScreen(
                 placeholder = {
                     Text(text = "Senha")
                 },
+                trailingIcon = {
+                    IconButton(onClick = {
+                        showPassword = !showPassword
+                    }) {
+                        Icon(
+                            imageVector = if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                            contentDescription = if (showPassword) "Hide password" else "Show password",
+                        )
+                    }
+                },
                 isError = canLogin && password.isEmpty().also {
                     if (it) {
                         toast.show()
                     }
-                }
+                },
+                singleLine = true,
+                visualTransformation = if (showPassword) {
+                    PasswordVisualTransformation('*')
+                } else VisualTransformation.None,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password
+                )
             )
             Text(
                 text = "Cadastre-se",

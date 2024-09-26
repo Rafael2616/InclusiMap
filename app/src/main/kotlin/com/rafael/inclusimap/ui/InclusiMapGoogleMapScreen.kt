@@ -54,6 +54,7 @@ import com.rafael.inclusimap.data.toHUE
 import com.rafael.inclusimap.domain.AppIntroState
 import com.rafael.inclusimap.domain.InclusiMapEvent
 import com.rafael.inclusimap.domain.InclusiMapState
+import com.rafael.inclusimap.domain.LoginState
 import com.rafael.inclusimap.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.domain.PlaceDetailsState
 import kotlinx.coroutines.launch
@@ -68,6 +69,7 @@ fun InclusiMapGoogleMapScreen(
     onPlaceDetailsEvent: (PlaceDetailsEvent) -> Unit,
     appIntroState: AppIntroState,
     onDismissAppIntro: (Boolean) -> Unit,
+    loginState: LoginState,
     fusedLocationClient: FusedLocationProviderClient,
     modifier: Modifier = Modifier,
 ) {
@@ -224,6 +226,7 @@ fun InclusiMapGoogleMapScreen(
 
     AnimatedVisibility(appIntroState.showAppIntro) {
         AppIntroDialog(
+            state = loginState,
             onDismiss = {
                 onDismissAppIntro(false)
                 scope.launch {

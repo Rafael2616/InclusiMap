@@ -6,6 +6,7 @@ import com.rafael.inclusimap.data.database.AppDatabase
 import com.rafael.inclusimap.data.repository.AppIntroRepositoryImpl
 import com.rafael.inclusimap.ui.viewmodel.AppIntroViewModel
 import com.rafael.inclusimap.ui.viewmodel.InclusiMapGoogleMapScreenViewModel
+import com.rafael.inclusimap.ui.viewmodel.LoginViewModel
 import com.rafael.inclusimap.ui.viewmodel.PlaceDetailsViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.dsl.viewModel
@@ -34,5 +35,8 @@ val appModule = module {
     }
     viewModel {
         PlaceDetailsViewModel(get())
+    }
+    single {
+        LoginViewModel()
     }
 }

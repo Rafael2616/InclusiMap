@@ -28,10 +28,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.rafael.inclusimap.domain.AccessibilityChipItem
+import com.rafael.inclusimap.domain.LoginState
 import com.rafael.inclusimap.ui.icons.GoogleMapsPin
 
 @Composable
 fun AppIntroDialog(
+    state: LoginState,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -49,7 +51,8 @@ fun AppIntroDialog(
                 .clip(RoundedCornerShape(30.dp))
         ) {
             Column(
-                Modifier.padding(16.dp)
+                Modifier
+                    .padding(16.dp)
                     .padding(top = 4.dp),
                 horizontalAlignment = Alignment.Start,
 
@@ -69,7 +72,7 @@ fun AppIntroDialog(
                         )
                 ) {
                     Text(
-                        text = "Bem vindo ao InclusiMap,\n<Sem nome>",
+                        text = "Bem vindo ao InclusiMap,\n${state.user?.name?.split(" ")?.get(0)}",
                         fontSize = 24.sp,
                         color = Color.Black,
                         fontWeight = FontWeight.Light,

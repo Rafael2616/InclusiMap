@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -13,12 +14,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.rafael.inclusimap.domain.LoginEvent
 import com.rafael.inclusimap.ui.InclusiMapGoogleMapScreen
-import com.rafael.inclusimap.ui.LoginScreen
 import com.rafael.inclusimap.ui.UnifiedLoginScreen
 import com.rafael.inclusimap.ui.theme.InclusiMapTheme
 import com.rafael.inclusimap.ui.viewmodel.AppIntroViewModel
 import com.rafael.inclusimap.ui.viewmodel.InclusiMapGoogleMapScreenViewModel
+import com.rafael.inclusimap.ui.viewmodel.LoginViewModel
 import com.rafael.inclusimap.ui.viewmodel.PlaceDetailsViewModel
 import org.koin.compose.viewmodel.koinViewModel
 import soup.compose.material.motion.animation.materialSharedAxisXIn
@@ -39,6 +41,8 @@ fun InclusiMapNavHost(
     val mapState by mapViewModel.state.collectAsStateWithLifecycle()
     val placeDetailsViewModel = koinViewModel<PlaceDetailsViewModel>()
     val placeDetailsState by placeDetailsViewModel.state.collectAsStateWithLifecycle()
+    val loginViewModel = koinViewModel<LoginViewModel>()
+    val loginState by loginViewModel.state.collectAsStateWithLifecycle()
 
     InclusiMapTheme {
         Scaffold(
@@ -56,15 +60,16 @@ fun InclusiMapNavHost(
             ) {
                 composable<Destination.AppIntroScreen> {
                     UnifiedLoginScreen(
+                        loginState = loginState,
                         onLogin = {
                             appIntroViewModel.setIsFirstTime(false)
                             appIntroViewModel.setShowAppIntro(true)
                             navController.navigate(Destination.MapScreen)
                         },
                         onRegister = {
-                            appIntroViewModel.setIsFirstTime(false)
-                            appIntroViewModel.setShowAppIntro(true)
-                            navController.navigate(Destination.MapScreen)
+                            loginViewModel.onEvent(
+                                LoginEvent.OnRegisterNewUser(it)
+                            )
                         },
                         modifier = Modifier.consumeWindowInsets(innerPadding)
                     )
@@ -77,11 +82,20 @@ fun InclusiMapNavHost(
                         placeDetailsViewModel::onEvent,
                         appIntroState,
                         appIntroViewModel::setShowAppIntro,
+                        loginState,
                         fusedLocationProviderClient,
                         modifier = Modifier.consumeWindowInsets(innerPadding)
                     )
                 }
             }
         }
+    }
+
+    LaunchedEffect(loginState.isLoggedIn) {
+        if (loginState.isLoggedIn) {
+            appIntroViewModel.setIsFirstTime(false)
+            navController.navigate(Destination.MapScreen)
+        }
+
     }
 }
