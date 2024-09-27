@@ -171,6 +171,8 @@ fun RegistrationScreen(
     var canLogin by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val toast = Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT)
+    val invalidEmailToast = Toast.makeText(context, "O email é inválido", Toast.LENGTH_SHORT)
+    val invalidPasswordToast = Toast.makeText(context, "A senha é inválida", Toast.LENGTH_SHORT)
     val differentPasswordToast =
         Toast.makeText(context, "A senha deve ser igual", Toast.LENGTH_LONG)
     var showPassword by remember { mutableStateOf(false) }
@@ -325,6 +327,14 @@ fun RegistrationScreen(
                 }
                 if (password != confirmPassword) {
                     differentPasswordToast.show()
+                    return@Button
+                }
+                if (!isValidEmail) {
+                    invalidEmailToast.show()
+                    return@Button
+                }
+                if (!isValidPassword) {
+                    invalidPasswordToast.show()
                     return@Button
                 }
                 onRegister(
