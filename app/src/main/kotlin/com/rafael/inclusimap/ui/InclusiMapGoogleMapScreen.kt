@@ -1,7 +1,6 @@
 package com.rafael.inclusimap.ui
 
 import android.Manifest
-import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -43,7 +42,6 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.ComposeMapColorScheme
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
@@ -62,7 +60,6 @@ import com.rafael.inclusimap.domain.PlaceDetailsState
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
-@SuppressLint("MissingPermission")
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun InclusiMapGoogleMapScreen(
@@ -87,13 +84,16 @@ fun InclusiMapGoogleMapScreen(
 
     LaunchedEffect(animateMap && !appIntroState.showAppIntro) {
         if (animateMap) {
-            cameraPositionState.animate(
-                update = CameraUpdateFactory.newLatLngZoom(
-                    state.defaultLocationLatLng,
-                    15f
-                ),
-                durationMs = 3500
-            )
+            async {
+                cameraPositionState.animate(
+                    update = CameraUpdateFactory.newLatLngZoom(
+                        state.defaultLocationLatLng,
+                        15f
+                    ),
+                    durationMs = 3500
+                )
+            }.await()
+            locationPermission.launchPermissionRequest()
         }
     }
     LaunchedEffect(state.isLocationPermissionGranted) {
@@ -204,6 +204,7 @@ fun InclusiMapGoogleMapScreen(
                     state.defaultLocationLatLng,
                     15f
                 )
+                locationPermission.launchPermissionRequest()
             }
         },
         onMapLongClick = {
@@ -243,7 +244,6 @@ fun InclusiMapGoogleMapScreen(
             onDismiss = {
                 onDismissAppIntro(false)
                 animateMap = true
-                locationPermission.launchPermissionRequest()
             }
         )
     }
