@@ -1,8 +1,6 @@
 package com.rafael.inclusimap.domain
 
-import androidx.compose.ui.graphics.ImageBitmap
 import com.google.maps.android.compose.MarkerState
-import java.util.Date
 
 // The Place Marker showed in Map Screen
 data class AccessibleLocalMarker(

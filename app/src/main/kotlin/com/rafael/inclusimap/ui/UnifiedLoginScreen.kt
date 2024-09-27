@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.imeNestedScroll
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
@@ -45,7 +46,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -178,12 +181,9 @@ fun RegistrationScreen(
     var showPassword by remember { mutableStateOf(false) }
     var isValidPassword by remember { mutableStateOf(true) }
     var isValidEmail by remember { mutableStateOf(true) }
+    val focusManager = LocalFocusManager.current
     val existentUserToast =
-        Toast.makeText(
-            context,
-            "Já existe um usuário cadastrado com esse email!",
-            Toast.LENGTH_LONG
-        )
+        Toast.makeText(context, "Já existe um usuário cadastrado com esse email!", Toast.LENGTH_LONG)
 
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
@@ -216,8 +216,9 @@ fun RegistrationScreen(
                 isError = canLogin && userName.isEmpty(),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text
-                )
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next,
+                ),
             )
             TextField(
                 value = email,
@@ -235,7 +236,8 @@ fun RegistrationScreen(
                 isError = canLogin && email.isEmpty() || state.userAlreadyRegistered || !isValidEmail,
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Next
                 )
             )
             TextField(
@@ -268,7 +270,8 @@ fun RegistrationScreen(
                 } else VisualTransformation.None,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
-                    capitalization = KeyboardCapitalization.Words
+                    capitalization = KeyboardCapitalization.Words,
+                    imeAction = ImeAction.Next,
                 )
             )
             TextField(
@@ -290,8 +293,14 @@ fun RegistrationScreen(
                 } else VisualTransformation.None,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
-                    capitalization = KeyboardCapitalization.Words
-                )
+                    capitalization = KeyboardCapitalization.Words,
+                    imeAction = ImeAction.Done,
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        focusManager.clearFocus()
+                    }
+                ),
             )
             Text(
                 text = "A senha deve conter pelo menos 8 dígitos, sendo: 1 letra maiuscula, 1 caractere especial e 1 número",
@@ -321,7 +330,7 @@ fun RegistrationScreen(
             if (state.isRegistering) {
                 CircularProgressIndicator(
                     strokeCap = StrokeCap.Round,
-                    modifier = Modifier.size(30.dp)
+                    modifier = Modifier.size(35.dp)
                 )
             }
             Button(onClick = {
@@ -381,8 +390,8 @@ fun LoginScreen(
         Toast.makeText(context, "A senha está incorreta", Toast.LENGTH_LONG)
     val inexistentUserToast =
         Toast.makeText(context, "Não foi encontrado um usuário com esse email!", Toast.LENGTH_LONG)
-
     var showPassword by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
 
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
@@ -417,6 +426,7 @@ fun LoginScreen(
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Next
                 )
             )
             TextField(
@@ -448,7 +458,13 @@ fun LoginScreen(
                 } else VisualTransformation.None,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
-                    capitalization = KeyboardCapitalization.Words
+                    capitalization = KeyboardCapitalization.Words,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        focusManager.clearFocus()
+                    }
                 )
             )
             Text(
@@ -471,7 +487,7 @@ fun LoginScreen(
             if (state.isRegistering) {
                 CircularProgressIndicator(
                     strokeCap = StrokeCap.Round,
-                    modifier = Modifier.size(30.dp)
+                    modifier = Modifier.size(35.dp)
                 )
             }
             Button(onClick = {
