@@ -1,6 +1,9 @@
 package com.rafael.inclusimap.domain
 
+import kotlinx.serialization.Serializable
+
 // The Place Marker showed in Map Screen
+@Serializable
 data class AccessibleLocalMarker(
     override var position: Pair<Double, Double> = 0.0 to 0.0,
     override var title: String = "",

@@ -1,5 +1,8 @@
 package com.rafael.inclusimap.domain
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Comment(
     val postDate: String,
     val id: Int,
