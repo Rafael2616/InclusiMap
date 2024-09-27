@@ -68,7 +68,7 @@ class InclusiMapGoogleMapScreenViewModel : ViewModel() {
     private fun onUpdateMappedPlace(placeUpdated: AccessibleLocalMarker) {
         _state.value = _state.value.copy(
             allMappedPlaces = _state.value.allMappedPlaces.map {
-                if (it.title == placeUpdated.title) {
+                if (it.id == placeUpdated.id) {
                     placeUpdated
                 } else it
             }

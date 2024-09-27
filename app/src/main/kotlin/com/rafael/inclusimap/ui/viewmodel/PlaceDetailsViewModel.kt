@@ -38,8 +38,8 @@ class PlaceDetailsViewModel(
     init {
         viewModelScope.launch(Dispatchers.IO) {
             loginRepository.getLoginInfo(1)?.let {
-                userName = it.userName ?: ""
-                userEmail = it.userEmail ?: ""
+                userName = it.userName!!
+                userEmail = it.userEmail!!
             }
         }
     }
@@ -65,13 +65,13 @@ class PlaceDetailsViewModel(
     private fun setCurrentPlace(place: AccessibleLocalMarker) {
         _state.update {
             it.copy(
-                isCurrentPlaceLoaded = it.loadedPlaces.any { existingPlace -> existingPlace.title == place.title },
-                allImagesLoaded = it.loadedPlaces.any { existingPlace -> existingPlace.title == place.title },
-                isUserCommented = it.loadedPlaces.find { existingPlace -> existingPlace.title == place.title }?.comments?.any { comment -> comment.email == userEmail }
+                isCurrentPlaceLoaded = it.loadedPlaces.any { existingPlace -> existingPlace.id == place.id },
+                allImagesLoaded = it.loadedPlaces.any { existingPlace -> existingPlace.id == place.id },
+                isUserCommented = it.loadedPlaces.find { existingPlace -> existingPlace.id == place.id }?.comments?.any { comment -> comment.email == userEmail }
                     ?: false,
-                userComment = it.loadedPlaces.find { existingPlace -> existingPlace.title == place.title }?.comments?.find { comment -> comment.email == userEmail }?.body
+                userComment = it.loadedPlaces.find { existingPlace -> existingPlace.id == place.id }?.comments?.find { comment -> comment.email == userEmail }?.body
                     ?: "",
-                userAccessibilityRate = it.loadedPlaces.find { existingPlace -> existingPlace.title == place.title }?.comments?.find { comment -> comment.email == userEmail }?.accessibilityRate
+                userAccessibilityRate = it.loadedPlaces.find { existingPlace -> existingPlace.id == place.id }?.comments?.find { comment -> comment.email == userEmail }?.accessibilityRate
                     ?: 0,
                 currentPlace = place,
                 loadedPlaces = state.value.loadedPlaces + place.toFullAccessibleLocalMarker(
@@ -115,14 +115,14 @@ class PlaceDetailsViewModel(
             }.await()
             _state.update {
                 it.copy(
-                    currentPlaceFolderID = state.value.inclusiMapImageRepositoryFolder.find { subPaths -> subPaths.name == placeDetails.title }?.id
+                    currentPlaceFolderID = state.value.inclusiMapImageRepositoryFolder.find { subPaths -> subPaths.name == placeDetails.id + "_" + placeDetails.author}?.id
                 )
             }
             if (_state.value.currentPlaceFolderID.isNullOrEmpty() || driveService.listFiles(state.value.currentPlaceFolderID!!)
                     .isEmpty()
             ) {
                 _state.update { it.copy(allImagesLoaded = true) }
-                println("No images found for place ${placeDetails.title}")
+                println("No images found for place ${placeDetails.title} ${placeDetails.id}")
                 return@launch
             }
             _state.update { it.copy(currentPlaceImagesFolder = driveService.listFiles(state.value.currentPlaceFolderID!!)) }
@@ -162,14 +162,14 @@ class PlaceDetailsViewModel(
             _state.update {
                 it.copy(
                     loadedPlaces = it.loadedPlaces.map { place ->
-                        if (place.title == it.currentPlace.title) {
+                        if (place.id == it.currentPlace.id) {
                             place.copy(images = it.currentPlaceImages)
                         } else {
                             place
                         }
                     }
                 ).also {
-                    println("Images cached successfully for ${it.currentPlace.title} + size: ${it.currentPlaceImages.size}")
+                    println("Images cached successfully for ${it.currentPlace.title} ${it.currentPlace.id} + size: ${it.currentPlaceImages.size}")
                 }
             }
         }
@@ -179,7 +179,7 @@ class PlaceDetailsViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             _state.update {
                 it.copy(
-                    currentPlaceImages = _state.value.loadedPlaces.find { it.title == _state.value.currentPlace.title }?.images
+                    currentPlaceImages = _state.value.loadedPlaces.find { place -> place.id == _state.value.currentPlace.id }?.images
                         ?: emptyList()
                 ).also {
                     println("Loading images from cache + size: ${it.currentPlaceImages.size}")
@@ -200,7 +200,7 @@ class PlaceDetailsViewModel(
             it.copy(
                 currentPlaceImages = it.currentPlaceImages + newImage,
                 loadedPlaces = it.loadedPlaces.map { place ->
-                    if (place.title == it.currentPlace.title) {
+                    if (place.id == it.currentPlace.id) {
                         place.copy(images = it.currentPlaceImages + newImage)
                     } else {
                         place
@@ -214,7 +214,7 @@ class PlaceDetailsViewModel(
                     _state.update {
                         it.copy(
                             currentPlaceFolderID = driveService.createFolder(
-                                _state.value.currentPlace.title,
+                                _state.value.currentPlace.id + "_" + _state.value.currentPlace.author,
                                 INCLUSIMAP_IMAGE_FOLDER_ID
                             )
                         )
@@ -224,10 +224,7 @@ class PlaceDetailsViewModel(
             driveService.uploadFile(
                 context.contentResolver.openInputStream(uri),
                 "${
-                    _state.value.currentPlace.title.replace(
-                        " ",
-                        ""
-                    )
+                    _state.value.currentPlace.id
                 }-$userEmail-${Date().toInstant()}.jpg",
                 _state.value.currentPlaceFolderID
                     ?: throw IllegalStateException("Folder not found: Maybe an issue has occurred while creating the folder")
@@ -240,14 +237,14 @@ class PlaceDetailsViewModel(
             it.copy(
                 currentPlaceImages = it.currentPlaceImages - image,
                 loadedPlaces = it.loadedPlaces.map { place ->
-                    if (place.title == it.currentPlace.title) {
+                    if (place.id == it.currentPlace.id) {
                         place.copy(images = it.currentPlaceImages - image)
                     } else {
                         place
                     }
                 },
                 currentPlaceFolderID = state.value.inclusiMapImageRepositoryFolder.find { subPaths ->
-                    subPaths.name == _state.value.currentPlace.title
+                    subPaths.name.split("_")[0] == _state.value.currentPlace.id
                 }?.id
             )
         }
@@ -290,7 +287,7 @@ class PlaceDetailsViewModel(
                     trySendComment = false,
                     isUserCommented = true,
                     loadedPlaces = it.loadedPlaces.map { place ->
-                        if (place.title == _state.value.currentPlace.title) {
+                        if (place.id == _state.value.currentPlace.id) {
                             place.copy(comments = place.comments + userComment)
                         } else {
                             place
@@ -312,7 +309,7 @@ class PlaceDetailsViewModel(
                     comments = it.currentPlace.comments.filter { comment -> comment.email != userEmail }
                 ),
                 loadedPlaces = it.loadedPlaces.map { place ->
-                    if (place.title == it.currentPlace.title) {
+                    if (place.id == it.currentPlace.id) {
                         place.copy(comments = place.comments.filter { comment -> comment.email != userEmail })
                     } else {
                         place

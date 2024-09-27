@@ -8,44 +8,51 @@ import java.util.Date
 data class AccessibleLocalMarker(
     override var markerState: MarkerState = MarkerState(),
     override var title: String = "",
-    override var description: String = "",
+    override var category: String = "",
     override var author: String = "",
     override var comments: List<Comment> = emptyList(),
-    override var time: String = Date().toInstant().toString(),
+    override var time: String = "",
+    override var id: String = "",
 ) : BaseLocalMarker
 
 interface BaseLocalMarker {
     val markerState: MarkerState
     var title: String
-    var description: String
+    var category: String
     var author: String
     var comments: List<Comment>
     var time: String
+    var id: String
 }
 
 data class FullAccessibleLocalMarker(
     override var markerState: MarkerState = MarkerState(),
-    override var title: String = "",
-    override var description: String = "",
-    override var author: String = "",
-    override var comments: List<Comment> = emptyList(),
-    override var time: String = Date().toInstant().toString(),
-    val images: List<PlaceImage?> = emptyList(),
+    override var title: String,
+    override var category: String,
+    override var author: String,
+    override var comments: List<Comment>,
+    override var time: String,
+    val images: List<PlaceImage?>,
+    override var id: String,
 ) : BaseLocalMarker
 
 fun AccessibleLocalMarker.toFullAccessibleLocalMarker(images: List<PlaceImage?>): FullAccessibleLocalMarker = FullAccessibleLocalMarker(
-    markerState = this.markerState,
-    title = this.title,
-    description = this.description,
-    author = this.author,
-    comments = this.comments,
-    images = images
+    markerState = markerState,
+    title = title,
+    category = category,
+    author = author,
+    comments = comments,
+    images = images,
+    time = time,
+    id = id
 )
 
 fun FullAccessibleLocalMarker.toAccessibleLocalMarker(): AccessibleLocalMarker = AccessibleLocalMarker(
-    markerState = this.markerState,
-    title = this.title,
-    description = this.description,
-    author = this.author,
-    comments = this.comments,
+    markerState = markerState,
+    title = title,
+    category = category,
+    author = author,
+    comments = comments,
+    time = time,
+    id = id,
 )

@@ -39,8 +39,10 @@ import com.google.maps.android.compose.MarkerState
 import com.rafael.inclusimap.domain.AccessibleLocalMarker
 import com.rafael.inclusimap.domain.LoginState
 import java.util.Date
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, ExperimentalUuidApi::class)
 @Composable
 fun AddPlaceBottomSheet(
     latLng: LatLng,
@@ -127,10 +129,11 @@ fun AddPlaceBottomSheet(
                         onAddNewPlace(
                             AccessibleLocalMarker(
                                 title = placeName,
-                                description = placeCategory,
+                                category = placeCategory,
                                 markerState = MarkerState(position = latLng),
                                 author = loginState.user!!.name,
                                 time = Date().toInstant().toString(),
+                                id = Uuid.random().toString()
                             )
                         )
                         onDismiss()

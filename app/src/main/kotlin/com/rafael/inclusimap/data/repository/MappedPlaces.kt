@@ -12,7 +12,7 @@ val mappedPlaces = listOf(
         ),
         title = "Lago Verde",
         author = "@InclusiMap",
-        description = "Ponto Turístico",
+        category = "Ponto Turístico",
         comments = listOf(
             Comment(
                 postDate = "21/08/2024",
@@ -31,6 +31,8 @@ val mappedPlaces = listOf(
                 accessibilityRate = 1,
             )
         ),
+        id = "d4dda9c4-4e88-4bc5-a7ee-71a23d046c0c",
+        time = "2024-09-22T13:50:18.272Z"
     ),
     AccessibleLocalMarker(
         markerState = MarkerState(
@@ -38,7 +40,7 @@ val mappedPlaces = listOf(
         ),
         title = "Top Alimentos",
         author = "@InclusiMap",
-        description = "Supermercado",
+        category = "Supermercado",
         comments = listOf(
             Comment(
                 postDate = "17/08/2024",
@@ -48,7 +50,9 @@ val mappedPlaces = listOf(
                 email = "",
                 accessibilityRate = 2,
             ),
-        )
+        ),
+        id = "1df7905d-0757-4592-943c-0b14c304f849",
+        time = "2024-09-22T13:50:18.272Z"
     ),
     AccessibleLocalMarker(
         markerState = MarkerState(
@@ -56,7 +60,7 @@ val mappedPlaces = listOf(
         ),
         title = "Mix Mateus",
         author = "@InclusiMap",
-        description = "Supermercado",
+        category = "Supermercado",
         comments = listOf(
             Comment(
                 postDate = "17/08/2024",
@@ -66,7 +70,9 @@ val mappedPlaces = listOf(
                 email = "",
                 accessibilityRate = 3,
             ),
-        )
+        ),
+        id = "ab1a96da-7067-4a6d-bacb-8f8c3bb1bf9a",
+        time = "2024-09-22T13:50:18.272Z"
     ),
     AccessibleLocalMarker(
         markerState = MarkerState(
@@ -74,7 +80,7 @@ val mappedPlaces = listOf(
         ),
         title = "UEPA",
         author = "@InclusiMap",
-        description = "Universidade",
+        category = "Universidade",
         comments = listOf(
             Comment(
                 postDate = "15/08/2024",
@@ -84,7 +90,9 @@ val mappedPlaces = listOf(
                 email = "",
                 accessibilityRate = 1,
             ),
-        )
+        ),
+        id = "48c3f14d-78be-4c1e-82b0-11dc67099b56",
+        time = "2024-09-22T13:50:18.272Z"
     ),
     AccessibleLocalMarker(
         markerState = MarkerState(
@@ -92,7 +100,7 @@ val mappedPlaces = listOf(
         ),
         title = "Shopping Diamond",
         author = "@InclusiMap",
-        description = "Shopping",
+        category = "Shopping",
         comments = listOf(
             Comment(
                 postDate = "22/07/2024",
@@ -110,7 +118,9 @@ val mappedPlaces = listOf(
                 email = "",
                 accessibilityRate = 2,
             ),
-        )
+        ),
+        id = "875fc8c1-3e41-4f56-b913-ef3b02fad399",
+        time = "2024-09-22T13:50:18.272Z"
     ),
     AccessibleLocalMarker(
         markerState = MarkerState(
@@ -118,7 +128,7 @@ val mappedPlaces = listOf(
         ),
         title = "Banco do Brasil",
         author = "@InclusiMap",
-        description = "Banco",
+        category = "Banco",
         comments = listOf(
             Comment(
                 postDate = "12/10/2024",
@@ -128,6 +138,8 @@ val mappedPlaces = listOf(
                 email = "",
                 accessibilityRate = 3,
             ),
-        )
+        ),
+        id = "fd9aa418-bc04-46fe-8974-f0bb8c400969",
+        time = "2024-09-22T13:50:18.272Z"
     ),
 )

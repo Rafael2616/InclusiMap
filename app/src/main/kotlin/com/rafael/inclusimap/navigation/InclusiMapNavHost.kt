@@ -51,7 +51,7 @@ fun InclusiMapNavHost(
         ) { innerPadding ->
             NavHost(
                 navController = navController,
-                startDestination = if (appIntroState.isFirstTime) Destination.AppIntroScreen else Destination.MapScreen,
+                startDestination = if (!loginState.isLoggedIn) Destination.AppIntroScreen else Destination.MapScreen,
                 enterTransition = { materialSharedAxisXIn(!isRtl, slideDistance) },
                 exitTransition = { materialSharedAxisXOut(!isRtl, slideDistance) },
                 popEnterTransition = { materialSharedAxisXIn(isRtl, slideDistance) },
@@ -91,9 +91,9 @@ fun InclusiMapNavHost(
         }
     }
 
-    LaunchedEffect(loginState.isLoggedIn) {
+    LaunchedEffect(loginState.isLoggedIn && !appIntroState.isFirstTime) {
         if (loginState.isLoggedIn) {
-            appIntroViewModel.setIsFirstTime(false)
+            appIntroViewModel.setIsFirstTime(true)
             navController.navigate(Destination.MapScreen)
         }
     }

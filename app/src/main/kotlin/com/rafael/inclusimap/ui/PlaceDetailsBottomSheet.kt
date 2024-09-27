@@ -146,7 +146,7 @@ fun PlaceDetailsBottomSheet(
                         fontSize = 24.sp,
                     )
                     Text(
-                        text = localMarker.description,
+                        text = localMarker.category,
                         fontSize = 16.sp,
                     )
                 }

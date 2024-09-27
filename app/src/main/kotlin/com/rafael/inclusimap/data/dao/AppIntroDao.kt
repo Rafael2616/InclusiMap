@@ -4,7 +4,6 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
 import com.rafael.inclusimap.domain.AppIntroEntity
-import com.rafael.inclusimap.domain.LoginEntity
 
 @Dao
 interface AppIntroDao {
