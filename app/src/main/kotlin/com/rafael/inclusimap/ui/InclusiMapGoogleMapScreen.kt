@@ -258,6 +258,7 @@ fun InclusiMapGoogleMapScreen(
     AnimatedVisibility(addPlaceBottomSheetScaffoldState.isVisible) {
         AddPlaceBottomSheet(
             latLng = state.selectedUnmappedPlaceLatLng!!,
+            loginState = loginState,
             bottomSheetScaffoldState = addPlaceBottomSheetScaffoldState,
             onDismiss = {
                 addPlaceBottomSheetScope.launch {

@@ -37,12 +37,14 @@ import androidx.compose.ui.unit.sp
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.MarkerState
 import com.rafael.inclusimap.domain.AccessibleLocalMarker
+import com.rafael.inclusimap.domain.LoginState
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun AddPlaceBottomSheet(
     latLng: LatLng,
+    loginState: LoginState,
     bottomSheetScaffoldState: SheetState,
     onAddNewPlace: (AccessibleLocalMarker) -> Unit,
     onDismiss: () -> Unit,
@@ -127,7 +129,7 @@ fun AddPlaceBottomSheet(
                                 title = placeName,
                                 description = placeCategory,
                                 markerState = MarkerState(position = latLng),
-                                author = "<Sem Nome>",
+                                author = loginState.user!!.name,
                                 time = Date().toInstant().toString(),
                             )
                         )
