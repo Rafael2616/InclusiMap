@@ -130,7 +130,7 @@ fun AddPlaceBottomSheet(
                             AccessibleLocalMarker(
                                 title = placeName,
                                 category = placeCategory,
-                                markerState = MarkerState(position = latLng),
+                                position = latLng.latitude to latLng.longitude,
                                 author = loginState.user!!.name,
                                 time = Date().toInstant().toString(),
                                 id = Uuid.random().toString()

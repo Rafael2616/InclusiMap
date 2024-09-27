@@ -48,6 +48,7 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.rafael.inclusimap.R
 import com.rafael.inclusimap.data.toHUE
@@ -219,7 +220,7 @@ fun InclusiMapGoogleMapScreen(
                 val accessibilityAverage =
                     place.comments.map { it.accessibilityRate }.average().toFloat()
                 Marker(
-                    state = place.markerState,
+                    state = MarkerState(position = LatLng(place.position.first, place.position.second)),
                     title = place.title,
                     snippet = place.category,
                     icon = BitmapDescriptorFactory.defaultMarker(

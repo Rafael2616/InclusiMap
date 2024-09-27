@@ -7,9 +7,7 @@ import com.rafael.inclusimap.domain.Comment
 
 val mappedPlaces = listOf(
     AccessibleLocalMarker(
-        markerState = MarkerState(
-            position = LatLng(-2.9961928457018034, -47.34839804470539)
-        ),
+        position = -2.9961928457018034 to -47.34839804470539,
         title = "Lago Verde",
         author = "@InclusiMap",
         category = "Ponto Turístico",
@@ -35,9 +33,7 @@ val mappedPlaces = listOf(
         time = "2024-09-22T13:50:18.272Z"
     ),
     AccessibleLocalMarker(
-        markerState = MarkerState(
-            position = LatLng(-2.9751372910178024, -47.360620871186256)
-        ),
+        position = -2.9751372910178024 to -47.360620871186256,
         title = "Top Alimentos",
         author = "@InclusiMap",
         category = "Supermercado",
@@ -55,9 +51,7 @@ val mappedPlaces = listOf(
         time = "2024-09-22T13:50:18.272Z"
     ),
     AccessibleLocalMarker(
-        markerState = MarkerState(
-            position = LatLng(-2.987957301132429, -47.357158809900284)
-        ),
+            position = -2.987957301132429 to -47.357158809900284,
         title = "Mix Mateus",
         author = "@InclusiMap",
         category = "Supermercado",
@@ -75,9 +69,7 @@ val mappedPlaces = listOf(
         time = "2024-09-22T13:50:18.272Z"
     ),
     AccessibleLocalMarker(
-        markerState = MarkerState(
-            position = LatLng(-2.985339672724703, -47.35865514725447)
-        ),
+        position = -2.985339672724703 to -47.35865514725447,
         title = "UEPA",
         author = "@InclusiMap",
         category = "Universidade",
@@ -95,9 +87,7 @@ val mappedPlaces = listOf(
         time = "2024-09-22T13:50:18.272Z"
     ),
     AccessibleLocalMarker(
-        markerState = MarkerState(
-            position = LatLng(-2.9951669634580633,-47.35554747283459)
-        ),
+        position = -2.9951669634580633 to -47.35554747283459,
         title = "Shopping Diamond",
         author = "@InclusiMap",
         category = "Shopping",
@@ -123,9 +113,7 @@ val mappedPlaces = listOf(
         time = "2024-09-22T13:50:18.272Z"
     ),
     AccessibleLocalMarker(
-        markerState = MarkerState(
-            position = LatLng(-2.9948525691968286,-47.35381476581097)
-        ),
+        position = -2.9948525691968286 to -47.35381476581097,
         title = "Banco do Brasil",
         author = "@InclusiMap",
         category = "Banco",

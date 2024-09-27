@@ -1,10 +1,8 @@
 package com.rafael.inclusimap.domain
 
-import com.google.maps.android.compose.MarkerState
-
 // The Place Marker showed in Map Screen
 data class AccessibleLocalMarker(
-    override var markerState: MarkerState = MarkerState(),
+    override var position: Pair<Double, Double> = 0.0 to 0.0,
     override var title: String = "",
     override var category: String = "",
     override var author: String = "",
@@ -14,7 +12,7 @@ data class AccessibleLocalMarker(
 ) : BaseLocalMarker
 
 interface BaseLocalMarker {
-    val markerState: MarkerState
+    val position: Pair<Double, Double>
     var title: String
     var category: String
     var author: String
@@ -24,7 +22,7 @@ interface BaseLocalMarker {
 }
 
 data class FullAccessibleLocalMarker(
-    override var markerState: MarkerState = MarkerState(),
+    override var position: Pair<Double, Double>,
     override var title: String,
     override var category: String,
     override var author: String,
@@ -35,7 +33,7 @@ data class FullAccessibleLocalMarker(
 ) : BaseLocalMarker
 
 fun AccessibleLocalMarker.toFullAccessibleLocalMarker(images: List<PlaceImage?>): FullAccessibleLocalMarker = FullAccessibleLocalMarker(
-    markerState = markerState,
+    position = position,
     title = title,
     category = category,
     author = author,
@@ -46,7 +44,7 @@ fun AccessibleLocalMarker.toFullAccessibleLocalMarker(images: List<PlaceImage?>)
 )
 
 fun FullAccessibleLocalMarker.toAccessibleLocalMarker(): AccessibleLocalMarker = AccessibleLocalMarker(
-    markerState = markerState,
+    position = position,
     title = title,
     category = category,
     author = author,
