@@ -28,6 +28,9 @@ val appModule = module {
         GoogleDriveService()
     }
     viewModel {
+        LoginViewModel()
+    }
+    viewModel {
         AppIntroViewModel(get<AppIntroRepositoryImpl>())
     }
     viewModel {
@@ -35,8 +38,5 @@ val appModule = module {
     }
     viewModel {
         PlaceDetailsViewModel(get())
-    }
-    single {
-        LoginViewModel()
     }
 }

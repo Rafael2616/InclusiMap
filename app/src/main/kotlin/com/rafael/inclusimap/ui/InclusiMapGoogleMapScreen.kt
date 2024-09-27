@@ -239,6 +239,7 @@ fun InclusiMapGoogleMapScreen(
         PlaceDetailsBottomSheet(
             state = placeDetailsState,
             onEvent = onPlaceDetailsEvent,
+            loginState = loginState,
             localMarker = state.selectedMappedPlace!!,
             bottomSheetScaffoldState = bottomSheetScaffoldState,
             onDismiss = {

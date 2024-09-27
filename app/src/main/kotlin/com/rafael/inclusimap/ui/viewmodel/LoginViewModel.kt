@@ -7,6 +7,7 @@ import com.rafael.inclusimap.domain.LoginEvent
 import com.rafael.inclusimap.domain.LoginState
 import com.rafael.inclusimap.domain.RegisteredUser
 import com.rafael.inclusimap.domain.User
+import com.rafael.inclusimap.domain.util.Constants.INCLUSIMAP_USERS_FOLDER_ID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,7 +43,7 @@ class LoginViewModel : ViewModel() {
     private fun registerNewUser(newUser: User) {
         _state.update {
             it.copy(
-                isRegistering = true
+                isRegistering = true,
             )
         }
         val userID = Uuid.random().toString()
@@ -108,7 +109,9 @@ class LoginViewModel : ViewModel() {
     private fun login(registeredUser: RegisteredUser) {
         _state.update {
             it.copy(
-                isRegistering = true
+                isRegistering = true,
+                isPasswordCorrect = true,
+                userAlreadyRegistered = true,
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -128,11 +131,6 @@ class LoginViewModel : ViewModel() {
 
             if (!_state.value.userAlreadyRegistered) {
                 println("User not found")
-                _state.update {
-                    it.copy(
-                        isRegistering = false
-                    )
-                }
                 return@launch
             }
 
@@ -154,7 +152,6 @@ class LoginViewModel : ViewModel() {
                     _state.update {
                         it.copy(
                             isPasswordCorrect = false,
-                            isRegistering = false
                         )
                     }
                     println("Password is incorrect")
@@ -177,12 +174,15 @@ class LoginViewModel : ViewModel() {
                 _state.update {
                     it.copy(
                         isLoggedIn = true,
-                        isRegistering = false
+                        isPasswordCorrect = true,
                     )
                 }
+            }
+            _state.update {
+                it.copy(
+                    isRegistering = false
+                )
             }
         }
     }
 }
-
-const val INCLUSIMAP_USERS_FOLDER_ID = "1Vz3Ac1P9SkkNwObYB51eMo2IcVIQwmjD"

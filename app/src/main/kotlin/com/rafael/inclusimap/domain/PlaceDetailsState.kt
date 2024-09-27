@@ -16,6 +16,3 @@ data class PlaceDetailsState(
   val trySendComment: Boolean = false,
   val isUserCommented: Boolean = false,
 )
-
-val INCLUSIMAP_IMAGE_FOLDER_ID = "18C_8JhqLKaLUVif_Vh1_nl0LzfF5zVYM"
-val USER_NAME = "<Sem Nome>" // nome do usuario deve ser tratado na tela de login

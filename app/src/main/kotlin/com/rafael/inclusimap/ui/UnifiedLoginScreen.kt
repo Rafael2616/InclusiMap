@@ -32,7 +32,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,6 +42,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -171,7 +171,7 @@ fun RegistrationScreen(
         Toast.LENGTH_SHORT
     )
     val differentPasswordToast =
-        Toast.makeText(context, "A senha deve ser igual", Toast.LENGTH_SHORT)
+        Toast.makeText(context, "A senha deve ser igual", Toast.LENGTH_LONG)
     var showPassword by remember { mutableStateOf(false) }
 
     Column(
@@ -296,7 +296,9 @@ fun RegistrationScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (state.isRegistering) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(
+                    strokeCap = StrokeCap.Round,
+                )
             }
             Button(onClick = {
                 canLogin = true
@@ -338,9 +340,9 @@ fun LoginScreen(
     val context = LocalContext.current
     val toast = Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT)
     val passwordIncorrectToast =
-        Toast.makeText(context, "A senha está incorreta", Toast.LENGTH_SHORT)
+        Toast.makeText(context, "A senha está incorreta", Toast.LENGTH_LONG)
     val inexistentUserToast =
-        Toast.makeText(context, "Não foi encontrado um usuário com esse email!", Toast.LENGTH_SHORT)
+        Toast.makeText(context, "Não foi encontrado um usuário com esse email!", Toast.LENGTH_LONG)
 
     var showPassword by remember { mutableStateOf(false) }
 
@@ -428,7 +430,9 @@ fun LoginScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (state.isRegistering) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(
+                    strokeCap = StrokeCap.Round,
+                )
             }
             Button(onClick = {
                 canLogin = true
@@ -447,10 +451,10 @@ fun LoginScreen(
             }
         }
     }
-        if (!state.isPasswordCorrect && canLogin) {
-            passwordIncorrectToast.show()
-        }
-        if (!state.userAlreadyRegistered && canLogin) {
-            inexistentUserToast.show()
-        }
+    if (!state.isPasswordCorrect && !state.isRegistering && canLogin) {
+        passwordIncorrectToast.show()
+    }
+    if (!state.userAlreadyRegistered && !state.isRegistering && canLogin) {
+        inexistentUserToast.show()
+    }
 }

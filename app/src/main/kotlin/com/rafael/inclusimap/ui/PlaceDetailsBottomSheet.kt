@@ -80,9 +80,9 @@ import androidx.compose.ui.unit.sp
 import com.rafael.inclusimap.data.toColor
 import com.rafael.inclusimap.data.toMessage
 import com.rafael.inclusimap.domain.AccessibleLocalMarker
+import com.rafael.inclusimap.domain.LoginState
 import com.rafael.inclusimap.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.domain.PlaceDetailsState
-import com.rafael.inclusimap.domain.USER_NAME
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
@@ -95,6 +95,7 @@ import kotlinx.coroutines.launch
 fun PlaceDetailsBottomSheet(
     localMarker: AccessibleLocalMarker,
     bottomSheetScaffoldState: SheetState,
+    loginState: LoginState,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     state: PlaceDetailsState,
@@ -105,6 +106,7 @@ fun PlaceDetailsBottomSheet(
     val context = LocalContext.current
     val focusRequester = remember { FocusRequester() }
     var showPlaceInfo by remember { mutableStateOf(false) }
+    val userName = loginState.user!!.name
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             uri?.let {
@@ -235,7 +237,7 @@ fun PlaceDetailsBottomSheet(
                                                 }
                                             )
                                     )
-                                    if (image.userName == USER_NAME) {
+                                    if (image.userName == userName) {
                                         Box(
                                             modifier = Modifier
                                                 .width(185.dp)
@@ -525,7 +527,7 @@ fun PlaceDetailsBottomSheet(
                                 .padding(16.dp)
                                 .fillMaxWidth()
                         ) {
-                            state.currentPlace.comments.filter { comment -> comment.name != USER_NAME }
+                            state.currentPlace.comments.filter { comment -> comment.name != userName }
                                 .forEachIndexed { index, comment ->
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
@@ -563,7 +565,7 @@ fun PlaceDetailsBottomSheet(
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Normal,
                                     )
-                                    if (index != (state.currentPlace.comments.filter { it.name != USER_NAME }.size - 1)) {
+                                    if (index != (state.currentPlace.comments.filter { it.name != userName }.size - 1)) {
                                         HorizontalDivider()
                                     }
                                 }
@@ -574,7 +576,7 @@ fun PlaceDetailsBottomSheet(
                                     fontWeight = FontWeight.Normal,
                                 )
                             }
-                            if (state.currentPlace.comments.size == 1 && state.currentPlace.comments.first().name == USER_NAME) {
+                            if (state.currentPlace.comments.size == 1 && state.currentPlace.comments.first().name == userName) {
                                 Text(
                                     text = "Somente você comentou até agora",
                                     fontSize = 14.sp,

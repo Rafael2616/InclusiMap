@@ -10,12 +10,11 @@ import com.rafael.inclusimap.data.GoogleDriveService
 import com.rafael.inclusimap.data.extractUserName
 import com.rafael.inclusimap.domain.AccessibleLocalMarker
 import com.rafael.inclusimap.domain.Comment
-import com.rafael.inclusimap.domain.INCLUSIMAP_IMAGE_FOLDER_ID
 import com.rafael.inclusimap.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.domain.PlaceDetailsState
 import com.rafael.inclusimap.domain.PlaceImage
-import com.rafael.inclusimap.domain.USER_NAME
 import com.rafael.inclusimap.domain.toFullAccessibleLocalMarker
+import com.rafael.inclusimap.domain.util.Constants.INCLUSIMAP_IMAGE_FOLDER_ID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -31,7 +30,7 @@ class PlaceDetailsViewModel(
 
     private val _state = MutableStateFlow(PlaceDetailsState())
     val state = _state.asStateFlow()
-
+    val USER_NAME = "<Sem Nome>" // Get the real user name when create de LoginEntity db
     fun onEvent(event: PlaceDetailsEvent) {
         when (event) {
             is PlaceDetailsEvent.OnUploadPlaceImages -> onUploadPlaceImages(
@@ -255,7 +254,7 @@ class PlaceDetailsViewModel(
             )
         }
         if (state.value.userComment.isNotEmpty() && state.value.userAccessibilityRate != 0) {
-            var userComment =
+            val userComment =
                     Comment(
                         postDate = System.currentTimeMillis()
                             .toString(),
