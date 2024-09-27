@@ -1,6 +1,9 @@
 package com.rafael.inclusimap.domain.util
 
+import com.google.android.gms.maps.model.LatLng
+
 object Constants {
+    val PARAGOMINAS_LAT_LNG = LatLng(-2.9956568022602914,-47.35489636659622)
     const val INCLUSIMAP_USERS_FOLDER_ID = "1Vz3Ac1P9SkkNwObYB51eMo2IcVIQwmjD"
     const val INCLUSIMAP_IMAGE_FOLDER_ID = "18C_8JhqLKaLUVif_Vh1_nl0LzfF5zVYM"
 }

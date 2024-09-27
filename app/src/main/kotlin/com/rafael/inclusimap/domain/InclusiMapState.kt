@@ -2,6 +2,7 @@ package com.rafael.inclusimap.domain
 
 import com.google.android.gms.maps.model.LatLng
 import com.rafael.inclusimap.data.repository.mappedPlaces
+import com.rafael.inclusimap.domain.util.Constants.PARAGOMINAS_LAT_LNG
 
 data class InclusiMapState(
     val isMyLocationFound: Boolean = false,
@@ -13,4 +14,3 @@ data class InclusiMapState(
     val allMappedPlaces: List<AccessibleLocalMarker> = mappedPlaces,
 )
 
-val PARAGOMINAS_LAT_LNG = LatLng(-2.98, -47.35)
