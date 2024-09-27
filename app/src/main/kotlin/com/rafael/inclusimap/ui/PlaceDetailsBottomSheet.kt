@@ -368,7 +368,7 @@ fun PlaceDetailsBottomSheet(
                             )
                     ) {
                         Column(
-                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
                             modifier = Modifier
                                 .padding(16.dp)
                                 .fillMaxWidth()
@@ -468,6 +468,11 @@ fun PlaceDetailsBottomSheet(
                                     (state.userAccessibilityRate == 0 || state.userComment.isEmpty()) && state.trySendComment,
                                 )
                             } else {
+                                Text (
+                                    text = loginState.user.name,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold,
+                                )
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier.fillMaxWidth(),
