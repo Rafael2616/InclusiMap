@@ -199,7 +199,7 @@ fun InclusiMapGoogleMapScreen(
         mapColorScheme = if (isSystemInDarkTheme()) ComposeMapColorScheme.DARK else ComposeMapColorScheme.LIGHT,
         onMapLoaded = {
             onEvent(InclusiMapEvent.OnMapLoaded)
-            if (!animateMap && state.isMyLocationFound) {
+            if (!animateMap && !appIntroState.showAppIntro) {
                 cameraPositionState.position = CameraPosition.fromLatLngZoom(
                     state.defaultLocationLatLng,
                     15f
