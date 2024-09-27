@@ -359,6 +359,9 @@ fun RegistrationScreen(
     if (state.userAlreadyRegistered && !state.isRegistering && canLogin) {
         existentUserToast.show()
     }
+    if (state.isLoggedIn && canLogin) {
+        Toast.makeText(context, "Registrado com sucesso!", Toast.LENGTH_LONG).show()
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -493,5 +496,8 @@ fun LoginScreen(
     }
     if (!state.userAlreadyRegistered && !state.isRegistering && canLogin) {
         inexistentUserToast.show()
+    }
+    if (state.isLoggedIn && canLogin) {
+        Toast.makeText(context, "Logado com sucesso!", Toast.LENGTH_LONG).show()
     }
 }
