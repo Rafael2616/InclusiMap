@@ -41,7 +41,9 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.ComposeMapColorScheme
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
@@ -73,7 +75,16 @@ fun InclusiMapGoogleMapScreen(
     fusedLocationClient: FusedLocationProviderClient,
     modifier: Modifier = Modifier,
 ) {
-    val cameraPositionState = rememberCameraPositionState()
+    val cameraPositionState = if (appIntroState.isFirstTime) rememberCameraPositionState() else remember {
+        CameraPositionState(
+            CameraPosition(
+                state.defaultLocationLatLng,
+                15f,
+                0f,
+                0f
+            )
+        )
+    }
     val scope = rememberCoroutineScope()
     val bottomSheetScaffoldState = rememberModalBottomSheetState()
     val bottomSheetScope = rememberCoroutineScope()
@@ -183,15 +194,6 @@ fun InclusiMapGoogleMapScreen(
         },
         mapColorScheme = if (isSystemInDarkTheme()) ComposeMapColorScheme.DARK else ComposeMapColorScheme.LIGHT,
         onMapLoaded = {
-            scope.launch {
-                cameraPositionState.animate(
-                    update = CameraUpdateFactory.newLatLngZoom(
-                        state.defaultLocationLatLng,
-                        15f
-                    ),
-                    durationMs = 3500
-                )
-            }
             onEvent(InclusiMapEvent.OnMapLoaded)
         },
         onMapLongClick = {
