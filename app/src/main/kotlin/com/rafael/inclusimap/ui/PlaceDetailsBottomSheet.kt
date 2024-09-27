@@ -1,5 +1,6 @@
 package com.rafael.inclusimap.ui
 
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -106,11 +107,12 @@ fun PlaceDetailsBottomSheet(
     val context = LocalContext.current
     val focusRequester = remember { FocusRequester() }
     var showPlaceInfo by remember { mutableStateOf(false) }
-    val userEmail = loginState.user!!.email
+    val userEmail = remember { loginState.user!!.email }
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             uri?.let {
                 onEvent(PlaceDetailsEvent.OnUploadPlaceImages(it, context))
+                Toast.makeText(context, "Imagem adicionada!", Toast.LENGTH_SHORT).show()
             }
         }
     LaunchedEffect(Unit) {
@@ -252,6 +254,7 @@ fun PlaceDetailsBottomSheet(
                                                         )
                                                     )
                                                     showRemoveImageBtn = false
+                                                    Toast.makeText(context, "Imagem removida!", Toast.LENGTH_SHORT).show()
                                                 },
                                                 modifier = Modifier
                                                     .align(Alignment.TopEnd)
@@ -445,6 +448,7 @@ fun PlaceDetailsBottomSheet(
                                         IconButton(
                                             onClick = {
                                                 onEvent(PlaceDetailsEvent.OnSendComment)
+                                                Toast.makeText(context, "Comentário adicionado!", Toast.LENGTH_SHORT).show()
                                             }
                                         ) {
                                             Icon(
@@ -469,7 +473,7 @@ fun PlaceDetailsBottomSheet(
                                 )
                             } else {
                                 Text (
-                                    text = loginState.user.name,
+                                    text = loginState.user!!.name,
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold,
                                 )
@@ -504,6 +508,7 @@ fun PlaceDetailsBottomSheet(
                                     IconButton(
                                         onClick = {
                                             onEvent(PlaceDetailsEvent.OnDeleteComment)
+                                            Toast.makeText(context, "Comentário removido!", Toast.LENGTH_SHORT).show()
                                         },
                                         modifier = Modifier
                                             .size(35.dp)
