@@ -31,7 +31,7 @@ fun PlaceInfoDialog(
     ) {
         Card(
             modifier = modifier
-                .fillMaxWidth(0.85f)
+                .fillMaxWidth(0.9f)
                 .clip(RoundedCornerShape(24.dp))
         ) {
             Column(

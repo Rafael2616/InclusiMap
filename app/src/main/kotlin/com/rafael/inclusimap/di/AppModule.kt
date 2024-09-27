@@ -4,6 +4,7 @@ import androidx.room.Room
 import com.rafael.inclusimap.data.GoogleDriveService
 import com.rafael.inclusimap.data.database.AppDatabase
 import com.rafael.inclusimap.data.repository.AppIntroRepositoryImpl
+import com.rafael.inclusimap.data.repository.LoginRepositoryImpl
 import com.rafael.inclusimap.ui.viewmodel.AppIntroViewModel
 import com.rafael.inclusimap.ui.viewmodel.InclusiMapGoogleMapScreenViewModel
 import com.rafael.inclusimap.ui.viewmodel.LoginViewModel
@@ -19,16 +20,20 @@ val appModule = module {
             AppDatabase::class.java,
             AppDatabase.DATABASE_NAME
         )
+            .fallbackToDestructiveMigration(true)
             .build()
     }
     single {
         AppIntroRepositoryImpl(get<AppDatabase>().appIntroDao())
     }
     single {
+        LoginRepositoryImpl(get<AppDatabase>().loginDao())
+    }
+    single {
         GoogleDriveService()
     }
     viewModel {
-        LoginViewModel()
+        LoginViewModel(get<LoginRepositoryImpl>())
     }
     viewModel {
         AppIntroViewModel(get<AppIntroRepositoryImpl>())
@@ -37,6 +42,6 @@ val appModule = module {
         InclusiMapGoogleMapScreenViewModel()
     }
     viewModel {
-        PlaceDetailsViewModel(get())
+        PlaceDetailsViewModel(get(), get<LoginRepositoryImpl>())
     }
 }

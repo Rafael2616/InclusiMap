@@ -106,7 +106,7 @@ fun PlaceDetailsBottomSheet(
     val context = LocalContext.current
     val focusRequester = remember { FocusRequester() }
     var showPlaceInfo by remember { mutableStateOf(false) }
-    val userName = loginState.user!!.name
+    val userEmail = loginState.user!!.email
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             uri?.let {
@@ -203,8 +203,8 @@ fun PlaceDetailsBottomSheet(
                         modifier = Modifier
                             .padding(bottom = 8.dp)
                     )
-                    val gridHeight = 260.dp
-                    val imageWidth = 185.dp
+                    val gridHeight by remember { mutableStateOf(260.dp) }
+                    val imageWidth by remember { mutableStateOf(185.dp) }
                     LazyHorizontalStaggeredGrid(
                         rows = StaggeredGridCells.Fixed(1),
                         modifier = Modifier
@@ -237,7 +237,7 @@ fun PlaceDetailsBottomSheet(
                                                 }
                                             )
                                     )
-                                    if (image.userName == userName) {
+                                    if (image.userEmail == userEmail) {
                                         Box(
                                             modifier = Modifier
                                                 .width(185.dp)
@@ -527,7 +527,7 @@ fun PlaceDetailsBottomSheet(
                                 .padding(16.dp)
                                 .fillMaxWidth()
                         ) {
-                            state.currentPlace.comments.filter { comment -> comment.name != userName }
+                            state.currentPlace.comments.filter { comment -> comment.email != userEmail }
                                 .forEachIndexed { index, comment ->
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
@@ -565,7 +565,7 @@ fun PlaceDetailsBottomSheet(
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Normal,
                                     )
-                                    if (index != (state.currentPlace.comments.filter { it.name != userName }.size - 1)) {
+                                    if (index != (state.currentPlace.comments.filter { it.email != userEmail }.size - 1)) {
                                         HorizontalDivider()
                                     }
                                 }
@@ -576,7 +576,7 @@ fun PlaceDetailsBottomSheet(
                                     fontWeight = FontWeight.Normal,
                                 )
                             }
-                            if (state.currentPlace.comments.size == 1 && state.currentPlace.comments.first().name == userName) {
+                            if (state.currentPlace.comments.size == 1 && state.currentPlace.comments.first().email == userEmail) {
                                 Text(
                                     text = "Somente você comentou até agora",
                                     fontSize = 14.sp,

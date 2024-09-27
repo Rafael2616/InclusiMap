@@ -3,10 +3,12 @@ package com.rafael.inclusimap.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafael.inclusimap.data.GoogleDriveService
+import com.rafael.inclusimap.domain.LoginEntity
 import com.rafael.inclusimap.domain.LoginEvent
 import com.rafael.inclusimap.domain.LoginState
 import com.rafael.inclusimap.domain.RegisteredUser
 import com.rafael.inclusimap.domain.User
+import com.rafael.inclusimap.domain.repository.LoginRepository
 import com.rafael.inclusimap.domain.util.Constants.INCLUSIMAP_USERS_FOLDER_ID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -19,10 +21,31 @@ import kotlinx.serialization.json.Json
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-class LoginViewModel : ViewModel() {
+class LoginViewModel(
+    private val repository: LoginRepository,
+) : ViewModel() {
     private val driveService: GoogleDriveService = GoogleDriveService()
     private val _state = MutableStateFlow(LoginState())
     val state = _state.asStateFlow()
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            val loginData = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
+            _state.update { it.copy(isLoggedIn = loginData.isLoggedIn) }
+            if (!loginData.userId.isNullOrEmpty()) {
+                _state.update {
+                    it.copy(
+                        user = User(
+                            id = loginData.userId!!,
+                            name = loginData.userName!!,
+                            email = loginData.userEmail!!,
+                            password = loginData.userPassword!!,
+                        )
+                    )
+                }
+            }
+        }
+    }
 
     fun onEvent(event: LoginEvent) {
         when (event) {
@@ -95,12 +118,23 @@ class LoginViewModel : ViewModel() {
             }.await()
         }.invokeOnCompletion {
             if (!_state.value.userAlreadyRegistered) {
-                _state.update {
-                    it.copy(
-                        user = user,
-                        isLoggedIn = true,
-                        isRegistering = false
-                    )
+                viewModelScope.launch(Dispatchers.IO) {
+                    val loginData = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
+                    loginData.userId = user.id
+                    loginData.userName = user.name
+                    loginData.userEmail = user.email
+                    loginData.userPassword = user.password
+                    loginData.isLoggedIn = true
+
+                    repository.updateLoginInfo(loginData)
+
+                    _state.update {
+                        it.copy(
+                            user = user,
+                            isLoggedIn = true,
+                            isRegistering = false
+                        )
+                    }
                 }
             }
         }
@@ -144,7 +178,9 @@ class LoginViewModel : ViewModel() {
                     userFile.name.endsWith(".json")
                 }
 
-                val userLoginFileContent = driveService.getFileContent(userLoginFile?.id ?: throw IllegalStateException("User not found")).decodeToString()
+                val userLoginFileContent = driveService.getFileContent(
+                    userLoginFile?.id ?: throw IllegalStateException("User not found")
+                ).decodeToString()
                 println("User file content: $userLoginFileContent")
 
                 val userObj = json.decodeFromString<User>(userLoginFileContent)
@@ -157,6 +193,15 @@ class LoginViewModel : ViewModel() {
                     println("Password is incorrect")
                     return@async
                 }
+                val loginData = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
+                loginData.userId = userObj.id
+                loginData.userName = userObj.name
+                loginData.userEmail = userObj.email
+                loginData.userPassword = userObj.password
+                loginData.isLoggedIn = true
+
+                repository.updateLoginInfo(loginData)
+
                 _state.update {
                     it.copy(
                         isPasswordCorrect = true,

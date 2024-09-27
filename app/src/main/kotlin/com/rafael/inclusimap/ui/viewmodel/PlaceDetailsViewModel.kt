@@ -7,12 +7,13 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafael.inclusimap.data.GoogleDriveService
-import com.rafael.inclusimap.data.extractUserName
+import com.rafael.inclusimap.data.extractUserEmail
 import com.rafael.inclusimap.domain.AccessibleLocalMarker
 import com.rafael.inclusimap.domain.Comment
 import com.rafael.inclusimap.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.domain.PlaceDetailsState
 import com.rafael.inclusimap.domain.PlaceImage
+import com.rafael.inclusimap.domain.repository.LoginRepository
 import com.rafael.inclusimap.domain.toFullAccessibleLocalMarker
 import com.rafael.inclusimap.domain.util.Constants.INCLUSIMAP_IMAGE_FOLDER_ID
 import kotlinx.coroutines.Dispatchers
@@ -25,12 +26,24 @@ import kotlinx.coroutines.launch
 import java.util.Date
 
 class PlaceDetailsViewModel(
-    private val driveService: GoogleDriveService
+    private val driveService: GoogleDriveService,
+    private val loginRepository: LoginRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(PlaceDetailsState())
     val state = _state.asStateFlow()
-    val USER_NAME = "<Sem Nome>" // Get the real user name when create de LoginEntity db
+    private var userName = ""
+    private var userEmail = ""
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            loginRepository.getLoginInfo(1)?.let {
+                userName = it.userName ?: ""
+                userEmail = it.userEmail ?: ""
+            }
+        }
+    }
+
     fun onEvent(event: PlaceDetailsEvent) {
         when (event) {
             is PlaceDetailsEvent.OnUploadPlaceImages -> onUploadPlaceImages(
@@ -54,9 +67,12 @@ class PlaceDetailsViewModel(
             it.copy(
                 isCurrentPlaceLoaded = it.loadedPlaces.any { existingPlace -> existingPlace.title == place.title },
                 allImagesLoaded = it.loadedPlaces.any { existingPlace -> existingPlace.title == place.title },
-                isUserCommented = it.loadedPlaces.find { existingPlace -> existingPlace.title == place.title }?.comments?.any { comment -> comment.name == USER_NAME } ?: false,
-                userComment = it.loadedPlaces.find { existingPlace -> existingPlace.title == place.title }?.comments?.find { comment -> comment.name == USER_NAME }?.body ?: "",
-                userAccessibilityRate = it.loadedPlaces.find { existingPlace -> existingPlace.title == place.title }?.comments?.find { comment -> comment.name == USER_NAME }?.accessibilityRate ?: 0,
+                isUserCommented = it.loadedPlaces.find { existingPlace -> existingPlace.title == place.title }?.comments?.any { comment -> comment.email == userEmail }
+                    ?: false,
+                userComment = it.loadedPlaces.find { existingPlace -> existingPlace.title == place.title }?.comments?.find { comment -> comment.email == userEmail }?.body
+                    ?: "",
+                userAccessibilityRate = it.loadedPlaces.find { existingPlace -> existingPlace.title == place.title }?.comments?.find { comment -> comment.email == userEmail }?.accessibilityRate
+                    ?: 0,
                 currentPlace = place,
                 loadedPlaces = state.value.loadedPlaces + place.toFullAccessibleLocalMarker(
                     emptyList()
@@ -124,7 +140,7 @@ class PlaceDetailsViewModel(
                                     it.copy(
                                         currentPlaceImages = it.currentPlaceImages +
                                                 PlaceImage(
-                                                    userName = file.name.extractUserName(),
+                                                    userEmail = file.name.extractUserEmail(),
                                                     image = image
                                                 )
                                     ).also {
@@ -175,7 +191,7 @@ class PlaceDetailsViewModel(
     private fun onUploadPlaceImages(uri: Uri, context: Context) {
         // Add the image to the list of images tobe showed in the app UI
         val newImage = PlaceImage(
-            userName = USER_NAME,
+            userEmail = userEmail,
             BitmapFactory.decodeStream(
                 context.contentResolver.openInputStream(uri)
             ).asImageBitmap()
@@ -212,7 +228,7 @@ class PlaceDetailsViewModel(
                         " ",
                         ""
                     )
-                }-$USER_NAME-${Date().toInstant()}.jpg",
+                }-$userEmail-${Date().toInstant()}.jpg",
                 _state.value.currentPlaceFolderID
                     ?: throw IllegalStateException("Folder not found: Maybe an issue has occurred while creating the folder")
             )
@@ -239,7 +255,7 @@ class PlaceDetailsViewModel(
             val localMarkerFiles =
                 driveService.listFiles(state.value.currentPlaceFolderID.orEmpty())
             val imageId =
-                localMarkerFiles.find { it.name.extractUserName() == image.userName }?.id.orEmpty()
+                localMarkerFiles.find { it.name.extractUserEmail() == image.userEmail }?.id.orEmpty()
             driveService.deleteFile(imageId)
         }
     }
@@ -249,23 +265,23 @@ class PlaceDetailsViewModel(
             it.copy(
                 trySendComment = true,
                 currentPlace = it.currentPlace.copy(
-                    comments = it.currentPlace.comments.filter { comment -> comment.name != USER_NAME }
+                    comments = it.currentPlace.comments.filter { comment -> comment.email != userEmail }
                 )
             )
         }
         if (state.value.userComment.isNotEmpty() && state.value.userAccessibilityRate != 0) {
             val userComment =
-                    Comment(
-                        postDate = System.currentTimeMillis()
-                            .toString(),
-                        id = _state.value.currentPlace.comments.size.plus(
-                            1
-                        ),
-                        name = USER_NAME,
-                        body = state.value.userComment,
-                        email = "",
-                        accessibilityRate = state.value.userAccessibilityRate,
-                    )
+                Comment(
+                    postDate = System.currentTimeMillis()
+                        .toString(),
+                    id = _state.value.currentPlace.comments.size.plus(
+                        1
+                    ),
+                    name = userName,
+                    body = state.value.userComment,
+                    email = userEmail,
+                    accessibilityRate = state.value.userAccessibilityRate,
+                )
             _state.update {
                 it.copy(
                     currentPlace = it.currentPlace.copy(
@@ -293,11 +309,11 @@ class PlaceDetailsViewModel(
                 userAccessibilityRate = 0,
                 isUserCommented = false,
                 currentPlace = it.currentPlace.copy(
-                    comments = it.currentPlace.comments.filter { comment -> comment.name != USER_NAME }
+                    comments = it.currentPlace.comments.filter { comment -> comment.email != userEmail }
                 ),
                 loadedPlaces = it.loadedPlaces.map { place ->
                     if (place.title == it.currentPlace.title) {
-                        place.copy(comments = place.comments.filter { comment -> comment.name != USER_NAME })
+                        place.copy(comments = place.comments.filter { comment -> comment.email != userEmail })
                     } else {
                         place
                     }
