@@ -76,8 +76,8 @@ fun InclusiMapGoogleMapScreen(
     fusedLocationClient: FusedLocationProviderClient,
     modifier: Modifier = Modifier,
 ) {
+    var animateMap by remember { mutableStateOf(false) }
     val cameraPositionState = rememberCameraPositionState()
-    val scope = rememberCoroutineScope()
     val bottomSheetScaffoldState = rememberModalBottomSheetState()
     val bottomSheetScope = rememberCoroutineScope()
     val addPlaceBottomSheetScaffoldState = rememberModalBottomSheetState()
@@ -85,6 +85,17 @@ fun InclusiMapGoogleMapScreen(
     val locationPermission = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
     val showMarkers by remember(cameraPositionState.isMoving) { mutableStateOf(cameraPositionState.position.zoom >= 15f) }
 
+    LaunchedEffect(animateMap && !appIntroState.showAppIntro) {
+        if (animateMap) {
+            cameraPositionState.animate(
+                update = CameraUpdateFactory.newLatLngZoom(
+                    state.defaultLocationLatLng,
+                    15f
+                ),
+                durationMs = 3500
+            )
+        }
+    }
     LaunchedEffect(state.isLocationPermissionGranted) {
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
             location?.let {
@@ -187,16 +198,13 @@ fun InclusiMapGoogleMapScreen(
         },
         mapColorScheme = if (isSystemInDarkTheme()) ComposeMapColorScheme.DARK else ComposeMapColorScheme.LIGHT,
         onMapLoaded = {
-            scope.launch {
-                cameraPositionState.animate(
-                    update = CameraUpdateFactory.newLatLngZoom(
-                        state.defaultLocationLatLng,
-                        15f
-                    ),
-                    durationMs = 3500
+            onEvent(InclusiMapEvent.OnMapLoaded)
+            if (!animateMap && state.isMyLocationFound) {
+                cameraPositionState.position = CameraPosition.fromLatLngZoom(
+                    state.defaultLocationLatLng,
+                    15f
                 )
             }
-            onEvent(InclusiMapEvent.OnMapLoaded)
         },
         onMapLongClick = {
             onEvent(InclusiMapEvent.OnUnmappedPlaceSelected(it))
@@ -234,18 +242,8 @@ fun InclusiMapGoogleMapScreen(
             state = loginState,
             onDismiss = {
                 onDismissAppIntro(false)
-                scope.launch {
-                    async {
-                        cameraPositionState.animate(
-                            update = CameraUpdateFactory.newLatLngZoom(
-                                state.defaultLocationLatLng,
-                                15f
-                            ),
-                            durationMs = 3500
-                        )
-                    }.await()
-                    locationPermission.launchPermissionRequest()
-                }
+                animateMap = true
+                locationPermission.launchPermissionRequest()
             }
         )
     }
