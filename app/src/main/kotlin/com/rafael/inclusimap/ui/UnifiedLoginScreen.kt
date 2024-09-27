@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
@@ -45,6 +46,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -53,12 +55,15 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rafael.inclusimap.R
+import com.rafael.inclusimap.data.isValidEmail
+import com.rafael.inclusimap.data.isValidPassword
 import com.rafael.inclusimap.domain.LoginState
 import com.rafael.inclusimap.domain.RegisteredUser
 import com.rafael.inclusimap.domain.User
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun UnifiedLoginScreen(
     loginState: LoginState,
@@ -68,7 +73,7 @@ fun UnifiedLoginScreen(
 ) {
     var cadastreNewUser by remember { mutableStateOf(false) }
 
-    Column(
+    Box(
         modifier = modifier
             .fillMaxSize()
             .background(
@@ -79,12 +84,12 @@ fun UnifiedLoginScreen(
                     ),
                 )
             ),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        contentAlignment = Alignment.Center
     ) {
         Card(
             modifier = Modifier
                 .fillMaxWidth(0.8f)
+                .imeNestedScroll()
                 .shadow(
                     elevation = 20.dp,
                     shape = RoundedCornerShape(38.dp),
@@ -165,14 +170,14 @@ fun RegistrationScreen(
     var email by remember { mutableStateOf("") }
     var canLogin by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val toast = Toast.makeText(
-        context,
-        if (state.userAlreadyRegistered) "Já existe um usuário com esse email!" else "Preencha todos os campos",
-        Toast.LENGTH_SHORT
-    )
+    val toast = Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT)
     val differentPasswordToast =
         Toast.makeText(context, "A senha deve ser igual", Toast.LENGTH_LONG)
     var showPassword by remember { mutableStateOf(false) }
+    var isValidPassword by remember { mutableStateOf(true) }
+    var isValidEmail by remember { mutableStateOf(true) }
+    val existentUserToast =
+        Toast.makeText(context, "Já existe um usuário cadastrado com esse email!", Toast.LENGTH_LONG)
 
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
@@ -213,6 +218,7 @@ fun RegistrationScreen(
                 onValueChange = {
                     email = it
                     canLogin = false
+                    isValidEmail = isValidEmail(it)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -220,7 +226,7 @@ fun RegistrationScreen(
                 placeholder = {
                     Text(text = "E-mail")
                 },
-                isError = canLogin && email.isEmpty() || state.userAlreadyRegistered,
+                isError = canLogin && email.isEmpty() || state.userAlreadyRegistered || !isValidEmail,
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email
@@ -231,6 +237,7 @@ fun RegistrationScreen(
                 onValueChange = {
                     password = it
                     canLogin = false
+                    isValidPassword = isValidPassword(it)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -248,13 +255,14 @@ fun RegistrationScreen(
                         )
                     }
                 },
-                isError = canLogin && password.isEmpty(),
+                isError = canLogin && password.isEmpty() || !isValidPassword,
                 singleLine = true,
                 visualTransformation = if (!showPassword) {
                     PasswordVisualTransformation('*')
                 } else VisualTransformation.None,
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password
+                    keyboardType = KeyboardType.Password,
+                    capitalization = KeyboardCapitalization.Words
                 )
             )
             TextField(
@@ -269,14 +277,23 @@ fun RegistrationScreen(
                 placeholder = {
                     Text(text = "Confirmar senha")
                 },
-                isError = canLogin && confirmPassword.isEmpty(),
+                isError = canLogin && confirmPassword.isEmpty() || password != confirmPassword,
                 singleLine = true,
                 visualTransformation = if (!showPassword) {
                     PasswordVisualTransformation('*')
                 } else VisualTransformation.None,
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password
+                    keyboardType = KeyboardType.Password,
+                    capitalization = KeyboardCapitalization.Words
                 )
+            )
+            Text(
+                text = "A senha deve conter pelo menos 8 dígitos, sendo: 1 letra maiuscula, 1 caractere especial e 1 número",
+                fontSize = 10.sp,
+                lineHeight = 12.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                modifier = Modifier
+                    .fillMaxWidth()
             )
             Text(
                 text = "Já tem uma conta? Entrar",
@@ -323,6 +340,9 @@ fun RegistrationScreen(
                 Text(text = "Cadastrar")
             }
         }
+    }
+    if (state.userAlreadyRegistered && !state.isRegistering && canLogin) {
+        existentUserToast.show()
     }
 }
 
@@ -378,7 +398,7 @@ fun LoginScreen(
                 isError = canLogin && (email.isEmpty() || !state.userAlreadyRegistered),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email
+                    keyboardType = KeyboardType.Email,
                 )
             )
             TextField(
@@ -409,7 +429,8 @@ fun LoginScreen(
                     PasswordVisualTransformation('*')
                 } else VisualTransformation.None,
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password
+                    keyboardType = KeyboardType.Password,
+                    capitalization = KeyboardCapitalization.Words
                 )
             )
             Text(

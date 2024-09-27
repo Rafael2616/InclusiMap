@@ -1,5 +1,6 @@
 package com.rafael.inclusimap.data
 
+import android.util.Patterns
 import androidx.compose.ui.graphics.Color
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 
@@ -28,4 +29,13 @@ fun String.extractUserName(): String? = try {
     this.split("-")[1]
 } catch (e: Exception) {
     null
+}
+
+fun isValidEmail(email: String): Boolean {
+    return Patterns.EMAIL_ADDRESS.matcher(email).matches()
+}
+
+fun isValidPassword(password: String): Boolean {
+    val passwordRegex = Regex("""^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$""")
+    return passwordRegex.matches(password)
 }
