@@ -179,7 +179,11 @@ fun RegistrationScreen(
     var isValidPassword by remember { mutableStateOf(true) }
     var isValidEmail by remember { mutableStateOf(true) }
     val existentUserToast =
-        Toast.makeText(context, "Já existe um usuário cadastrado com esse email!", Toast.LENGTH_LONG)
+        Toast.makeText(
+            context,
+            "Já existe um usuário cadastrado com esse email!",
+            Toast.LENGTH_LONG
+        )
 
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
@@ -207,7 +211,7 @@ fun RegistrationScreen(
                     .fillMaxWidth()
                     .clip(defaultRoundedShape),
                 placeholder = {
-                    Text(text = "Nome")
+                    Text(text = "Nome completo")
                 },
                 isError = canLogin && userName.isEmpty(),
                 singleLine = true,
@@ -317,6 +321,7 @@ fun RegistrationScreen(
             if (state.isRegistering) {
                 CircularProgressIndicator(
                     strokeCap = StrokeCap.Round,
+                    modifier = Modifier.size(30.dp)
                 )
             }
             Button(onClick = {
@@ -463,6 +468,7 @@ fun LoginScreen(
             if (state.isRegistering) {
                 CircularProgressIndicator(
                     strokeCap = StrokeCap.Round,
+                    modifier = Modifier.size(30.dp)
                 )
             }
             Button(onClick = {
