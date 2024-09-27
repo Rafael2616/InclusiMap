@@ -13,7 +13,7 @@ data class AppIntroEntity(
     companion object {
         fun getDefault() = AppIntroEntity(
             id = 1,
-            showAppIntro = true,
+            showAppIntro = false,
             isFirstTime = true
         )
     }

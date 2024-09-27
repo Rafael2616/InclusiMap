@@ -8,6 +8,4 @@ sealed interface Destination {
     object MapScreen : Destination
     @Serializable
     object LoginScreen : Destination
-    @Serializable
-    object AppIntroScreen : Destination
 }

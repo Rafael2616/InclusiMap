@@ -51,25 +51,27 @@ fun InclusiMapNavHost(
         ) { innerPadding ->
             NavHost(
                 navController = navController,
-                startDestination = if (!loginState.isLoggedIn) Destination.AppIntroScreen else Destination.MapScreen,
+                startDestination = if (!loginState.isLoggedIn) Destination.LoginScreen else Destination.MapScreen,
                 enterTransition = { materialSharedAxisXIn(!isRtl, slideDistance) },
                 exitTransition = { materialSharedAxisXOut(!isRtl, slideDistance) },
                 popEnterTransition = { materialSharedAxisXIn(isRtl, slideDistance) },
                 popExitTransition = { materialSharedAxisXOut(isRtl, slideDistance) },
                 modifier = modifier
             ) {
-                composable<Destination.AppIntroScreen> {
+                composable<Destination.LoginScreen> {
                     UnifiedLoginScreen(
                         loginState = loginState,
                         onLogin = {
                             loginViewModel.onEvent(
                                 LoginEvent.OnLogin(it)
                             )
+                            appIntroViewModel.setShowAppIntro(true)
                         },
                         onRegister = {
                             loginViewModel.onEvent(
                                 LoginEvent.OnRegisterNewUser(it)
                             )
+                            appIntroViewModel.setShowAppIntro(true)
                         },
                         modifier = Modifier.consumeWindowInsets(innerPadding)
                     )
@@ -91,9 +93,8 @@ fun InclusiMapNavHost(
         }
     }
 
-    LaunchedEffect(loginState.isLoggedIn && !appIntroState.isFirstTime) {
-        if (loginState.isLoggedIn) {
-            appIntroViewModel.setIsFirstTime(true)
+    LaunchedEffect(loginState.isLoggedIn, appIntroState.showAppIntro) {
+        if (loginState.isLoggedIn && appIntroState.showAppIntro) {
             navController.navigate(Destination.MapScreen)
         }
     }
