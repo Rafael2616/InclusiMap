@@ -248,6 +248,7 @@ fun InclusiMapGoogleMapScreen(
             }
         )
     }
+
     AnimatedVisibility(bottomSheetScaffoldState.isVisible) {
         PlaceDetailsBottomSheet(
             state = placeDetailsState,
