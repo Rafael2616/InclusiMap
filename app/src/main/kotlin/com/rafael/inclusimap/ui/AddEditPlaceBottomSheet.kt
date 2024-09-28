@@ -12,7 +12,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Category
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.twotone.Delete
 import androidx.compose.material3.Button
@@ -61,9 +60,9 @@ fun AddEditPlaceBottomSheet(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var placeName by remember { mutableStateOf(if(isEditing) placeDetailsState.currentPlace.title else "") }
-    var placeCategory by remember { mutableStateOf(if(isEditing) placeDetailsState.currentPlace.category else "") }
-    val focusRequester = remember { FocusRequester() }
+    var placeName by remember { mutableStateOf(if (isEditing) placeDetailsState.currentPlace.title else "") }
+    var placeCategory by remember { mutableStateOf(if (isEditing) placeDetailsState.currentPlace.category else "") }
+    var tryAddUpdate by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
 
@@ -105,25 +104,32 @@ fun AddEditPlaceBottomSheet(
                 value = placeName,
                 onValueChange = {
                     placeName = it
+                    tryAddUpdate = false
                 },
                 label = {
                     Text(text = "Digite o nome do local")
                 },
                 maxLines = 1,
                 singleLine = true,
+                isError = tryAddUpdate && placeName.isEmpty(),
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.LocationOn,
                         contentDescription = null
                     )
                 },
-                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Next
+                ),
+                modifier = Modifier
+                    .fillMaxWidth(),
                 shape = MaterialTheme.shapes.medium
             )
             TextField(
                 value = placeCategory,
                 onValueChange = {
                     placeCategory = it
+                    tryAddUpdate = false
                 },
                 label = {
                     Text(text = "Qual a categoria desse lugar?")
@@ -134,18 +140,12 @@ fun AddEditPlaceBottomSheet(
                         contentDescription = null
                     )
                 },
+                maxLines = 1,
+                singleLine = true,
+                isError = tryAddUpdate && placeCategory.isEmpty(),
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(focusRequester),
+                    .fillMaxWidth(),
                 shape = MaterialTheme.shapes.medium,
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Next
-                ),
-                keyboardActions = KeyboardActions(
-                    onNext = {
-                        focusManager.moveFocus(FocusDirection.Down)
-                    }
-                )
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -154,6 +154,13 @@ fun AddEditPlaceBottomSheet(
             ) {
                 Button(
                     onClick = {
+                        tryAddUpdate = true
+                        focusManager.clearFocus()
+                        if (placeName.isEmpty() || placeCategory.isEmpty()) {
+                            Toast.makeText(context, "Preencha todos os campos!", Toast.LENGTH_SHORT)
+                                .show()
+                            return@Button
+                        }
                         if (isEditing) {
                             onEditNewPlace(
                                 placeDetailsState.currentPlace.copy(
@@ -161,7 +168,8 @@ fun AddEditPlaceBottomSheet(
                                     category = placeCategory
                                 )
                             )
-                            Toast.makeText(context, "Atualizando local...", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Atualizando local...", Toast.LENGTH_SHORT)
+                                .show()
                         } else {
                             onAddNewPlace(
                                 AccessibleLocalMarker(
@@ -173,7 +181,11 @@ fun AddEditPlaceBottomSheet(
                                     id = Uuid.random().toString()
                                 )
                             )
-                            Toast.makeText(context, "Local adicionado com sucesso!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                "Local adicionado com sucesso!",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                         onDismiss()
                     }
