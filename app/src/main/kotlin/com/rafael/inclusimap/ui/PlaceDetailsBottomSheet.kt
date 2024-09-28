@@ -82,6 +82,7 @@ import androidx.compose.ui.unit.sp
 import com.rafael.inclusimap.data.toColor
 import com.rafael.inclusimap.data.toMessage
 import com.rafael.inclusimap.domain.AccessibleLocalMarker
+import com.rafael.inclusimap.domain.InclusiMapState
 import com.rafael.inclusimap.domain.LoginState
 import com.rafael.inclusimap.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.domain.PlaceDetailsState
@@ -97,6 +98,7 @@ import kotlinx.coroutines.launch
 fun PlaceDetailsBottomSheet(
     bottomSheetScaffoldState: SheetState,
     loginState: LoginState,
+    inclusiMapState: InclusiMapState,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     state: PlaceDetailsState,
@@ -115,9 +117,10 @@ fun PlaceDetailsBottomSheet(
                 Toast.makeText(context, "Imagem adicionada!", Toast.LENGTH_SHORT).show()
             }
         }
+    val currentPlace = inclusiMapState.selectedMappedPlace!!
 
     LaunchedEffect(Unit) {
-        onEvent(PlaceDetailsEvent.SetCurrentPlace(state.currentPlace))
+        onEvent(PlaceDetailsEvent.SetCurrentPlace(currentPlace))
     }
 
     LaunchedEffect(state.currentPlace) {
@@ -265,7 +268,11 @@ fun PlaceDetailsBottomSheet(
                                                         )
                                                     )
                                                     showRemoveImageBtn = false
-                                                    Toast.makeText(context, "Imagem removida!", Toast.LENGTH_SHORT).show()
+                                                    Toast.makeText(
+                                                        context,
+                                                        "Imagem removida!",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
                                                 },
                                                 modifier = Modifier
                                                     .align(Alignment.TopEnd)
@@ -459,7 +466,11 @@ fun PlaceDetailsBottomSheet(
                                         IconButton(
                                             onClick = {
                                                 onEvent(PlaceDetailsEvent.OnSendComment)
-                                                Toast.makeText(context, "Comentário adicionado!", Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(
+                                                    context,
+                                                    "Comentário adicionado!",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
                                             }
                                         ) {
                                             Icon(
@@ -483,7 +494,7 @@ fun PlaceDetailsBottomSheet(
                                     (state.userAccessibilityRate == 0 || state.userComment.isEmpty()) && state.trySendComment,
                                 )
                             } else {
-                                Text (
+                                Text(
                                     text = loginState.user!!.name,
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold,
@@ -519,7 +530,11 @@ fun PlaceDetailsBottomSheet(
                                     IconButton(
                                         onClick = {
                                             onEvent(PlaceDetailsEvent.OnDeleteComment)
-                                            Toast.makeText(context, "Comentário removido!", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(
+                                                context,
+                                                "Comentário removido!",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
                                         },
                                         modifier = Modifier
                                             .size(35.dp)
