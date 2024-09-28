@@ -46,9 +46,9 @@ class AccessibleLocalsRepositoryImpl(
                 fileId,
                 "places.json",
                 updatedPlaces.toByteArray().inputStream(),
-            ).also {
-                println("File uploaded successfully with new place: $accessibleLocal")
-            }
+            )
+        }.also {
+            println("File uploaded successfully with new place: $accessibleLocal")
         }
     }
 
@@ -65,9 +65,9 @@ class AccessibleLocalsRepositoryImpl(
                 fileId,
                 "places.json",
                 updatedPlaces.toByteArray().inputStream(),
-            ).also {
-                println("File uploaded successfully with updated place: $accessibleLocal")
-            }
+            )
+        }.also {
+            println("File uploaded successfully with updated place: $accessibleLocal")
         }
     }
 

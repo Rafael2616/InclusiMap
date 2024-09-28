@@ -35,15 +35,6 @@ class PlaceDetailsViewModel(
     private var userName = ""
     private var userEmail = ""
 
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            loginRepository.getLoginInfo(1)?.let {
-                userName = it.userName!!
-                userEmail = it.userEmail!!
-            }
-        }
-    }
-
     fun onEvent(event: PlaceDetailsEvent) {
         when (event) {
             is PlaceDetailsEvent.OnUploadPlaceImages -> onUploadPlaceImages(
@@ -59,7 +50,7 @@ class PlaceDetailsViewModel(
             is PlaceDetailsEvent.SetUserComment -> setUserComment(event.comment)
             is PlaceDetailsEvent.SetIsUserCommented -> _state.update { it.copy(isUserCommented = event.isCommented) }
             PlaceDetailsEvent.OnDeleteComment -> onDeleteComment()
-            is PlaceDetailsEvent.SetIsEditingPlace ->  _state.update { it.copy(isEditingPlace = event.isEditing) }
+            is PlaceDetailsEvent.SetIsEditingPlace -> _state.update { it.copy(isEditingPlace = event.isEditing) }
         }
     }
 
@@ -68,12 +59,6 @@ class PlaceDetailsViewModel(
             it.copy(
                 isCurrentPlaceLoaded = it.loadedPlaces.any { existingPlace -> existingPlace.id == place.id },
                 allImagesLoaded = it.loadedPlaces.any { existingPlace -> existingPlace.id == place.id },
-                isUserCommented = it.loadedPlaces.find { existingPlace -> existingPlace.id == place.id }?.comments?.any { comment -> comment.email == userEmail }
-                    ?: false,
-                userComment = it.loadedPlaces.find { existingPlace -> existingPlace.id == place.id }?.comments?.find { comment -> comment.email == userEmail }?.body
-                    ?: "",
-                userAccessibilityRate = it.loadedPlaces.find { existingPlace -> existingPlace.id == place.id }?.comments?.find { comment -> comment.email == userEmail }?.accessibilityRate
-                    ?: 0,
                 currentPlace = place,
                 loadedPlaces = state.value.loadedPlaces + place.toFullAccessibleLocalMarker(
                     emptyList()
@@ -86,6 +71,30 @@ class PlaceDetailsViewModel(
             loadImages(place)
         } else {
             loadImagesFromCache()
+        }
+        loadUserComment(place)
+    }
+
+    private fun loadUserComment(place: AccessibleLocalMarker) {
+        viewModelScope.launch(Dispatchers.IO) {
+            async {
+                loginRepository.getLoginInfo(1)?.let {
+                    userName = it.userName!!
+                    userEmail = it.userEmail!!
+                }
+
+            }.await()
+        }.invokeOnCompletion {
+            _state.update {
+                it.copy(
+                    isUserCommented = it.loadedPlaces.find { existingPlace -> existingPlace.id == place.id }?.comments?.any { comment -> comment.email == userEmail }
+                        ?: false,
+                    userComment = it.loadedPlaces.find { existingPlace -> existingPlace.id == place.id }?.comments?.find { comment -> comment.email == userEmail }?.body
+                        ?: "",
+                    userAccessibilityRate = it.loadedPlaces.find { existingPlace -> existingPlace.id == place.id }?.comments?.find { comment -> comment.email == userEmail }?.accessibilityRate
+                        ?: 0,
+                )
+            }
         }
     }
 
@@ -116,7 +125,7 @@ class PlaceDetailsViewModel(
             }.await()
             _state.update {
                 it.copy(
-                    currentPlaceFolderID = state.value.inclusiMapImageRepositoryFolder.find { subPaths -> subPaths.name == placeDetails.id + "_" + placeDetails.authorEmail}?.id
+                    currentPlaceFolderID = state.value.inclusiMapImageRepositoryFolder.find { subPaths -> subPaths.name == placeDetails.id + "_" + placeDetails.authorEmail }?.id
                 )
             }
             if (_state.value.currentPlaceFolderID.isNullOrEmpty() || driveService.listFiles(state.value.currentPlaceFolderID!!)
