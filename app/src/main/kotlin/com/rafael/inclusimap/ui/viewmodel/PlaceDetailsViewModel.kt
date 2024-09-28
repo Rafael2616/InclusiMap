@@ -262,7 +262,7 @@ class PlaceDetailsViewModel(
             val localMarkerFiles =
                 driveService.listFiles(state.value.currentPlaceFolderID.orEmpty())
             val imageId =
-                localMarkerFiles.find { it.name.extractUserEmail().also { println("Image email: $it") } == image.userEmail.also { println("User Image email: $it") } }?.id.orEmpty()
+                localMarkerFiles.find { it.name.extractUserEmail() == image.userEmail }?.id.orEmpty()
             driveService.deleteFile(imageId)
         }
     }
