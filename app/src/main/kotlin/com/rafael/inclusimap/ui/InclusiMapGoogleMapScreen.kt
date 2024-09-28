@@ -288,6 +288,7 @@ fun InclusiMapGoogleMapScreen(
             },
             onDeletePlace = {
                 onEvent(InclusiMapEvent.OnDeleteMappedPlace(it))
+                onPlaceDetailsEvent(PlaceDetailsEvent.SetIsEditingPlace(false))
                 bottomSheetScope.launch {
                     bottomSheetScaffoldState.hide()
                 }
