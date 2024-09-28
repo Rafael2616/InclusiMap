@@ -88,6 +88,7 @@ fun AddEditPlaceBottomSheet(
                 if (isEditing) {
                     IconButton(
                         onClick = {
+                            focusManager.clearFocus()
                             Toast.makeText(context, "Excluindo local...", Toast.LENGTH_SHORT).show()
                             onDeletePlace(placeDetailsState.currentPlace.id)
                         },
