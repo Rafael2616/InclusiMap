@@ -235,7 +235,7 @@ class PlaceDetailsViewModel(
                 context.contentResolver.openInputStream(uri),
                 "${
                     _state.value.currentPlace.id
-                }-$userEmail-${Date().toInstant()}.jpg",
+                }_$userEmail-${Date().toInstant()}.jpg",
                 _state.value.currentPlaceFolderID
                     ?: throw IllegalStateException("Folder not found: Maybe an issue has occurred while creating the folder")
             )
@@ -262,7 +262,7 @@ class PlaceDetailsViewModel(
             val localMarkerFiles =
                 driveService.listFiles(state.value.currentPlaceFolderID.orEmpty())
             val imageId =
-                localMarkerFiles.find { it.name.extractUserEmail() == image.userEmail }?.id.orEmpty()
+                localMarkerFiles.find { it.name.extractUserEmail().also { println("Image email: $it") } == image.userEmail.also { println("User Image email: $it") } }?.id.orEmpty()
             driveService.deleteFile(imageId)
         }
     }

@@ -26,7 +26,7 @@ fun Float.toHUE(): Float = when (this) {
 }
 
 fun String.extractUserEmail(): String? = try {
-    this.split("-")[1]
+    this.split("_")[1].split("-")[0]
 } catch (e: Exception) {
     null
 }
