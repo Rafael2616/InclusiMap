@@ -13,4 +13,5 @@ sealed interface PlaceDetailsEvent {
     data object OnDeleteComment: PlaceDetailsEvent
     data class SetUserComment(val comment: String) : PlaceDetailsEvent
     data class SetIsUserCommented(val isCommented: Boolean) : PlaceDetailsEvent
+    data class SetIsEditingPlace(val isEditing: Boolean) : PlaceDetailsEvent
 }

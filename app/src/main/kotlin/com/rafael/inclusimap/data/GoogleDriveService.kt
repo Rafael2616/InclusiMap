@@ -30,8 +30,10 @@ class GoogleDriveService {
             .build()
     }
 
-    fun getFileContent(fileId: String): ByteArray {
-        return driveService.files().get(fileId).executeMediaAsInputStream().readBytes()
+    suspend fun getFileContent(fileId: String): ByteArray {
+        return withContext(Dispatchers.IO) {
+            driveService.files().get(fileId).executeMediaAsInputStream().readBytes()
+        }
     }
 
     fun getFileMetadata(fileId: String): File? {
@@ -130,6 +132,19 @@ class GoogleDriveService {
             } catch (e: Exception) {
                 e.printStackTrace()
                 null
+            }
+        }
+    }
+
+    suspend fun updateFile(fileId: String, fileName: String, content: InputStream) {
+        return withContext(Dispatchers.IO) {
+            try {
+                val fileMetadata = File()
+                fileMetadata.name = fileName
+                val mediaContent = InputStreamContent("application/json", content)
+                driveService.files().update(fileId, fileMetadata, mediaContent).execute()
+            } catch(e: Exception) {
+                e.printStackTrace()
             }
         }
     }

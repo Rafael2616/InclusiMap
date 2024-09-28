@@ -8,17 +8,17 @@ data class AccessibleLocalMarker(
     override var position: Pair<Double, Double> = 0.0 to 0.0,
     override var title: String = "",
     override var category: String = "",
-    override var author: String = "",
+    override var authorEmail: String = "",
     override var comments: List<Comment> = emptyList(),
     override var time: String = "",
     override var id: String = "",
 ) : BaseLocalMarker
 
 interface BaseLocalMarker {
-    val position: Pair<Double, Double>
+    var position: Pair<Double, Double>
     var title: String
     var category: String
-    var author: String
+    var authorEmail: String
     var comments: List<Comment>
     var time: String
     var id: String
@@ -28,7 +28,7 @@ data class FullAccessibleLocalMarker(
     override var position: Pair<Double, Double>,
     override var title: String,
     override var category: String,
-    override var author: String,
+    override var authorEmail: String,
     override var comments: List<Comment>,
     override var time: String,
     val images: List<PlaceImage?>,
@@ -39,7 +39,7 @@ fun AccessibleLocalMarker.toFullAccessibleLocalMarker(images: List<PlaceImage?>)
     position = position,
     title = title,
     category = category,
-    author = author,
+    authorEmail = authorEmail,
     comments = comments,
     images = images,
     time = time,
@@ -50,7 +50,7 @@ fun FullAccessibleLocalMarker.toAccessibleLocalMarker(): AccessibleLocalMarker =
     position = position,
     title = title,
     category = category,
-    author = author,
+    authorEmail = authorEmail,
     comments = comments,
     time = time,
     id = id,

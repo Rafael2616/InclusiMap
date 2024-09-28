@@ -38,6 +38,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.twotone.Delete
 import androidx.compose.material3.Card
@@ -81,6 +82,7 @@ import androidx.compose.ui.unit.sp
 import com.rafael.inclusimap.data.toColor
 import com.rafael.inclusimap.data.toMessage
 import com.rafael.inclusimap.domain.AccessibleLocalMarker
+import com.rafael.inclusimap.domain.InclusiMapState
 import com.rafael.inclusimap.domain.LoginState
 import com.rafael.inclusimap.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.domain.PlaceDetailsState
@@ -94,7 +96,7 @@ import kotlinx.coroutines.launch
 )
 @Composable
 fun PlaceDetailsBottomSheet(
-    localMarker: AccessibleLocalMarker,
+    inclusiMapState: InclusiMapState,
     bottomSheetScaffoldState: SheetState,
     loginState: LoginState,
     onDismiss: () -> Unit,
@@ -115,8 +117,10 @@ fun PlaceDetailsBottomSheet(
                 Toast.makeText(context, "Imagem adicionada!", Toast.LENGTH_SHORT).show()
             }
         }
+    val currentPlace =  inclusiMapState.selectedMappedPlace!!
+
     LaunchedEffect(Unit) {
-        onEvent(PlaceDetailsEvent.SetCurrentPlace(localMarker))
+        onEvent(PlaceDetailsEvent.SetCurrentPlace(currentPlace))
     }
 
     LaunchedEffect(state.currentPlace) {
@@ -144,13 +148,23 @@ fun PlaceDetailsBottomSheet(
                     modifier = Modifier.weight(0.5f)
                 ) {
                     Text(
-                        text = localMarker.title,
+                        text = currentPlace.title,
                         fontSize = 24.sp,
                     )
                     Text(
-                        text = localMarker.category,
+                        text = currentPlace.category,
                         fontSize = 16.sp,
                     )
+                }
+                if (state.currentPlace.authorEmail == loginState.user!!.email) {
+                    IconButton(onClick = {
+                        onEvent(PlaceDetailsEvent.SetIsEditingPlace(true))
+                    }) {
+                        Icon(
+                            imageVector = Icons.Outlined.Edit,
+                            contentDescription = null
+                        )
+                    }
                 }
                 IconButton(onClick = {
                     showPlaceInfo = true
@@ -198,7 +212,7 @@ fun PlaceDetailsBottomSheet(
             ) {
                 item {
                     Text(
-                        text = "Imagens de ${localMarker.title}",
+                        text = "Imagens de ${currentPlace.title}",
                         fontSize = 22.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary,

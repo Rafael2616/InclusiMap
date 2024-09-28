@@ -14,20 +14,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class InclusiMapGoogleMapScreenViewModel(
-    private val accessibleLocalsRepository: AccessibleLocalsRepository
+    private val accessibleLocalsRepository: AccessibleLocalsRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(InclusiMapState())
     val state = _state.asStateFlow()
 
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            _state.update {
-                it.copy(
-                    allMappedPlaces = accessibleLocalsRepository.getAccessibleLocals()
-                )
-            }
-        }
-    }
     fun onEvent(event: InclusiMapEvent) {
         when (event) {
             is InclusiMapEvent.UpdateMapCameraPosition -> updateMapCameraPosition(
@@ -41,38 +32,55 @@ class InclusiMapGoogleMapScreenViewModel(
             is InclusiMapEvent.OnAddNewMappedPlace -> onAddNewMappedPlace(event.newPlace)
             is InclusiMapEvent.SetLocationPermissionGranted -> setLocationPermissionGranted(event.isGranted)
             is InclusiMapEvent.OnUpdateMappedPlace -> onUpdateMappedPlace(event.placeUpdated)
+            is InclusiMapEvent.OnDeleteMappedPlace -> onDeleteMappedPlace(event.placeId)
         }
     }
 
     private fun updateMapCameraPosition(latLng: LatLng, isMyLocationFounded: Boolean) {
-        _state.value = _state.value.copy(
-            defaultLocationLatLng = latLng,
-            isMyLocationFound = isMyLocationFounded
-        )
+        _state.update {
+            it.copy(
+                defaultLocationLatLng = latLng,
+                isMyLocationFound = isMyLocationFounded
+            )
+        }
     }
 
     private fun onMapLoaded() {
-        _state.value = _state.value.copy(
-            isMapLoaded = true
-        )
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.update {
+                it.copy(
+                    allMappedPlaces = accessibleLocalsRepository.getAccessibleLocals(),
+                    isMapLoaded = true,
+                )
+            }
+        }
     }
 
     private fun onMappedPlaceSelected(place: AccessibleLocalMarker) {
-        _state.value = _state.value.copy(
-            selectedMappedPlace = place
-        )
+        _state.update {
+            it.copy(
+                selectedMappedPlace = place
+            )
+        }
     }
 
     private fun onUnmappedPlaceSelected(latLng: LatLng) {
-        _state.value = _state.value.copy(
-            selectedUnmappedPlaceLatLng = latLng
-        )
+        _state.update {
+            it.copy(
+                selectedUnmappedPlaceLatLng = latLng
+            )
+        }
     }
 
     private fun onAddNewMappedPlace(newPlace: AccessibleLocalMarker) {
-        _state.value = _state.value.copy(
-            allMappedPlaces = _state.value.allMappedPlaces + newPlace
-        )
+        _state.update {
+            it.copy(
+                allMappedPlaces = _state.value.allMappedPlaces + newPlace
+            )
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            accessibleLocalsRepository.saveAccessibleLocal(newPlace)
+        }
     }
 
     private fun setLocationPermissionGranted(isGranted: Boolean) {
@@ -82,12 +90,28 @@ class InclusiMapGoogleMapScreenViewModel(
     }
 
     private fun onUpdateMappedPlace(placeUpdated: AccessibleLocalMarker) {
-        _state.value = _state.value.copy(
-            allMappedPlaces = _state.value.allMappedPlaces.map {
-                if (it.id == placeUpdated.id) {
-                    placeUpdated
-                } else it
-            }
-        )
+        _state.update {
+            it.copy(
+                allMappedPlaces = _state.value.allMappedPlaces.map {
+                    if (it.id == placeUpdated.id) {
+                        placeUpdated
+                    } else it
+                }
+            )
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            accessibleLocalsRepository.updateAccessibleLocal(placeUpdated)
+        }
+    }
+
+    private fun onDeleteMappedPlace(placeID: String) {
+        _state.update {
+            it.copy(
+                allMappedPlaces = _state.value.allMappedPlaces.filter { it.id != placeID }
+            )
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            accessibleLocalsRepository.deleteAccessibleLocal(placeID)
+        }
     }
 }

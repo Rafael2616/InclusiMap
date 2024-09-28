@@ -15,4 +15,5 @@ data class PlaceDetailsState(
   val userAccessibilityRate: Int = 0,
   val trySendComment: Boolean = false,
   val isUserCommented: Boolean = false,
+  val isEditingPlace: Boolean = false,
 )

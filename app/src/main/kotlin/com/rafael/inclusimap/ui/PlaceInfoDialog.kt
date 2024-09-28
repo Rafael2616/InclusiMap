@@ -49,7 +49,7 @@ fun PlaceInfoDialog(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                 )
-                Text(text = "Esse local foi adicionado por: ${localMarker.author} em ${localMarker.time}")
+                Text(text = "Esse local foi adicionado por: ${localMarker.authorEmail} em ${localMarker.time}")
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.rafael.inclusimap.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -11,10 +12,13 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.twotone.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
@@ -30,32 +34,38 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.MarkerState
 import com.rafael.inclusimap.domain.AccessibleLocalMarker
 import com.rafael.inclusimap.domain.LoginState
+import com.rafael.inclusimap.domain.PlaceDetailsState
 import java.util.Date
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, ExperimentalUuidApi::class)
 @Composable
-fun AddPlaceBottomSheet(
-    latLng: LatLng,
+fun AddEditPlaceBottomSheet(
+    latlng: LatLng,
+    placeDetailsState: PlaceDetailsState,
     loginState: LoginState,
     bottomSheetScaffoldState: SheetState,
+    isEditing: Boolean,
     onAddNewPlace: (AccessibleLocalMarker) -> Unit,
+    onEditNewPlace: (AccessibleLocalMarker) -> Unit,
+    onDeletePlace: (id: String) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var placeName by remember { mutableStateOf("") }
-    var placeCategory by remember { mutableStateOf("") }
+    var placeName by remember { mutableStateOf(if(isEditing) placeDetailsState.currentPlace.title else "") }
+    var placeCategory by remember { mutableStateOf(if(isEditing) placeDetailsState.currentPlace.category else "") }
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
+    val context = LocalContext.current
 
     ModalBottomSheet(
         sheetState = bottomSheetScaffoldState,
@@ -69,10 +79,27 @@ fun AddPlaceBottomSheet(
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(
-                text = "Adicionar um novo local:",
-                fontSize = 24.sp,
-            )
+            Row {
+                Text(
+                    text = if (isEditing) "Editar local:" else "Adicionar um novo local:",
+                    fontSize = 24.sp,
+                    modifier = Modifier.weight(1f)
+                )
+                if (isEditing) {
+                    IconButton(
+                        onClick = {
+                            Toast.makeText(context, "Excluindo local...", Toast.LENGTH_SHORT).show()
+                            onDeletePlace(placeDetailsState.currentPlace.id)
+                        },
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    ) {
+                        Icon(
+                            imageVector = Icons.TwoTone.Delete,
+                            contentDescription = null
+                        )
+                    }
+                }
+            }
             TextField(
                 value = placeName,
                 onValueChange = {
@@ -126,20 +153,31 @@ fun AddPlaceBottomSheet(
             ) {
                 Button(
                     onClick = {
-                        onAddNewPlace(
-                            AccessibleLocalMarker(
-                                title = placeName,
-                                category = placeCategory,
-                                position = latLng.latitude to latLng.longitude,
-                                author = loginState.user!!.name,
-                                time = Date().toInstant().toString(),
-                                id = Uuid.random().toString()
+                        if (isEditing) {
+                            onEditNewPlace(
+                                placeDetailsState.currentPlace.copy(
+                                    title = placeName,
+                                    category = placeCategory
+                                )
                             )
-                        )
+                            Toast.makeText(context, "Atualizando local...", Toast.LENGTH_SHORT).show()
+                        } else {
+                            onAddNewPlace(
+                                AccessibleLocalMarker(
+                                    title = placeName,
+                                    category = placeCategory,
+                                    position = latlng.latitude to latlng.longitude,
+                                    authorEmail = loginState.user!!.email,
+                                    time = Date().toInstant().toString(),
+                                    id = Uuid.random().toString()
+                                )
+                            )
+                            Toast.makeText(context, "Local adicionado com sucesso!", Toast.LENGTH_SHORT).show()
+                        }
                         onDismiss()
                     }
                 ) {
-                    Text(text = "Adicionar")
+                    Text(text = if (isEditing) "Atualizar" else "Adicionar")
                 }
             }
         }

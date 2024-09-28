@@ -59,6 +59,7 @@ class PlaceDetailsViewModel(
             is PlaceDetailsEvent.SetUserComment -> setUserComment(event.comment)
             is PlaceDetailsEvent.SetIsUserCommented -> _state.update { it.copy(isUserCommented = event.isCommented) }
             PlaceDetailsEvent.OnDeleteComment -> onDeleteComment()
+            is PlaceDetailsEvent.SetIsEditingPlace ->  _state.update { it.copy(isEditingPlace = event.isEditing) }
         }
     }
 
@@ -115,7 +116,7 @@ class PlaceDetailsViewModel(
             }.await()
             _state.update {
                 it.copy(
-                    currentPlaceFolderID = state.value.inclusiMapImageRepositoryFolder.find { subPaths -> subPaths.name == placeDetails.id + "_" + placeDetails.author}?.id
+                    currentPlaceFolderID = state.value.inclusiMapImageRepositoryFolder.find { subPaths -> subPaths.name == placeDetails.id + "_" + placeDetails.authorEmail}?.id
                 )
             }
             if (_state.value.currentPlaceFolderID.isNullOrEmpty() || driveService.listFiles(state.value.currentPlaceFolderID!!)
@@ -214,7 +215,7 @@ class PlaceDetailsViewModel(
                     _state.update {
                         it.copy(
                             currentPlaceFolderID = driveService.createFolder(
-                                _state.value.currentPlace.id + "_" + _state.value.currentPlace.author,
+                                _state.value.currentPlace.id + "_" + _state.value.currentPlace.authorEmail,
                                 INCLUSIMAP_IMAGE_FOLDER_ID
                             )
                         )

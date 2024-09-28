@@ -253,7 +253,7 @@ fun InclusiMapGoogleMapScreen(
             state = placeDetailsState,
             onEvent = onPlaceDetailsEvent,
             loginState = loginState,
-            localMarker = state.selectedMappedPlace!!,
+            inclusiMapState = state,
             bottomSheetScaffoldState = bottomSheetScaffoldState,
             onDismiss = {
                 onPlaceDetailsEvent(PlaceDetailsEvent.OnDestroyPlaceDetails)
@@ -266,19 +266,35 @@ fun InclusiMapGoogleMapScreen(
             }
         )
     }
-    AnimatedVisibility(addPlaceBottomSheetScaffoldState.isVisible) {
-        AddPlaceBottomSheet(
-            latLng = state.selectedUnmappedPlaceLatLng!!,
+    AnimatedVisibility(addPlaceBottomSheetScaffoldState.isVisible || placeDetailsState.isEditingPlace) {
+        AddEditPlaceBottomSheet(
+            latlng = state.selectedUnmappedPlaceLatLng ?: LatLng(0.0,0.0),
+            placeDetailsState = placeDetailsState,
             loginState = loginState,
             bottomSheetScaffoldState = addPlaceBottomSheetScaffoldState,
             onDismiss = {
                 addPlaceBottomSheetScope.launch {
                     addPlaceBottomSheetScaffoldState.hide()
                 }
+                onPlaceDetailsEvent(PlaceDetailsEvent.SetIsEditingPlace(false))
             },
             onAddNewPlace = { newPlace ->
                 onEvent(InclusiMapEvent.OnAddNewMappedPlace(newPlace))
             },
+            isEditing = placeDetailsState.isEditingPlace,
+            onEditNewPlace = {
+                onEvent(InclusiMapEvent.OnUpdateMappedPlace(it))
+                onPlaceDetailsEvent(PlaceDetailsEvent.SetCurrentPlace(it))
+            },
+            onDeletePlace = {
+                onEvent(InclusiMapEvent.OnDeleteMappedPlace(it))
+                bottomSheetScope.launch {
+                    bottomSheetScaffoldState.hide()
+                }
+                addPlaceBottomSheetScope.launch {
+                    addPlaceBottomSheetScaffoldState.hide()
+                }
+            }
         )
     }
 }
