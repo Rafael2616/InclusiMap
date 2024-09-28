@@ -82,7 +82,6 @@ import androidx.compose.ui.unit.sp
 import com.rafael.inclusimap.data.toColor
 import com.rafael.inclusimap.data.toMessage
 import com.rafael.inclusimap.domain.AccessibleLocalMarker
-import com.rafael.inclusimap.domain.InclusiMapState
 import com.rafael.inclusimap.domain.LoginState
 import com.rafael.inclusimap.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.domain.PlaceDetailsState
@@ -96,7 +95,6 @@ import kotlinx.coroutines.launch
 )
 @Composable
 fun PlaceDetailsBottomSheet(
-    inclusiMapState: InclusiMapState,
     bottomSheetScaffoldState: SheetState,
     loginState: LoginState,
     onDismiss: () -> Unit,
@@ -117,10 +115,9 @@ fun PlaceDetailsBottomSheet(
                 Toast.makeText(context, "Imagem adicionada!", Toast.LENGTH_SHORT).show()
             }
         }
-    val currentPlace =  inclusiMapState.selectedMappedPlace!!
 
     LaunchedEffect(Unit) {
-        onEvent(PlaceDetailsEvent.SetCurrentPlace(currentPlace))
+        onEvent(PlaceDetailsEvent.SetCurrentPlace(state.currentPlace))
     }
 
     LaunchedEffect(state.currentPlace) {
@@ -148,11 +145,11 @@ fun PlaceDetailsBottomSheet(
                     modifier = Modifier.weight(0.5f)
                 ) {
                     Text(
-                        text = currentPlace.title,
+                        text = state.currentPlace.title,
                         fontSize = 24.sp,
                     )
                     Text(
-                        text = currentPlace.category,
+                        text = state.currentPlace.category,
                         fontSize = 16.sp,
                     )
                 }
@@ -212,7 +209,7 @@ fun PlaceDetailsBottomSheet(
             ) {
                 item {
                     Text(
-                        text = "Imagens de ${currentPlace.title}",
+                        text = "Imagens de ${state.currentPlace.title}",
                         fontSize = 22.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary,

@@ -253,7 +253,6 @@ fun InclusiMapGoogleMapScreen(
             state = placeDetailsState,
             onEvent = onPlaceDetailsEvent,
             loginState = loginState,
-            inclusiMapState = state,
             bottomSheetScaffoldState = bottomSheetScaffoldState,
             onDismiss = {
                 onPlaceDetailsEvent(PlaceDetailsEvent.OnDestroyPlaceDetails)
