@@ -86,9 +86,9 @@ fun PlaceSearchScreen(
                     pinSize = 46.dp
                 )
             }
-            if (index < matchingPlaces.size) {
+            if (index < matchingPlaces.size - 1) {
                 HorizontalDivider(
-                    thickness = 2.dp,
+                    thickness = 3.dp,
                     color = MaterialTheme.colorScheme.surface,
                     modifier = Modifier.fillMaxWidth()
                 )
