@@ -6,11 +6,13 @@ import com.rafael.inclusimap.data.database.AppDatabase
 import com.rafael.inclusimap.data.repository.AccessibleLocalsRepositoryImpl
 import com.rafael.inclusimap.data.repository.AppIntroRepositoryImpl
 import com.rafael.inclusimap.data.repository.LoginRepositoryImpl
+import com.rafael.inclusimap.settings.data.repository.SettingsRepositoryImpl
 import com.rafael.inclusimap.ui.viewmodel.AppIntroViewModel
 import com.rafael.inclusimap.ui.viewmodel.InclusiMapGoogleMapScreenViewModel
 import com.rafael.inclusimap.ui.viewmodel.LoginViewModel
 import com.rafael.inclusimap.ui.viewmodel.PlaceDetailsViewModel
 import com.rafael.inclusimap.ui.viewmodel.SearchViewModel
+import com.rafael.inclusimap.settings.presentation.viewmodel.SettingsViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -37,6 +39,9 @@ val appModule = module {
     single {
         AccessibleLocalsRepositoryImpl(get<GoogleDriveService>())
     }
+    single {
+        SettingsRepositoryImpl(get<AppDatabase>().settingsDao())
+    }
     viewModel {
         LoginViewModel(get<LoginRepositoryImpl>())
     }
@@ -51,5 +56,8 @@ val appModule = module {
     }
     viewModel {
         SearchViewModel()
+    }
+    viewModel {
+        SettingsViewModel(get<SettingsRepositoryImpl>())
     }
 }

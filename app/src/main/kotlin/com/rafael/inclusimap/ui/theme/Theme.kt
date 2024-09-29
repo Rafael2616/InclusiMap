@@ -7,72 +7,73 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.platform.LocalContext
-
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
-)
-
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
-)
+import com.rafael.inclusimap.settings.domain.model.SettingsState
 
 @Composable
 fun InclusiMapTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
+    isSystemInDarkTheme: Boolean = isSystemInDarkTheme(),
+    state: SettingsState,
+    content: @Composable () -> Unit,
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    val isDarkThemeOn = state.isDarkThemeOn
+    val isFollowingSystemOn = state.isFollowingSystemOn
+    val isDynamicColorsOn = state.isDynamicColorsOn
     val context = LocalContext.current
+    val isAndroidS = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+
+    // Handle which color scheme will be applied
+    val colors = if (isFollowingSystemOn) {
+        if (isAndroidS && isDynamicColorsOn) {
+            if (isSystemInDarkTheme) {
+                dynamicDarkColorScheme(context)
+            } else {
+                dynamicLightColorScheme(context)
+            }
+        } else if (isSystemInDarkTheme) {
+            DarkColors
+        } else {
+            LightColors
+        }
+    } else {
+        if (isAndroidS && isDynamicColorsOn) {
+            if (isDarkThemeOn) {
+                dynamicDarkColorScheme(context)
+            } else {
+                dynamicLightColorScheme(context)
+            }
+        } else {
+            if (isDarkThemeOn) {
+                DarkColors
+            } else {
+                LightColors
+            }
+        }
+    }
 
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = colors,
+        shapes = Shapes,
         typography = Typography,
-        content = content
+        content = content,
     )
 
     // Set System Bars Colors
-    DisposableEffect(darkTheme) {
+    DisposableEffect(isDarkThemeOn, isSystemInDarkTheme, isFollowingSystemOn) {
         val activity = context as ComponentActivity
         activity.enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.auto(
                 Color.TRANSPARENT,
                 Color.TRANSPARENT,
-            ) { darkTheme },
+            ) { isFollowingSystemOn && isSystemInDarkTheme || !isFollowingSystemOn && isDarkThemeOn },
             navigationBarStyle = SystemBarStyle.auto(
                 Color.TRANSPARENT,
                 Color.TRANSPARENT,
-            ) { darkTheme },
+            ) { isDarkThemeOn },
         )
         onDispose {}
     }

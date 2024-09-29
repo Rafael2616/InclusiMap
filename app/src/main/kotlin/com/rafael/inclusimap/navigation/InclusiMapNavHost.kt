@@ -15,6 +15,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.rafael.inclusimap.domain.LoginEvent
+import com.rafael.inclusimap.settings.presentation.SettingsScreen
+import com.rafael.inclusimap.settings.presentation.viewmodel.SettingsViewModel
 import com.rafael.inclusimap.ui.InclusiMapGoogleMapScreen
 import com.rafael.inclusimap.ui.UnifiedLoginScreen
 import com.rafael.inclusimap.ui.theme.InclusiMapTheme
@@ -46,8 +48,10 @@ fun InclusiMapNavHost(
     val loginState by loginViewModel.state.collectAsStateWithLifecycle()
     val searchViewModel = koinViewModel<SearchViewModel>()
     val searchState by searchViewModel.state.collectAsStateWithLifecycle()
+    val settingsViewModel = koinViewModel<SettingsViewModel>()
+    val settingsState by settingsViewModel.state.collectAsStateWithLifecycle()
 
-    InclusiMapTheme {
+    InclusiMapTheme(state = settingsState) {
         Scaffold(
             modifier = Modifier
                 .fillMaxSize()
@@ -90,8 +94,17 @@ fun InclusiMapNavHost(
                         loginState,
                         searchState,
                         searchViewModel::onEvent,
+                        settingsState,
                         fusedLocationProviderClient,
+                        onNavigateToSettings = { navController.navigate(Destination.SettingsScreen) },
                         modifier = Modifier.consumeWindowInsets(innerPadding)
+                    )
+                }
+                composable<Destination.SettingsScreen> {
+                    SettingsScreen(
+                        navController,
+                        settingsState,
+                        settingsViewModel::onEvent,
                     )
                 }
             }

@@ -1,0 +1,88 @@
+package com.rafael.tictactoe.feature.settings.presentation.components
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.rafael.inclusimap.settings.domain.model.SettingsEvent
+import com.rafael.inclusimap.settings.domain.model.SettingsState
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+internal fun SettingsTopBar(
+    navController: NavController,
+    state: SettingsState,
+    onEvent: (SettingsEvent) -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable (PaddingValues) -> Unit,
+) {
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    var isGoBackClicked by rememberSaveable { mutableStateOf(false) }
+
+    Scaffold(
+        modifier = modifier
+            .fillMaxSize()
+            .nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            LargeTopAppBar(
+                title = {
+                    Text("Configurações")
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            if (!isGoBackClicked) {
+                                isGoBackClicked = true
+                                onEvent(SettingsEvent.ShowAboutAppCard(false))
+                                navController.popBackStack()
+                            }
+                        },
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Go Back",
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(
+                        onClick = {
+                            //TODO: Implement search navController.navigate(SettingsSearch)
+                        },
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Search,
+                            contentDescription = "Search",
+                        )
+                    }
+                },
+                scrollBehavior = scrollBehavior,
+            )
+        },
+    ) { innerPadding ->
+        content(innerPadding)
+    }
+}

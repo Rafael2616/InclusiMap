@@ -5,7 +5,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed interface Destination {
     @Serializable
-    object MapScreen : Destination
+    data object MapScreen : Destination
     @Serializable
-    object LoginScreen : Destination
+    data object LoginScreen : Destination
+    @Serializable
+    data object SettingsScreen : Destination
 }
