@@ -224,6 +224,7 @@ fun InclusiMapGoogleMapScreen(
             matchingPlaces = searchState.matchingPlaces,
             onPlaceClick = {
                 expanded = false
+                onSearchEvent(SearchEvent.OnSearch("", emptyList()))
                 onPlaceTravelScope.launch {
                     cameraPositionState.animate(
                         CameraUpdateFactory.newLatLngZoom(

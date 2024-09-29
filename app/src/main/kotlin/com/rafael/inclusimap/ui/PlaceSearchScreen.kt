@@ -44,7 +44,7 @@ fun PlaceSearchScreen(
             text = "Resultados da pesquisa:",
             fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(horizontal = 12.dp)
+            modifier = modifier.padding(horizontal = 12.dp)
         )
         Spacer(modifier = Modifier.height(4.dp))
     }
