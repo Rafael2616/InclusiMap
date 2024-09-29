@@ -26,6 +26,7 @@ class SearchViewModel : ViewModel() {
             _state.update {
                 it.copy(matchingPlaces = emptyList())
             }
+            return
         }
         allPlaces.filter {
             it.title.contains(query, ignoreCase = true)
