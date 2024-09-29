@@ -2,6 +2,7 @@ package com.rafael.inclusimap.settings.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.maps.android.compose.MapType
 import com.rafael.inclusimap.settings.domain.model.SettingsEntity
 import com.rafael.inclusimap.settings.domain.model.SettingsEvent
 import com.rafael.inclusimap.settings.domain.model.SettingsState
@@ -32,6 +33,7 @@ class SettingsViewModel(
                     isDynamicColorsOn = settings.isDynamicColorsOn,
                     isFollowingSystemOn = settings.isFollowingSystemOn,
                     appVersion = settings.appVersion,
+                    mapType = settings.mapType.toMapType(),
                 )
             }
         }
@@ -89,6 +91,30 @@ class SettingsViewModel(
             is SettingsEvent.ShowAboutAppCard -> {
                 _state.update { it.copy(isAboutShown = event.value) }
             }
+
+            is SettingsEvent.SetMapType -> {
+                _state.update { it.copy(mapType = event.type) }
+                viewModelScope.launch(Dispatchers.IO) {
+                    val settings = repository.getAllSettingsValues(1) ?: defaultSettings
+                    settings.mapType = state.value.mapType.toInt()
+                    repository.setAllSettingsValues(settings)
+                }
+            }
         }
+    }
+
+    private fun MapType.toInt() = when (this) {
+        MapType.NORMAL -> 1
+        MapType.SATELLITE -> 2
+        MapType.TERRAIN -> 3
+        MapType.HYBRID -> 4
+        else -> 1
+    }
+    private fun Int.toMapType() = when (this) {
+        1 -> MapType.NORMAL
+        2 -> MapType.SATELLITE
+        3 -> MapType.TERRAIN
+        4 -> MapType.HYBRID
+        else -> MapType.NORMAL
     }
 }

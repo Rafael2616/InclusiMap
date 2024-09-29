@@ -10,6 +10,7 @@ data class SettingsEntity(
     var isDarkThemeOn: Boolean,
     var isDynamicColorsOn: Boolean,
     var isFollowingSystemOn: Boolean,
+    var mapType: Int,
     var appVersion: String,
 ) {
     companion object {
@@ -19,6 +20,7 @@ data class SettingsEntity(
             isDynamicColorsOn = true,
             isFollowingSystemOn = true,
             appVersion = "0",
+            mapType = 1,
         )
     }
 }

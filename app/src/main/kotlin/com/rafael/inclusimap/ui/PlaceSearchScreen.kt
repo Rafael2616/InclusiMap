@@ -72,9 +72,9 @@ fun PlaceSearchScreen(
                 horizontalArrangement = Arrangement.Start,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(54.dp)
+                    .height(58.dp)
                     .clickable { onPlaceClick(LatLng(place.position.first, place.position.second)) }
-                    .padding(6.dp)
+                    .padding(horizontal = 6.dp, vertical = 8.dp)
             ) {
                 Text(
                     text = place.title,

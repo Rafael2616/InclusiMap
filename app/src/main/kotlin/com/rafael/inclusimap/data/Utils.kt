@@ -40,13 +40,3 @@ fun isValidPassword(password: String): Boolean {
     val passwordRegex = Regex("""^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$""")
     return passwordRegex.matches(password)
 }
-
-fun MapType.getMapTypeName(): String {
-    return when (this) {
-        MapType.NORMAL -> "Normal"
-        MapType.SATELLITE -> "Satélite"
-        MapType.TERRAIN -> "Terreno"
-        MapType.HYBRID -> "Híbrido"
-        else -> "Desconhecido"
-    }
-}

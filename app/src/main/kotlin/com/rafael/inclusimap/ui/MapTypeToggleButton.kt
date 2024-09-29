@@ -1,19 +1,19 @@
 package com.rafael.inclusimap.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.Check
 import androidx.compose.material.icons.twotone.Map
-import androidx.compose.material.icons.twotone.Satellite
-import androidx.compose.material.icons.twotone.SatelliteAlt
-import androidx.compose.material.icons.twotone.Terrain
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
@@ -28,86 +28,78 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.google.maps.android.compose.MapType
-import com.rafael.inclusimap.data.getMapTypeName
+import com.rafael.inclusimap.domain.GoogleMapType
 
 @Composable
-fun MapTypeToogleButton(
+fun MapTypeToggleButton(
     selectedMapType: MapType,
     onMapTypeChange: (MapType) -> Unit,
 ) {
     var showMapTypes by remember { mutableStateOf(false) }
-
-    Box(
+    val mapTypes = GoogleMapType.getMapTypes()
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .navigationBarsPadding()
             .padding(horizontal = 16.dp)
-            .padding(bottom = 24.dp),
-        contentAlignment = Alignment.BottomEnd
+            .padding(bottom = 8.dp),
+        verticalArrangement = Arrangement.Bottom,
+        horizontalAlignment = Alignment.End
     ) {
         FloatingActionButton(
             onClick = { showMapTypes = !showMapTypes },
             modifier = Modifier
                 .clip(RoundedCornerShape(16.dp))
-                .size(60.dp)
-                .background(MaterialTheme.colorScheme.primaryContainer),
+                .size(65.dp),
             shape = RoundedCornerShape(16.dp),
         ) {
             Icon(
                 imageVector = Icons.TwoTone.Map,
                 contentDescription = "Tipos de Mapa",
                 modifier = Modifier.size(40.dp),
-                tint = MaterialTheme.colorScheme.primary
             )
         }
         Box(
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .padding(bottom = 30.dp),
-            contentAlignment = Alignment.TopEnd,
+            modifier = Modifier.wrapContentSize()
+                .padding(vertical = 16.dp),
+            contentAlignment = Alignment.CenterEnd
         ) {
             DropdownMenu(
                 expanded = showMapTypes,
                 onDismissRequest = { showMapTypes = false },
                 shape = MaterialTheme.shapes.medium,
-                offset = DpOffset(10.dp, (370).dp),
+                modifier = Modifier.background(MaterialTheme.colorScheme.surface),
             ) {
-                val mapTypes = listOf(
-                    MapType.NORMAL,
-                    MapType.SATELLITE,
-                    MapType.TERRAIN,
-                    MapType.HYBRID,
+                Text(
+                    text = "Tipos de Mapa",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
                 )
                 mapTypes.forEach { mapType ->
                     DropdownMenuItem(
                         onClick = {
-                            onMapTypeChange(mapType)
+                            onMapTypeChange(mapType.type)
                             showMapTypes = false
 
                         },
                         text = {
                             Text(
-                                text = mapType.getMapTypeName(),
+                                text = mapType.name,
                             )
                         },
                         contentPadding = PaddingValues(horizontal = 16.dp),
                         trailingIcon = {
                             Icon(
-                                imageVector = when (mapType) {
-                                    MapType.NORMAL -> Icons.TwoTone.Map
-                                    MapType.SATELLITE -> Icons.TwoTone.SatelliteAlt
-                                    MapType.TERRAIN -> Icons.TwoTone.Terrain
-                                    else -> Icons.TwoTone.Satellite
-                                },
+                                imageVector = mapType.icon,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp)
                             )
                         },
                         leadingIcon = {
-                            if (selectedMapType == mapType) {
+                            if (selectedMapType == mapType.type) {
                                 Icon(
                                     imageVector = Icons.TwoTone.Check,
                                     contentDescription = null,

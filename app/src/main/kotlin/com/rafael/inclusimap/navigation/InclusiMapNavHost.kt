@@ -15,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.rafael.inclusimap.domain.LoginEvent
+import com.rafael.inclusimap.settings.domain.model.SettingsEvent
 import com.rafael.inclusimap.settings.presentation.SettingsScreen
 import com.rafael.inclusimap.settings.presentation.viewmodel.SettingsViewModel
 import com.rafael.inclusimap.ui.InclusiMapGoogleMapScreen
@@ -95,6 +96,11 @@ fun InclusiMapNavHost(
                         searchState,
                         searchViewModel::onEvent,
                         settingsState,
+                        onMapTypeChange = {
+                            settingsViewModel.onEvent(
+                                SettingsEvent.SetMapType(it)
+                            )
+                        },
                         fusedLocationProviderClient,
                         onNavigateToSettings = { navController.navigate(Destination.SettingsScreen) },
                         modifier = Modifier.consumeWindowInsets(innerPadding)

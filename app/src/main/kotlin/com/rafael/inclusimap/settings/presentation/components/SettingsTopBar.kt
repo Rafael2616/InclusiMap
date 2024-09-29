@@ -67,18 +67,6 @@ internal fun SettingsTopBar(
                         )
                     }
                 },
-                actions = {
-                    IconButton(
-                        onClick = {
-                            //TODO: Implement search navController.navigate(SettingsSearch)
-                        },
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Search,
-                            contentDescription = "Search",
-                        )
-                    }
-                },
                 scrollBehavior = scrollBehavior,
             )
         },

@@ -4,6 +4,7 @@ import android.Manifest
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -14,11 +15,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material.icons.outlined.ManageAccounts
+import androidx.compose.material.icons.twotone.ManageAccounts
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -57,7 +56,6 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.rafael.inclusimap.R
-import com.rafael.inclusimap.data.getMapTypeName
 import com.rafael.inclusimap.data.toHUE
 import com.rafael.inclusimap.domain.AppIntroState
 import com.rafael.inclusimap.domain.InclusiMapEvent
@@ -84,6 +82,7 @@ fun InclusiMapGoogleMapScreen(
     searchState: SearchState,
     onSearchEvent: (SearchEvent) -> Unit,
     settingsState: SettingsState,
+    onMapTypeChange: (MapType) -> Unit,
     fusedLocationClient: FusedLocationProviderClient,
     onNavigateToSettings: () -> Unit,
     modifier: Modifier = Modifier,
@@ -98,7 +97,6 @@ fun InclusiMapGoogleMapScreen(
     val locationPermission = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
     val showMarkers by remember(cameraPositionState.isMoving) { mutableStateOf(cameraPositionState.position.zoom >= 15f) }
     var expanded by remember { mutableStateOf(false) }
-    var mapType by remember { mutableStateOf(MapType.NORMAL) }
 
     LaunchedEffect(animateMap && !appIntroState.showAppIntro) {
         if (animateMap) {
@@ -147,9 +145,10 @@ fun InclusiMapGoogleMapScreen(
         SearchBar(
             modifier = Modifier
                 .navigationBarsPadding()
+                .displayCutoutPadding()
                 .statusBarsPadding()
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 12.dp)
                 .clip(RoundedCornerShape(24.dp))
                 .semantics { traversalIndex = -1f },
             inputField = {
@@ -209,7 +208,7 @@ fun InclusiMapGoogleMapScreen(
                                 },
                             ) {
                                 Icon(
-                                    imageVector = Icons.Outlined.AccountCircle,
+                                    imageVector = Icons.TwoTone.ManageAccounts,
                                     contentDescription = null,
                                     modifier = Modifier
                                         .size(35.dp)
@@ -248,7 +247,7 @@ fun InclusiMapGoogleMapScreen(
                 .fillMaxSize(),
             properties = MapProperties(
                 isBuildingEnabled = true,
-                mapType = mapType,
+                mapType = settingsState.mapType,
                 isMyLocationEnabled = state.isLocationPermissionGranted && state.isMyLocationFound,
             ),
             uiSettings = MapUiSettings(
@@ -307,7 +306,7 @@ fun InclusiMapGoogleMapScreen(
                 }
             }
         }
-        MapTypeToogleButton(mapType, onMapTypeChange = { mapType = it })
+        MapTypeToggleButton(settingsState.mapType, onMapTypeChange = { onMapTypeChange(it) })
     }
 
     AnimatedVisibility(appIntroState.showAppIntro) {
