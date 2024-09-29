@@ -44,6 +44,7 @@ internal fun IconPreference(
     leadingWidget: (@Composable BoxScope.() -> Unit)? = null,
     extraContent: (@Composable () -> Unit)? = null,
     leadingIcon: ImageVector? = null,
+    leadingIconColor : Color = MaterialTheme.colorScheme.onSurface
 ) {
     Row(
         horizontalArrangement = Arrangement.Start,
@@ -59,7 +60,7 @@ internal fun IconPreference(
             Icon(
                 imageVector = leadingIcon,
                 contentDescription = "Icon",
-                tint = MaterialTheme.colorScheme.onSurface,
+                tint = leadingIconColor,
                 modifier = Modifier
                     .size(32.dp),
             )

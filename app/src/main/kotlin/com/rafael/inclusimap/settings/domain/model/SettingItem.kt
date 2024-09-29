@@ -9,7 +9,6 @@ import com.rafael.inclusimap.settings.presentation.components.preferences.DarkTh
 import com.rafael.inclusimap.settings.presentation.components.preferences.DynamicColorsPreference
 import com.rafael.inclusimap.settings.presentation.components.preferences.FollowSystemPreference
 import com.rafael.inclusimap.settings.presentation.components.preferences.OpenSourceLicensesPreference
-import com.rafael.inclusimap.settings.presentation.components.preferences.UpdateHistoryPreference
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -24,7 +23,7 @@ data class SettingItem(
 
         @OptIn(ExperimentalUuidApi::class)
         @Stable
-        suspend fun getSettingsItems(
+        fun getSettingsItems(
             settingsState: SettingsState,
         ): List<SettingItem> = listOf(
             // Follow System
@@ -66,7 +65,7 @@ data class SettingItem(
                     text = "Estilo do mapa",
                 ),
             ),
-            // Background Music
+            // Tema o mapa
             SettingItem(
                 content = { onEvent, state, _ -> TODO() },
                 searchSpecs = SearchItemSpecs(
@@ -75,7 +74,7 @@ data class SettingItem(
                     text = "Tema do Mapa",
                 ),
             ),
-            // Winner Line Color
+            // Configurações da conta
             SettingItem(
                 content = { onEvent, state, _ -> TODO() },
                 searchSpecs = SearchItemSpecs(
@@ -84,7 +83,7 @@ data class SettingItem(
                     text = "Configurações da conta",
                 ),
             ),
-            // Circle Color
+            // Reexibir dicas
             SettingItem(
                 content = { onEvent, state, _ -> TODO() },
                 searchSpecs = SearchItemSpecs(
@@ -93,22 +92,13 @@ data class SettingItem(
                     text = "Reexibir dicas",
                 ),
             ),
-            // About App
+            // Sobre o app
             SettingItem(
                 content = { onEvent, state, _ -> AboutAppPreference(onEvent, state) },
                 searchSpecs = SearchItemSpecs(
                     namespace = NAMESPACE,
                     id = Uuid.random().toString(),
                     text = "Sobre o app",
-                ),
-            ),
-            // Update History
-            SettingItem(
-                content = { _, _, navController -> UpdateHistoryPreference(navController) },
-                searchSpecs = SearchItemSpecs(
-                    namespace = NAMESPACE,
-                    id = Uuid.random().toString(),
-                    text = "Histórico de atualizações",
                 ),
             ),
             // Licences Screen

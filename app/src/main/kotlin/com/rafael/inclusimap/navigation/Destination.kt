@@ -7,7 +7,7 @@ sealed interface Destination {
     @Serializable
     data object MapScreen : Destination
     @Serializable
-    data object LoginScreen : Destination
+    data class LoginScreen(val isEditPasswordMode: Boolean = false) : Destination
     @Serializable
     data object SettingsScreen : Destination
 }

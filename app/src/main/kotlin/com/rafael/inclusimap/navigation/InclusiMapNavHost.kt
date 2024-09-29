@@ -13,6 +13,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.rafael.inclusimap.domain.LoginEvent
 import com.rafael.inclusimap.settings.domain.model.SettingsEvent
@@ -59,7 +60,7 @@ fun InclusiMapNavHost(
         ) { innerPadding ->
             NavHost(
                 navController = navController,
-                startDestination = if (!loginState.isLoggedIn) Destination.LoginScreen else Destination.MapScreen,
+                startDestination = if (!loginState.isLoggedIn) Destination.LoginScreen(false) else Destination.MapScreen,
                 enterTransition = { materialSharedAxisXIn(!isRtl, slideDistance) },
                 exitTransition = { materialSharedAxisXOut(!isRtl, slideDistance) },
                 popEnterTransition = { materialSharedAxisXIn(isRtl, slideDistance) },
@@ -81,7 +82,16 @@ fun InclusiMapNavHost(
                             )
                             appIntroViewModel.setShowAppIntro(true)
                         },
-                        modifier = Modifier.consumeWindowInsets(innerPadding)
+                        modifier = Modifier.consumeWindowInsets(innerPadding),
+                        onUpdatePassword = {
+                            loginViewModel.onEvent(
+                                LoginEvent.UpdatePassword(it)
+                            )
+                        },
+                        onCancel = {
+                            navController.popBackStack()
+                        },
+                        isEditPasswordMode = it.toRoute<Destination.LoginScreen>().isEditPasswordMode
                     )
                 }
                 composable<Destination.MapScreen> {

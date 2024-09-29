@@ -31,19 +31,9 @@ fun AboutAppPreference(
     state: SettingsState,
     modifier: Modifier = Modifier,
 ) {
-    val rowHeight by animateDpAsState(
-        if (state.isAboutShown) 130.dp else 58.dp,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow,
-        ),
-        label = "",
-    )
-
     IconPreference(
-        title = "Sobre o app",
+        title = "Sobre o InclusiMap©",
         description = null,
-        rowHeight = rowHeight,
         leadingIcon = Icons.Outlined.Info,
 //        extraContent = if (state.isAboutShown) {
 //            {

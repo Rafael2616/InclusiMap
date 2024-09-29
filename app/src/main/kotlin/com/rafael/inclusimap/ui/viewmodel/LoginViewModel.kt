@@ -50,17 +50,13 @@ class LoginViewModel(
 
     fun onEvent(event: LoginEvent) {
         when (event) {
-            is LoginEvent.SetIsNewUser -> {
-                _state.update {
-                    it.copy(
-                        isNewUser = event.isNewUser
-                    )
-                }
-            }
-
             is LoginEvent.OnLogin -> login(event.registeredUser)
             is LoginEvent.OnRegisterNewUser -> registerNewUser(event.user)
             LoginEvent.OnLogout -> logout()
+            is LoginEvent.UpdatePassword -> updatePassword(event.password)
+            is LoginEvent.SetIsNewUser -> _state.update {
+                it.copy(isNewUser = event.isNewUser)
+            }
         }
     }
 
@@ -250,6 +246,64 @@ class LoginViewModel(
                         isLoginOut = false,
                     )
                 }
+            }
+        }
+    }
+
+    private fun updatePassword(password: String) {
+        _state.update {
+            it.copy(
+                isUpdatingPassword = true,
+                isPasswordChanged = false,
+                isSamePassword = false,
+            )
+        }
+        // Update the password in local database
+        viewModelScope.launch(Dispatchers.IO) {
+            val loginData = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
+            loginData.userEmail = password
+        }
+        // Update the password in Google Drive
+        viewModelScope.launch(Dispatchers.IO) {
+            async {
+                val user = driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).find { userFile ->
+                    userFile.name == _state.value.user?.email
+                }
+
+                val userLoginFile = driveService.listFiles(user?.id ?: "").find { userFile ->
+                    userFile.name.endsWith(".json")
+                }
+                val json = Json { ignoreUnknownKeys = true }
+                val userObj = json.decodeFromString<User>(
+                    driveService.getFileContent(
+                        userLoginFile?.id ?: throw IllegalStateException("User not found")
+                    ).decodeToString()
+                )
+                if (userObj.password == password) {
+                    _state.update {
+                        it.copy(
+                            isSamePassword = true,
+                            isUpdatingPassword = false,
+                        )
+                    }
+                    return@async
+                }
+                userObj.password = password
+                driveService.updateFile(
+                    userLoginFile.id,
+                    userLoginFile.name,
+                    json.encodeToString(userObj).byteInputStream(),
+                )
+            }.await()
+        }.invokeOnCompletion {
+            // Update the password in the state
+            if (_state.value.isSamePassword) return@invokeOnCompletion
+            _state.update {
+                it.copy(
+                    user = it.user?.copy(password = password),
+                    isUpdatingPassword = false,
+                    isPasswordChanged = true,
+                )
             }
         }
     }

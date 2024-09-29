@@ -306,7 +306,9 @@ fun InclusiMapGoogleMapScreen(
                 }
             }
         }
-        MapTypeToggleButton(settingsState.mapType, onMapTypeChange = { onMapTypeChange(it) })
+        if (state.isMapLoaded) {
+            MapTypeToggleButton(settingsState.mapType, onMapTypeChange = { onMapTypeChange(it) })
+        }
     }
 
     AnimatedVisibility(appIntroState.showAppIntro) {
