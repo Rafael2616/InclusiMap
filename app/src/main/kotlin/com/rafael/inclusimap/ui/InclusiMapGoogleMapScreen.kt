@@ -247,7 +247,8 @@ fun InclusiMapGoogleMapScreen(
         uiSettings = MapUiSettings(
             zoomGesturesEnabled = true,
             compassEnabled = true,
-            rotationGesturesEnabled = true
+            rotationGesturesEnabled = true,
+            zoomControlsEnabled = false,
         ),
         cameraPositionState = cameraPositionState,
         onMapClick = {
