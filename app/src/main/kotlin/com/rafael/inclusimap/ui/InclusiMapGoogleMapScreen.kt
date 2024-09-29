@@ -1,6 +1,7 @@
 package com.rafael.inclusimap.ui
 
 import android.Manifest
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -11,7 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -30,6 +34,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
@@ -58,6 +63,8 @@ import com.rafael.inclusimap.domain.InclusiMapState
 import com.rafael.inclusimap.domain.LoginState
 import com.rafael.inclusimap.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.domain.PlaceDetailsState
+import com.rafael.inclusimap.domain.SearchEvent
+import com.rafael.inclusimap.domain.SearchState
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
@@ -71,6 +78,8 @@ fun InclusiMapGoogleMapScreen(
     appIntroState: AppIntroState,
     onDismissAppIntro: (Boolean) -> Unit,
     loginState: LoginState,
+    searchState: SearchState,
+    onSearchEvent: (SearchEvent) -> Unit,
     fusedLocationClient: FusedLocationProviderClient,
     modifier: Modifier = Modifier,
 ) {
@@ -78,10 +87,13 @@ fun InclusiMapGoogleMapScreen(
     val cameraPositionState = rememberCameraPositionState()
     val bottomSheetScaffoldState = rememberModalBottomSheetState()
     val bottomSheetScope = rememberCoroutineScope()
+    val onPlaceTravelScope = rememberCoroutineScope()
     val addPlaceBottomSheetScaffoldState = rememberModalBottomSheetState()
     val addPlaceBottomSheetScope = rememberCoroutineScope()
     val locationPermission = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
     val showMarkers by remember(cameraPositionState.isMoving) { mutableStateOf(cameraPositionState.position.zoom >= 15f) }
+    var expanded by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     LaunchedEffect(animateMap && !appIntroState.showAppIntro) {
         if (animateMap) {
@@ -126,47 +138,75 @@ fun InclusiMapGoogleMapScreen(
         onEvent(InclusiMapEvent.SetLocationPermissionGranted(locationPermission.status == PermissionStatus.Granted))
     }
 
-    var expanded by remember { mutableStateOf(false) }
-    var searchState by remember { mutableStateOf("") }
-
     SearchBar(
         modifier = Modifier
             .navigationBarsPadding()
             .statusBarsPadding()
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
+            .clip(RoundedCornerShape(24.dp))
             .semantics { traversalIndex = -1f },
         inputField = {
             SearchBarDefaults.InputField(
-                query = searchState,
+                query = searchState.searchQuery,
                 onQueryChange = {
-                    searchState = it
+                    onSearchEvent(SearchEvent.OnSearch(it, state.allMappedPlaces))
                 },
                 onSearch = {
                     expanded = false
                 },
                 expanded = expanded,
-                onExpandedChange = { },
-                placeholder = { Text("Pesquise algo aqui") },
-                leadingIcon = {
-                    Image(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape),
-                        painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                        contentDescription = null,
-                    )
+                onExpandedChange = {
+                    expanded = it
                 },
-                trailingIcon = {
-                    if (searchState.isNotEmpty()) {
+                placeholder = { Text("Pesquise um local aqui") },
+                leadingIcon = {
+                    if (expanded) {
                         IconButton(
                             onClick = {
-                                searchState = ""
+                                expanded = false
+                                onSearchEvent(SearchEvent.OnSearch("", emptyList()))
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = null,
+                            )
+                        }
+                    } else {
+                        Image(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape),
+                            painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                            contentDescription = null,
+                        )
+                    }
+                },
+                trailingIcon = {
+                    if (searchState.searchQuery.isNotEmpty()) {
+                        IconButton(
+                            onClick = {
+                                onSearchEvent(SearchEvent.OnSearch("", emptyList()))
                             },
                         ) {
                             Icon(
                                 imageVector = Icons.Outlined.Close,
                                 contentDescription = null,
+                            )
+                        }
+                    }
+                    if (!expanded) {
+                        IconButton(
+                            onClick = {
+                                Toast.makeText(context, "Em breeve!", Toast.LENGTH_LONG).show()
+                            },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.AccountCircle,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(35.dp)
                             )
                         }
                     }
@@ -176,10 +216,26 @@ fun InclusiMapGoogleMapScreen(
         expanded = expanded,
         onExpandedChange = { expanded = it },
         colors = SearchBarDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
+            containerColor = MaterialTheme.colorScheme.surface,
             dividerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
         ),
-    ) { }
+    ) {
+        PlaceSearchScreen(
+            matchingPlaces = searchState.matchingPlaces,
+            onPlaceClick = {
+                expanded = false
+                onPlaceTravelScope.launch {
+                    cameraPositionState.animate(
+                        CameraUpdateFactory.newLatLngZoom(
+                            it,
+                            20f
+                        ),
+                        2500
+                    )
+                }
+            }
+        )
+    }
     GoogleMap(
         modifier = modifier
             .fillMaxSize(),
@@ -220,7 +276,12 @@ fun InclusiMapGoogleMapScreen(
                 val accessibilityAverage =
                     place.comments.map { it.accessibilityRate }.average().toFloat()
                 Marker(
-                    state = MarkerState(position = LatLng(place.position.first, place.position.second)),
+                    state = MarkerState(
+                        position = LatLng(
+                            place.position.first,
+                            place.position.second
+                        )
+                    ),
                     title = place.title,
                     snippet = place.category,
                     icon = BitmapDescriptorFactory.defaultMarker(
@@ -269,7 +330,7 @@ fun InclusiMapGoogleMapScreen(
     }
     AnimatedVisibility(addPlaceBottomSheetScaffoldState.isVisible || placeDetailsState.isEditingPlace) {
         AddEditPlaceBottomSheet(
-            latlng = state.selectedUnmappedPlaceLatLng ?: LatLng(0.0,0.0),
+            latlng = state.selectedUnmappedPlaceLatLng ?: LatLng(0.0, 0.0),
             placeDetailsState = placeDetailsState,
             loginState = loginState,
             bottomSheetScaffoldState = addPlaceBottomSheetScaffoldState,

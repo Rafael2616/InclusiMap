@@ -22,6 +22,7 @@ import com.rafael.inclusimap.ui.viewmodel.AppIntroViewModel
 import com.rafael.inclusimap.ui.viewmodel.InclusiMapGoogleMapScreenViewModel
 import com.rafael.inclusimap.ui.viewmodel.LoginViewModel
 import com.rafael.inclusimap.ui.viewmodel.PlaceDetailsViewModel
+import com.rafael.inclusimap.ui.viewmodel.SearchViewModel
 import org.koin.compose.viewmodel.koinViewModel
 import soup.compose.material.motion.animation.materialSharedAxisXIn
 import soup.compose.material.motion.animation.materialSharedAxisXOut
@@ -43,6 +44,8 @@ fun InclusiMapNavHost(
     val placeDetailsState by placeDetailsViewModel.state.collectAsStateWithLifecycle()
     val loginViewModel = koinViewModel<LoginViewModel>()
     val loginState by loginViewModel.state.collectAsStateWithLifecycle()
+    val searchViewModel = koinViewModel<SearchViewModel>()
+    val searchState by searchViewModel.state.collectAsStateWithLifecycle()
 
     InclusiMapTheme {
         Scaffold(
@@ -85,6 +88,8 @@ fun InclusiMapNavHost(
                         appIntroState,
                         appIntroViewModel::setShowAppIntro,
                         loginState,
+                        searchState,
+                        searchViewModel::onEvent,
                         fusedLocationProviderClient,
                         modifier = Modifier.consumeWindowInsets(innerPadding)
                     )

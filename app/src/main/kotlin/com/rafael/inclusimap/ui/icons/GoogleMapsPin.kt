@@ -6,14 +6,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun GoogleMapsPin(
     pinColor: Color,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    pinSize: Dp = 64.dp,
 ) {
-    Canvas(modifier = modifier.size(64.dp)) {
+    Canvas(modifier = modifier.size(pinSize)) {
 
         val trianglePath = Path().apply {
             moveTo(size.width / 2, size.height * 0.85f)
