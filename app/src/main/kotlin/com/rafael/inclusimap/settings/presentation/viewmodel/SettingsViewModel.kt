@@ -100,6 +100,10 @@ class SettingsViewModel(
                     repository.setAllSettingsValues(settings)
                 }
             }
+
+            is SettingsEvent.ShowLogoutDialog -> {
+                _state.update { it.copy(showLogoutDialog = event.value) }
+            }
         }
     }
 

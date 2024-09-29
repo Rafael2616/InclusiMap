@@ -12,6 +12,7 @@ import com.rafael.inclusimap.domain.repository.LoginRepository
 import com.rafael.inclusimap.domain.util.Constants.INCLUSIMAP_USERS_FOLDER_ID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -59,6 +60,7 @@ class LoginViewModel(
 
             is LoginEvent.OnLogin -> login(event.registeredUser)
             is LoginEvent.OnRegisterNewUser -> registerNewUser(event.user)
+            LoginEvent.OnLogout -> logout()
         }
     }
 
@@ -227,6 +229,27 @@ class LoginViewModel(
                 it.copy(
                     isRegistering = false
                 )
+            }
+        }
+    }
+
+    private fun logout() {
+        _state.update {
+            it.copy(isLoginOut = true)
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            val loginData = LoginEntity.getDefault()
+            repository.updateLoginInfo(loginData)
+        }.invokeOnCompletion {
+            viewModelScope.launch(Dispatchers.IO) {
+                delay(2000L)
+                _state.update {
+                    it.copy(
+                        user = null,
+                        isLoggedIn = false,
+                        isLoginOut = false,
+                    )
+                }
             }
         }
     }

@@ -10,5 +10,6 @@ data class SettingsState(
     val isFollowingSystemOn: Boolean = true,
     val isAboutShown: Boolean = false,
     val mapType: MapType = MapType.NORMAL,
+    val showLogoutDialog: Boolean = false,
     val appVersion: String = "1.0",
 )

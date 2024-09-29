@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.rafael.inclusimap.settings.domain.model.SettingsEvent
 import com.rafael.inclusimap.settings.domain.model.SettingsState
+import com.rafael.inclusimap.settings.presentation.components.groups.AccountPreferenceGroup
 import com.rafael.inclusimap.settings.presentation.components.groups.MapPreferenceGroup
 import com.rafael.inclusimap.settings.presentation.components.groups.OthersPreferenceGroup
 import com.rafael.inclusimap.settings.presentation.components.groups.ThemePreferenceGroup
@@ -38,6 +39,9 @@ internal fun Preferences(
         verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        item {
+            AccountPreferenceGroup(onEvent, state, navController)
+        }
         item {
             ThemePreferenceGroup(onEvent, state)
         }

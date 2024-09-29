@@ -111,7 +111,18 @@ fun InclusiMapNavHost(
                         navController,
                         settingsState,
                         settingsViewModel::onEvent,
+                        loginState,
+                        onLogout = {
+                            loginViewModel.onEvent(
+                                LoginEvent.OnLogout
+                            )
+                        }
                     )
+                    LaunchedEffect(loginState.isLoggedIn) {
+                        if (!loginState.isLoggedIn) {
+                            navController.clearBackStack(Destination.MapScreen)
+                        }
+                    }
                 }
             }
         }

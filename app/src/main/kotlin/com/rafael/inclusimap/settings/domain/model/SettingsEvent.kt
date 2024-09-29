@@ -9,4 +9,5 @@ sealed interface SettingsEvent {
     data class SetIsDarkThemeOn(val value: Boolean) : SettingsEvent
     data class SetMapType(val type: MapType) : SettingsEvent
     data class ShowAboutAppCard(val value: Boolean) : SettingsEvent
+    data class ShowLogoutDialog(val value: Boolean) : SettingsEvent
 }
