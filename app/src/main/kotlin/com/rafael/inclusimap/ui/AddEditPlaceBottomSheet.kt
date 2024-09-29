@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imeNestedScroll
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Category
@@ -30,9 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
@@ -59,7 +57,8 @@ fun AddEditPlaceBottomSheet(
     onDeletePlace: (id: String) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
-) {
+    defaultRoundedShape: Shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
+    ) {
     var placeName by remember { mutableStateOf(if (isEditing) placeDetailsState.currentPlace.title else "") }
     var placeCategory by remember { mutableStateOf(if (isEditing) placeDetailsState.currentPlace.category else "") }
     var tryAddUpdate by remember { mutableStateOf(false) }
@@ -123,7 +122,7 @@ fun AddEditPlaceBottomSheet(
                 ),
                 modifier = Modifier
                     .fillMaxWidth(),
-                shape = MaterialTheme.shapes.medium
+                shape = defaultRoundedShape,
             )
             TextField(
                 value = placeCategory,
@@ -145,7 +144,7 @@ fun AddEditPlaceBottomSheet(
                 isError = tryAddUpdate && placeCategory.isEmpty(),
                 modifier = Modifier
                     .fillMaxWidth(),
-                shape = MaterialTheme.shapes.medium,
+                shape = defaultRoundedShape,
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
