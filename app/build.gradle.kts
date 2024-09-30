@@ -1,3 +1,4 @@
+import com.android.build.gradle.internal.api.ApkVariantOutputImpl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Properties
@@ -82,6 +83,12 @@ android {
                 "META-INF/INDEX.LIST",
                 "META-INF/DEPENDENCIES"
             )
+        }
+    }
+    applicationVariants.all {
+        outputs.all {
+            (this as? ApkVariantOutputImpl)?.outputFileName =
+                "InclusiMap v$versionName.apk"
         }
     }
 }
