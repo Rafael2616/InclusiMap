@@ -24,6 +24,7 @@ dependencies {
     implementation(libs.koin.android)
 
     // Projects
+    implementation(projects.core.domain)
     implementation(projects.core.services)
     implementation(projects.core.resources)
 }

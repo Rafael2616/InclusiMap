@@ -1,4 +1,4 @@
-package com.rafael.inclusimap.feature.map.domain.util
+package com.rafael.inclusimap.core.domain.util
 
 import com.google.android.gms.maps.model.LatLng
 

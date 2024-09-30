@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Date
-import com.rafael.inclusimap.feature.map.domain.util.Constants.INCLUSIMAP_IMAGE_FOLDER_ID
+import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_IMAGE_FOLDER_ID
 
 class PlaceDetailsViewModel(
     private val driveService: GoogleDriveService,

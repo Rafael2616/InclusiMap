@@ -2,6 +2,7 @@ package com.rafael.inclusimap.feature.auth.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_USERS_FOLDER_ID
 import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.feature.auth.domain.model.LoginEntity
 import com.rafael.inclusimap.feature.auth.domain.model.LoginState
@@ -316,5 +317,3 @@ class LoginViewModel(
         }
     }
 }
-
-const val INCLUSIMAP_USERS_FOLDER_ID = "1Vz3Ac1P9SkkNwObYB51eMo2IcVIQwmjD"
