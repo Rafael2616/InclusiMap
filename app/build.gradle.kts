@@ -1,5 +1,6 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -30,13 +31,38 @@ android {
             useSupportLibrary = true
         }
     }
+    val releaseSigningFile = rootProject.file("keystore.properties")
+    val keystoreProperties = Properties()
+    val releaseSigningConfig = if (releaseSigningFile.exists()) {
+        keystoreProperties.load(releaseSigningFile.inputStream())
+        signingConfigs.create("release") {
+            storeFile = file(keystoreProperties.getProperty("KEYSTORE"))
+            storePassword = keystoreProperties.getProperty("KEYSTORE_PASSWORD")
+            keyAlias = keystoreProperties.getProperty("KEY_ALIAS")
+            keyPassword = keystoreProperties.getProperty("KEY_PASSWORD")
+            enableV3Signing = true
+        }
+    } else {
+        signingConfigs.create("release") {
+            storeFile = file("inclusimap.jks")
+            storePassword = System.getenv("KEYSTORE_PASSWORD")
+            keyAlias = System.getenv("KEY_ALIAS")
+            keyPassword = System.getenv("KEY_PASSWORD")
+            enableV3Signing = true
+        }
+    }
 
     buildTypes {
-        release {
-            isMinifyEnabled = false
+        named("debug") {
+            signingConfig = releaseSigningConfig
+        }
+
+        named("release") {
+            isMinifyEnabled = true
+            signingConfig = releaseSigningConfig
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
