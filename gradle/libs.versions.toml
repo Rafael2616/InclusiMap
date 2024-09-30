@@ -8,9 +8,8 @@ jvmTarget = "21"
 
 accompanistPermissionsVersion = "0.36.0"
 agp = "8.6.1"
-googleApiClientVersion = "1.35.2" #Do not update this
-googleApiServicesDriveVersion = "v3-rev197-1.25.0"
-googleAuthLibraryOauth2HttpVersion = "1.26.0"
+googleApiClientVersion = "2.7.0"
+googleApiServicesDriveVersion = "v3-rev20240914-2.0.0"
 kotlin = "2.1.0-Beta1"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -66,7 +65,6 @@ play-services-location = { group = "com.google.android.gms", name = "play-servic
 google-accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissionsVersion" }
 google-api-client = { module = "com.google.api-client:google-api-client", version.ref = "googleApiClientVersion" }
 google-api-services-drive = { module = "com.google.apis:google-api-services-drive", version.ref = "googleApiServicesDriveVersion" }
-google-auth-library-oauth2-http = { module = "com.google.auth:google-auth-library-oauth2-http", version.ref = "googleAuthLibraryOauth2HttpVersion" }
 
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }

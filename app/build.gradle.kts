@@ -94,8 +94,7 @@ dependencies {
     implementation(libs.play.services.location)
     // Google drive
     implementation(libs.google.api.client)
-     implementation(libs.google.api.services.drive)
-    implementation(libs.google.auth.library.oauth2.http)
+    implementation(libs.google.api.services.drive)
     // Permissions
     implementation(libs.google.accompanist.permissions)
     testImplementation(libs.junit)
