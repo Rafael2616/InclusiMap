@@ -16,6 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.rafael.inclusimap.core.navigation.Destination
+import com.rafael.inclusimap.core.settings.domain.model.SettingsEvent
 import com.rafael.inclusimap.core.ui.theme.InclusiMapTheme
 import com.rafael.inclusimap.feature.auth.domain.model.LoginEvent
 import com.rafael.inclusimap.feature.auth.presentation.UnifiedLoginScreen
@@ -70,9 +71,9 @@ fun InclusiMapNavHost(
                 composable<Destination.LoginScreen> {
                     UnifiedLoginScreen(
                         loginState = loginState,
-                        onLogin = {
+                        onLogin = { registeredUser ->
                             loginViewModel.onEvent(
-                                LoginEvent.OnLogin(it)
+                                LoginEvent.OnLogin(registeredUser)
                             )
                             appIntroViewModel.setShowAppIntro(true)
                         },
@@ -107,7 +108,7 @@ fun InclusiMapNavHost(
                         settingsState,
                         onMapTypeChange = {
                             settingsViewModel.onEvent(
-                                com.rafael.inclusimap.core.settings.domain.model.SettingsEvent.SetMapType(it)
+                                SettingsEvent.SetMapType(it)
                             )
                         },
                         fusedLocationProviderClient,

@@ -30,9 +30,14 @@ class GoogleDriveService {
             .build()
     }
 
-    suspend fun getFileContent(fileId: String): ByteArray {
+    suspend fun getFileContent(fileId: String): ByteArray? {
         return withContext(Dispatchers.IO) {
-            driveService.files().get(fileId).executeMediaAsInputStream().readBytes()
+            try {
+                driveService.files().get(fileId).executeMediaAsInputStream().readBytes()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
         }
     }
 

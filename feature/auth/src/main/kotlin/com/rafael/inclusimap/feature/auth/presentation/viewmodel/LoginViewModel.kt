@@ -177,9 +177,13 @@ class LoginViewModel(
 
                 val userLoginFileContent = driveService.getFileContent(
                     userLoginFile?.id ?: throw IllegalStateException("User not found")
-                ).decodeToString()
+                )?.decodeToString()
                 println("User file content: $userLoginFileContent")
 
+                if (userLoginFileContent == null) {
+                    println("User file content is null")
+                    return@async
+                }
                 val userObj = json.decodeFromString<User>(userLoginFileContent)
                 if (userObj.password != registeredUser.password) {
                     _state.update {
@@ -273,11 +277,16 @@ class LoginViewModel(
                     userFile.name.endsWith(".json")
                 }
                 val json = Json { ignoreUnknownKeys = true }
-                val userObj = json.decodeFromString<User>(
+                val userLoginFileContent =
                     driveService.getFileContent(
                         userLoginFile?.id ?: throw IllegalStateException("User not found")
-                    ).decodeToString()
-                )
+                    )?.decodeToString()
+
+                if (userLoginFileContent == null) {
+                    println("User file content is null")
+                    return@async
+                }
+                val userObj = json.decodeFromString<User>(userLoginFileContent)
                 if (userObj.password == password) {
                     _state.update {
                         it.copy(

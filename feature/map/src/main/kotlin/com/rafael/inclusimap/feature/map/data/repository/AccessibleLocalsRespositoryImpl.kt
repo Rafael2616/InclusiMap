@@ -28,7 +28,8 @@ class AccessibleLocalsRepositoryImpl(
                 if (file == null) {
                     return@withContext emptyList()
                 }
-                val content = driveService.getFileContent(file.id).decodeToString()
+                val content = driveService.getFileContent(file.id)?.decodeToString()
+                    ?: return@withContext emptyList()
                 json.decodeFromString<List<AccessibleLocalMarker>>(content)
             }
         }
