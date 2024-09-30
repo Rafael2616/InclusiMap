@@ -1,7 +1,14 @@
 [versions]
+minSdk = "26"
+targetSdk = "35"
+compileSdk = "35"
+versionCode = "165"
+versionName = "1.7.4"
+jvmTarget = "21"
+
 accompanistPermissionsVersion = "0.36.0"
 agp = "8.6.1"
-googleApiClientVersion = "1.35.2"
+googleApiClientVersion = "1.35.2" #Do not update this
 googleApiServicesDriveVersion = "v3-rev197-1.25.0"
 googleAuthLibraryOauth2HttpVersion = "1.26.0"
 kotlin = "2.1.0-Beta1"
@@ -24,6 +31,8 @@ ksp = "2.1.0-Beta1-1.0.25"
 navigation = "2.8.1"
 kotlinx-serialization = "1.7.3"
 material-motion-compose = "2.0.1"
+spotless = "7.0.0.BETA2"
+compose-rules = "0.4.12"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -68,14 +77,29 @@ koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", ver
 material-motion-compose = { module = "io.github.fornewid:material-motion-compose-core", version.ref = "material-motion-compose" }
 
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+ktlint-compose-rules = { module = "io.nlopez.compose.rules:ktlint", version.ref = "compose-rules" }
+
+# Build-logic dependencies
+android-gradle = { module = "com.android.tools.build:gradle", version.ref = "agp" }
+spotless-gradle = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
+kotlin-gradle = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+composeCompiler-gradle = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 jetbrains-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 androidx-room = { id = "androidx.room", version.ref = "room" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+
+rafael-spotless = { id = "com.rafael.spotless", version = "unspecified" }
+rafael-library = { id = "com.rafael.library", version = "unspecified" }
+rafael-library-compose = { id = "com.rafael.compose.library", version = "unspecified" }
+rafael-application = { id = "com.rafael.application", version = "unspecified" }
+rafael-application-compose = { id = "com.rafael.compose.application", version = "unspecified" }
 
 [bundles]
 koin = ["koin-android", "koin-androidx-compose", "koin-core", "koin-core-viewmodel", "koin-compose", "koin-compose-viewmodel"]

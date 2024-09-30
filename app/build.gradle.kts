@@ -1,24 +1,17 @@
 import com.android.build.gradle.internal.api.ApkVariantOutputImpl
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Properties
 
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.rafael.application)
+    alias(libs.plugins.rafael.application.compose)
+    alias(libs.plugins.rafael.spotless)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.jetbrains.compose.compiler)
     alias(libs.plugins.androidx.room)
     alias(libs.plugins.kotlin.serialization)
 }
 
-room {
-    schemaDirectory("$projectDir/schemas")
-}
-
 android {
     namespace = "com.rafael.inclusimap"
-    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.rafael.inclusimap"
@@ -67,24 +60,7 @@ android {
             )
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    tasks.withType<KotlinCompile>().configureEach {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
-        }
-    }
-    packaging {
-        resources {
-            excludes += listOf(
-                "/META-INF/{AL2.0,LGPL2.1}",
-                "META-INF/INDEX.LIST",
-                "META-INF/DEPENDENCIES"
-            )
-        }
-    }
+
     applicationVariants.all {
         outputs.all {
             (this as? ApkVariantOutputImpl)?.outputFileName =
@@ -135,4 +111,8 @@ ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
     arg("room.incremental", "true")
     arg("room.generateKotlin", "true")
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
 }

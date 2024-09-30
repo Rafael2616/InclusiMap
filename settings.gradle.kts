@@ -1,6 +1,11 @@
 @file:Suppress("UnstableApiUsage")
 
+rootProject.name = "InclusiMap"
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google {
             content {
@@ -21,6 +26,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "InclusiMap"
 include(":app")
  
