@@ -1,0 +1,7 @@
+package com.rafael.inclusimap.feature.map.search.domain.model
+
+import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
+
+sealed interface SearchEvent {
+    data class OnSearch(val query: String, val allPlaces: List<AccessibleLocalMarker>) : SearchEvent
+}

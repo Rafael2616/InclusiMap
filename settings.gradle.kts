@@ -27,4 +27,19 @@ dependencyResolutionManagement {
 }
 
 include(":app")
- 
+
+include(":core:di")
+include(":core:domain")
+include(":core:ui")
+include(":core:resources")
+include(":core:settings")
+include(":core:navigation")
+include(":core:navigation-impl")
+include(":core:services")
+
+include(":feature:auth")
+include(":feature:settings")
+include(":feature:intro")
+include(":feature:map")
+include(":feature:map-search")
+

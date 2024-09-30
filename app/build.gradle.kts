@@ -5,8 +5,6 @@ plugins {
     alias(libs.plugins.rafael.application)
     alias(libs.plugins.rafael.application.compose)
     alias(libs.plugins.rafael.spotless)
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.androidx.room)
     alias(libs.plugins.kotlin.serialization)
 }
 
@@ -70,48 +68,19 @@ android {
 }
 
 dependencies {
-    implementation(libs.kotlinx.coroutines)
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.core.splashscreen)
-    ksp(libs.androidx.room.compiler)
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.navigation)
-    implementation(libs.kotlinx.serialization.json)
-    implementation(libs.material.motion.compose)
-
     implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
-    implementation(libs.androidx.material.icons.extended)
     implementation(libs.bundles.koin)
     // Google Maps
-    implementation(libs.play.services.maps)
-    implementation(libs.maps.compose)
     implementation(libs.play.services.location)
-    // Google drive
-    implementation(libs.google.api.client)
-    implementation(libs.google.api.services.drive)
-    // Permissions
-    implementation(libs.google.accompanist.permissions)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
-}
 
-ksp {
-    arg("room.schemaLocation", "$projectDir/schemas")
-    arg("room.incremental", "true")
-    arg("room.generateKotlin", "true")
-}
-
-room {
-    schemaDirectory("$projectDir/schemas")
+    // Projects
+    implementation(projects.core.navigationImpl)
+    implementation(projects.core.di)
+    implementation(projects.core.resources)
 }

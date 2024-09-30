@@ -9,7 +9,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.Priority
-import com.rafael.inclusimap.navigation.InclusiMapNavHost
+import com.rafael.inclusimap.core.navigation.impl.InclusiMapNavHost
 
 class MainActivity : ComponentActivity() {
     private val fusedLocationClient by lazy { LocationServices.getFusedLocationProviderClient(this) }
