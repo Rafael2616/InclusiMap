@@ -1,3 +1,5 @@
+import app.cash.licensee.LicenseeTask
+import app.cash.licensee.UnusedAction.IGNORE
 import com.android.build.gradle.internal.api.ApkVariantOutputImpl
 import java.util.Properties
 
@@ -6,6 +8,7 @@ plugins {
     alias(libs.plugins.rafael.application.compose)
     alias(libs.plugins.rafael.spotless)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.licensee)
 }
 
 android {
@@ -65,16 +68,28 @@ android {
                 "InclusiMap v$versionName.apk"
         }
     }
+    androidComponents.onVariants { variant ->
+        val variantNameCapt = variant.name.replaceFirstChar { it.uppercase() }
+        val licenseeTask = tasks.named<LicenseeTask>("licenseeAndroid$variantNameCapt")
+        val copyArtifactsTask = tasks.register<Copy>("copy${variantNameCapt}Artifacts") {
+            dependsOn(licenseeTask)
+            from(licenseeTask.map { it.outputDir.file("artifacts.json") })
+            into(layout.buildDirectory.dir("generated/dependencyAssets/${variant.name}"))
+        }
+        variant.sources.assets?.addGeneratedSourceDirectory(licenseeTask) {
+            objects.directoryProperty().fileProvider(copyArtifactsTask.map { it.destinationDir })
+        }
+    }
 }
 
 dependencies {
+    // AndroidX
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.activity.compose)
-    implementation(libs.bundles.koin)
     // Google Maps
     implementation(libs.play.services.location)
-
+    // Test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -83,4 +98,13 @@ dependencies {
     implementation(projects.core.navigationImpl)
     implementation(projects.core.di)
     implementation(projects.core.resources)
+}
+
+licensee {
+    allow("Apache-2.0")
+    allow("MIT")
+    allow("BSD-3-Clause")
+    allowUrl("https://developer.android.com/studio/terms.html")
+
+    unusedAction(IGNORE)
 }

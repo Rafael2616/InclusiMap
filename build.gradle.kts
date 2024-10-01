@@ -8,7 +8,7 @@ plugins {
     alias(libs.plugins.kotlin.android).apply(false)
     alias(libs.plugins.kotlin.serialization).apply(false)
     alias(libs.plugins.jetbrains.compose.compiler).apply(false)
-   // alias(libs.plugins.licensee).apply(false)
+    alias(libs.plugins.licensee).apply(false)
 
     alias(libs.plugins.rafael.spotless).apply(false)
     alias(libs.plugins.rafael.library).apply(false)

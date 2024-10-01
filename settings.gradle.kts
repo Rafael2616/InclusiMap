@@ -42,4 +42,5 @@ include(":feature:settings")
 include(":feature:intro")
 include(":feature:map")
 include(":feature:map-search")
+include(":feature:library-info")
 

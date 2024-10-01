@@ -36,6 +36,7 @@
             <option value="$PROJECT_DIR$/feature" />
             <option value="$PROJECT_DIR$/feature/auth" />
             <option value="$PROJECT_DIR$/feature/intro" />
+            <option value="$PROJECT_DIR$/feature/library-info" />
             <option value="$PROJECT_DIR$/feature/map" />
             <option value="$PROJECT_DIR$/feature/map-search" />
             <option value="$PROJECT_DIR$/feature/settings" />

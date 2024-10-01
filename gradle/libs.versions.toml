@@ -33,6 +33,7 @@ material-motion-compose = "2.0.1"
 spotless = "7.0.0.BETA2"
 compose-rules = "0.4.12"
 compose = "1.3.0"
+licensee = "1.11.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -94,6 +95,7 @@ androidx-room = { id = "androidx.room", version.ref = "room" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+licensee = { id = "app.cash.licensee", version.ref = "licensee" }
 
 rafael-spotless = { id = "com.rafael.spotless", version = "unspecified" }
 rafael-library = { id = "com.rafael.library", version = "unspecified" }

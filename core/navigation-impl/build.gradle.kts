@@ -26,4 +26,5 @@ dependencies {
     implementation(projects.feature.map)
     implementation(projects.feature.mapSearch)
     implementation(projects.feature.settings)
+    implementation(projects.feature.libraryInfo)
 }
