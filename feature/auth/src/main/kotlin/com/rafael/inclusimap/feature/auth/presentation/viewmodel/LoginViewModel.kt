@@ -357,17 +357,11 @@ class LoginViewModel(
                 } else {
                     if (keepContributions) {
                         _state.update {
-                            it.copy(
-                                deleteStep = DeleteProcess.SUCCESS,
-                                user = null,
-                            )
+                            it.copy(deleteStep = DeleteProcess.SUCCESS)
                         }
                     } else {
                         _state.update {
-                            it.copy(
-                                deleteStep = DeleteProcess.DELETING_USER_INFO,
-                                user = null,
-                            )
+                            it.copy(deleteStep = DeleteProcess.DELETING_USER_INFO)
                         }
                     }
                 }

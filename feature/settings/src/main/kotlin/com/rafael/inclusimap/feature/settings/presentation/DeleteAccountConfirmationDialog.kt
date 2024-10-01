@@ -47,10 +47,13 @@ fun DeleteAccountConfirmationDialog(
     modifier: Modifier = Modifier,
 ) {
     var keepContributions by remember { mutableStateOf(true) }
+    var dialogDismissable by remember { mutableStateOf(true) }
 
     BasicAlertDialog(
         onDismissRequest = {
-            onDismissRequest()
+            if (dialogDismissable) {
+                onDismissRequest()
+            }
         },
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
@@ -121,7 +124,7 @@ fun DeleteAccountConfirmationDialog(
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    if (!isDeleting) {
+                    if (!isDeleting && !isLoginOut) {
                         OutlinedButton(
                             onClick = {
                                 onDismissRequest()
@@ -154,9 +157,10 @@ fun DeleteAccountConfirmationDialog(
                             )
                         }
                     }
-                    if (!isDeleting) {
+                    if (!isDeleting && !isLoginOut) {
                         OutlinedButton(
                             onClick = {
+                                dialogDismissable = false
                                 onDeleteAccount(keepContributions)
                             },
                             colors = ButtonColors(
