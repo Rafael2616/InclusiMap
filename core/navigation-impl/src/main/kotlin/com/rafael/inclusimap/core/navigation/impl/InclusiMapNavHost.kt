@@ -28,6 +28,7 @@ import com.rafael.inclusimap.feature.map.presentation.viewmodel.InclusiMapGoogle
 import com.rafael.inclusimap.feature.map.presentation.viewmodel.PlaceDetailsViewModel
 import com.rafael.inclusimap.feature.map.search.presentation.viewmodel.SearchViewModel
 import com.rafael.inclusimap.feature.settings.presentation.SettingsScreen
+import org.koin.compose.KoinContext
 import org.koin.compose.viewmodel.koinViewModel
 import soup.compose.material.motion.animation.materialSharedAxisXIn
 import soup.compose.material.motion.animation.materialSharedAxisXOut
@@ -41,108 +42,111 @@ fun InclusiMapNavHost(
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val slideDistance = rememberSlideDistance()
     val navController = rememberNavController()
-    val appIntroViewModel = koinViewModel<AppIntroViewModel>()
-    val appIntroState by appIntroViewModel.state.collectAsStateWithLifecycle()
-    val mapViewModel = koinViewModel<InclusiMapGoogleMapScreenViewModel>()
-    val mapState by mapViewModel.state.collectAsStateWithLifecycle()
-    val placeDetailsViewModel = koinViewModel<PlaceDetailsViewModel>()
-    val placeDetailsState by placeDetailsViewModel.state.collectAsStateWithLifecycle()
-    val loginViewModel = koinViewModel<LoginViewModel>()
-    val loginState by loginViewModel.state.collectAsStateWithLifecycle()
-    val searchViewModel = koinViewModel<SearchViewModel>()
-    val searchState by searchViewModel.state.collectAsStateWithLifecycle()
-    val settingsViewModel = koinViewModel<SettingsViewModel>()
-    val settingsState by settingsViewModel.state.collectAsStateWithLifecycle()
 
-    InclusiMapTheme(state = settingsState) {
-        Scaffold(
-            modifier = Modifier
-                .fillMaxSize()
-        ) { innerPadding ->
-            NavHost(
-                navController = navController,
-                startDestination = if (!loginState.isLoggedIn) Destination.LoginScreen(false) else Destination.MapScreen,
-                enterTransition = { materialSharedAxisXIn(!isRtl, slideDistance) },
-                exitTransition = { materialSharedAxisXOut(!isRtl, slideDistance) },
-                popEnterTransition = { materialSharedAxisXIn(isRtl, slideDistance) },
-                popExitTransition = { materialSharedAxisXOut(isRtl, slideDistance) },
-                modifier = modifier
-            ) {
-                composable<Destination.LoginScreen> {
-                    UnifiedLoginScreen(
-                        loginState = loginState,
-                        onLogin = { registeredUser ->
-                            loginViewModel.onEvent(
-                                LoginEvent.OnLogin(registeredUser)
-                            )
-                            appIntroViewModel.setShowAppIntro(true)
-                        },
-                        onRegister = {
-                            loginViewModel.onEvent(
-                                LoginEvent.OnRegisterNewUser(it)
-                            )
-                            appIntroViewModel.setShowAppIntro(true)
-                        },
-                        modifier = Modifier.consumeWindowInsets(innerPadding),
-                        onUpdatePassword = {
-                            loginViewModel.onEvent(
-                                LoginEvent.UpdatePassword(it)
-                            )
-                        },
-                        onCancel = {
-                            navController.popBackStack()
-                        },
-                        isEditPasswordMode = it.toRoute<Destination.LoginScreen>().isEditPasswordMode
-                    )
-                }
-                composable<Destination.MapScreen> {
-                    InclusiMapGoogleMapScreen(
-                        mapState,
-                        mapViewModel::onEvent,
-                        placeDetailsState,
-                        placeDetailsViewModel::onEvent,
-                        appIntroState,
-                        appIntroViewModel::setShowAppIntro,
-                        searchState,
-                        searchViewModel::onEvent,
-                        settingsState,
-                        onMapTypeChange = {
-                            settingsViewModel.onEvent(
-                                SettingsEvent.SetMapType(it)
-                            )
-                        },
-                        fusedLocationProviderClient,
-                        onNavigateToSettings = { navController.navigate(Destination.SettingsScreen) },
-                        userName = loginState.user?.name ?: "",
-                        userEmail = loginState.user?.email ?: "",
-                        modifier = Modifier.consumeWindowInsets(innerPadding)
-                    )
-                }
-                composable<Destination.SettingsScreen> {
-                    SettingsScreen(
-                        loginState.isLoginOut,
-                        navController,
-                        settingsState,
-                        settingsViewModel::onEvent,
-                        onLogout = {
-                            loginViewModel.onEvent(
-                                LoginEvent.OnLogout
-                            )
-                        }
-                    )
-                    LaunchedEffect(loginState.isLoggedIn) {
-                        if (!loginState.isLoggedIn) {
-                            navController.clearBackStack(Destination.MapScreen)
+    KoinContext {
+        val appIntroViewModel = koinViewModel<AppIntroViewModel>()
+        val appIntroState by appIntroViewModel.state.collectAsStateWithLifecycle()
+        val mapViewModel = koinViewModel<InclusiMapGoogleMapScreenViewModel>()
+        val mapState by mapViewModel.state.collectAsStateWithLifecycle()
+        val placeDetailsViewModel = koinViewModel<PlaceDetailsViewModel>()
+        val placeDetailsState by placeDetailsViewModel.state.collectAsStateWithLifecycle()
+        val loginViewModel = koinViewModel<LoginViewModel>()
+        val loginState by loginViewModel.state.collectAsStateWithLifecycle()
+        val searchViewModel = koinViewModel<SearchViewModel>()
+        val searchState by searchViewModel.state.collectAsStateWithLifecycle()
+        val settingsViewModel = koinViewModel<SettingsViewModel>()
+        val settingsState by settingsViewModel.state.collectAsStateWithLifecycle()
+
+        InclusiMapTheme(state = settingsState) {
+            Scaffold(
+                modifier = Modifier
+                    .fillMaxSize(),
+            ) { innerPadding ->
+                NavHost(
+                    navController = navController,
+                    startDestination = if (!loginState.isLoggedIn) Destination.LoginScreen(false) else Destination.MapScreen,
+                    enterTransition = { materialSharedAxisXIn(!isRtl, slideDistance) },
+                    exitTransition = { materialSharedAxisXOut(!isRtl, slideDistance) },
+                    popEnterTransition = { materialSharedAxisXIn(isRtl, slideDistance) },
+                    popExitTransition = { materialSharedAxisXOut(isRtl, slideDistance) },
+                    modifier = modifier,
+                ) {
+                    composable<Destination.LoginScreen> {
+                        UnifiedLoginScreen(
+                            loginState = loginState,
+                            onLogin = { registeredUser ->
+                                loginViewModel.onEvent(
+                                    LoginEvent.OnLogin(registeredUser),
+                                )
+                                appIntroViewModel.setShowAppIntro(true)
+                            },
+                            onRegister = {
+                                loginViewModel.onEvent(
+                                    LoginEvent.OnRegisterNewUser(it),
+                                )
+                                appIntroViewModel.setShowAppIntro(true)
+                            },
+                            modifier = Modifier.consumeWindowInsets(innerPadding),
+                            onUpdatePassword = {
+                                loginViewModel.onEvent(
+                                    LoginEvent.UpdatePassword(it),
+                                )
+                            },
+                            onCancel = {
+                                navController.popBackStack()
+                            },
+                            isEditPasswordMode = it.toRoute<Destination.LoginScreen>().isEditPasswordMode,
+                        )
+                    }
+                    composable<Destination.MapScreen> {
+                        InclusiMapGoogleMapScreen(
+                            mapState,
+                            mapViewModel::onEvent,
+                            placeDetailsState,
+                            placeDetailsViewModel::onEvent,
+                            appIntroState,
+                            appIntroViewModel::setShowAppIntro,
+                            searchState,
+                            searchViewModel::onEvent,
+                            settingsState,
+                            onMapTypeChange = {
+                                settingsViewModel.onEvent(
+                                    SettingsEvent.SetMapType(it),
+                                )
+                            },
+                            fusedLocationProviderClient,
+                            onNavigateToSettings = { navController.navigate(Destination.SettingsScreen) },
+                            userName = loginState.user?.name ?: "",
+                            userEmail = loginState.user?.email ?: "",
+                            modifier = Modifier.consumeWindowInsets(innerPadding),
+                        )
+                    }
+                    composable<Destination.SettingsScreen> {
+                        SettingsScreen(
+                            loginState.isLoginOut,
+                            navController,
+                            settingsState,
+                            settingsViewModel::onEvent,
+                            onLogout = {
+                                loginViewModel.onEvent(
+                                    LoginEvent.OnLogout,
+                                )
+                            },
+                        )
+                        LaunchedEffect(loginState.isLoggedIn) {
+                            if (!loginState.isLoggedIn) {
+                                navController.clearBackStack(Destination.MapScreen)
+                            }
                         }
                     }
                 }
             }
         }
-    }
 
-    LaunchedEffect(loginState.isLoggedIn, appIntroState.showAppIntro) {
-        if (loginState.isLoggedIn && appIntroState.showAppIntro) {
-            navController.navigate(Destination.MapScreen)
+        LaunchedEffect(loginState.isLoggedIn, appIntroState.showAppIntro) {
+            if (loginState.isLoggedIn && appIntroState.showAppIntro) {
+                navController.navigate(Destination.MapScreen)
+            }
         }
     }
 }
