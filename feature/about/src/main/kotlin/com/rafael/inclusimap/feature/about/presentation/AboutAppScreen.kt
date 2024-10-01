@@ -14,12 +14,13 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -108,72 +109,75 @@ fun AboutAppScreen(
                     textAlign = TextAlign.Start,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
                         .fillMaxWidth(),
                 )
             }
             Author.authors.forEach { author ->
                 item {
-                    Row(
+                    Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(24.dp))
-                            .background(MaterialTheme.colorScheme.surfaceColorAtElevation(10.dp)),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            .clip(RoundedCornerShape(24.dp)),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(6.dp),
+                        ),
                     ) {
-                        Column(
+                        Row(
                             modifier = Modifier
-                                .weight(1f)
-                                .padding(12.dp),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.Start,
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
-                            Text(
-                                text = author.name,
-                                fontSize = 18.sp,
-                                modifier = Modifier,
-                            )
-                            Text(
-                                text = author.position,
-                                fontSize = 14.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier,
-                            )
-                        }
-                        IconButton(
-                            onClick = {
-                                uriHandler.openUri(author.site)
-                            },
-                            modifier = Modifier
-                                .size(35.dp),
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.Github,
-                                contentDescription = null,
-                            )
-                        }
-                        SubcomposeAsyncImage(
-                            model = author.image,
-                            contentScale = ContentScale.Crop,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(45.dp)
-                                .clip(CircleShape),
-                        ) {
-                            val painterState by painter.state.collectAsStateWithLifecycle()
-                            if (painterState is AsyncImagePainter.State.Success) {
-                                SubcomposeAsyncImageContent()
-                            } else {
-                                CircularProgressIndicator(
-                                    modifier = Modifier
-                                        .size(30.dp),
-                                    strokeCap = StrokeCap.Round,
-                                    strokeWidth = 5.dp,
+                            Column(
+                                modifier = Modifier
+                                    .weight(1f),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.Start,
+                            ) {
+                                Text(
+                                    text = author.name,
+                                    fontSize = 16.sp,
+                                )
+                                Text(
+                                    text = author.position,
+                                    fontSize = 14.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
+                            IconButton(
+                                onClick = {
+                                    uriHandler.openUri(author.site)
+                                },
+                                modifier = Modifier
+                                    .size(35.dp),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Github,
+                                    contentDescription = null,
+                                )
+                            }
+                            SubcomposeAsyncImage(
+                                model = author.image,
+                                contentScale = ContentScale.Crop,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(45.dp)
+                                    .clip(CircleShape),
+                            ) {
+                                val painterState by painter.state.collectAsStateWithLifecycle()
+                                if (painterState is AsyncImagePainter.State.Success) {
+                                    SubcomposeAsyncImageContent()
+                                } else {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier
+                                            .size(30.dp),
+                                        strokeCap = StrokeCap.Round,
+                                        strokeWidth = 5.dp,
+                                    )
+                                }
+                            }
                         }
-                        Spacer(modifier = Modifier.width(16.dp))
                     }
                 }
             }
