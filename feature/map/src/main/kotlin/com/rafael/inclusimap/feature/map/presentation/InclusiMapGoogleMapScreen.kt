@@ -150,12 +150,9 @@ fun InclusiMapGoogleMapScreen(
         latestOnEvent(InclusiMapEvent.SetLocationPermissionGranted(locationPermission.status == PermissionStatus.Granted))
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize()) {
         SearchBar(
             modifier = Modifier
-                .navigationBarsPadding()
-                .displayCutoutPadding()
-                .statusBarsPadding()
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp)
                 .clip(RoundedCornerShape(24.dp))
