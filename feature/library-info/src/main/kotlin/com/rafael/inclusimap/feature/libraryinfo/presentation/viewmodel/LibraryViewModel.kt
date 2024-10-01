@@ -1,7 +1,7 @@
-package com.rafael.tictactoe.feature.libraryinfo.presentation.viewmodel
+package com.rafael.inclusimap.feature.libraryinfo.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.rafael.tictactoe.feature.libraryinfo.data.repository.OssLibraryRepository
+import com.rafael.inclusimap.feature.libraryinfo.data.repository.OssLibraryRepository
 
 class LibraryViewModel(
     libraryRepository: OssLibraryRepository,

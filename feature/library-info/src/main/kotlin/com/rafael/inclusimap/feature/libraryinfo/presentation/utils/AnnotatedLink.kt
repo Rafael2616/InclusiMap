@@ -1,4 +1,4 @@
-package com.rafael.tictactoe.feature.libraryinfo.presentation.utils
+package com.rafael.inclusimap.feature.libraryinfo.presentation.utils
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable

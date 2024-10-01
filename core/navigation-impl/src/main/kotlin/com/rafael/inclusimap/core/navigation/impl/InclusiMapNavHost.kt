@@ -28,8 +28,8 @@ import com.rafael.inclusimap.feature.map.presentation.viewmodel.InclusiMapGoogle
 import com.rafael.inclusimap.feature.map.presentation.viewmodel.PlaceDetailsViewModel
 import com.rafael.inclusimap.feature.map.search.presentation.viewmodel.SearchViewModel
 import com.rafael.inclusimap.feature.settings.presentation.SettingsScreen
-import com.rafael.tictactoe.feature.libraryinfo.presentation.LibraryScreen
-import com.rafael.tictactoe.feature.libraryinfo.presentation.viewmodel.LibraryViewModel
+import com.rafael.inclusimap.feature.libraryinfo.presentation.LibraryScreen
+import com.rafael.inclusimap.feature.libraryinfo.presentation.viewmodel.LibraryViewModel
 import org.koin.compose.KoinContext
 import org.koin.compose.viewmodel.koinViewModel
 import soup.compose.material.motion.animation.materialSharedAxisXIn

@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
-android.namespace = "com.rafael.tictactoe.feature.library_info"
+android.namespace = "com.rafael.inclusimap.feature.library_info"
 
 dependencies {
     //Kotlin

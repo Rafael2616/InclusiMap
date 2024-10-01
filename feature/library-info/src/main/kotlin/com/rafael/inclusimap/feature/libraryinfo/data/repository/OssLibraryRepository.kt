@@ -1,7 +1,7 @@
-package com.rafael.tictactoe.feature.libraryinfo.data.repository
+package com.rafael.inclusimap.feature.libraryinfo.data.repository
 
 import android.app.Application
-import com.rafael.tictactoe.feature.libraryinfo.domain.model.OssLibrary
+import com.rafael.inclusimap.feature.libraryinfo.domain.model.OssLibrary
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.SharingStarted

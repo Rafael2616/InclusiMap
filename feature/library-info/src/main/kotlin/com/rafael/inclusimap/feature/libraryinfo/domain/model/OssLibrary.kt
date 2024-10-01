@@ -1,4 +1,4 @@
-package com.rafael.tictactoe.feature.libraryinfo.domain.model
+package com.rafael.inclusimap.feature.libraryinfo.domain.model
 
 import kotlinx.serialization.Serializable
 

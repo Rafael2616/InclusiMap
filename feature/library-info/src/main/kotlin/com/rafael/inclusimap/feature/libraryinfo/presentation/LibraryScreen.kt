@@ -1,4 +1,4 @@
-package com.rafael.tictactoe.feature.libraryinfo.presentation
+package com.rafael.inclusimap.feature.libraryinfo.presentation
 
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -38,8 +38,8 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.rafael.tictactoe.feature.libraryinfo.domain.model.OssLibrary
-import com.rafael.tictactoe.feature.libraryinfo.presentation.utils.annotatedLink
+import com.rafael.inclusimap.feature.libraryinfo.domain.model.OssLibrary
+import com.rafael.inclusimap.feature.libraryinfo.presentation.utils.annotatedLink
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,7 +60,7 @@ fun LibraryScreen(
         topBar = {
             LargeTopAppBar(
                 title = {
-                    Text("Liçenças de código aberto")
+                    Text("Licenças de código aberto")
                 },
                 navigationIcon = {
                     IconButton(
