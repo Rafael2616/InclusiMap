@@ -47,10 +47,10 @@ internal fun MultiSelectionPreference(
         LazyHorizontalStaggeredGrid(
             rows = StaggeredGridCells.Adaptive(108.dp),
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxWidth(),
         ) {
-                selections.forEach {
-                    item {
+            selections.forEach {
+                item {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
@@ -65,9 +65,9 @@ internal fun MultiSelectionPreference(
                                     Modifier.background(MaterialTheme.colorScheme.surfaceColorAtElevation(100.dp))
                                 } else {
                                     Modifier
-                                }
+                                },
                             )
-                            .clickable { onSelectionChange(it.type) }
+                            .clickable { onSelectionChange(it.type) },
                     ) {
                         if (it.type == selected) {
                             Icon(
@@ -84,7 +84,7 @@ internal fun MultiSelectionPreference(
                             imageVector = it.icon,
                             contentDescription = "Icon",
                             tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(horizontal = 8.dp)
+                            modifier = Modifier.padding(horizontal = 8.dp),
                         )
                     }
                 }

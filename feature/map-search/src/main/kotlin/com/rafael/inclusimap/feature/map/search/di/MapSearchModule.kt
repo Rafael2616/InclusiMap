@@ -4,7 +4,7 @@ import com.rafael.inclusimap.feature.map.search.presentation.viewmodel.SearchVie
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
-val mapSearchModule =  module {
+val mapSearchModule = module {
     viewModel {
         SearchViewModel()
     }

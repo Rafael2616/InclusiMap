@@ -20,16 +20,16 @@ import com.rafael.inclusimap.core.settings.domain.model.SettingsEvent
 import com.rafael.inclusimap.core.ui.theme.InclusiMapTheme
 import com.rafael.inclusimap.feature.auth.domain.model.LoginEvent
 import com.rafael.inclusimap.feature.auth.presentation.UnifiedLoginScreen
-import com.rafael.inclusimap.feature.settings.presentation.viewmodel.SettingsViewModel
 import com.rafael.inclusimap.feature.auth.presentation.viewmodel.LoginViewModel
 import com.rafael.inclusimap.feature.intro.presentation.viewmodel.AppIntroViewModel
+import com.rafael.inclusimap.feature.libraryinfo.presentation.LibraryScreen
+import com.rafael.inclusimap.feature.libraryinfo.presentation.viewmodel.LibraryViewModel
 import com.rafael.inclusimap.feature.map.presentation.InclusiMapGoogleMapScreen
 import com.rafael.inclusimap.feature.map.presentation.viewmodel.InclusiMapGoogleMapScreenViewModel
 import com.rafael.inclusimap.feature.map.presentation.viewmodel.PlaceDetailsViewModel
 import com.rafael.inclusimap.feature.map.search.presentation.viewmodel.SearchViewModel
 import com.rafael.inclusimap.feature.settings.presentation.SettingsScreen
-import com.rafael.inclusimap.feature.libraryinfo.presentation.LibraryScreen
-import com.rafael.inclusimap.feature.libraryinfo.presentation.viewmodel.LibraryViewModel
+import com.rafael.inclusimap.feature.settings.presentation.viewmodel.SettingsViewModel
 import org.koin.compose.KoinContext
 import org.koin.compose.viewmodel.koinViewModel
 import soup.compose.material.motion.animation.materialSharedAxisXIn
@@ -63,7 +63,7 @@ fun InclusiMapNavHost(
 
         InclusiMapTheme(state = settingsState) {
             Scaffold(
-                modifier = Modifier
+                modifier = modifier
                     .fillMaxSize(),
             ) { innerPadding ->
                 NavHost(
@@ -73,7 +73,6 @@ fun InclusiMapNavHost(
                     exitTransition = { materialSharedAxisXOut(!isRtl, slideDistance) },
                     popEnterTransition = { materialSharedAxisXIn(isRtl, slideDistance) },
                     popExitTransition = { materialSharedAxisXOut(isRtl, slideDistance) },
-                    modifier = modifier,
                 ) {
                     composable<Destination.LoginScreen> {
                         UnifiedLoginScreen(

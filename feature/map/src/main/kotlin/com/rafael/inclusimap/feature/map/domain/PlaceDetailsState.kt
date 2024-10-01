@@ -7,10 +7,10 @@ import com.rafael.inclusimap.core.domain.model.PlaceImage
 
 data class PlaceDetailsState(
     val inclusiMapImageRepositoryFolder: List<File> = emptyList(),
-    val loadedPlaces : List<FullAccessibleLocalMarker> = emptyList(),
+    val loadedPlaces: List<FullAccessibleLocalMarker> = emptyList(),
     val isCurrentPlaceLoaded: Boolean = false,
     val currentPlace: AccessibleLocalMarker = AccessibleLocalMarker(),
-    val currentPlaceFolderID : String? = null,
+    val currentPlaceFolderID: String? = null,
     val currentPlaceImagesFolder: List<File> = emptyList(),
     val currentPlaceImages: List<PlaceImage?> = emptyList(),
     val allImagesLoaded: Boolean = false,

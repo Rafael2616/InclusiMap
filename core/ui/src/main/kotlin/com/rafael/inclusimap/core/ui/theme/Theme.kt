@@ -16,8 +16,8 @@ import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 
 @Composable
 fun InclusiMapTheme(
-    isSystemInDarkTheme: Boolean = isSystemInDarkTheme(),
     state: SettingsState,
+    isSystemInDarkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
     val isDarkThemeOn = state.isDarkThemeOn

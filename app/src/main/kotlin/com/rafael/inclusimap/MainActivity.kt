@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
     private fun enableLocation() {
         val locationRequest = LocationRequest.Builder(
             Priority.PRIORITY_HIGH_ACCURACY,
-            10000
+            10000,
         ).build()
 
         LocationSettingsRequest.Builder()

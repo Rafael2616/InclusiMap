@@ -31,7 +31,7 @@ class AppIntroViewModel(
     fun setShowAppIntro(showAppIntro: Boolean) {
         _state.update {
             it.copy(
-                showAppIntro = showAppIntro
+                showAppIntro = showAppIntro,
             )
         }
         viewModelScope.launch(Dispatchers.IO) {

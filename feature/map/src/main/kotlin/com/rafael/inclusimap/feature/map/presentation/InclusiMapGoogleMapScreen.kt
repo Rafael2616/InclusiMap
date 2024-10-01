@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,18 +55,18 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 import com.rafael.inclusimap.core.domain.model.util.toHUE
-import com.rafael.inclusimap.feature.map.domain.InclusiMapEvent
-import com.rafael.inclusimap.feature.map.domain.InclusiMapState
+import com.rafael.inclusimap.core.resources.R
+import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 import com.rafael.inclusimap.feature.intro.domain.model.AppIntroState
 import com.rafael.inclusimap.feature.intro.presentation.dialogs.AppIntroDialog
-import com.rafael.inclusimap.core.resources.R
+import com.rafael.inclusimap.feature.map.domain.InclusiMapEvent
+import com.rafael.inclusimap.feature.map.domain.InclusiMapState
+import com.rafael.inclusimap.feature.map.domain.PlaceDetailsEvent
+import com.rafael.inclusimap.feature.map.domain.PlaceDetailsState
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchEvent
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchState
 import com.rafael.inclusimap.feature.map.search.presentation.PlaceSearchScreen
-import com.rafael.inclusimap.feature.map.domain.PlaceDetailsEvent
-import com.rafael.inclusimap.feature.map.domain.PlaceDetailsState
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
@@ -98,6 +99,12 @@ fun InclusiMapGoogleMapScreen(
     val locationPermission = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
     val showMarkers by remember(cameraPositionState.isMoving) { mutableStateOf(cameraPositionState.position.zoom >= 15f) }
     var expanded by remember { mutableStateOf(false) }
+    val latestOnEvent by rememberUpdatedState(onEvent)
+    val latestOnPlaceDetailsEvent by rememberUpdatedState(onPlaceDetailsEvent)
+    val latestOnDismisAppIntro by rememberUpdatedState(onDismissAppIntro)
+    val latestSearchEvent by rememberUpdatedState(onSearchEvent)
+    val latestMapTypeChange by rememberUpdatedState(onMapTypeChange)
+    val latestNavigateToSettings by rememberUpdatedState(onNavigateToSettings)
 
     LaunchedEffect(animateMap && !appIntroState.showAppIntro) {
         if (animateMap) {
@@ -116,7 +123,7 @@ fun InclusiMapGoogleMapScreen(
     LaunchedEffect(state.isLocationPermissionGranted) {
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
             location?.let {
-                onEvent(
+                latestOnEvent(
                     InclusiMapEvent.UpdateMapCameraPosition(
                         LatLng(
                             it.latitude,
@@ -140,10 +147,10 @@ fun InclusiMapGoogleMapScreen(
     }
 
     LaunchedEffect(locationPermission.status) {
-        onEvent(InclusiMapEvent.SetLocationPermissionGranted(locationPermission.status == PermissionStatus.Granted))
+        latestOnEvent(InclusiMapEvent.SetLocationPermissionGranted(locationPermission.status == PermissionStatus.Granted))
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = modifier.fillMaxSize()) {
         SearchBar(
             modifier = Modifier
                 .navigationBarsPadding()
@@ -157,7 +164,7 @@ fun InclusiMapGoogleMapScreen(
                 SearchBarDefaults.InputField(
                     query = searchState.searchQuery,
                     onQueryChange = {
-                        onSearchEvent(SearchEvent.OnSearch(it, state.allMappedPlaces))
+                        latestSearchEvent(SearchEvent.OnSearch(it, state.allMappedPlaces))
                     },
                     onSearch = {
                         expanded = false
@@ -172,7 +179,7 @@ fun InclusiMapGoogleMapScreen(
                             IconButton(
                                 onClick = {
                                     expanded = false
-                                    onSearchEvent(SearchEvent.OnSearch("", emptyList()))
+                                    latestSearchEvent(SearchEvent.OnSearch("", emptyList()))
                                 },
                             ) {
                                 Icon(
@@ -194,7 +201,7 @@ fun InclusiMapGoogleMapScreen(
                         if (searchState.searchQuery.isNotEmpty()) {
                             IconButton(
                                 onClick = {
-                                    onSearchEvent(SearchEvent.OnSearch("", emptyList()))
+                                    latestSearchEvent(SearchEvent.OnSearch("", emptyList()))
                                 },
                             ) {
                                 Icon(
@@ -206,7 +213,7 @@ fun InclusiMapGoogleMapScreen(
                         if (!expanded) {
                             IconButton(
                                 onClick = {
-                                    onNavigateToSettings()
+                                    latestNavigateToSettings()
                                 },
                             ) {
                                 Icon(
@@ -231,7 +238,7 @@ fun InclusiMapGoogleMapScreen(
                 matchingPlaces = searchState.matchingPlaces,
                 onPlaceClick = {
                     expanded = false
-                    onSearchEvent(SearchEvent.OnSearch("", emptyList()))
+                    latestSearchEvent(SearchEvent.OnSearch("", emptyList()))
                     onPlaceTravelScope.launch {
                         cameraPositionState.animate(
                             CameraUpdateFactory.newLatLngZoom(
@@ -245,7 +252,7 @@ fun InclusiMapGoogleMapScreen(
             )
         }
         GoogleMap(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize(),
             properties = MapProperties(
                 isBuildingEnabled = true,
@@ -264,7 +271,7 @@ fun InclusiMapGoogleMapScreen(
             },
             mapColorScheme = if (settingsState.isDarkThemeOn) ComposeMapColorScheme.DARK else ComposeMapColorScheme.LIGHT,
             onMapLoaded = {
-                onEvent(InclusiMapEvent.OnMapLoaded)
+                latestOnEvent(InclusiMapEvent.OnMapLoaded)
                 if (!animateMap && !appIntroState.showAppIntro) {
                     cameraPositionState.position = CameraPosition.fromLatLngZoom(
                         state.defaultLocationLatLng,
@@ -274,7 +281,7 @@ fun InclusiMapGoogleMapScreen(
                 }
             },
             onMapLongClick = {
-                onEvent(InclusiMapEvent.OnUnmappedPlaceSelected(it))
+                latestOnEvent(InclusiMapEvent.OnUnmappedPlaceSelected(it))
                 addPlaceBottomSheetScope.launch {
                     addPlaceBottomSheetScaffoldState.show()
                 }
@@ -300,7 +307,7 @@ fun InclusiMapGoogleMapScreen(
                             accessibilityAverage.toHUE(),
                         ),
                         onClick = {
-                            onEvent(InclusiMapEvent.OnMappedPlaceSelected(place))
+                            latestOnEvent(InclusiMapEvent.OnMappedPlaceSelected(place))
                             bottomSheetScope.launch {
                                 bottomSheetScaffoldState.show()
                             }
@@ -312,7 +319,7 @@ fun InclusiMapGoogleMapScreen(
             }
         }
         if (state.isMapLoaded) {
-            MapTypeToggleButton(settingsState.mapType, onMapTypeChange = { onMapTypeChange(it) })
+            MapTypeToggleButton(settingsState.mapType, onMapTypeChange = { latestMapTypeChange(it) })
         }
     }
 
@@ -320,7 +327,7 @@ fun InclusiMapGoogleMapScreen(
         AppIntroDialog(
             userName = userName,
             onDismiss = {
-                onDismissAppIntro(false)
+                latestOnDismisAppIntro(false)
                 animateMap = true
             },
         )
@@ -330,18 +337,18 @@ fun InclusiMapGoogleMapScreen(
         PlaceDetailsBottomSheet(
             state = placeDetailsState,
             inclusiMapState = state,
-            onEvent = onPlaceDetailsEvent,
+            onEvent = latestOnPlaceDetailsEvent,
             userName = userName,
             userEmail = userEmail,
             bottomSheetScaffoldState = bottomSheetScaffoldState,
             onDismiss = {
-                onPlaceDetailsEvent(PlaceDetailsEvent.OnDestroyPlaceDetails)
+                latestOnPlaceDetailsEvent(PlaceDetailsEvent.OnDestroyPlaceDetails)
                 bottomSheetScope.launch {
                     bottomSheetScaffoldState.hide()
                 }
             },
             onUpdateMappedPlace = { placeUpdated ->
-                onEvent(InclusiMapEvent.OnUpdateMappedPlace(placeUpdated))
+                latestOnEvent(InclusiMapEvent.OnUpdateMappedPlace(placeUpdated))
             },
         )
     }
@@ -355,19 +362,19 @@ fun InclusiMapGoogleMapScreen(
                 addPlaceBottomSheetScope.launch {
                     addPlaceBottomSheetScaffoldState.hide()
                 }
-                onPlaceDetailsEvent(PlaceDetailsEvent.SetIsEditingPlace(false))
+                latestOnPlaceDetailsEvent(PlaceDetailsEvent.SetIsEditingPlace(false))
             },
             onAddNewPlace = { newPlace ->
-                onEvent(InclusiMapEvent.OnAddNewMappedPlace(newPlace))
+                latestOnEvent(InclusiMapEvent.OnAddNewMappedPlace(newPlace))
             },
             isEditing = placeDetailsState.isEditingPlace,
             onEditNewPlace = {
-                onEvent(InclusiMapEvent.OnUpdateMappedPlace(it))
-                onPlaceDetailsEvent(PlaceDetailsEvent.SetCurrentPlace(it))
+                latestOnEvent(InclusiMapEvent.OnUpdateMappedPlace(it))
+                latestOnPlaceDetailsEvent(PlaceDetailsEvent.SetCurrentPlace(it))
             },
             onDeletePlace = {
-                onEvent(InclusiMapEvent.OnDeleteMappedPlace(it))
-                onPlaceDetailsEvent(PlaceDetailsEvent.SetIsEditingPlace(false))
+                latestOnEvent(InclusiMapEvent.OnDeleteMappedPlace(it))
+                latestOnPlaceDetailsEvent(PlaceDetailsEvent.SetIsEditingPlace(false))
                 bottomSheetScope.launch {
                     bottomSheetScaffoldState.hide()
                 }

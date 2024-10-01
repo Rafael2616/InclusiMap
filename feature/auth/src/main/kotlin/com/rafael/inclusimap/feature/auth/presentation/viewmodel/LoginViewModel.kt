@@ -5,11 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_USERS_FOLDER_ID
 import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.feature.auth.domain.model.LoginEntity
-import com.rafael.inclusimap.feature.auth.domain.model.LoginState
-import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
 import com.rafael.inclusimap.feature.auth.domain.model.LoginEvent
+import com.rafael.inclusimap.feature.auth.domain.model.LoginState
 import com.rafael.inclusimap.feature.auth.domain.model.RegisteredUser
 import com.rafael.inclusimap.feature.auth.domain.model.User
+import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -19,8 +21,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 class LoginViewModel(
     private val repository: LoginRepository,
@@ -41,7 +41,7 @@ class LoginViewModel(
                             name = loginData.userName!!,
                             email = loginData.userEmail!!,
                             password = loginData.userPassword!!,
-                        )
+                        ),
                     )
                 }
             }
@@ -82,13 +82,13 @@ class LoginViewModel(
                 _state.update {
                     it.copy(
                         userAlreadyRegistered = driveService.listFiles(
-                            INCLUSIMAP_USERS_FOLDER_ID
+                            INCLUSIMAP_USERS_FOLDER_ID,
                         ).any { userFile ->
                             userFile.name.split(".json")[0] == newUser.email
                         }.also { isRegistered ->
                             println("User already registered? $isRegistered")
                         },
-                        isRegistering = false
+                        isRegistering = false,
                     )
                 }
             }.await()
@@ -102,7 +102,7 @@ class LoginViewModel(
                     it.copy(
                         userPathID = driveService.createFolder(
                             newUser.email,
-                            INCLUSIMAP_USERS_FOLDER_ID
+                            INCLUSIMAP_USERS_FOLDER_ID,
                         ),
                     )
                 }
@@ -114,7 +114,7 @@ class LoginViewModel(
                     json.encodeToString(user).byteInputStream(),
                     "${newUser.email}.json",
                     _state.value.userPathID
-                        ?: throw IllegalStateException("Folder not found: Maybe an issue has occurred while creating the folder")
+                        ?: throw IllegalStateException("Folder not found: Maybe an issue has occurred while creating the folder"),
                 )
             }.await()
         }.invokeOnCompletion {
@@ -133,7 +133,7 @@ class LoginViewModel(
                         it.copy(
                             user = user,
                             isLoggedIn = true,
-                            isRegistering = false
+                            isRegistering = false,
                         )
                     }
                 }
@@ -154,7 +154,7 @@ class LoginViewModel(
                 _state.update {
                     it.copy(
                         userAlreadyRegistered = driveService.listFiles(
-                            INCLUSIMAP_USERS_FOLDER_ID
+                            INCLUSIMAP_USERS_FOLDER_ID,
                         ).any { userFile ->
                             userFile.name.split(".json")[0] == registeredUser.email
                         }.also { isRegistered ->
@@ -180,7 +180,7 @@ class LoginViewModel(
                 }
 
                 val userLoginFileContent = driveService.getFileContent(
-                    userLoginFile?.id ?: throw IllegalStateException("User not found")
+                    userLoginFile?.id ?: throw IllegalStateException("User not found"),
                 )?.decodeToString()
                 println("User file content: $userLoginFileContent")
 
@@ -215,7 +215,7 @@ class LoginViewModel(
                             name = userObj.name,
                             email = userObj.email,
                             password = userObj.password,
-                        )
+                        ),
                     )
                 }
             }.await()
@@ -230,7 +230,7 @@ class LoginViewModel(
             }
             _state.update {
                 it.copy(
-                    isRegistering = false
+                    isRegistering = false,
                 )
             }
         }
@@ -283,7 +283,7 @@ class LoginViewModel(
                 val json = Json { ignoreUnknownKeys = true }
                 val userLoginFileContent =
                     driveService.getFileContent(
-                        userLoginFile?.id ?: throw IllegalStateException("User not found")
+                        userLoginFile?.id ?: throw IllegalStateException("User not found"),
                     )?.decodeToString()
 
                 if (userLoginFileContent == null) {

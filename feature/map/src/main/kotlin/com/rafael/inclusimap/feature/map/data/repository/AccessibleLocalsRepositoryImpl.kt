@@ -1,9 +1,9 @@
 package com.rafael.inclusimap.feature.map.data.repository
 
-import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
-import com.rafael.inclusimap.feature.map.domain.repository.AccessibleLocalsRepository
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_PLACE_DATA_FOLDER_ID
+import com.rafael.inclusimap.core.services.GoogleDriveService
+import com.rafael.inclusimap.feature.map.domain.repository.AccessibleLocalsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext

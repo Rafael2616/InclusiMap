@@ -12,4 +12,3 @@ val settingsModule = module {
         SettingsViewModel(get<SettingsRepositoryImpl>())
     }
 }
-

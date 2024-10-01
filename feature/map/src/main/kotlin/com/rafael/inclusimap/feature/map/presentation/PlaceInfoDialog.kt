@@ -26,18 +26,18 @@ fun PlaceInfoDialog(
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(
-            usePlatformDefaultWidth = false
-        )
+            usePlatformDefaultWidth = false,
+        ),
     ) {
         Card(
             modifier = modifier
                 .fillMaxWidth(0.9f)
-                .clip(RoundedCornerShape(24.dp))
+                .clip(RoundedCornerShape(24.dp)),
         ) {
             Column(
                 modifier = Modifier
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Text(
                     text = "Informações",

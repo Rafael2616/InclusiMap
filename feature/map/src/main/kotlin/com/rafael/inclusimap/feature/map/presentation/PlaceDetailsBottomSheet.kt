@@ -1,6 +1,5 @@
 package com.rafael.inclusimap.feature.map.presentation
 
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -61,6 +60,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -80,9 +80,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.util.toColor
 import com.rafael.inclusimap.core.domain.model.util.toMessage
-import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.feature.map.domain.InclusiMapState
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsState
@@ -101,11 +101,13 @@ fun PlaceDetailsBottomSheet(
     userName: String,
     inclusiMapState: InclusiMapState,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier,
     state: PlaceDetailsState,
     onEvent: (PlaceDetailsEvent) -> Unit,
     onUpdateMappedPlace: (AccessibleLocalMarker) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
+    val latestEvent by rememberUpdatedState(onEvent)
+    val latestUpdateMappedPlace by rememberUpdatedState(onUpdateMappedPlace)
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val focusRequester = remember { FocusRequester() }
@@ -113,7 +115,7 @@ fun PlaceDetailsBottomSheet(
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
             uri?.let {
-                onEvent(PlaceDetailsEvent.OnUploadPlaceImages(it, context))
+                latestEvent(PlaceDetailsEvent.OnUploadPlaceImages(it, context))
                 Toast.makeText(context, "Imagem adicionada!", Toast.LENGTH_SHORT).show()
             }
         }
@@ -121,26 +123,27 @@ fun PlaceDetailsBottomSheet(
     val accessibilityAverage by remember(
         state.trySendComment,
         state.currentPlace.comments,
-        state.isUserCommented
+        state.isUserCommented,
     ) {
         mutableFloatStateOf(
             state.currentPlace.comments.map { it.accessibilityRate }.average()
-                .toFloat()
+                .toFloat(),
         )
     }
     val accessibilityColor by animateColorAsState(
-        accessibilityAverage.toColor(), label = ""
+        accessibilityAverage.toColor(),
+        label = "",
     )
     val gridHeight by remember { mutableStateOf(260.dp) }
     val imageWidth by remember { mutableStateOf(185.dp) }
-
     LaunchedEffect(Unit) {
-        onEvent(PlaceDetailsEvent.SetCurrentPlace(currentPlace))
+        latestEvent(PlaceDetailsEvent.SetCurrentPlace(currentPlace))
     }
 
     LaunchedEffect(state.currentPlace) {
-        Log.e("BottomSheet", "PlaceDetailsBottomSheet recomposing...")
-        onUpdateMappedPlace(state.currentPlace)
+        if (state.currentPlace != currentPlace) {
+            latestUpdateMappedPlace(state.currentPlace)
+        }
     }
 
     ModalBottomSheet(
@@ -154,14 +157,14 @@ fun PlaceDetailsBottomSheet(
             modifier = modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Column(
-                    modifier = Modifier.weight(0.5f)
+                    modifier = Modifier.weight(0.5f),
                 ) {
                     Text(
                         text = state.currentPlace.title,
@@ -174,11 +177,11 @@ fun PlaceDetailsBottomSheet(
                 }
                 if (state.currentPlace.authorEmail == userEmail) {
                     IconButton(onClick = {
-                        onEvent(PlaceDetailsEvent.SetIsEditingPlace(true))
+                        latestEvent(PlaceDetailsEvent.SetIsEditingPlace(true))
                     }) {
                         Icon(
                             imageVector = Icons.Outlined.Edit,
-                            contentDescription = null
+                            contentDescription = null,
                         )
                     }
                 }
@@ -187,7 +190,7 @@ fun PlaceDetailsBottomSheet(
                 }) {
                     Icon(
                         imageVector = Icons.Outlined.Info,
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 }
                 Box(
@@ -211,7 +214,7 @@ fun PlaceDetailsBottomSheet(
             }
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 item {
                     Text(
@@ -220,7 +223,7 @@ fun PlaceDetailsBottomSheet(
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
-                            .padding(bottom = 8.dp)
+                            .padding(bottom = 8.dp),
                     )
                     LazyHorizontalStaggeredGrid(
                         rows = StaggeredGridCells.Fixed(1),
@@ -229,9 +232,9 @@ fun PlaceDetailsBottomSheet(
                             .height(gridHeight),
                         verticalArrangement = Arrangement.spacedBy(
                             8.dp,
-                            Alignment.CenterVertically
+                            Alignment.CenterVertically,
                         ),
-                        horizontalItemSpacing = 8.dp
+                        horizontalItemSpacing = 8.dp,
                     ) {
                         state.currentPlaceImages.forEach { image ->
                             image?.let {
@@ -251,28 +254,28 @@ fun PlaceDetailsBottomSheet(
                                                 },
                                                 onLongClick = {
                                                     showRemoveImageBtn = true
-                                                }
-                                            )
+                                                },
+                                            ),
                                     )
                                     if (image.userEmail == userEmail) {
                                         Box(
                                             modifier = Modifier
                                                 .width(185.dp)
                                                 .height(250.dp)
-                                                .padding(12.dp)
+                                                .padding(12.dp),
                                         ) {
                                             IconButton(
                                                 onClick = {
-                                                    onEvent(
+                                                    latestEvent(
                                                         PlaceDetailsEvent.OnDeletePlaceImage(
-                                                            image
-                                                        )
+                                                            image,
+                                                        ),
                                                     )
                                                     showRemoveImageBtn = false
                                                     Toast.makeText(
                                                         context,
                                                         "Imagem removida!",
-                                                        Toast.LENGTH_SHORT
+                                                        Toast.LENGTH_SHORT,
                                                     ).show()
                                                 },
                                                 modifier = Modifier
@@ -281,15 +284,15 @@ fun PlaceDetailsBottomSheet(
                                                     .clip(RoundedCornerShape(16.dp))
                                                     .background(
                                                         MaterialTheme.colorScheme.surface.copy(
-                                                            alpha = 0.5f
-                                                        )
-                                                    )
+                                                            alpha = 0.5f,
+                                                        ),
+                                                    ),
                                             ) {
                                                 Icon(
                                                     imageVector = Icons.TwoTone.Delete,
                                                     contentDescription = null,
                                                     tint = MaterialTheme.colorScheme.primary,
-                                                    modifier = Modifier.size(30.dp)
+                                                    modifier = Modifier.size(30.dp),
                                                 )
                                             }
                                         }
@@ -312,11 +315,11 @@ fun PlaceDetailsBottomSheet(
                                         fontWeight = FontWeight.SemiBold,
                                         textAlign = TextAlign.Center,
                                         style = TextStyle(
-                                            lineHeight = 16.sp
+                                            lineHeight = 16.sp,
                                         ),
                                         modifier = Modifier
                                             .width(imageWidth)
-                                            .padding(horizontal = 12.dp)
+                                            .padding(horizontal = 12.dp),
                                     )
                                 }
                                 if (!state.allImagesLoaded) {
@@ -332,7 +335,7 @@ fun PlaceDetailsBottomSheet(
                                                 .size(50.dp),
                                             strokeCap = StrokeCap.Round,
                                             color = MaterialTheme.colorScheme.primary,
-                                            strokeWidth = 5.dp
+                                            strokeWidth = 5.dp,
                                         )
                                     }
                                 }
@@ -343,9 +346,9 @@ fun PlaceDetailsBottomSheet(
                                         .clip(RoundedCornerShape(24.dp))
                                         .clickable {
                                             launcher.launch(
-                                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
                                             )
-                                        }
+                                        },
                                 ) {
                                     Column(
                                         modifier = Modifier
@@ -357,7 +360,7 @@ fun PlaceDetailsBottomSheet(
                                             imageVector = Icons.Default.AddAPhoto,
                                             contentDescription = null,
                                             modifier = Modifier
-                                                .size(40.dp)
+                                                .size(40.dp),
                                         )
                                         Text(
                                             text = "Adicionar imagem",
@@ -376,7 +379,7 @@ fun PlaceDetailsBottomSheet(
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
-                            .padding(vertical = 4.dp)
+                            .padding(vertical = 4.dp),
                     )
                     Box(
                         modifier = Modifier
@@ -386,18 +389,18 @@ fun PlaceDetailsBottomSheet(
                             .border(
                                 1.25.dp,
                                 MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-                                RoundedCornerShape(24.dp)
-                            )
+                                RoundedCornerShape(24.dp),
+                            ),
                     ) {
                         Column(
                             verticalArrangement = Arrangement.spacedBy(4.dp),
                             modifier = Modifier
                                 .padding(16.dp)
-                                .fillMaxWidth()
+                                .fillMaxWidth(),
                         ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier.fillMaxWidth(),
                             ) {
                                 if (state.isUserCommented) {
                                     Text(
@@ -406,19 +409,20 @@ fun PlaceDetailsBottomSheet(
                                         fontWeight = FontWeight.SemiBold,
                                         fontFamily = FontFamily.SansSerif,
                                         color = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.weight(1f)
+                                        modifier = Modifier.weight(1f),
                                     )
                                 } else {
                                     Text(
                                         text = "Qual o nível de acessibilidade do local?",
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.Bold,
-                                        modifier = Modifier.weight(1f)
+                                        modifier = Modifier.weight(1f),
                                     )
                                 }
                                 val userAccessibilityColor by animateColorAsState(
                                     state.userAccessibilityRate.toFloat().coerceAtLeast(1f)
-                                        .toColor(), label = ""
+                                        .toColor(),
+                                    label = "",
                                 )
                                 (1..3).forEach {
                                     Box(
@@ -431,21 +435,23 @@ fun PlaceDetailsBottomSheet(
                                                     Modifier.background(
                                                         userAccessibilityColor
                                                             .copy(
-                                                                alpha = if (state.isUserCommented) 0.4f else 1f
-                                                            )
+                                                                alpha = if (state.isUserCommented) 0.4f else 1f,
+                                                            ),
                                                     )
-                                                } else Modifier
+                                                } else {
+                                                    Modifier
+                                                },
                                             )
                                             .border(
                                                 1.25.dp,
                                                 MaterialTheme.colorScheme.onSurface.copy(alpha = if (state.isUserCommented) 0.4f else 0.8f),
-                                                CircleShape
+                                                CircleShape,
                                             )
                                             .clickable {
-                                                onEvent(
-                                                    PlaceDetailsEvent.SetUserAccessibilityRate(it)
+                                                latestEvent(
+                                                    PlaceDetailsEvent.SetUserAccessibilityRate(it),
                                                 )
-                                            }
+                                            },
                                     )
                                 }
                             }
@@ -453,7 +459,7 @@ fun PlaceDetailsBottomSheet(
                                 TextField(
                                     value = state.userComment,
                                     onValueChange = {
-                                        onEvent(PlaceDetailsEvent.SetUserComment(it))
+                                        latestEvent(PlaceDetailsEvent.SetUserComment(it))
                                     },
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -466,17 +472,17 @@ fun PlaceDetailsBottomSheet(
                                     trailingIcon = {
                                         IconButton(
                                             onClick = {
-                                                onEvent(PlaceDetailsEvent.OnSendComment)
+                                                latestEvent(PlaceDetailsEvent.OnSendComment)
                                                 Toast.makeText(
                                                     context,
                                                     "Comentário adicionado!",
-                                                    Toast.LENGTH_SHORT
+                                                    Toast.LENGTH_SHORT,
                                                 ).show()
-                                            }
+                                            },
                                         ) {
                                             Icon(
                                                 imageVector = Icons.AutoMirrored.Filled.Send,
-                                                contentDescription = null
+                                                contentDescription = null,
                                             )
                                         }
                                     },
@@ -484,12 +490,12 @@ fun PlaceDetailsBottomSheet(
                                         keyboardType = KeyboardType.Text,
                                         capitalization = KeyboardCapitalization.Sentences,
                                         autoCorrectEnabled = true,
-                                        imeAction = ImeAction.Send
+                                        imeAction = ImeAction.Send,
                                     ),
                                     keyboardActions = KeyboardActions(
                                         onSend = {
-                                            onEvent(PlaceDetailsEvent.OnSendComment)
-                                        }
+                                            latestEvent(PlaceDetailsEvent.OnSendComment)
+                                        },
                                     ),
                                     isError =
                                     (state.userAccessibilityRate == 0 || state.userComment.isEmpty()) && state.trySendComment,
@@ -503,17 +509,17 @@ fun PlaceDetailsBottomSheet(
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                                 ) {
                                     Text(
                                         text = state.userComment,
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Normal,
-                                        modifier = Modifier.weight(1f)
+                                        modifier = Modifier.weight(1f),
                                     )
                                     IconButton(
                                         onClick = {
-                                            onEvent(PlaceDetailsEvent.SetIsUserCommented(false))
+                                            latestEvent(PlaceDetailsEvent.SetIsUserCommented(false))
                                             scope.launch {
                                                 async { bottomSheetScaffoldState.expand() }.await()
                                                 focusRequester.requestFocus()
@@ -521,29 +527,29 @@ fun PlaceDetailsBottomSheet(
                                         },
                                         modifier = Modifier
                                             .size(35.dp)
-                                            .clip(CircleShape)
+                                            .clip(CircleShape),
                                     ) {
                                         Icon(
                                             imageVector = Icons.Filled.Edit,
-                                            contentDescription = "Edit"
+                                            contentDescription = "Edit",
                                         )
                                     }
                                     IconButton(
                                         onClick = {
-                                            onEvent(PlaceDetailsEvent.OnDeleteComment)
+                                            latestEvent(PlaceDetailsEvent.OnDeleteComment)
                                             Toast.makeText(
                                                 context,
                                                 "Comentário removido!",
-                                                Toast.LENGTH_SHORT
+                                                Toast.LENGTH_SHORT,
                                             ).show()
                                         },
                                         modifier = Modifier
                                             .size(35.dp)
-                                            .clip(CircleShape)
+                                            .clip(CircleShape),
                                     ) {
                                         Icon(
                                             imageVector = Icons.TwoTone.Delete,
-                                            contentDescription = null
+                                            contentDescription = null,
                                         )
                                     }
                                 }
@@ -556,13 +562,13 @@ fun PlaceDetailsBottomSheet(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(24.dp))
-                            .background(MaterialTheme.colorScheme.surfaceColorAtElevation(30.dp))
+                            .background(MaterialTheme.colorScheme.surfaceColorAtElevation(30.dp)),
                     ) {
                         Column(
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                             modifier = Modifier
                                 .padding(16.dp)
-                                .fillMaxWidth()
+                                .fillMaxWidth(),
                         ) {
                             state.currentPlace.comments.filter { comment -> comment.email != userEmail }
                                 .forEachIndexed { index, comment ->
@@ -574,7 +580,7 @@ fun PlaceDetailsBottomSheet(
                                             text = comment.name,
                                             fontSize = 16.sp,
                                             fontWeight = FontWeight.Bold,
-                                            modifier = Modifier.weight(1f)
+                                            modifier = Modifier.weight(1f),
                                         )
                                         for (i in 1..comment.accessibilityRate) {
                                             Box(
@@ -585,15 +591,15 @@ fun PlaceDetailsBottomSheet(
                                                     .background(
                                                         comment.accessibilityRate
                                                             .toFloat()
-                                                            .toColor()
+                                                            .toColor(),
                                                     )
                                                     .border(
                                                         1.25.dp,
                                                         MaterialTheme.colorScheme.onSurface.copy(
-                                                            alpha = 0.8f
+                                                            alpha = 0.8f,
                                                         ),
-                                                        CircleShape
-                                                    )
+                                                        CircleShape,
+                                                    ),
                                             )
                                         }
                                     }
@@ -631,7 +637,7 @@ fun PlaceDetailsBottomSheet(
             localMarker = state.currentPlace,
             onDismiss = {
                 showPlaceInfo = false
-            }
+            },
         )
     }
 }

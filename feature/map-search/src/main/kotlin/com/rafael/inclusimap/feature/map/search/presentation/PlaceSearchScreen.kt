@@ -35,63 +35,76 @@ import com.rafael.inclusimap.core.resources.icons.GoogleMapsPin
 fun PlaceSearchScreen(
     matchingPlaces: List<AccessibleLocalMarker>,
     onPlaceClick: (LatLng) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val focusManager = LocalFocusManager.current
 
-    if (matchingPlaces.isNotEmpty()) {
-        Text(
-            text = "Resultados da pesquisa:",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.SemiBold,
-            modifier = modifier.padding(horizontal = 12.dp)
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-    }
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surfaceColorAtElevation(10.dp))
-            .pointerInput(Unit) {
-                detectVerticalDragGestures(
-                    onVerticalDrag = { _, _ ->
-                        focusManager.clearFocus()
-                    },
-                )
-                detectTapGestures(
-                    onTap = { focusManager.clearFocus() },
-                )
-            }
-            .animateContentSize(),
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        matchingPlaces.forEachIndexed { index, place ->
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(58.dp)
-                    .clickable { onPlaceClick(LatLng(place.position.first, place.position.second)) }
-                    .padding(horizontal = 6.dp, vertical = 8.dp)
-            ) {
-                Text(
-                    text = place.title,
-                    fontSize = 14.sp,
-                    modifier = Modifier.weight(1f)
-                )
-                GoogleMapsPin(
-                    pinColor = place.comments.map { it.accessibilityRate }.average().toFloat().toColor(),
-                    pinSize = 46.dp
-                )
-            }
-            if (index < matchingPlaces.size - 1) {
-                HorizontalDivider(
-                    thickness = 3.dp,
-                    color = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier.fillMaxWidth()
-                )
+        if (matchingPlaces.isNotEmpty()) {
+            Text(
+                text = "Resultados da pesquisa:",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(horizontal = 12.dp),
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.surfaceColorAtElevation(10.dp))
+                .pointerInput(Unit) {
+                    detectVerticalDragGestures(
+                        onVerticalDrag = { _, _ ->
+                            focusManager.clearFocus()
+                        },
+                    )
+                    detectTapGestures(
+                        onTap = { focusManager.clearFocus() },
+                    )
+                }
+                .animateContentSize(),
+        ) {
+            matchingPlaces.forEachIndexed { index, place ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(58.dp)
+                        .clickable {
+                            onPlaceClick(
+                                LatLng(
+                                    place.position.first,
+                                    place.position.second,
+                                ),
+                            )
+                        }
+                        .padding(horizontal = 6.dp, vertical = 8.dp),
+                ) {
+                    Text(
+                        text = place.title,
+                        fontSize = 14.sp,
+                        modifier = Modifier.weight(1f),
+                    )
+                    GoogleMapsPin(
+                        pinColor = place.comments.map { it.accessibilityRate }.average().toFloat()
+                            .toColor(),
+                        pinSize = 46.dp,
+                    )
+                }
+                if (index < matchingPlaces.size - 1) {
+                    HorizontalDivider(
+                        thickness = 3.dp,
+                        color = MaterialTheme.colorScheme.surface,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
         }
     }

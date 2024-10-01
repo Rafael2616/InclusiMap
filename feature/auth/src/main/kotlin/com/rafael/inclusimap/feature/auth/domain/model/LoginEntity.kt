@@ -11,7 +11,7 @@ data class LoginEntity(
     var userName: String?,
     var userPassword: String?,
     var userEmail: String?,
-    var userId: String?
+    var userId: String?,
 ) {
     companion object {
         fun getDefault() = LoginEntity(
@@ -20,7 +20,7 @@ data class LoginEntity(
             userName = null,
             userPassword = null,
             userEmail = null,
-            userId = null
+            userId = null,
         )
     }
 }

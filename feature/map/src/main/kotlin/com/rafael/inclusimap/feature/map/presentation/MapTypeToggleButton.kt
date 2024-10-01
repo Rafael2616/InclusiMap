@@ -37,17 +37,18 @@ import com.rafael.inclusimap.feature.map.domain.GoogleMapType
 fun MapTypeToggleButton(
     selectedMapType: MapType,
     onMapTypeChange: (MapType) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     var showMapTypes by remember { mutableStateOf(false) }
     val mapTypes = GoogleMapType.getMapTypes()
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .navigationBarsPadding()
             .padding(horizontal = 16.dp)
             .padding(bottom = 8.dp),
         verticalArrangement = Arrangement.Bottom,
-        horizontalAlignment = Alignment.End
+        horizontalAlignment = Alignment.End,
     ) {
         FloatingActionButton(
             onClick = { showMapTypes = !showMapTypes },
@@ -65,7 +66,7 @@ fun MapTypeToggleButton(
         Box(
             modifier = Modifier.wrapContentSize()
                 .padding(vertical = 16.dp),
-            contentAlignment = Alignment.CenterEnd
+            contentAlignment = Alignment.CenterEnd,
         ) {
             DropdownMenu(
                 expanded = showMapTypes,
@@ -76,14 +77,13 @@ fun MapTypeToggleButton(
                 Text(
                     text = "Tipos de Mapa",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
+                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
                 )
                 mapTypes.forEach { mapType ->
                     DropdownMenuItem(
                         onClick = {
                             onMapTypeChange(mapType.type)
                             showMapTypes = false
-
                         },
                         text = {
                             Text(
@@ -95,7 +95,7 @@ fun MapTypeToggleButton(
                             Icon(
                                 imageVector = mapType.icon,
                                 contentDescription = null,
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.size(24.dp),
                             )
                         },
                         leadingIcon = {
@@ -103,10 +103,10 @@ fun MapTypeToggleButton(
                                 Icon(
                                     imageVector = Icons.TwoTone.Check,
                                     contentDescription = null,
-                                    modifier = Modifier.size(24.dp)
+                                    modifier = Modifier.size(24.dp),
                                 )
                             }
-                        }
+                        },
                     )
                 }
             }

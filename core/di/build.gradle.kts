@@ -6,7 +6,7 @@ plugins {
 android.namespace = "com.rafael.inclusimap.core.di"
 
 dependencies {
-    //Koin
+    // Koin
     implementation(libs.bundles.koin)
 
     // Projects

@@ -43,7 +43,7 @@ fun AccessibleLocalMarker.toFullAccessibleLocalMarker(images: List<PlaceImage?>)
     comments = comments,
     images = images,
     time = time,
-    id = id
+    id = id,
 )
 
 fun FullAccessibleLocalMarker.toAccessibleLocalMarker(): AccessibleLocalMarker = AccessibleLocalMarker(

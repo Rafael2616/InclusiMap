@@ -5,11 +5,9 @@ import com.rafael.inclusimap.feature.auth.domain.model.LoginEntity
 import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
 
 class LoginRepositoryImpl(
-    private val loginDao: LoginDao
+    private val loginDao: LoginDao,
 ) : LoginRepository {
-    override suspend fun getLoginInfo(id: Int): LoginEntity? {
-        return loginDao.getLoginInfo(id)
-    }
+    override suspend fun getLoginInfo(id: Int): LoginEntity? = loginDao.getLoginInfo(id)
     override suspend fun updateLoginInfo(loginEntity: LoginEntity) {
         loginDao.updateLoginInfo(loginEntity)
     }

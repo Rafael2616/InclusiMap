@@ -44,7 +44,7 @@ internal fun IconPreference(
     leadingWidget: (@Composable BoxScope.() -> Unit)? = null,
     extraContent: (@Composable () -> Unit)? = null,
     leadingIcon: ImageVector? = null,
-    leadingIconColor : Color = MaterialTheme.colorScheme.onSurface
+    leadingIconColor: Color = MaterialTheme.colorScheme.onSurface,
 ) {
     Row(
         horizontalArrangement = Arrangement.Start,
@@ -98,7 +98,7 @@ internal fun IconPreference(
         Column(
             modifier = Modifier
                 .width(
-                    if ("a" == "b") { //iInLandscape
+                    if ("a" == "b") { // iInLandscape
                         350.dp
                     } else if (description != null) {
                         250.dp

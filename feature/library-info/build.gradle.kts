@@ -8,7 +8,7 @@ plugins {
 android.namespace = "com.rafael.inclusimap.feature.library_info"
 
 dependencies {
-    //Kotlin
+    // Kotlin
     implementation(libs.kotlinx.serialization.json)
     // Koin
     implementation(libs.koin.core)

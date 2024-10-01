@@ -11,10 +11,10 @@ dependencies {
     // Kotlin
     implementation(libs.kotlinx.coroutines)
     implementation(libs.kotlinx.serialization.json)
-    //AndroidX
+    // AndroidX
     implementation(libs.google.accompanist.permissions)
     implementation(libs.androidx.activity.compose)
-    //Google Maps
+    // Google Maps
     api(libs.maps.compose)
     implementation(libs.play.services.location)
     // Koin

@@ -8,13 +8,13 @@ data class AppIntroEntity(
     @PrimaryKey
     var id: Int,
     var showAppIntro: Boolean,
-    var isFirstTime: Boolean
+    var isFirstTime: Boolean,
 ) {
     companion object {
         fun getDefault() = AppIntroEntity(
             id = 1,
             showAppIntro = false,
-            isFirstTime = true
+            isFirstTime = true,
         )
     }
 }

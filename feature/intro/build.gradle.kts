@@ -18,10 +18,9 @@ dependencies {
     implementation(libs.koin.android)
 
     // Projects
-     implementation(projects.core.domain)
-     implementation(projects.core.resources)
+    implementation(projects.core.domain)
+    implementation(projects.core.resources)
 }
-
 
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")

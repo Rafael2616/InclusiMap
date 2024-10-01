@@ -6,8 +6,9 @@ import com.rafael.inclusimap.feature.auth.data.dao.LoginDao
 import com.rafael.inclusimap.feature.auth.domain.model.LoginEntity
 
 @Database(
-    entities = [LoginEntity::class], version = 1,
-    exportSchema = false
+    entities = [LoginEntity::class],
+    version = 1,
+    exportSchema = false,
 )
 abstract class AuthDatabase : RoomDatabase() {
     abstract fun loginDao(): LoginDao

@@ -28,68 +28,70 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
+@Suppress("ktlint:compose:modifier-not-used-at-root")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LogoutConfirmationDialog(
     isLoginOut: Boolean,
     onDismissRequest: () -> Unit,
     onLogout: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     BasicAlertDialog(
         onDismissRequest = {
             onDismissRequest()
-        }
+        },
     ) {
         Card(
-            modifier = Modifier
+            modifier = modifier
                 .clip(RoundedCornerShape(24.dp))
-                .background(MaterialTheme.colorScheme.surfaceColorAtElevation(10.dp))
+                .background(MaterialTheme.colorScheme.surfaceColorAtElevation(10.dp)),
         ) {
-
             Column(
                 modifier = Modifier
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Icon(
                     Icons.Filled.SentimentVeryDissatisfied,
                     contentDescription = "Sair",
                     modifier = Modifier
                         .size(45.dp),
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary,
                 )
                 Text(
                     text = "Deseja realmente sair?",
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleLarge,
                 )
                 Text(
                     text = "Esta ação não pode ser desfeita",
                     modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     if (!isLoginOut) {
                         OutlinedButton(
                             onClick = {
                                 onDismissRequest()
-                            }) {
+                            },
+                        ) {
                             Text(text = "Ficar")
                         }
                     } else {
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(text = "Saindo...")
                             CircularProgressIndicator(
-                                modifier = Modifier.size(30.dp)
+                                modifier = Modifier.size(30.dp),
                             )
                         }
                     }
@@ -102,9 +104,9 @@ fun LogoutConfirmationDialog(
                                 containerColor = MaterialTheme.colorScheme.error,
                                 contentColor = MaterialTheme.colorScheme.onError,
                                 disabledContainerColor = MaterialTheme.colorScheme.errorContainer,
-                                disabledContentColor = MaterialTheme.colorScheme.onErrorContainer
+                                disabledContentColor = MaterialTheme.colorScheme.onErrorContainer,
                             ),
-                            contentPadding = PaddingValues(8.dp)
+                            contentPadding = PaddingValues(8.dp),
                         ) {
                             Text(text = "Desconectar")
                         }

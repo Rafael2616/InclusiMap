@@ -38,16 +38,17 @@ fun AppIntroDialog(
 ) {
     Dialog(
         properties = DialogProperties(
-            usePlatformDefaultWidth = false
+            usePlatformDefaultWidth = false,
         ),
         onDismissRequest = {
             onDismiss()
-        }) {
+        },
+    ) {
         Card(
             modifier = modifier
                 .fillMaxWidth(0.9f)
                 .wrapContentHeight()
-                .clip(RoundedCornerShape(30.dp))
+                .clip(RoundedCornerShape(30.dp)),
         ) {
             Column(
                 Modifier
@@ -63,33 +64,33 @@ fun AppIntroDialog(
                             Brush.horizontalGradient(
                                 listOf(
                                     Color.Cyan,
-                                    MaterialTheme.colorScheme.primaryContainer
+                                    MaterialTheme.colorScheme.primaryContainer,
                                 ),
                                 tileMode = TileMode.Repeated,
                             ),
-                            RoundedCornerShape(16.dp)
-                        )
+                            RoundedCornerShape(16.dp),
+                        ),
                 ) {
                     Text(
                         text = "Bem vindo ao InclusiMap,\n${userName.split(" ")?.get(0)}",
                         fontSize = 24.sp,
                         color = Color.Black,
                         fontWeight = FontWeight.Light,
-                        modifier = Modifier.padding(12.dp)
+                        modifier = Modifier.padding(12.dp),
                     )
                 }
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     horizontalAlignment = Alignment.Start,
                     modifier = Modifier
-                        .height(460.dp)
+                        .height(460.dp),
                 ) {
                     item {
                         Text(
                             text = "Como funciona o sistema de acessibilidade do app?",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.padding(8.dp)
+                            modifier = Modifier.padding(8.dp),
                         )
                     }
                     AccessibilityChipItem.get().forEach { item ->
@@ -104,13 +105,13 @@ fun AppIntroDialog(
                                 Column(
                                     modifier = Modifier
                                         .fillMaxWidth(),
-                                    horizontalAlignment = Alignment.Start
+                                    horizontalAlignment = Alignment.Start,
                                 ) {
                                     Text(
                                         text = item.name,
                                         color = MaterialTheme.colorScheme.primary,
                                         fontSize = 16.sp,
-                                        fontWeight = FontWeight.Bold
+                                        fontWeight = FontWeight.Bold,
                                     )
                                     Text(
                                         text = item.description,
@@ -126,16 +127,16 @@ fun AppIntroDialog(
                 horizontalArrangement = Arrangement.End,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(end = 16.dp, bottom = 16.dp)
+                    .padding(end = 16.dp, bottom = 16.dp),
             ) {
                 Button(
                     onClick = {
                         onDismiss()
                     },
-                    modifier = Modifier
+                    modifier = Modifier,
                 ) {
                     Text(
-                        text = "Entendi"
+                        text = "Entendi",
                     )
                 }
             }

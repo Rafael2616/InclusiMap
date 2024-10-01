@@ -33,7 +33,7 @@ class SearchViewModel : ViewModel() {
         }.also { places ->
             _state.update {
                 it.copy(
-                    matchingPlaces = places
+                    matchingPlaces = places,
                 )
             }
         }

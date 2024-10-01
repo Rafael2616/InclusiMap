@@ -56,7 +56,7 @@ fun AddEditPlaceBottomSheet(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     defaultRoundedShape: Shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
-    ) {
+) {
     var placeName by remember { mutableStateOf(if (isEditing) placeDetailsState.currentPlace.title else "") }
     var placeCategory by remember { mutableStateOf(if (isEditing) placeDetailsState.currentPlace.category else "") }
     var tryAddUpdate by remember { mutableStateOf(false) }
@@ -73,13 +73,13 @@ fun AddEditPlaceBottomSheet(
                 .fillMaxWidth()
                 .imeNestedScroll()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Row {
                 Text(
                     text = if (isEditing) "Editar local:" else "Adicionar um novo local:",
                     fontSize = 24.sp,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
                 if (isEditing) {
                     IconButton(
@@ -88,11 +88,11 @@ fun AddEditPlaceBottomSheet(
                             Toast.makeText(context, "Excluindo local...", Toast.LENGTH_SHORT).show()
                             onDeletePlace(placeDetailsState.currentPlace.id)
                         },
-                        modifier = Modifier.align(Alignment.CenterVertically)
+                        modifier = Modifier.align(Alignment.CenterVertically),
                     ) {
                         Icon(
                             imageVector = Icons.TwoTone.Delete,
-                            contentDescription = null
+                            contentDescription = null,
                         )
                     }
                 }
@@ -112,11 +112,11 @@ fun AddEditPlaceBottomSheet(
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.LocationOn,
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 },
                 keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Next
+                    imeAction = ImeAction.Next,
                 ),
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -134,7 +134,7 @@ fun AddEditPlaceBottomSheet(
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Category,
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 },
                 maxLines = 1,
@@ -147,7 +147,7 @@ fun AddEditPlaceBottomSheet(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Button(
                     onClick = {
@@ -162,8 +162,8 @@ fun AddEditPlaceBottomSheet(
                             onEditNewPlace(
                                 placeDetailsState.currentPlace.copy(
                                     title = placeName,
-                                    category = placeCategory
-                                )
+                                    category = placeCategory,
+                                ),
                             )
                             Toast.makeText(context, "Atualizando local...", Toast.LENGTH_SHORT)
                                 .show()
@@ -175,17 +175,17 @@ fun AddEditPlaceBottomSheet(
                                     position = latlng.latitude to latlng.longitude,
                                     authorEmail = userEmail,
                                     time = Date().toInstant().toString(),
-                                    id = Uuid.random().toString()
-                                )
+                                    id = Uuid.random().toString(),
+                                ),
                             )
                             Toast.makeText(
                                 context,
                                 "Local adicionado com sucesso!",
-                                Toast.LENGTH_SHORT
+                                Toast.LENGTH_SHORT,
                             ).show()
                         }
                         onDismiss()
-                    }
+                    },
                 ) {
                     Text(text = if (isEditing) "Atualizar" else "Adicionar")
                 }

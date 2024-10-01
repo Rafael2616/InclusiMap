@@ -36,7 +36,7 @@ fun PreferenceGroup(
             textAlign = TextAlign.Start,
             modifier = Modifier
                 .padding(bottom = 6.dp)
-                .fillMaxWidth(0.95f), //isInLandscape
+                .fillMaxWidth(0.95f), // isInLandscape
         )
         Card(
             shape = MaterialTheme.shapes.medium,
@@ -45,7 +45,7 @@ fun PreferenceGroup(
             ),
             modifier = Modifier
                 .animateContentSize()
-                .fillMaxWidth(0.93f) //isInLandscape
+                .fillMaxWidth(0.93f) // isInLandscape
                 .clip(RoundedCornerShape(26.dp)),
         ) {
             Column(

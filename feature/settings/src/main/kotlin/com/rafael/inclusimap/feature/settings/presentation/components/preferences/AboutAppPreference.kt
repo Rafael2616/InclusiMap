@@ -6,16 +6,6 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-//import androidx.lifecycle.compose.collectAsStateWithLifecycle
-//import coil3.compose.AsyncImagePainter
-//import coil3.compose.SubcomposeAsyncImage
-//import coil3.compose.SubcomposeAsyncImageContent
-//import com.rafael.tictactoe.core.domain.util.BuildInfo.VERSION_CODE
-//import com.rafael.tictactoe.core.domain.util.BuildInfo.VERSION_NAME
-//import com.rafael.tictactoe.core.resources.Res
-//import com.rafael.tictactoe.core.resources.about_app
-//import com.rafael.tictactoe.core.resources.app_version
-//import com.rafael.tictactoe.core.resources.creator_message
 import com.rafael.inclusimap.core.settings.domain.model.SettingsEvent
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 import com.rafael.inclusimap.feature.settings.presentation.components.templates.IconPreference

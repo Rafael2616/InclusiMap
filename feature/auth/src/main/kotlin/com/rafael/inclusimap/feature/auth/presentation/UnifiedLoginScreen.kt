@@ -185,6 +185,7 @@ fun RegistrationScreen(
     state: LoginState,
     onRegister: (User) -> Unit,
     onGoToLogin: () -> Unit,
+    modifier: Modifier = Modifier,
     defaultRoundedShape: Shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
 ) {
     var userName by remember { mutableStateOf("") }
@@ -211,6 +212,7 @@ fun RegistrationScreen(
 
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
+        modifier = modifier,
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
@@ -293,7 +295,9 @@ fun RegistrationScreen(
                 singleLine = true,
                 visualTransformation = if (!showPassword) {
                     PasswordVisualTransformation('*')
-                } else VisualTransformation.None,
+                } else {
+                    VisualTransformation.None
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     capitalization = KeyboardCapitalization.Words,
@@ -316,7 +320,9 @@ fun RegistrationScreen(
                 singleLine = true,
                 visualTransformation = if (!showPassword) {
                     PasswordVisualTransformation('*')
-                } else VisualTransformation.None,
+                } else {
+                    VisualTransformation.None
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     capitalization = KeyboardCapitalization.Words,
@@ -386,7 +392,6 @@ fun RegistrationScreen(
                             password = password,
                         ),
                     )
-
                 },
             ) {
                 Text(text = "Cadastrar")
@@ -407,6 +412,7 @@ fun LoginScreen(
     state: LoginState,
     onGoToRegister: () -> Unit,
     onLogin: (RegisteredUser) -> Unit,
+    modifier: Modifier = Modifier,
     defaultRoundedShape: Shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
 ) {
     var password by remember { mutableStateOf("") }
@@ -423,6 +429,7 @@ fun LoginScreen(
 
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
+        modifier = modifier,
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
@@ -485,7 +492,9 @@ fun LoginScreen(
                 singleLine = true,
                 visualTransformation = if (!showPassword) {
                     PasswordVisualTransformation('*')
-                } else VisualTransformation.None,
+                } else {
+                    VisualTransformation.None
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     capitalization = KeyboardCapitalization.Words,
@@ -557,6 +566,7 @@ fun UpdatePasswordScreen(
     onCancel: () -> Unit,
     onUpdatePassword: (String) -> Unit,
     popBackStack: () -> Unit,
+    modifier: Modifier = Modifier,
     defaultRoundedShape: Shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
 ) {
     var password by remember { mutableStateOf("") }
@@ -570,6 +580,7 @@ fun UpdatePasswordScreen(
 
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
+        modifier = modifier,
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
@@ -602,7 +613,9 @@ fun UpdatePasswordScreen(
                 singleLine = true,
                 visualTransformation = if (!showPassword) {
                     PasswordVisualTransformation('*')
-                } else VisualTransformation.None,
+                } else {
+                    VisualTransformation.None
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     capitalization = KeyboardCapitalization.Words,
@@ -637,7 +650,9 @@ fun UpdatePasswordScreen(
                 singleLine = true,
                 visualTransformation = if (!showPassword) {
                     PasswordVisualTransformation('*')
-                } else VisualTransformation.None,
+                } else {
+                    VisualTransformation.None
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     capitalization = KeyboardCapitalization.Words,

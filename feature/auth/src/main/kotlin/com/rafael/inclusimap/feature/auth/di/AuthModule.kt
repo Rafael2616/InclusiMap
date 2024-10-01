@@ -13,7 +13,7 @@ val authModule = module {
         Room.databaseBuilder(
             androidApplication(),
             AuthDatabase::class.java,
-            AuthDatabase.DATABASE_NAME
+            AuthDatabase.DATABASE_NAME,
         )
             .fallbackToDestructiveMigration(true)
             .build()

@@ -13,7 +13,7 @@ val introModule = module {
         Room.databaseBuilder(
             androidApplication(),
             AppIntroDatabase::class.java,
-            AppIntroDatabase.DATABASE_NAME
+            AppIntroDatabase.DATABASE_NAME,
         )
             .fallbackToDestructiveMigration(true)
             .build()

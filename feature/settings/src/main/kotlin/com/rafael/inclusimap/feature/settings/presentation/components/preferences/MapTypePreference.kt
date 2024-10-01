@@ -3,8 +3,8 @@ package com.rafael.inclusimap.feature.settings.presentation.components.preferenc
 import androidx.compose.runtime.Composable
 import com.rafael.inclusimap.core.settings.domain.model.SettingsEvent
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
-import com.rafael.inclusimap.feature.settings.presentation.components.templates.MultiSelectionPreference
 import com.rafael.inclusimap.feature.map.domain.GoogleMapType
+import com.rafael.inclusimap.feature.settings.presentation.components.templates.MultiSelectionPreference
 
 @Composable
 fun MapTypePreference(

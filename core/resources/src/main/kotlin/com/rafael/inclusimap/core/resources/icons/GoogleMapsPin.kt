@@ -17,7 +17,6 @@ fun GoogleMapsPin(
     pinSize: Dp = 64.dp,
 ) {
     Canvas(modifier = modifier.size(pinSize)) {
-
         val trianglePath = Path().apply {
             moveTo(size.width / 2, size.height * 0.85f)
             lineTo(size.width * 0.75f, size.height * 0.4f)
@@ -29,13 +28,13 @@ fun GoogleMapsPin(
         drawCircle(
             color = pinColor,
             radius = size.width * 0.25f,
-            center = Offset(size.width / 2, size.height * 0.35f)
+            center = Offset(size.width / 2, size.height * 0.35f),
         )
 
         drawCircle(
             color = pinColor.copy(alpha = 0.5f, red = 0.5f, green = 0.5f, blue = 0.5f),
             radius = size.width * 0.1f,
-            center = Offset(size.width / 2, size.height * 0.35f)
+            center = Offset(size.width / 2, size.height * 0.35f),
         )
     }
 }

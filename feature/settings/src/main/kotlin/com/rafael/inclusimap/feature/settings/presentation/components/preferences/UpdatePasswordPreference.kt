@@ -16,6 +16,6 @@ fun UpdatePasswordPreference(
         title = "Atualizar senha",
         leadingIcon = Icons.Default.Password,
         trailingIcon = Icons.AutoMirrored.Filled.ArrowForward,
-        onClick = { navController.navigate(Destination.LoginScreen( isEditPasswordMode = true)) },
+        onClick = { navController.navigate(Destination.LoginScreen(isEditPasswordMode = true)) },
     )
 }

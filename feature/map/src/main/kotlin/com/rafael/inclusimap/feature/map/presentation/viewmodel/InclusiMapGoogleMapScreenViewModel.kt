@@ -23,7 +23,7 @@ class InclusiMapGoogleMapScreenViewModel(
         when (event) {
             is InclusiMapEvent.UpdateMapCameraPosition -> updateMapCameraPosition(
                 event.latLng,
-                event.isMyLocationFounded
+                event.isMyLocationFounded,
             )
 
             InclusiMapEvent.OnMapLoaded -> onMapLoaded()
@@ -40,7 +40,7 @@ class InclusiMapGoogleMapScreenViewModel(
         _state.update {
             it.copy(
                 defaultLocationLatLng = latLng,
-                isMyLocationFound = isMyLocationFounded
+                isMyLocationFound = isMyLocationFounded,
             )
         }
     }
@@ -48,7 +48,7 @@ class InclusiMapGoogleMapScreenViewModel(
     private fun onMapLoaded() {
         viewModelScope.launch(Dispatchers.IO) {
             accessibleLocalsRepository.getAccessibleLocals()?.let { mappedPlaces ->
-            _state.update {
+                _state.update {
                     it.copy(
                         allMappedPlaces = mappedPlaces,
                         isMapLoaded = true,
@@ -61,7 +61,7 @@ class InclusiMapGoogleMapScreenViewModel(
     private fun onMappedPlaceSelected(place: AccessibleLocalMarker) {
         _state.update {
             it.copy(
-                selectedMappedPlace = place
+                selectedMappedPlace = place,
             )
         }
     }
@@ -69,7 +69,7 @@ class InclusiMapGoogleMapScreenViewModel(
     private fun onUnmappedPlaceSelected(latLng: LatLng) {
         _state.update {
             it.copy(
-                selectedUnmappedPlaceLatLng = latLng
+                selectedUnmappedPlaceLatLng = latLng,
             )
         }
     }
@@ -77,7 +77,7 @@ class InclusiMapGoogleMapScreenViewModel(
     private fun onAddNewMappedPlace(newPlace: AccessibleLocalMarker) {
         _state.update {
             it.copy(
-                allMappedPlaces = _state.value.allMappedPlaces + newPlace
+                allMappedPlaces = _state.value.allMappedPlaces + newPlace,
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -87,7 +87,7 @@ class InclusiMapGoogleMapScreenViewModel(
 
     private fun setLocationPermissionGranted(isGranted: Boolean) {
         _state.value = _state.value.copy(
-            isLocationPermissionGranted = isGranted
+            isLocationPermissionGranted = isGranted,
         )
     }
 
@@ -97,8 +97,10 @@ class InclusiMapGoogleMapScreenViewModel(
                 allMappedPlaces = _state.value.allMappedPlaces.map {
                     if (it.id == placeUpdated.id) {
                         placeUpdated
-                    } else it
-                }
+                    } else {
+                        it
+                    }
+                },
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -109,7 +111,7 @@ class InclusiMapGoogleMapScreenViewModel(
     private fun onDeleteMappedPlace(placeID: String) {
         _state.update {
             it.copy(
-                allMappedPlaces = _state.value.allMappedPlaces.filter { it.id != placeID }
+                allMappedPlaces = _state.value.allMappedPlaces.filter { it.id != placeID },
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
