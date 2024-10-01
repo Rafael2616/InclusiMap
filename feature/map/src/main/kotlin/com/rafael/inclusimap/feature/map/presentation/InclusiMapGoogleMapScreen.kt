@@ -105,9 +105,9 @@ fun InclusiMapGoogleMapScreen(
                 cameraPositionState.animate(
                     update = CameraUpdateFactory.newLatLngZoom(
                         state.defaultLocationLatLng,
-                        15f
+                        15f,
                     ),
-                    durationMs = 3500
+                    durationMs = 3500,
                 )
             }.await()
             locationPermission.launchPermissionRequest()
@@ -120,19 +120,20 @@ fun InclusiMapGoogleMapScreen(
                     InclusiMapEvent.UpdateMapCameraPosition(
                         LatLng(
                             it.latitude,
-                            it.longitude
-                        ), true
+                            it.longitude,
+                        ),
+                        true,
                     ).also { pos ->
                         launch {
                             cameraPositionState.animate(
                                 update = CameraUpdateFactory.newLatLngZoom(
                                     pos.latLng,
-                                    25f
+                                    25f,
                                 ),
-                                durationMs = 3500
+                                durationMs = 3500,
                             )
                         }
-                    }
+                    },
                 )
             }
         }
@@ -172,7 +173,7 @@ fun InclusiMapGoogleMapScreen(
                                 onClick = {
                                     expanded = false
                                     onSearchEvent(SearchEvent.OnSearch("", emptyList()))
-                                }
+                                },
                             ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -212,7 +213,7 @@ fun InclusiMapGoogleMapScreen(
                                     imageVector = Icons.TwoTone.ManageAccounts,
                                     contentDescription = null,
                                     modifier = Modifier
-                                        .size(35.dp)
+                                        .size(35.dp),
                                 )
                             }
                         }
@@ -235,12 +236,12 @@ fun InclusiMapGoogleMapScreen(
                         cameraPositionState.animate(
                             CameraUpdateFactory.newLatLngZoom(
                                 it,
-                                20f
+                                20f,
                             ),
-                            2500
+                            2500,
                         )
                     }
-                }
+                },
             )
         }
         GoogleMap(
@@ -267,7 +268,7 @@ fun InclusiMapGoogleMapScreen(
                 if (!animateMap && !appIntroState.showAppIntro) {
                     cameraPositionState.position = CameraPosition.fromLatLngZoom(
                         state.defaultLocationLatLng,
-                        15f
+                        15f,
                     )
                     locationPermission.launchPermissionRequest()
                 }
@@ -277,23 +278,26 @@ fun InclusiMapGoogleMapScreen(
                 addPlaceBottomSheetScope.launch {
                     addPlaceBottomSheetScaffoldState.show()
                 }
-            }
+            },
         ) {
             if (state.isMapLoaded) {
                 state.allMappedPlaces.forEach { place ->
-                    val accessibilityAverage =
-                        place.comments.map { it.accessibilityRate }.average().toFloat()
+                    val accessibilityAverage by remember(place.comments) {
+                        mutableStateOf(
+                            place.comments.map { it.accessibilityRate }.average().toFloat(),
+                        )
+                    }
                     Marker(
                         state = MarkerState(
                             position = LatLng(
                                 place.position.first,
-                                place.position.second
-                            )
+                                place.position.second,
+                            ),
                         ),
                         title = place.title,
                         snippet = place.category,
                         icon = BitmapDescriptorFactory.defaultMarker(
-                            accessibilityAverage.toHUE()
+                            accessibilityAverage.toHUE(),
                         ),
                         onClick = {
                             onEvent(InclusiMapEvent.OnMappedPlaceSelected(place))
@@ -302,7 +306,7 @@ fun InclusiMapGoogleMapScreen(
                             }
                             false
                         },
-                        visible = showMarkers
+                        visible = showMarkers,
                     )
                 }
             }
@@ -318,7 +322,7 @@ fun InclusiMapGoogleMapScreen(
             onDismiss = {
                 onDismissAppIntro(false)
                 animateMap = true
-            }
+            },
         )
     }
 
@@ -338,7 +342,7 @@ fun InclusiMapGoogleMapScreen(
             },
             onUpdateMappedPlace = { placeUpdated ->
                 onEvent(InclusiMapEvent.OnUpdateMappedPlace(placeUpdated))
-            }
+            },
         )
     }
     AnimatedVisibility(addPlaceBottomSheetScaffoldState.isVisible || placeDetailsState.isEditingPlace) {
@@ -370,7 +374,7 @@ fun InclusiMapGoogleMapScreen(
                 addPlaceBottomSheetScope.launch {
                     addPlaceBottomSheetScaffoldState.hide()
                 }
-            }
+            },
         )
     }
 }

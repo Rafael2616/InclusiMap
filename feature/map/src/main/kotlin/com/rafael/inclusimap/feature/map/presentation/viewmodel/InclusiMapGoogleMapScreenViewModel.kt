@@ -47,11 +47,13 @@ class InclusiMapGoogleMapScreenViewModel(
 
     private fun onMapLoaded() {
         viewModelScope.launch(Dispatchers.IO) {
+            accessibleLocalsRepository.getAccessibleLocals()?.let { mappedPlaces ->
             _state.update {
-                it.copy(
-                    allMappedPlaces = accessibleLocalsRepository.getAccessibleLocals() ?: emptyList(),
-                    isMapLoaded = true,
-                )
+                    it.copy(
+                        allMappedPlaces = mappedPlaces,
+                        isMapLoaded = true,
+                    )
+                }
             }
         }
     }
