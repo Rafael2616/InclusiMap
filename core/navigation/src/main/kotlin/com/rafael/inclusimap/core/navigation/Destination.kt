@@ -15,4 +15,7 @@ sealed interface Destination {
 
     @Serializable
     data object LibraryScreen : Destination
+
+    @Serializable
+    data object AboutScreen : Destination
 }

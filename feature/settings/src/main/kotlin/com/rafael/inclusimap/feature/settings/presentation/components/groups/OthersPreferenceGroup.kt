@@ -5,8 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.rafael.inclusimap.core.settings.domain.model.SettingsEvent
-import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 import com.rafael.inclusimap.feature.settings.presentation.components.preferences.AboutAppPreference
 import com.rafael.inclusimap.feature.settings.presentation.components.preferences.HowAppWorksPreference
 import com.rafael.inclusimap.feature.settings.presentation.components.preferences.OpenSourceLicensesPreference
@@ -14,9 +12,7 @@ import com.rafael.inclusimap.feature.settings.presentation.components.templates.
 
 @Composable
 fun OthersPreferenceGroup(
-    onEvent: (SettingsEvent) -> Unit,
     onAppIntroEvent: (Boolean) -> Unit,
-    state: SettingsState,
     navController: NavController,
     modifier: Modifier = Modifier,
 ) {
@@ -25,7 +21,7 @@ fun OthersPreferenceGroup(
         modifier = modifier.padding(bottom = 8.dp),
     ) {
         HowAppWorksPreference(onAppIntroEvent)
-        AboutAppPreference(onEvent, state)
+        AboutAppPreference(navController)
         OpenSourceLicensesPreference(navController)
     }
 }

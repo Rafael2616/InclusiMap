@@ -18,6 +18,8 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.rafael.inclusimap.core.navigation.Destination
 import com.rafael.inclusimap.core.settings.domain.model.SettingsEvent
 import com.rafael.inclusimap.core.ui.theme.InclusiMapTheme
+import com.rafael.inclusimap.feature.about.presentation.AboutAppScreen
+import com.rafael.inclusimap.feature.about.util.SingletonCoilImageLoader
 import com.rafael.inclusimap.feature.auth.domain.model.LoginEvent
 import com.rafael.inclusimap.feature.auth.presentation.UnifiedLoginScreen
 import com.rafael.inclusimap.feature.auth.presentation.viewmodel.LoginViewModel
@@ -157,9 +159,18 @@ fun InclusiMapNavHost(
                             },
                         )
                     }
+                    composable<Destination.AboutScreen> {
+                        AboutAppScreen(
+                            onPopBackStack = {
+                                navController.popBackStack()
+                            },
+                        )
+                    }
                 }
             }
         }
+
+        SingletonCoilImageLoader()
 
         LaunchedEffect(loginState.isLoggedIn, appIntroState.showAppIntro) {
             if (loginState.isLoggedIn && appIntroState.showAppIntro) {

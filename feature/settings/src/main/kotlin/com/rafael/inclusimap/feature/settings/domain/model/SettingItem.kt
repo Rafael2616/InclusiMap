@@ -100,7 +100,7 @@ data class SettingItem(
             ),
             // Sobre o app
             SettingItem(
-                content = { onEvent, state, _ -> AboutAppPreference(onEvent, state) },
+                content = { _, _, navController -> AboutAppPreference(navController) },
                 searchSpecs = SearchItemSpecs(
                     namespace = NAMESPACE,
                     id = Uuid.random().toString(),

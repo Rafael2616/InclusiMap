@@ -22,6 +22,7 @@ dependencies {
     implementation(projects.core.settings)
     implementation(projects.core.ui)
     implementation(projects.feature.auth)
+    implementation(projects.feature.about)
     implementation(projects.feature.intro)
     implementation(projects.feature.map)
     implementation(projects.feature.mapSearch)
