@@ -8,12 +8,14 @@ import androidx.navigation.NavController
 import com.rafael.inclusimap.core.settings.domain.model.SettingsEvent
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 import com.rafael.inclusimap.feature.settings.presentation.components.preferences.AboutAppPreference
+import com.rafael.inclusimap.feature.settings.presentation.components.preferences.HowAppWorksPreference
 import com.rafael.inclusimap.feature.settings.presentation.components.preferences.OpenSourceLicensesPreference
 import com.rafael.inclusimap.feature.settings.presentation.components.templates.PreferenceGroup
 
 @Composable
 fun OthersPreferenceGroup(
     onEvent: (SettingsEvent) -> Unit,
+    onAppIntroEvent: (Boolean) -> Unit,
     state: SettingsState,
     navController: NavController,
     modifier: Modifier = Modifier,
@@ -22,6 +24,7 @@ fun OthersPreferenceGroup(
         heading = "Outros",
         modifier = modifier.padding(bottom = 8.dp),
     ) {
+        HowAppWorksPreference(onAppIntroEvent)
         AboutAppPreference(onEvent, state)
         OpenSourceLicensesPreference(navController)
     }

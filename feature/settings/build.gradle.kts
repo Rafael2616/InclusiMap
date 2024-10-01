@@ -18,4 +18,5 @@ dependencies {
     api(projects.core.settings)
     api(projects.core.navigation)
     api(projects.feature.map)
+    implementation(projects.feature.intro)
 }

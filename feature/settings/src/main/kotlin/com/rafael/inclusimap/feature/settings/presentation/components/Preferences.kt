@@ -12,6 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.rafael.inclusimap.core.settings.domain.model.SettingsEvent
+import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 import com.rafael.inclusimap.feature.settings.presentation.components.groups.AccountPreferenceGroup
 import com.rafael.inclusimap.feature.settings.presentation.components.groups.MapPreferenceGroup
 import com.rafael.inclusimap.feature.settings.presentation.components.groups.OthersPreferenceGroup
@@ -20,8 +22,9 @@ import com.rafael.inclusimap.feature.settings.presentation.components.groups.The
 @Composable
 internal fun Preferences(
     innerPadding: PaddingValues,
-    state: com.rafael.inclusimap.core.settings.domain.model.SettingsState,
-    onEvent: (com.rafael.inclusimap.core.settings.domain.model.SettingsEvent) -> Unit,
+    state: SettingsState,
+    onEvent: (SettingsEvent) -> Unit,
+    onAppIntroEvent: (Boolean) -> Unit,
     navController: NavController,
     modifier: Modifier = Modifier,
 ) {
@@ -47,7 +50,7 @@ internal fun Preferences(
             MapPreferenceGroup(onEvent, state, navController)
         }
         item {
-            OthersPreferenceGroup(onEvent, state, navController)
+            OthersPreferenceGroup(onEvent, onAppIntroEvent, state, navController)
         }
     }
 }

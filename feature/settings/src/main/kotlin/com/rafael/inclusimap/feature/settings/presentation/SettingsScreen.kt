@@ -2,9 +2,14 @@ package com.rafael.inclusimap.feature.settings.presentation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavController
 import com.rafael.inclusimap.core.settings.domain.model.SettingsEvent
+import com.rafael.inclusimap.core.settings.domain.model.SettingsState
+import com.rafael.inclusimap.feature.intro.presentation.dialogs.AppIntroDialog
 import com.rafael.inclusimap.feature.settings.presentation.components.Preferences
 import com.rafael.inclusimap.feature.settings.presentation.components.SettingsTopBar
 
@@ -12,11 +17,12 @@ import com.rafael.inclusimap.feature.settings.presentation.components.SettingsTo
 fun SettingsScreen(
     isLoginOut: Boolean,
     navController: NavController,
-    state: com.rafael.inclusimap.core.settings.domain.model.SettingsState,
+    state: SettingsState,
     onEvent: (SettingsEvent) -> Unit,
     onLogout: () -> Unit,
 ) {
     val latestOnEvent by rememberUpdatedState(onEvent)
+    var showAppIntro by remember { mutableStateOf(false) }
 
     SettingsTopBar(
         navController,
@@ -27,6 +33,9 @@ fun SettingsScreen(
             innerPadding,
             state,
             latestOnEvent,
+            onAppIntroEvent = {
+                showAppIntro = it
+            },
             navController,
         )
     }
@@ -38,6 +47,13 @@ fun SettingsScreen(
             },
             onLogout = {
                 onLogout()
+            },
+        )
+    }
+    if (showAppIntro) {
+        AppIntroDialog(
+            onDismiss = {
+                showAppIntro = false
             },
         )
     }

@@ -32,9 +32,9 @@ import com.rafael.inclusimap.core.resources.icons.GoogleMapsPin
 
 @Composable
 fun AppIntroDialog(
-    userName: String,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    userName: String? = null,
 ) {
     Dialog(
         properties = DialogProperties(
@@ -57,27 +57,29 @@ fun AppIntroDialog(
                 horizontalAlignment = Alignment.Start,
 
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            Brush.horizontalGradient(
-                                listOf(
-                                    Color.Cyan,
-                                    MaterialTheme.colorScheme.primaryContainer,
+                if (userName != null) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                Brush.horizontalGradient(
+                                    listOf(
+                                        Color.Cyan,
+                                        MaterialTheme.colorScheme.primaryContainer,
+                                    ),
+                                    tileMode = TileMode.Repeated,
                                 ),
-                                tileMode = TileMode.Repeated,
+                                RoundedCornerShape(16.dp),
                             ),
-                            RoundedCornerShape(16.dp),
-                        ),
-                ) {
-                    Text(
-                        text = "Bem vindo ao InclusiMap,\n${userName.split(" ")?.get(0)}",
-                        fontSize = 24.sp,
-                        color = Color.Black,
-                        fontWeight = FontWeight.Light,
-                        modifier = Modifier.padding(12.dp),
-                    )
+                    ) {
+                        Text(
+                            text = "Bem vindo ao InclusiMap,\n${userName.split(" ")?.get(0)}",
+                            fontSize = 24.sp,
+                            color = Color.Black,
+                            fontWeight = FontWeight.Light,
+                            modifier = Modifier.padding(12.dp),
+                        )
+                    }
                 }
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
