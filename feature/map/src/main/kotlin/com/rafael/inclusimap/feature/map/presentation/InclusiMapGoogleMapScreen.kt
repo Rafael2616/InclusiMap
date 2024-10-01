@@ -3,8 +3,6 @@ package com.rafael.inclusimap.feature.map.presentation
 import android.Manifest
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -59,7 +57,6 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.rafael.inclusimap.core.domain.model.util.toHUE
 import com.rafael.inclusimap.core.resources.R
-import com.rafael.inclusimap.core.settings.domain.model.SettingsEvent
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 import com.rafael.inclusimap.feature.intro.domain.model.AppIntroState
 import com.rafael.inclusimap.feature.intro.presentation.dialogs.AppIntroDialog
@@ -247,6 +244,7 @@ fun InclusiMapGoogleMapScreen(
         ) {
             PlaceSearchScreen(
                 matchingPlaces = searchState.matchingPlaces,
+                query = searchState.searchQuery,
                 onPlaceClick = {
                     latestSearchEvent(SearchEvent.SetExpanded(false))
                     latestSearchEvent(SearchEvent.OnSearch("", emptyList()))

@@ -1,6 +1,5 @@
 package com.rafael.inclusimap.feature.map.presentation
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Explore
@@ -90,4 +89,3 @@ data class NavigationBarItem(
     val icon: ImageVector,
     val name: String,
 )
-

@@ -63,7 +63,6 @@ fun InclusiMapNavHost(
         val libraryViewModel = koinViewModel<LibraryViewModel>()
         val ossLibraries by libraryViewModel.ossLibraries.collectAsStateWithLifecycle()
 
-
         InclusiMapTheme(state = settingsState) {
             Scaffold(
                 modifier = modifier

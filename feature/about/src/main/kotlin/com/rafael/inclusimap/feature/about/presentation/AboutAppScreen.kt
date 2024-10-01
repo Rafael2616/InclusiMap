@@ -157,7 +157,7 @@ fun AboutAppScreen(
                             model = author.image,
                             contentScale = ContentScale.Crop,
                             contentDescription = null,
-                            modifier = modifier
+                            modifier = Modifier
                                 .size(45.dp)
                                 .clip(CircleShape),
                         ) {
