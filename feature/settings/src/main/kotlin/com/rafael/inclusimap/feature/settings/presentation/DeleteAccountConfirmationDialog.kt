@@ -47,11 +47,11 @@ fun DeleteAccountConfirmationDialog(
     modifier: Modifier = Modifier,
 ) {
     var keepContributions by remember { mutableStateOf(true) }
-    var dialogDismissable by remember { mutableStateOf(true) }
+    var deleteProcessStarted by remember { mutableStateOf(true) }
 
     BasicAlertDialog(
         onDismissRequest = {
-            if (dialogDismissable) {
+            if (deleteProcessStarted) {
                 onDismissRequest()
             }
         },
@@ -101,6 +101,7 @@ fun DeleteAccountConfirmationDialog(
                         onCheckedChange = {
                             keepContributions = it
                         },
+                        enabled = !deleteProcessStarted
                     )
                 }
                 Row(
@@ -117,6 +118,7 @@ fun DeleteAccountConfirmationDialog(
                         colors = CheckboxDefaults.colors(
                             checkedColor = MaterialTheme.colorScheme.error,
                         ),
+                        enabled = !deleteProcessStarted
                     )
                 }
                 Row(
@@ -160,7 +162,7 @@ fun DeleteAccountConfirmationDialog(
                     if (!isDeleting && !isLoginOut) {
                         OutlinedButton(
                             onClick = {
-                                dialogDismissable = false
+                                deleteProcessStarted = false
                                 onDeleteAccount(keepContributions)
                             },
                             colors = ButtonColors(

@@ -484,6 +484,7 @@ class LoginViewModel(
                     it.copy(
                         isDeletingAccount = false,
                         deleteStep = DeleteProcess.NO_OP,
+                        isLoginOut = true,
                         isAccountDeleted = true,
                     )
                 }
