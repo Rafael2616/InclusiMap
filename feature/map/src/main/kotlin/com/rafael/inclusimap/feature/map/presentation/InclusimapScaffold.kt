@@ -1,4 +1,4 @@
-package com.rafael.inclusimap.core.navigation.impl
+package com.rafael.inclusimap.feature.map.presentation
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,11 +12,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.google.maps.android.compose.MapType
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
-import com.rafael.inclusimap.core.ui.theme.InclusiMapTheme
 import com.rafael.inclusimap.feature.map.domain.InclusiMapState
-import com.rafael.inclusimap.feature.map.presentation.MapTypeToggleButton
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchEvent
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchState
 
@@ -28,7 +27,7 @@ fun InclusiMapScaffold(
     searchEvent: (SearchEvent) -> Unit,
     onMapTypeChange: (MapType) -> Unit,
     modifier: Modifier = Modifier,
-    content: @Composable (PaddingValues) -> Unit,
+    content: @Composable () -> Unit,
 ) {
     val items = listOf(
         NavigationBarItem(
@@ -48,41 +47,47 @@ fun InclusiMapScaffold(
             name = "Pesquisar",
         ),
     )
-    InclusiMapTheme(state = settingsState) {
-        Scaffold(
-            modifier = modifier
-                .fillMaxSize(),
-            floatingActionButton = {
-                if (state.isMapLoaded) {
-                    MapTypeToggleButton(
-                        settingsState.mapType,
-                        onMapTypeChange = { onMapTypeChange(it) },
+    Scaffold(
+        modifier = modifier
+            .fillMaxSize(),
+        floatingActionButton = {
+            if (state.isMapLoaded) {
+                MapTypeToggleButton(
+                    settingsState.mapType,
+                    onMapTypeChange = { onMapTypeChange(it) },
+                )
+            }
+        },
+        bottomBar = {
+            NavigationBar {
+                items.forEach { item ->
+                    NavigationBarItem(
+                        selected = item.selected,
+                        onClick = item.onClick,
+                        icon = {
+                            Icon(
+                                imageVector = item.icon,
+                                contentDescription = null,
+                            )
+                        },
+                        label = {
+                            Text(
+                                item.name,
+                            )
+                        },
                     )
                 }
-            },
-            bottomBar = {
-                NavigationBar {
-                    items.forEach { item ->
-                        NavigationBarItem(
-                            selected = item.selected,
-                            onClick = item.onClick,
-                            icon = {
-                                Icon(
-                                    imageVector = item.icon,
-                                    contentDescription = null,
-                                )
-                            },
-                            label = {
-                                Text(
-                                    item.name,
-                                )
-                            },
-                        )
-                    }
-                }
-            },
-        ) { innerPadding ->
-            content(innerPadding)
-        }
+            }
+        },
+    ) { innerPadding ->
+        content()
     }
 }
+
+data class NavigationBarItem(
+    val selected: Boolean,
+    val onClick: () -> Unit,
+    val icon: ImageVector,
+    val name: String,
+)
+

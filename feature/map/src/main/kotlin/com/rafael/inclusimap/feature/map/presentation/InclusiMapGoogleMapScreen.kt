@@ -4,6 +4,7 @@ import android.Manifest
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -51,12 +52,14 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.ComposeMapColorScheme
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.rafael.inclusimap.core.domain.model.util.toHUE
 import com.rafael.inclusimap.core.resources.R
+import com.rafael.inclusimap.core.settings.domain.model.SettingsEvent
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 import com.rafael.inclusimap.feature.intro.domain.model.AppIntroState
 import com.rafael.inclusimap.feature.intro.presentation.dialogs.AppIntroDialog
@@ -85,6 +88,7 @@ fun InclusiMapGoogleMapScreen(
     settingsState: SettingsState,
     fusedLocationClient: FusedLocationProviderClient,
     onNavigateToSettings: () -> Unit,
+    onMapTypeChange: (MapType) -> Unit,
     userName: String,
     userEmail: String,
     modifier: Modifier = Modifier,
@@ -149,7 +153,15 @@ fun InclusiMapGoogleMapScreen(
         latestOnEvent(InclusiMapEvent.SetLocationPermissionGranted(locationPermission.status == PermissionStatus.Granted))
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    InclusiMapScaffold(
+        searchState = searchState,
+        settingsState = settingsState,
+        searchEvent = onSearchEvent,
+        state = state,
+        onMapTypeChange = {
+            onMapTypeChange(it)
+        },
+    ) {
         SearchBar(
             modifier = Modifier
                 .fillMaxWidth()
