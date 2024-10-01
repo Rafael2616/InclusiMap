@@ -18,7 +18,7 @@ class AccessibleLocalsRepositoryImpl(
         prettyPrint = true
     }
 
-    override suspend fun getAccessibleLocals(): List<AccessibleLocalMarker> {
+    override suspend fun getAccessibleLocals(): List<AccessibleLocalMarker>? {
         return withContext(Dispatchers.IO) {
             async {
                 driveService.listFiles(INCLUSIMAP_PLACE_DATA_FOLDER_ID).find {
@@ -29,7 +29,7 @@ class AccessibleLocalsRepositoryImpl(
                     return@withContext emptyList()
                 }
                 val content = driveService.getFileContent(file.id)?.decodeToString()
-                    ?: return@withContext emptyList()
+                    ?: return@withContext null
                 json.decodeFromString<List<AccessibleLocalMarker>>(content)
             }
         }
@@ -37,9 +37,9 @@ class AccessibleLocalsRepositoryImpl(
 
     override suspend fun saveAccessibleLocal(accessibleLocal: AccessibleLocalMarker) {
         withContext(Dispatchers.IO) {
-            val places = getAccessibleLocals().toMutableList()
-            places.add(accessibleLocal)
-            val updatedPlaces = json.encodeToString<List<AccessibleLocalMarker>>(places)
+            val places = getAccessibleLocals()?.toMutableList()
+            places?.add(accessibleLocal)
+            val updatedPlaces = json.encodeToString<List<AccessibleLocalMarker>>(places ?: return@withContext)
             val fileId = driveService.listFiles(INCLUSIMAP_PLACE_DATA_FOLDER_ID).find {
                 it.name == "places.json"
             }?.id ?: throw IllegalStateException("File: places.json not found")
@@ -55,10 +55,10 @@ class AccessibleLocalsRepositoryImpl(
 
     override suspend fun updateAccessibleLocal(accessibleLocal: AccessibleLocalMarker) {
         withContext(Dispatchers.IO) {
-            val places = getAccessibleLocals().toMutableList()
-            places.removeIf { it.id == accessibleLocal.id }
-            places.add(accessibleLocal)
-            val updatedPlaces = json.encodeToString<List<AccessibleLocalMarker>>(places)
+            val places = getAccessibleLocals()?.toMutableList()
+            places?.removeIf { it.id == accessibleLocal.id }
+            places?.add(accessibleLocal)
+            val updatedPlaces = json.encodeToString<List<AccessibleLocalMarker>>(places ?: return@withContext)
             val fileId = driveService.listFiles(INCLUSIMAP_PLACE_DATA_FOLDER_ID).find {
                 it.name == "places.json"
             }?.id ?: throw IllegalStateException("File: places.json not found")
@@ -74,9 +74,9 @@ class AccessibleLocalsRepositoryImpl(
 
     override suspend fun deleteAccessibleLocal(id: String) {
         withContext(Dispatchers.IO) {
-            val places = getAccessibleLocals().toMutableList()
-            places.removeIf { it.id == id }
-            val updatedPlaces = json.encodeToString<List<AccessibleLocalMarker>>(places)
+            val places = getAccessibleLocals()?.toMutableList()
+            places?.removeIf { it.id == id }
+            val updatedPlaces = json.encodeToString<List<AccessibleLocalMarker>>(places ?: return@withContext)
             val fileId = driveService.listFiles(INCLUSIMAP_PLACE_DATA_FOLDER_ID).find {
                 it.name == "places.json"
             }?.id ?: throw IllegalStateException("File: places.json not found")

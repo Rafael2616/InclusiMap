@@ -49,7 +49,7 @@ class InclusiMapGoogleMapScreenViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             _state.update {
                 it.copy(
-                    allMappedPlaces = accessibleLocalsRepository.getAccessibleLocals(),
+                    allMappedPlaces = accessibleLocalsRepository.getAccessibleLocals() ?: emptyList(),
                     isMapLoaded = true,
                 )
             }

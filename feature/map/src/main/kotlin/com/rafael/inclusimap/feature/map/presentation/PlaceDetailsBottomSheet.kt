@@ -1,5 +1,6 @@
 package com.rafael.inclusimap.feature.map.presentation
 
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -117,12 +118,28 @@ fun PlaceDetailsBottomSheet(
             }
         }
     val currentPlace = inclusiMapState.selectedMappedPlace!!
+    val accessibilityAverage by remember(
+        state.trySendComment,
+        state.currentPlace.comments,
+        state.isUserCommented
+    ) {
+        mutableFloatStateOf(
+            state.currentPlace.comments.map { it.accessibilityRate }.average()
+                .toFloat()
+        )
+    }
+    val accessibilityColor by animateColorAsState(
+        accessibilityAverage.toColor(), label = ""
+    )
+    val gridHeight by remember { mutableStateOf(260.dp) }
+    val imageWidth by remember { mutableStateOf(185.dp) }
 
     LaunchedEffect(Unit) {
         onEvent(PlaceDetailsEvent.SetCurrentPlace(currentPlace))
     }
 
     LaunchedEffect(state.currentPlace) {
+        Log.e("BottomSheet", "PlaceDetailsBottomSheet recomposing...")
         onUpdateMappedPlace(state.currentPlace)
     }
 
@@ -173,19 +190,6 @@ fun PlaceDetailsBottomSheet(
                         contentDescription = null
                     )
                 }
-                val accessibilityAverage by remember(
-                    state.trySendComment,
-                    state.currentPlace.comments,
-                    state.isUserCommented
-                ) {
-                    mutableFloatStateOf(
-                        state.currentPlace.comments.map { it.accessibilityRate }.average()
-                            .toFloat()
-                    )
-                }
-                val accessibilityColor by animateColorAsState(
-                    accessibilityAverage.toColor(), label = ""
-                )
                 Box(
                     modifier = Modifier
                         .height(45.dp)
@@ -218,8 +222,6 @@ fun PlaceDetailsBottomSheet(
                         modifier = Modifier
                             .padding(bottom = 8.dp)
                     )
-                    val gridHeight by remember { mutableStateOf(260.dp) }
-                    val imageWidth by remember { mutableStateOf(185.dp) }
                     LazyHorizontalStaggeredGrid(
                         rows = StaggeredGridCells.Fixed(1),
                         modifier = Modifier
