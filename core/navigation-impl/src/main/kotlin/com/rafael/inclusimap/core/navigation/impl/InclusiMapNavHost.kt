@@ -142,6 +142,13 @@ fun InclusiMapNavHost(
                                     LoginEvent.OnLogout,
                                 )
                             },
+                            onDeleteAccount = { keepContributions ->
+                                loginViewModel.onEvent(
+                                    LoginEvent.DeleteAccount(keepContributions),
+                                )
+                            },
+                            isDeleting = loginState.isDeletingAccount,
+                            deleteStep = loginState.deleteStep,
                         )
                         LaunchedEffect(loginState.isLoggedIn) {
                             if (!loginState.isLoggedIn) {

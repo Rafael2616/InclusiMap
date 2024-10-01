@@ -101,8 +101,12 @@ class SettingsViewModel(
                 }
             }
 
-            is SettingsEvent.ShowLogoutDialog -> {
-                _state.update { it.copy(showLogoutDialog = event.value) }
+            is SettingsEvent.ShowLogoutDialog -> _state.update {
+                it.copy(showLogoutDialog = event.value)
+            }
+
+            is SettingsEvent.ShowDeleteAccountDialog -> _state.update {
+                it.copy(showDeleteAccountDialog = event.value)
             }
         }
     }
@@ -114,6 +118,7 @@ class SettingsViewModel(
         MapType.HYBRID -> 4
         else -> 1
     }
+
     private fun Int.toMapType() = when (this) {
         1 -> MapType.NORMAL
         2 -> MapType.SATELLITE

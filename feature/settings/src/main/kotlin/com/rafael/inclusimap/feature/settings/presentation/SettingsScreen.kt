@@ -7,6 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavController
+import com.rafael.inclusimap.core.domain.model.DeleteProcess
 import com.rafael.inclusimap.core.settings.domain.model.SettingsEvent
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 import com.rafael.inclusimap.feature.intro.presentation.dialogs.AppIntroDialog
@@ -20,6 +21,9 @@ fun SettingsScreen(
     state: SettingsState,
     onEvent: (SettingsEvent) -> Unit,
     onLogout: () -> Unit,
+    onDeleteAccount: (Boolean) -> Unit,
+    isDeleting: Boolean,
+    deleteStep: DeleteProcess,
 ) {
     val latestOnEvent by rememberUpdatedState(onEvent)
     var showAppIntro by remember { mutableStateOf(false) }
@@ -50,6 +54,21 @@ fun SettingsScreen(
             },
         )
     }
+
+    if (state.showDeleteAccountDialog) {
+        DeleteAccountConfirmationDialog(
+            isDeleting = isDeleting,
+            deleteStep = deleteStep,
+            isLoginOut = isLoginOut,
+            onDeleteAccount = { keepContributions ->
+               onDeleteAccount(keepContributions)
+            },
+            onDismissRequest = {
+                latestOnEvent(SettingsEvent.ShowDeleteAccountDialog(false))
+            },
+        )
+    }
+
     if (showAppIntro) {
         AppIntroDialog(
             onDismiss = {

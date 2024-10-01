@@ -7,4 +7,5 @@ sealed interface LoginEvent {
     data object OnLogout : LoginEvent
     data class UpdatePassword(val password: String) : LoginEvent
     data class SetIsPasswordChanged(val isChanged: Boolean) : LoginEvent
+    data class DeleteAccount(val keepContributions: Boolean) : LoginEvent
 }
