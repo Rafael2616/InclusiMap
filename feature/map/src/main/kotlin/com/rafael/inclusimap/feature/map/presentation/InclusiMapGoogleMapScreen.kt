@@ -154,6 +154,9 @@ fun InclusiMapGoogleMapScreen(
         SearchBar(
             modifier = Modifier
                 .fillMaxWidth()
+                .statusBarsPadding()
+                .displayCutoutPadding()
+                .navigationBarsPadding()
                 .padding(horizontal = 12.dp)
                 .clip(RoundedCornerShape(24.dp))
                 .semantics { traversalIndex = -1f },
@@ -249,7 +252,7 @@ fun InclusiMapGoogleMapScreen(
             )
         }
         GoogleMap(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize(),
             properties = MapProperties(
                 isBuildingEnabled = true,
