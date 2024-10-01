@@ -87,13 +87,19 @@ fun InclusiMapNavHost(
                                 appIntroViewModel.setShowAppIntro(true)
                             },
                             modifier = Modifier.consumeWindowInsets(innerPadding),
-                            onUpdatePassword = {
+                            onUpdatePassword = { newPassword ->
                                 loginViewModel.onEvent(
-                                    LoginEvent.UpdatePassword(it),
+                                    LoginEvent.UpdatePassword(newPassword),
                                 )
                             },
                             onCancel = {
                                 navController.popBackStack()
+                            },
+                            onPopBackStack = {
+                                navController.popBackStack()
+                                loginViewModel.onEvent(
+                                    LoginEvent.SetIsPasswordChanged(false),
+                                )
                             },
                             isEditPasswordMode = it.toRoute<Destination.LoginScreen>().isEditPasswordMode,
                         )

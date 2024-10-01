@@ -75,6 +75,7 @@ fun UnifiedLoginScreen(
     onRegister: (User) -> Unit,
     onUpdatePassword: (String) -> Unit,
     onCancel: () -> Unit,
+    onPopBackStack: () -> Unit,
     modifier: Modifier = Modifier,
     isEditPasswordMode: Boolean = false,
 ) {
@@ -89,9 +90,9 @@ fun UnifiedLoginScreen(
                         MaterialTheme.colorScheme.primary,
                         MaterialTheme.colorScheme.primaryContainer,
                     ),
-                )
+                ),
             ),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Card(
             modifier = Modifier
@@ -105,15 +106,15 @@ fun UnifiedLoginScreen(
                 )
                 .clip(RoundedCornerShape(38.dp)),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(20.dp)
-            )
+                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(20.dp),
+            ),
         ) {
             Row(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.Top,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp)
+                    .padding(top = 16.dp),
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_launcher_foreground),
@@ -128,7 +129,7 @@ fun UnifiedLoginScreen(
                     .fillMaxWidth()
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
+                verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
             ) {
                 Text(
                     text = "InclusiMap",
@@ -137,7 +138,7 @@ fun UnifiedLoginScreen(
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .padding(bottom = 16.dp)
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
                 )
                 if (isEditPasswordMode) {
                     UpdatePasswordScreen(
@@ -149,14 +150,14 @@ fun UnifiedLoginScreen(
                             onUpdatePassword(it)
                         },
                         popBackStack = {
-                            onCancel()
-                        }
+                            onPopBackStack()
+                        },
                     )
                 } else {
                     AnimatedContent(
                         targetState = cadastreNewUser,
                         modifier = Modifier.fillMaxWidth(),
-                        label = ""
+                        label = "",
                     ) {
                         if (it) {
                             RegistrationScreen(
@@ -205,7 +206,7 @@ fun RegistrationScreen(
         Toast.makeText(
             context,
             "Já existe um usuário cadastrado com esse email!",
-            Toast.LENGTH_LONG
+            Toast.LENGTH_LONG,
         )
 
     Column(
@@ -215,14 +216,14 @@ fun RegistrationScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
             modifier = Modifier
                 .fillMaxWidth()
-                .imeNestedScroll()
+                .imeNestedScroll(),
         ) {
             Text(
                 text = "Bem-vindo",
                 fontSize = 18.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
             )
             TextField(
                 value = userName,
@@ -260,8 +261,8 @@ fun RegistrationScreen(
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Next
-                )
+                    imeAction = ImeAction.Next,
+                ),
             )
             TextField(
                 value = password,
@@ -277,9 +278,11 @@ fun RegistrationScreen(
                     Text(text = "Senha")
                 },
                 trailingIcon = {
-                    IconButton(onClick = {
-                        showPassword = !showPassword
-                    }) {
+                    IconButton(
+                        onClick = {
+                            showPassword = !showPassword
+                        },
+                    ) {
                         Icon(
                             imageVector = if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                             contentDescription = if (showPassword) "Hide password" else "Show password",
@@ -295,7 +298,7 @@ fun RegistrationScreen(
                     keyboardType = KeyboardType.Password,
                     capitalization = KeyboardCapitalization.Words,
                     imeAction = ImeAction.Next,
-                )
+                ),
             )
             TextField(
                 value = confirmPassword,
@@ -322,7 +325,7 @@ fun RegistrationScreen(
                 keyboardActions = KeyboardActions(
                     onDone = {
                         focusManager.clearFocus()
-                    }
+                    },
                 ),
             )
             Text(
@@ -331,7 +334,7 @@ fun RegistrationScreen(
                 lineHeight = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
             )
             Text(
                 text = "Já tem uma conta? Entrar",
@@ -341,49 +344,51 @@ fun RegistrationScreen(
                 modifier = Modifier
                     .clickable {
                         onGoToLogin()
-                    }
+                    },
             )
         }
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             if (state.isRegistering) {
                 CircularProgressIndicator(
                     strokeCap = StrokeCap.Round,
-                    modifier = Modifier.size(35.dp)
+                    modifier = Modifier.size(35.dp),
                 )
             }
-            Button(onClick = {
-                canLogin = true
-                if (userName.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-                    toast.show()
-                    return@Button
-                }
-                if (password != confirmPassword) {
-                    differentPasswordToast.show()
-                    return@Button
-                }
-                if (!isValidEmail) {
-                    invalidEmailToast.show()
-                    return@Button
-                }
-                if (!isValidPassword) {
-                    invalidPasswordToast.show()
-                    return@Button
-                }
-                onRegister(
-                    User(
-                        id = Uuid.random().toString(),
-                        name = userName,
-                        email = email,
-                        password = password
+            Button(
+                onClick = {
+                    canLogin = true
+                    if (userName.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+                        toast.show()
+                        return@Button
+                    }
+                    if (password != confirmPassword) {
+                        differentPasswordToast.show()
+                        return@Button
+                    }
+                    if (!isValidEmail) {
+                        invalidEmailToast.show()
+                        return@Button
+                    }
+                    if (!isValidPassword) {
+                        invalidPasswordToast.show()
+                        return@Button
+                    }
+                    onRegister(
+                        User(
+                            id = Uuid.random().toString(),
+                            name = userName,
+                            email = email,
+                            password = password,
+                        ),
                     )
-                )
 
-            }) {
+                },
+            ) {
                 Text(text = "Cadastrar")
             }
         }
@@ -423,14 +428,14 @@ fun LoginScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
             modifier = Modifier
                 .fillMaxWidth()
-                .imeNestedScroll()
+                .imeNestedScroll(),
         ) {
             Text(
                 text = "Bem-vindo de volta!",
                 fontSize = 18.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
             )
             Spacer(modifier = Modifier.height(4.dp))
             TextField(
@@ -449,8 +454,8 @@ fun LoginScreen(
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Next
-                )
+                    imeAction = ImeAction.Next,
+                ),
             )
             TextField(
                 value = password,
@@ -465,9 +470,11 @@ fun LoginScreen(
                     Text(text = "Senha")
                 },
                 trailingIcon = {
-                    IconButton(onClick = {
-                        showPassword = !showPassword
-                    }) {
+                    IconButton(
+                        onClick = {
+                            showPassword = !showPassword
+                        },
+                    ) {
                         Icon(
                             imageVector = if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                             contentDescription = if (showPassword) "Hide password" else "Show password",
@@ -482,13 +489,13 @@ fun LoginScreen(
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     capitalization = KeyboardCapitalization.Words,
-                    imeAction = ImeAction.Done
+                    imeAction = ImeAction.Done,
                 ),
                 keyboardActions = KeyboardActions(
                     onDone = {
                         focusManager.clearFocus()
-                    }
-                )
+                    },
+                ),
             )
             Text(
                 text = "Cadastre-se",
@@ -498,34 +505,36 @@ fun LoginScreen(
                 modifier = Modifier
                     .clickable {
                         onGoToRegister()
-                    }
+                    },
             )
         }
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             if (state.isRegistering) {
                 CircularProgressIndicator(
                     strokeCap = StrokeCap.Round,
-                    modifier = Modifier.size(35.dp)
+                    modifier = Modifier.size(35.dp),
                 )
             }
-            Button(onClick = {
-                canLogin = true
-                if (email.isEmpty() || password.isEmpty()) {
-                    toast.show()
-                    return@Button
-                }
-                onLogin(
-                    RegisteredUser(
-                        email = email,
-                        password = password
+            Button(
+                onClick = {
+                    canLogin = true
+                    if (email.isEmpty() || password.isEmpty()) {
+                        toast.show()
+                        return@Button
+                    }
+                    onLogin(
+                        RegisteredUser(
+                            email = email,
+                            password = password,
+                        ),
                     )
-                )
-            }) {
+                },
+            ) {
                 Text(text = "Entrar")
             }
         }
@@ -566,14 +575,14 @@ fun UpdatePasswordScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
             modifier = Modifier
                 .fillMaxWidth()
-                .imeNestedScroll()
+                .imeNestedScroll(),
         ) {
             Text(
                 text = "Olá!, ${state.user?.name}",
                 fontSize = 18.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
             )
             Spacer(modifier = Modifier.height(4.dp))
             TextField(
@@ -596,12 +605,14 @@ fun UpdatePasswordScreen(
                 } else VisualTransformation.None,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Next
+                    imeAction = ImeAction.Next,
                 ),
                 trailingIcon = {
-                    IconButton(onClick = {
-                        showPassword = !showPassword
-                    }) {
+                    IconButton(
+                        onClick = {
+                            showPassword = !showPassword
+                        },
+                    ) {
                         Icon(
                             imageVector = if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                             contentDescription = if (showPassword) "Hide password" else "Show password",
@@ -629,13 +640,13 @@ fun UpdatePasswordScreen(
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     capitalization = KeyboardCapitalization.Words,
-                    imeAction = ImeAction.Done
+                    imeAction = ImeAction.Done,
                 ),
                 keyboardActions = KeyboardActions(
                     onDone = {
                         focusManager.clearFocus()
-                    }
-                )
+                    },
+                ),
             )
             Text(
                 text = "A senha deve conter pelo menos 8 dígitos, sendo: 1 letra maiuscula, 1 caractere especial e 1 número",
@@ -643,50 +654,55 @@ fun UpdatePasswordScreen(
                 lineHeight = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
             )
         }
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             if (state.isUpdatingPassword) {
                 CircularProgressIndicator(
                     strokeCap = StrokeCap.Round,
-                    modifier = Modifier.size(35.dp)
+                    modifier = Modifier.size(35.dp),
                 )
             } else {
-                OutlinedButton(onClick = {
-                    onCancel()
-                }) {
+                OutlinedButton(
+                    onClick = {
+                        onCancel()
+                    },
+                ) {
                     Text(text = "Cancelar")
                 }
             }
-            Button(onClick = {
-                canUpdate = true
-                if (password.isEmpty() || confirmPassword.isEmpty()) {
-                    toast.show()
-                    return@Button
-                }
-                if (password != confirmPassword) {
-                    Toast.makeText(context, "A senha deve ser igual", Toast.LENGTH_SHORT).show()
-                    return@Button
-                }
-                if (!isValidPassword) {
-                    Toast.makeText(context, "A senha é inválida", Toast.LENGTH_SHORT).show()
-                    return@Button
-                }
-                onUpdatePassword(password)
-            }) {
+            Button(
+                onClick = {
+                    canUpdate = true
+                    if (password.isEmpty() || confirmPassword.isEmpty()) {
+                        toast.show()
+                        return@Button
+                    }
+                    if (password != confirmPassword) {
+                        Toast.makeText(context, "A senha deve ser igual", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+                    if (!isValidPassword) {
+                        Toast.makeText(context, "A senha é inválida", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+                    onUpdatePassword(password)
+                },
+            ) {
                 Text(text = "Atualizar")
             }
         }
     }
 
     if (state.isSamePassword && canUpdate) {
-        Toast.makeText(context, "A nova senha não pode ser igual a atual!", Toast.LENGTH_LONG).show()
+        Toast.makeText(context, "A nova senha não pode ser igual a atual!", Toast.LENGTH_LONG)
+            .show()
     }
     if (state.isPasswordChanged) {
         Toast.makeText(context, "Senha atualizada com sucesso!", Toast.LENGTH_LONG).show()

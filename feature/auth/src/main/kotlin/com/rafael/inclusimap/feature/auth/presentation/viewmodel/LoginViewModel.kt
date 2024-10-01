@@ -57,6 +57,9 @@ class LoginViewModel(
             is LoginEvent.SetIsNewUser -> _state.update {
                 it.copy(isNewUser = event.isNewUser)
             }
+            is LoginEvent.SetIsPasswordChanged -> _state.update {
+                it.copy(isPasswordChanged = event.isChanged)
+            }
         }
     }
 
