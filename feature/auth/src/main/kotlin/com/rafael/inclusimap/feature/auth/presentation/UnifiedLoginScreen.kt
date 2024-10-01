@@ -605,6 +605,7 @@ fun UpdatePasswordScreen(
                 } else VisualTransformation.None,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
+                    capitalization = KeyboardCapitalization.Words,
                     imeAction = ImeAction.Next,
                 ),
                 trailingIcon = {
