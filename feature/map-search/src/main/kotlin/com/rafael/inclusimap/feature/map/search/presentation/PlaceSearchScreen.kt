@@ -41,7 +41,7 @@ fun PlaceSearchScreen(
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.Start,
     ) {
         if (matchingPlaces.isNotEmpty()) {
             Text(

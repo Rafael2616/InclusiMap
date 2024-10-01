@@ -15,6 +15,9 @@ class SearchViewModel : ViewModel() {
     fun onEvent(event: SearchEvent) {
         when (event) {
             is SearchEvent.OnSearch -> onSearch(event.query, event.allPlaces)
+            is SearchEvent.SetExpanded -> _state.update {
+                it.copy(expanded = event.expanded)
+            }
         }
     }
 
@@ -22,7 +25,7 @@ class SearchViewModel : ViewModel() {
         _state.update {
             it.copy(searchQuery = query)
         }
-        if (query.isEmpty()) {
+        if (query.isEmpty() || query.isBlank()) {
             _state.update {
                 it.copy(matchingPlaces = emptyList())
             }

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -35,6 +34,8 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
@@ -50,7 +51,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.ComposeMapColorScheme
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
-import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
@@ -70,6 +70,7 @@ import com.rafael.inclusimap.feature.map.search.presentation.PlaceSearchScreen
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
+@Suppress("ktlint:compose:modifier-not-used-at-root")
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun InclusiMapGoogleMapScreen(
@@ -82,7 +83,6 @@ fun InclusiMapGoogleMapScreen(
     searchState: SearchState,
     onSearchEvent: (SearchEvent) -> Unit,
     settingsState: SettingsState,
-    onMapTypeChange: (MapType) -> Unit,
     fusedLocationClient: FusedLocationProviderClient,
     onNavigateToSettings: () -> Unit,
     userName: String,
@@ -98,13 +98,12 @@ fun InclusiMapGoogleMapScreen(
     val addPlaceBottomSheetScope = rememberCoroutineScope()
     val locationPermission = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
     val showMarkers by remember(cameraPositionState.isMoving) { mutableStateOf(cameraPositionState.position.zoom >= 15f) }
-    var expanded by remember { mutableStateOf(false) }
     val latestOnEvent by rememberUpdatedState(onEvent)
     val latestOnPlaceDetailsEvent by rememberUpdatedState(onPlaceDetailsEvent)
-    val latestOnDismisAppIntro by rememberUpdatedState(onDismissAppIntro)
+    val latestOnDismissAppIntro by rememberUpdatedState(onDismissAppIntro)
     val latestSearchEvent by rememberUpdatedState(onSearchEvent)
-    val latestMapTypeChange by rememberUpdatedState(onMapTypeChange)
     val latestNavigateToSettings by rememberUpdatedState(onNavigateToSettings)
+    val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(animateMap && !appIntroState.showAppIntro) {
         if (animateMap) {
@@ -156,29 +155,29 @@ fun InclusiMapGoogleMapScreen(
                 .fillMaxWidth()
                 .statusBarsPadding()
                 .displayCutoutPadding()
-                .navigationBarsPadding()
                 .padding(horizontal = 12.dp)
                 .clip(RoundedCornerShape(24.dp))
                 .semantics { traversalIndex = -1f },
             inputField = {
                 SearchBarDefaults.InputField(
+                    modifier = Modifier.focusRequester(focusRequester),
                     query = searchState.searchQuery,
                     onQueryChange = {
                         latestSearchEvent(SearchEvent.OnSearch(it, state.allMappedPlaces))
                     },
                     onSearch = {
-                        expanded = false
+                        latestSearchEvent(SearchEvent.SetExpanded(false))
                     },
-                    expanded = expanded,
+                    expanded = searchState.expanded,
                     onExpandedChange = {
-                        expanded = it
+                        latestSearchEvent(SearchEvent.SetExpanded(it))
                     },
                     placeholder = { Text("Pesquise um local aqui") },
                     leadingIcon = {
-                        if (expanded) {
+                        if (searchState.expanded) {
                             IconButton(
                                 onClick = {
-                                    expanded = false
+                                    latestSearchEvent(SearchEvent.SetExpanded(false))
                                     latestSearchEvent(SearchEvent.OnSearch("", emptyList()))
                                 },
                             ) {
@@ -210,7 +209,7 @@ fun InclusiMapGoogleMapScreen(
                                 )
                             }
                         }
-                        if (!expanded) {
+                        if (!searchState.expanded) {
                             IconButton(
                                 onClick = {
                                     latestNavigateToSettings()
@@ -227,8 +226,8 @@ fun InclusiMapGoogleMapScreen(
                     },
                 )
             },
-            expanded = expanded,
-            onExpandedChange = { expanded = it },
+            expanded = searchState.expanded,
+            onExpandedChange = { latestSearchEvent(SearchEvent.SetExpanded(it)) },
             colors = SearchBarDefaults.colors(
                 containerColor = MaterialTheme.colorScheme.surface,
                 dividerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
@@ -237,7 +236,7 @@ fun InclusiMapGoogleMapScreen(
             PlaceSearchScreen(
                 matchingPlaces = searchState.matchingPlaces,
                 onPlaceClick = {
-                    expanded = false
+                    latestSearchEvent(SearchEvent.SetExpanded(false))
                     latestSearchEvent(SearchEvent.OnSearch("", emptyList()))
                     onPlaceTravelScope.launch {
                         cameraPositionState.animate(
@@ -318,16 +317,13 @@ fun InclusiMapGoogleMapScreen(
                 }
             }
         }
-        if (state.isMapLoaded) {
-            MapTypeToggleButton(settingsState.mapType, onMapTypeChange = { latestMapTypeChange(it) })
-        }
     }
 
     AnimatedVisibility(appIntroState.showAppIntro) {
         AppIntroDialog(
             userName = userName,
             onDismiss = {
-                latestOnDismisAppIntro(false)
+                latestOnDismissAppIntro(false)
                 animateMap = true
             },
         )
@@ -383,5 +379,9 @@ fun InclusiMapGoogleMapScreen(
                 }
             },
         )
+    }
+
+    if (searchState.expanded) {
+        focusRequester.requestFocus()
     }
 }

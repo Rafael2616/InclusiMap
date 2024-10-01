@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -43,10 +42,7 @@ fun MapTypeToggleButton(
     val mapTypes = GoogleMapType.getMapTypes()
     Column(
         modifier = modifier
-            .fillMaxSize()
-            .navigationBarsPadding()
-            .padding(horizontal = 16.dp)
-            .padding(bottom = 8.dp),
+            .fillMaxSize(),
         verticalArrangement = Arrangement.Bottom,
         horizontalAlignment = Alignment.End,
     ) {
@@ -64,8 +60,7 @@ fun MapTypeToggleButton(
             )
         }
         Box(
-            modifier = Modifier.wrapContentSize()
-                .padding(vertical = 16.dp),
+            modifier = Modifier.wrapContentSize(),
             contentAlignment = Alignment.CenterEnd,
         ) {
             DropdownMenu(
