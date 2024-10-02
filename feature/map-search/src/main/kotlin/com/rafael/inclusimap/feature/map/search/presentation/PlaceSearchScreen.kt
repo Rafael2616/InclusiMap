@@ -98,7 +98,7 @@ fun PlaceSearchScreen(
                             modifier = Modifier.size(35.dp),
                         )
                         Text(
-                            text = "Nenhum local encontrado para a pesquisa  $query",
+                            text = "Nenhum local encontrado para a pesquisa: $query",
                             maxLines = 2,
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
