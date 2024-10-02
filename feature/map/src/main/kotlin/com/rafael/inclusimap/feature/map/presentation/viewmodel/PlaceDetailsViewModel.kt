@@ -135,7 +135,9 @@ class PlaceDetailsViewModel(
                 println("No images found for place ${placeDetails.title} ${placeDetails.id}")
                 return@launch
             }
-            _state.update { it.copy(currentPlaceImagesFolder = driveService.listFiles(state.value.currentPlaceFolderID!!)) }
+            state.value.currentPlaceFolderID?.let { folderId ->
+                _state.update { it.copy(currentPlaceImagesFolder = driveService.listFiles(folderId)) }
+            }
 
             _state.value.currentPlaceImagesFolder.map { file ->
                 async {
