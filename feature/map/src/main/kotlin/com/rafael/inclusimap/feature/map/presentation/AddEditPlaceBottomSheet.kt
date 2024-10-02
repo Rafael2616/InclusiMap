@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.android.gms.maps.model.LatLng
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
-import com.rafael.inclusimap.core.domain.model.FullAccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.toAccessibleLocalMarker
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsState
 import java.util.Date

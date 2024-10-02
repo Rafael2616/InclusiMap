@@ -102,7 +102,7 @@ fun DeleteAccountConfirmationDialog(
                         onCheckedChange = {
                             keepContributions = it
                         },
-                        enabled = deleteProcessStarted
+                        enabled = deleteProcessStarted,
                     )
                 }
                 Row(
@@ -119,7 +119,7 @@ fun DeleteAccountConfirmationDialog(
                         colors = CheckboxDefaults.colors(
                             checkedColor = MaterialTheme.colorScheme.error,
                         ),
-                        enabled = deleteProcessStarted
+                        enabled = deleteProcessStarted,
                     )
                 }
                 Row(

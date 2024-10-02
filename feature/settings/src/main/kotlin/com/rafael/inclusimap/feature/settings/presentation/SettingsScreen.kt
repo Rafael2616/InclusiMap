@@ -61,7 +61,7 @@ fun SettingsScreen(
             deleteStep = deleteStep,
             isLoginOut = isLoginOut,
             onDeleteAccount = { keepContributions ->
-               onDeleteAccount(keepContributions)
+                onDeleteAccount(keepContributions)
             },
             onDismissRequest = {
                 latestOnEvent(SettingsEvent.ShowDeleteAccountDialog(false))

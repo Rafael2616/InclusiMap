@@ -1,9 +1,7 @@
 package com.rafael.inclusimap.feature.map.domain
 
 import com.google.api.services.drive.model.File
-import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.FullAccessibleLocalMarker
-import com.rafael.inclusimap.core.domain.model.PlaceImage
 
 data class PlaceDetailsState(
     val inclusiMapImageRepositoryFolder: List<File> = emptyList(),

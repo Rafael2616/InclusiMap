@@ -70,11 +70,15 @@ class PlaceDetailsViewModel(
                             imageFolderId = null,
                             imageFolder = null,
                         ),
-                        loadedPlaces = if (place !in state.value.loadedPlaces.map { it.toAccessibleLocalMarker() }) state.value.loadedPlaces + place.toFullAccessibleLocalMarker(
-                            images = emptyList(),
-                            imageFolder = null,
-                            imageFolderId = null,
-                        ) else state.value.loadedPlaces,
+                        loadedPlaces = if (place !in state.value.loadedPlaces.map { it.toAccessibleLocalMarker() }) {
+                            state.value.loadedPlaces + place.toFullAccessibleLocalMarker(
+                                images = emptyList(),
+                                imageFolder = null,
+                                imageFolderId = null,
+                            )
+                        } else {
+                            state.value.loadedPlaces
+                        },
                     )
                 }
                 delay(350)
