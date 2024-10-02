@@ -50,7 +50,7 @@ fun MapTypeToggleButton(
             onClick = { showMapTypes = !showMapTypes },
             modifier = Modifier
                 .clip(RoundedCornerShape(16.dp))
-                .size(65.dp),
+                .size(60.dp),
             shape = RoundedCornerShape(16.dp),
         ) {
             Icon(
