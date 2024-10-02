@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.Check
-import androidx.compose.material.icons.twotone.Map
+import androidx.compose.material.icons.twotone.Layers
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
@@ -50,11 +50,11 @@ fun MapTypeToggleButton(
             onClick = { showMapTypes = !showMapTypes },
             modifier = Modifier
                 .clip(RoundedCornerShape(16.dp))
-                .size(60.dp),
+                .size(65.dp),
             shape = RoundedCornerShape(16.dp),
         ) {
             Icon(
-                imageVector = Icons.TwoTone.Map,
+                imageVector = Icons.TwoTone.Layers,
                 contentDescription = "Tipos de Mapa",
                 modifier = Modifier.size(40.dp),
             )
@@ -70,7 +70,7 @@ fun MapTypeToggleButton(
                 modifier = Modifier.background(MaterialTheme.colorScheme.surface),
             ) {
                 Text(
-                    text = "Tipos de Mapa",
+                    text = "Tipo de mapa",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
                 )
