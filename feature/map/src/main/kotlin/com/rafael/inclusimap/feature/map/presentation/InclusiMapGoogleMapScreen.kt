@@ -106,7 +106,7 @@ fun InclusiMapGoogleMapScreen(
     val latestNavigateToSettings by rememberUpdatedState(onNavigateToSettings)
     val focusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(animateMap && !appIntroState.showAppIntro) {
+    LaunchedEffect(animateMap, appIntroState.showAppIntro) {
         if (animateMap) {
             async {
                 cameraPositionState.animate(
@@ -118,6 +118,12 @@ fun InclusiMapGoogleMapScreen(
                 )
             }.await()
             locationPermission.launchPermissionRequest()
+        }
+        if (!animateMap && !appIntroState.showAppIntro) {
+            cameraPositionState.position = CameraPosition.fromLatLngZoom(
+                state.defaultLocationLatLng,
+                15f,
+            )
         }
     }
     LaunchedEffect(state.isLocationPermissionGranted) {
@@ -281,11 +287,7 @@ fun InclusiMapGoogleMapScreen(
             mapColorScheme = if (settingsState.isDarkThemeOn) ComposeMapColorScheme.DARK else ComposeMapColorScheme.LIGHT,
             onMapLoaded = {
                 latestOnEvent(InclusiMapEvent.OnMapLoaded)
-                if (!animateMap && !appIntroState.showAppIntro) {
-                    cameraPositionState.position = CameraPosition.fromLatLngZoom(
-                        state.defaultLocationLatLng,
-                        15f,
-                    )
+                if (!appIntroState.showAppIntro) {
                     locationPermission.launchPermissionRequest()
                 }
             },
