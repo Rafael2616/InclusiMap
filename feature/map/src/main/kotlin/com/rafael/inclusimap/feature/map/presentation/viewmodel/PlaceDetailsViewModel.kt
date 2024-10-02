@@ -3,6 +3,7 @@ package com.rafael.inclusimap.feature.map.presentation.viewmodel
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.net.Uri
+import androidx.compose.ui.geometry.isEmpty
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,6 +14,8 @@ import com.rafael.inclusimap.core.domain.model.PlaceImage
 import com.rafael.inclusimap.core.domain.model.toAccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.toFullAccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.util.extractUserEmail
+import com.rafael.inclusimap.core.domain.network.Result
+import com.rafael.inclusimap.core.domain.network.onSuccess
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_IMAGE_FOLDER_ID
 import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
@@ -130,13 +133,17 @@ class PlaceDetailsViewModel(
     private fun loadImages(placeDetails: AccessibleLocalMarker) {
         viewModelScope.launch(Dispatchers.IO) {
             async {
-                _state.update {
-                    it.copy(
-                        inclusiMapImageRepositoryFolder = driveService.listFiles(
-                            INCLUSIMAP_IMAGE_FOLDER_ID,
-                        ),
-                    )
+                driveService.listFiles(
+                    INCLUSIMAP_IMAGE_FOLDER_ID,
+                ).onSuccess { result ->
+                    result.map { it }.also { imageRepositoryFolder ->
+                    _state.update {
+                        it.copy(
+                            inclusiMapImageRepositoryFolder = imageRepositoryFolder
+                        )
+                    }
                 }
+                    }
             }.await()
             _state.update {
                 it.copy(
@@ -148,21 +155,34 @@ class PlaceDetailsViewModel(
                 )
             }
             if (_state.value.currentPlace.imageFolderId.isNullOrEmpty() ||
-                driveService.listFiles(_state.value.currentPlace.imageFolderId!!)
-                    .isEmpty()
+                when (val result = driveService.listFiles(_state.value.currentPlace.imageFolderId!!)) {
+                    is Result.Success -> result.data.isEmpty()
+                    is Result.Error -> {
+                        true
+                    }
+                }
             ) {
                 _state.update { it.copy(allImagesLoaded = true) }
                 println("No images found for place ${placeDetails.title} ${placeDetails.id}")
                 return@launch
             }
-            _state.update {
-                it.copy(
-                    currentPlace = it.currentPlace.copy(
-                        imageFolder = driveService.listFiles(
-                            state.value.currentPlace.imageFolderId ?: return@launch,
-                        ),
-                    ),
-                )
+            viewModelScope.launch {
+                val folderId = state.value.currentPlace.imageFolderId
+                folderId?.let {
+                    when (val result = driveService.listFiles(folderId)) {
+                        is Result.Success -> {
+                            _state.update {
+                                it.copy(
+                                    currentPlace = it.currentPlace.copy(
+                                        imageFolder = result.data
+                                    )
+                                )
+                            }
+                        }
+                        is Result.Error -> {
+                        }
+                    }
+                }
             }
 
             _state.value.currentPlace.imageFolder?.map { file ->
@@ -302,11 +322,15 @@ class PlaceDetailsViewModel(
             )
         }
         viewModelScope.launch(Dispatchers.Default) {
-            val localMarkerFiles =
-                driveService.listFiles(state.value.currentPlace.imageFolderId.orEmpty())
-            val imageId =
-                localMarkerFiles.find { it.name.extractUserEmail() == image.userEmail }?.id.orEmpty()
-            driveService.deleteFile(imageId)
+            val folderId = state.value.currentPlace.imageFolderId.orEmpty()
+            when (val result = driveService.listFiles(folderId)) {
+                is Result.Success -> {
+                    val imageId = result.data.find { it.name.extractUserEmail() == image.userEmail }?.id.orEmpty()
+                    driveService.deleteFile(imageId)
+                }
+                is Result.Error -> {
+                }
+            }
         }
     }
 

@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.DeleteProcess
 import com.rafael.inclusimap.core.domain.model.util.extractUserEmail
+import com.rafael.inclusimap.core.domain.network.onError
+import com.rafael.inclusimap.core.domain.network.onSuccess
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_IMAGE_FOLDER_ID
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_PLACE_DATA_FOLDER_ID
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_USERS_FOLDER_ID
@@ -19,6 +21,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -87,20 +90,22 @@ class LoginViewModel(
             password = newUser.password,
         )
         viewModelScope.launch(Dispatchers.IO) {
-            async {
-                _state.update {
-                    it.copy(
-                        userAlreadyRegistered = driveService.listFiles(
-                            INCLUSIMAP_USERS_FOLDER_ID,
-                        ).any { userFile ->
-                            userFile.name.split(".json")[0] == newUser.email
-                        }.also { isRegistered ->
-                            println("User already registered? $isRegistered")
-                        },
-                        isRegistering = false,
-                    )
+            _state.update {
+                it.copy(isRegistering = false)
+            }
+            driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID)
+                .onSuccess { result ->
+                    result
+                        .map { it }
+                        .any { userFile ->
+                            _state.update {
+                                it.copy(userAlreadyRegistered = userFile.name.split(".json")[0] == newUser.email)
+                            }.let { true }
+                        }
                 }
-            }.await()
+                .onError {
+
+                }
 
             if (_state.value.userAlreadyRegistered) {
                 return@launch
@@ -156,20 +161,32 @@ class LoginViewModel(
                 isRegistering = true,
                 isPasswordCorrect = true,
                 userAlreadyRegistered = true,
+                networkError = false,
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
             async {
-                _state.update {
-                    it.copy(
-                        userAlreadyRegistered = driveService.listFiles(
-                            INCLUSIMAP_USERS_FOLDER_ID,
-                        ).any { userFile ->
-                            userFile.name.split(".json")[0] == registeredUser.email
-                        }.also { isRegistered ->
-                            println("User already registered? $isRegistered")
-                        },
-                    )
+                driveService.listFiles(
+                    INCLUSIMAP_USERS_FOLDER_ID,
+                ).onSuccess { result ->
+                    result.map { it }.any { userFile ->
+                        _state.update {
+                            it.copy(
+                                userAlreadyRegistered =
+                                userFile.name.split(".json")[0] == registeredUser.email,
+                            )
+                        }.let { true }
+                    }.also { isRegistered ->
+                        println("User already registered? $isRegistered")
+                    }
+                }.onError {
+                    _state.update {
+                        it.copy(
+                            isRegistering = false,
+                            networkError = true,
+                        )
+                    }
+                    return@async
                 }
             }.await()
 
@@ -180,56 +197,63 @@ class LoginViewModel(
 
             val json = Json { ignoreUnknownKeys = true }
             async {
-                val user = driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).find { userFile ->
-                    userFile.name.split(".json")[0] == registeredUser.email
-                }
+                driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { result ->
+                    result.map { it }.find { userFile ->
+                        userFile.name.split(".json")[0] == registeredUser.email
+                    }.also { user ->
+                        driveService.listFiles(user?.id ?: "").onSuccess { result ->
+                            result.map { it }.find { userFile ->
+                                userFile.name.endsWith(".json")
+                            }.also { userLoginFile ->
 
-                val userLoginFile = driveService.listFiles(user?.id ?: "").find { userFile ->
-                    userFile.name.endsWith(".json")
-                }
+                                val userLoginFileContent = driveService.getFileContent(
+                                    userLoginFile?.id
+                                        ?: throw IllegalStateException("User not found"),
+                                )?.decodeToString()
+                                println("User file content: $userLoginFileContent")
 
-                val userLoginFileContent = driveService.getFileContent(
-                    userLoginFile?.id ?: throw IllegalStateException("User not found"),
-                )?.decodeToString()
-                println("User file content: $userLoginFileContent")
+                                if (userLoginFileContent == null) {
+                                    println("User file content is null")
+                                    return@async
+                                }
+                                val userObj = json.decodeFromString<User>(userLoginFileContent)
+                                if (userObj.password != registeredUser.password) {
+                                    _state.update {
+                                        it.copy(
+                                            isPasswordCorrect = false,
+                                        )
+                                    }
+                                    println("Password is incorrect")
+                                    return@async
+                                }
+                                val loginData =
+                                    repository.getLoginInfo(1) ?: LoginEntity.getDefault()
+                                loginData.userId = userObj.id
+                                loginData.userName = userObj.name
+                                loginData.userEmail = userObj.email
+                                loginData.userPassword = userObj.password
+                                loginData.isLoggedIn = true
 
-                if (userLoginFileContent == null) {
-                    println("User file content is null")
-                    return@async
-                }
-                val userObj = json.decodeFromString<User>(userLoginFileContent)
-                if (userObj.password != registeredUser.password) {
-                    _state.update {
-                        it.copy(
-                            isPasswordCorrect = false,
-                        )
+                                repository.updateLoginInfo(loginData)
+
+                                _state.update {
+                                    it.copy(
+                                        isPasswordCorrect = true,
+                                        user = User(
+                                            id = userObj.id,
+                                            name = userObj.name,
+                                            email = userObj.email,
+                                            password = userObj.password,
+                                        ),
+                                    )
+                                }
+                            }
+                        }
                     }
-                    println("Password is incorrect")
-                    return@async
-                }
-                val loginData = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
-                loginData.userId = userObj.id
-                loginData.userName = userObj.name
-                loginData.userEmail = userObj.email
-                loginData.userPassword = userObj.password
-                loginData.isLoggedIn = true
-
-                repository.updateLoginInfo(loginData)
-
-                _state.update {
-                    it.copy(
-                        isPasswordCorrect = true,
-                        user = User(
-                            id = userObj.id,
-                            name = userObj.name,
-                            email = userObj.email,
-                            password = userObj.password,
-                        ),
-                    )
                 }
             }.await()
         }.invokeOnCompletion {
-            if (_state.value.userAlreadyRegistered && _state.value.isPasswordCorrect) {
+            if (_state.value.userAlreadyRegistered && _state.value.isPasswordCorrect && !_state.value.networkError) {
                 _state.update {
                     it.copy(
                         isLoggedIn = true,
@@ -282,39 +306,48 @@ class LoginViewModel(
         // Update the password in Google Drive
         viewModelScope.launch(Dispatchers.IO) {
             async {
-                val user = driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).find { userFile ->
-                    userFile.name == _state.value.user?.email
-                }
+                driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID)
+                    .onSuccess { result ->
+                        result.map { it }.find { userFile ->
+                            userFile.name == _state.value.user?.email
+                        }.also { user ->
+                            driveService.listFiles(user?.id ?: "")
+                                .onSuccess { result ->
+                                    result.map { it }.find { userFile ->
+                                        userFile.name.endsWith(".json")
+                                    }.also { userLoginFile ->
+                                        val json = Json { ignoreUnknownKeys = true }
+                                        val userLoginFileContent =
+                                            driveService.getFileContent(
+                                                userLoginFile?.id
+                                                    ?: throw IllegalStateException("User not found"),
+                                            )?.decodeToString()
 
-                val userLoginFile = driveService.listFiles(user?.id ?: "").find { userFile ->
-                    userFile.name.endsWith(".json")
-                }
-                val json = Json { ignoreUnknownKeys = true }
-                val userLoginFileContent =
-                    driveService.getFileContent(
-                        userLoginFile?.id ?: throw IllegalStateException("User not found"),
-                    )?.decodeToString()
-
-                if (userLoginFileContent == null) {
-                    println("User file content is null")
-                    return@async
-                }
-                val userObj = json.decodeFromString<User>(userLoginFileContent)
-                if (userObj.password == password) {
-                    _state.update {
-                        it.copy(
-                            isSamePassword = true,
-                            isUpdatingPassword = false,
-                        )
+                                        if (userLoginFileContent == null) {
+                                            println("User file content is null")
+                                            return@async
+                                        }
+                                        val userObj =
+                                            json.decodeFromString<User>(userLoginFileContent)
+                                        if (userObj.password == password) {
+                                            _state.update {
+                                                it.copy(
+                                                    isSamePassword = true,
+                                                    isUpdatingPassword = false,
+                                                )
+                                            }
+                                            return@async
+                                        }
+                                        userObj.password = password
+                                        driveService.updateFile(
+                                            userLoginFile.id,
+                                            userLoginFile.name,
+                                            json.encodeToString(userObj).byteInputStream(),
+                                        )
+                                    }
+                                }
+                        }
                     }
-                    return@async
-                }
-                userObj.password = password
-                driveService.updateFile(
-                    userLoginFile.id,
-                    userLoginFile.name,
-                    json.encodeToString(userObj).byteInputStream(),
-                )
             }.await()
         }.invokeOnCompletion {
             // Update the password in the state
@@ -340,10 +373,12 @@ class LoginViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             // Delete user info from Google Drive
             async {
-                driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).find { userFile ->
-                    userFile.name == _state.value.user?.email
-                }?.let {
-                    driveService.deleteFile(it.id)
+                driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { result ->
+                    result.map { it }.find { userFile ->
+                        userFile.name == _state.value.user?.email
+                    }?.let {
+                        driveService.deleteFile(it.id)
+                    }
                 }
             }.invokeOnCompletion {
                 if (it != null) {
@@ -372,26 +407,30 @@ class LoginViewModel(
             async {
                 // Delete user posted places
                 val json = Json { ignoreUnknownKeys = true }
-                val places = driveService.listFiles(INCLUSIMAP_PLACE_DATA_FOLDER_ID).find {
-                    it.name == "places.json"
+                driveService.listFiles(INCLUSIMAP_PLACE_DATA_FOLDER_ID).onSuccess { result ->
+                    result.map { it }.find {
+                        it.name == "places.json"
+                    }.also { places ->
+
+                        val placesContent = places?.run {
+                            val content = driveService.getFileContent(this.id)?.decodeToString()
+                            json.decodeFromString<List<AccessibleLocalMarker>>(
+                                content ?: return@async,
+                            )
+                        }
+                        val placesWithoutUserPlaces = placesContent?.filterNot {
+                            it.authorEmail == _state.value.user?.email
+                        }
+                        val updatedPlaces = json.encodeToString<List<AccessibleLocalMarker>>(
+                            placesWithoutUserPlaces ?: return@async,
+                        )
+                        driveService.updateFile(
+                            places.id,
+                            "places.json",
+                            updatedPlaces.toByteArray().inputStream(),
+                        )
+                    }
                 }
-                val placesContent = places?.run {
-                    val content = driveService.getFileContent(this.id)?.decodeToString()
-                    json.decodeFromString<List<AccessibleLocalMarker>>(
-                        content ?: return@async,
-                    )
-                }
-                val placesWithoutUserPlaces = placesContent?.filterNot {
-                    it.authorEmail == _state.value.user?.email
-                }
-                val updatedPlaces = json.encodeToString<List<AccessibleLocalMarker>>(
-                    placesWithoutUserPlaces ?: return@async,
-                )
-                driveService.updateFile(
-                    places.id,
-                    "places.json",
-                    updatedPlaces.toByteArray().inputStream(),
-                )
             }.invokeOnCompletion {
                 if (it != null) {
                     _state.update {
@@ -406,14 +445,23 @@ class LoginViewModel(
                 }
                 async {
                     // Delete user posted images
-                    val places = driveService.listFiles(INCLUSIMAP_IMAGE_FOLDER_ID)
-                    places.forEach { place ->
-                        val userImages = driveService.listFiles(place.id).filter { images ->
-                            images.name.extractUserEmail() == _state.value.user?.email
-                        }
-                        userImages.forEach {
-                            println("Deleting file: ${it.name} - ${it.id} posted by user ${_state.value.user?.email}")
-                            async { driveService.deleteFile(it.id) }.await()
+                    driveService.listFiles(INCLUSIMAP_IMAGE_FOLDER_ID).onSuccess { result ->
+                        result.map { it }.also { places ->
+                            places.forEach { place ->
+                                driveService.listFiles(place.id).onSuccess { result ->
+                                    result.map { it }
+                                        .also { images ->
+                                            images.filter { image ->
+                                                image.name.extractUserEmail() == _state.value.user?.email
+                                            }.also { userImages ->
+                                                userImages.forEach {
+                                                    println("Deleting file: ${it.name} - ${it.id} posted by user ${_state.value.user?.email}")
+                                                    async { driveService.deleteFile(it.id) }.await()
+                                                }
+                                            }
+                                        }
+                                }
+                            }
                         }
                     }
                 }.invokeOnCompletion {
@@ -432,26 +480,32 @@ class LoginViewModel(
                     async {
                         // Delete user comments
                         val json = Json { ignoreUnknownKeys = true }
-                        val places = driveService.listFiles(INCLUSIMAP_PLACE_DATA_FOLDER_ID).find {
-                            it.name == "places.json"
-                        }
-                        val placesContent = places?.run {
-                            val content = driveService.getFileContent(this.id)?.decodeToString()
-                            json.decodeFromString<List<AccessibleLocalMarker>>(
-                                content ?: return@async,
-                            )
-                        }
-                        val placesWithoutUserComments = placesContent?.map { place ->
-                            place.copy(comments = place.comments.filterNot { it.email == _state.value.user?.email })
-                        }
-                        val updatedPlaces = json.encodeToString<List<AccessibleLocalMarker>>(
-                            placesWithoutUserComments ?: return@async,
-                        )
-                        driveService.updateFile(
-                            places.id,
-                            "places.json",
-                            updatedPlaces.toByteArray().inputStream(),
-                        )
+                        driveService.listFiles(INCLUSIMAP_PLACE_DATA_FOLDER_ID)
+                            .onSuccess { result ->
+                                result.map { it }.find {
+                                    it.name == "places.json"
+                                }.also { places ->
+                                    val placesContent = places?.run {
+                                        val content =
+                                            driveService.getFileContent(this.id)?.decodeToString()
+                                        json.decodeFromString<List<AccessibleLocalMarker>>(
+                                            content ?: return@async,
+                                        )
+                                    }
+                                    val placesWithoutUserComments = placesContent?.map { place ->
+                                        place.copy(comments = place.comments.filterNot { it.email == _state.value.user?.email })
+                                    }
+                                    val updatedPlaces =
+                                        json.encodeToString<List<AccessibleLocalMarker>>(
+                                            placesWithoutUserComments ?: return@async,
+                                        )
+                                    driveService.updateFile(
+                                        places.id,
+                                        "places.json",
+                                        updatedPlaces.toByteArray().inputStream(),
+                                    )
+                                }
+                            }
                     }.invokeOnCompletion {
                         if (it != null) {
                             _state.update {
@@ -497,21 +551,25 @@ class LoginViewModel(
 
     private fun checkUserExists() {
         viewModelScope.launch(Dispatchers.IO) {
-            val userExists = driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).find {
-                it.name == _state.value.user?.email
+            driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { result ->
+                result.map { it }
+                    .find {
+                        it.name == _state.value.user?.email
+                    }.also { userExists ->
+                        _state.update {
+                            it.copy(isLoggedIn = userExists != null)
+                        }
+                        val loginData = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
+                        loginData.isLoggedIn = userExists != null
+                        if (userExists == null) {
+                            loginData.userId = null
+                            loginData.userName = null
+                            loginData.userEmail = null
+                            loginData.userPassword = null
+                        }
+                        repository.updateLoginInfo(loginData)
+                    }
             }
-            _state.update {
-                it.copy(isLoggedIn = userExists != null)
-            }
-            val loginData = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
-            loginData.isLoggedIn = userExists != null
-            if (userExists == null) {
-                loginData.userId = null
-                loginData.userName = null
-                loginData.userEmail = null
-                loginData.userPassword = null
-            }
-            repository.updateLoginInfo(loginData)
         }
     }
 }

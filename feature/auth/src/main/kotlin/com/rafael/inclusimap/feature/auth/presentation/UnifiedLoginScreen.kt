@@ -452,6 +452,9 @@ fun RegistrationScreen(
     if (state.isLoggedIn && canLogin) {
         Toast.makeText(context, "Registrado com sucesso!", Toast.LENGTH_LONG).show()
     }
+    if (state.networkError && canLogin) {
+        Toast.makeText(context, "Ocorreu um erro na conexão!", Toast.LENGTH_LONG).show()
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -604,6 +607,9 @@ fun LoginScreen(
     }
     if (state.isLoggedIn && canLogin) {
         Toast.makeText(context, "Logado com sucesso!", Toast.LENGTH_LONG).show()
+    }
+    if (state.networkError && canLogin) {
+        Toast.makeText(context, "Ocorreu um erro na conexão!", Toast.LENGTH_LONG).show()
     }
 }
 
@@ -767,6 +773,9 @@ fun UpdatePasswordScreen(
     if (state.isSamePassword && canUpdate) {
         Toast.makeText(context, "A nova senha não pode ser igual a atual!", Toast.LENGTH_LONG)
             .show()
+    }
+    if (state.networkError && canUpdate) {
+        Toast.makeText(context, "Ocorreu um erro na conexão!", Toast.LENGTH_LONG).show()
     }
     if (state.isPasswordChanged) {
         Toast.makeText(context, "Senha atualizada com sucesso!", Toast.LENGTH_LONG).show()

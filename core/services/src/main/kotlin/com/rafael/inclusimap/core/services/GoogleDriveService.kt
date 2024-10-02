@@ -7,10 +7,13 @@ import com.google.api.services.drive.Drive
 import com.google.api.services.drive.model.File
 import com.google.auth.http.HttpCredentialsAdapter
 import com.google.auth.oauth2.GoogleCredentials
+import com.rafael.inclusimap.core.domain.network.Error
+import com.rafael.inclusimap.core.domain.network.NetworkError
 import java.io.FileNotFoundException
 import java.io.InputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.rafael.inclusimap.core.domain.network.Result
 
 class GoogleDriveService {
     val driveService: Drive
@@ -41,22 +44,26 @@ class GoogleDriveService {
 
     fun getFileMetadata(fileId: String): File? = driveService.files().get(fileId).execute()
 
-    fun listFiles(folderId: String): List<File> {
+    fun listFiles(folderId: String): Result<List<File>, Error> {
         val result = mutableListOf<File>()
         var pageToken: String? = null
 
-        do {
-            val request = driveService.files().list()
-                .setQ("'$folderId' in parents and trashed=false")
-                .setFields("nextPageToken, files(id, name)")
-                .setPageToken(pageToken)
+        return try {
+            do {
+                val request = driveService.files().list()
+                    .setQ("'$folderId' in parents and trashed=false")
+                    .setFields("nextPageToken, files(id, name)")
+                    .setPageToken(pageToken)
 
-            val files = request.execute()
-            result.addAll(files.files ?: emptyList())
-            pageToken = files.nextPageToken
-        } while (!pageToken.isNullOrEmpty())
-
-        return result
+                val files = request.execute()
+                result.addAll(files.files ?: emptyList())
+                pageToken = files.nextPageToken
+            } while (!pageToken.isNullOrEmpty())
+            Result.Success(result)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.Error(NetworkError.NO_INTERNET)
+        }
     }
 
     fun listSharedFolders(): List<File> {

@@ -17,4 +17,5 @@ data class LoginState(
     val isAccountDeleted: Boolean = false,
     val userAlreadyRegistered: Boolean = false,
     val isPasswordCorrect: Boolean = true,
+    var networkError: Boolean = false,
 )
