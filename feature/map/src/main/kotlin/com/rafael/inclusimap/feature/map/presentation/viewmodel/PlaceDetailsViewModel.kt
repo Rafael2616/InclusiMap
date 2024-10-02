@@ -58,7 +58,8 @@ class PlaceDetailsViewModel(
         _state.update {
             it.copy(
                 isCurrentPlaceLoaded = it.loadedPlaces.any { existingPlace -> existingPlace.id == place.id },
-                allImagesLoaded = it.loadedPlaces.any { existingPlace -> existingPlace.id == place.id },
+                allImagesLoaded = it.loadedPlaces.find { existingPlace -> existingPlace.id == place.id }?.images?.isNotEmpty()
+                    ?: false,
                 currentPlace = place,
                 loadedPlaces = state.value.loadedPlaces + place.toFullAccessibleLocalMarker(
                     emptyList(),
@@ -70,7 +71,7 @@ class PlaceDetailsViewModel(
         if (!_state.value.isCurrentPlaceLoaded) {
             loadImages(place)
         } else {
-            loadImagesFromCache()
+            loadImagesFromCache(place)
         }
         loadUserComment(place)
     }
@@ -154,6 +155,7 @@ class PlaceDetailsViewModel(
                                             PlaceImage(
                                                 userEmail = file.name.extractUserEmail(),
                                                 image = image,
+                                                placeID = it.currentPlace.id,
                                             ),
                                     ).also {
                                         println("Loading image ${file.name}")
@@ -187,11 +189,11 @@ class PlaceDetailsViewModel(
         }
     }
 
-    private fun loadImagesFromCache() {
+    private fun loadImagesFromCache(placeDetails: AccessibleLocalMarker) {
         viewModelScope.launch(Dispatchers.IO) {
             _state.update {
                 it.copy(
-                    currentPlaceImages = _state.value.loadedPlaces.find { place -> place.id == _state.value.currentPlace.id }?.images
+                    currentPlaceImages = _state.value.loadedPlaces.find { place -> place.id == placeDetails.id }?.images
                         ?: emptyList(),
                 ).also {
                     println("Loading images from cache + size: ${it.currentPlaceImages.size}")
@@ -207,6 +209,7 @@ class PlaceDetailsViewModel(
             BitmapFactory.decodeStream(
                 context.contentResolver.openInputStream(uri),
             ).asImageBitmap(),
+            _state.value.currentPlace.id,
         )
         _state.update {
             it.copy(
