@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Suppress("ktlint:compose:modifier-not-used-at-root")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -67,10 +68,10 @@ fun LogoutConfirmationDialog(
                     style = MaterialTheme.typography.titleLarge,
                 )
                 Text(
-                    text = "Será preciso logar novamente no proximo uso do app!",
+                    text = "Será preciso logar novamente no próximo uso do app!",
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -90,7 +91,10 @@ fun LogoutConfirmationDialog(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text(text = "Saindo...")
+                            Text(
+                                text = "Saindo...",
+                                fontSize = 14.sp,
+                            )
                             CircularProgressIndicator(
                                 modifier = Modifier.size(30.dp),
                             )
