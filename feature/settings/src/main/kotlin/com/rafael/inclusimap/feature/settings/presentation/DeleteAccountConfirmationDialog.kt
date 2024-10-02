@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import com.rafael.inclusimap.core.domain.model.DeleteProcess
 
@@ -140,6 +141,7 @@ fun DeleteAccountConfirmationDialog(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
+                                fontSize = 14.sp,
                                 text = if (!isLoginOut) {
                                     when (deleteStep) {
                                         DeleteProcess.NO_OP -> "Iniciando..."
