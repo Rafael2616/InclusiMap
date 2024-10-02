@@ -44,11 +44,12 @@ class GoogleDriveService {
 
     fun getFileMetadata(fileId: String): File? = driveService.files().get(fileId).execute()
 
-    fun listFiles(folderId: String): Result<List<File>, Error> {
+    suspend fun listFiles(folderId: String): Result<List<File>, Error> {
         val result = mutableListOf<File>()
         var pageToken: String? = null
 
-        return try {
+        return withContext(Dispatchers.IO) {
+            try {
             do {
                 val request = driveService.files().list()
                     .setQ("'$folderId' in parents and trashed=false")
@@ -64,6 +65,7 @@ class GoogleDriveService {
             e.printStackTrace()
             Result.Error(NetworkError.NO_INTERNET)
         }
+            }
     }
 
     fun listSharedFolders(): List<File> {

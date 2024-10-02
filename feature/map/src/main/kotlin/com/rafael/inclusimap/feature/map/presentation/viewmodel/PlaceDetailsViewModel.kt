@@ -87,7 +87,7 @@ class PlaceDetailsViewModel(
                 delay(350)
             }.await()
         }.invokeOnCompletion {
-            if (!state.value.isCurrentPlaceLoaded) {
+            if (!state.value.isCurrentPlaceLoaded || state.value.loadedPlaces.find { existingPlace -> existingPlace.id == place.id }?.images?.isEmpty() == true) {
                 loadImages(place)
             } else {
                 loadImagesFromCache(place)
@@ -131,19 +131,18 @@ class PlaceDetailsViewModel(
     }
 
     private fun loadImages(placeDetails: AccessibleLocalMarker) {
+        _state.update { it.copy(allImagesLoaded = false) }
         viewModelScope.launch(Dispatchers.IO) {
             async {
                 driveService.listFiles(
                     INCLUSIMAP_IMAGE_FOLDER_ID,
-                ).onSuccess { result ->
-                    result.map { it }.also { imageRepositoryFolder ->
+                ).onSuccess { imageRepositoryFolder ->
                     _state.update {
                         it.copy(
-                            inclusiMapImageRepositoryFolder = imageRepositoryFolder
+                            inclusiMapImageRepositoryFolder = imageRepositoryFolder,
                         )
                     }
                 }
-                    }
             }.await()
             _state.update {
                 it.copy(
@@ -155,7 +154,8 @@ class PlaceDetailsViewModel(
                 )
             }
             if (_state.value.currentPlace.imageFolderId.isNullOrEmpty() ||
-                when (val result = driveService.listFiles(_state.value.currentPlace.imageFolderId!!)) {
+                when (val result =
+                    driveService.listFiles(_state.value.currentPlace.imageFolderId!!)) {
                     is Result.Success -> result.data.isEmpty()
                     is Result.Error -> {
                         true
@@ -166,7 +166,7 @@ class PlaceDetailsViewModel(
                 println("No images found for place ${placeDetails.title} ${placeDetails.id}")
                 return@launch
             }
-            viewModelScope.launch {
+            async {
                 val folderId = state.value.currentPlace.imageFolderId
                 folderId?.let {
                     when (val result = driveService.listFiles(folderId)) {
@@ -174,16 +174,17 @@ class PlaceDetailsViewModel(
                             _state.update {
                                 it.copy(
                                     currentPlace = it.currentPlace.copy(
-                                        imageFolder = result.data
-                                    )
+                                        imageFolder = result.data,
+                                    ),
                                 )
                             }
                         }
+
                         is Result.Error -> {
                         }
                     }
                 }
-            }
+            }.await()
 
             _state.value.currentPlace.imageFolder?.map { file ->
                 println("Loading image ${file.name}")
@@ -325,9 +326,11 @@ class PlaceDetailsViewModel(
             val folderId = state.value.currentPlace.imageFolderId.orEmpty()
             when (val result = driveService.listFiles(folderId)) {
                 is Result.Success -> {
-                    val imageId = result.data.find { it.name.extractUserEmail() == image.userEmail }?.id.orEmpty()
+                    val imageId =
+                        result.data.find { it.name.extractUserEmail() == image.userEmail }?.id.orEmpty()
                     driveService.deleteFile(imageId)
                 }
+
                 is Result.Error -> {
                 }
             }
