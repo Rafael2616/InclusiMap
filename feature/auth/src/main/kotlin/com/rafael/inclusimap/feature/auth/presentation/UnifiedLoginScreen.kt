@@ -26,6 +26,8 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -209,6 +211,9 @@ fun RegistrationScreen(
             "Já existe um usuário cadastrado com esse email!",
             Toast.LENGTH_LONG,
         )
+    var termsAndConditionsAccepted by remember { mutableStateOf(true) }
+    val termsAndConditionsNotAllowedToast =
+        Toast.makeText(context, "Aceite os termos e condições", Toast.LENGTH_SHORT)
 
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
@@ -352,6 +357,45 @@ fun RegistrationScreen(
                         onGoToLogin()
                     },
             )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "Li e aceito os ",
+                    fontSize = 12.sp,
+                )
+                Text(
+                    text = "Termos e condições",
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.primary,
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier
+                        .clickable {
+                            Toast.makeText(
+                                context,
+                                "Termos e condições: Em breve",
+                                Toast.LENGTH_SHORT,
+                            ).show()
+                        },
+                )
+                Checkbox(
+                    checked = termsAndConditionsAccepted,
+                    onCheckedChange = {
+                        termsAndConditionsAccepted = !termsAndConditionsAccepted
+                        canLogin = false
+                    },
+                    colors = CheckboxDefaults.colors(
+                        uncheckedColor = if (canLogin && !termsAndConditionsAccepted) {
+                            MaterialTheme.colorScheme.error
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                    ),
+                )
+            }
         }
         Row(
             modifier = Modifier
@@ -382,6 +426,10 @@ fun RegistrationScreen(
                     }
                     if (!isValidPassword) {
                         invalidPasswordToast.show()
+                        return@Button
+                    }
+                    if (!termsAndConditionsAccepted) {
+                        termsAndConditionsNotAllowedToast.show()
                         return@Button
                     }
                     onRegister(
