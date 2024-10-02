@@ -37,6 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.android.gms.maps.model.LatLng
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
+import com.rafael.inclusimap.core.domain.model.FullAccessibleLocalMarker
+import com.rafael.inclusimap.core.domain.model.toAccessibleLocalMarker
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsState
 import java.util.Date
 import kotlin.uuid.ExperimentalUuidApi
@@ -86,7 +88,7 @@ fun AddEditPlaceBottomSheet(
                         onClick = {
                             focusManager.clearFocus()
                             Toast.makeText(context, "Excluindo local...", Toast.LENGTH_SHORT).show()
-                            onDeletePlace(placeDetailsState.currentPlace.id)
+                            onDeletePlace(placeDetailsState.currentPlace.id!!)
                         },
                         modifier = Modifier.align(Alignment.CenterVertically),
                     ) {
@@ -163,7 +165,7 @@ fun AddEditPlaceBottomSheet(
                                 placeDetailsState.currentPlace.copy(
                                     title = placeName,
                                     category = placeCategory,
-                                ),
+                                ).toAccessibleLocalMarker(),
                             )
                             Toast.makeText(context, "Atualizando local...", Toast.LENGTH_SHORT)
                                 .show()

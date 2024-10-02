@@ -10,4 +10,5 @@ android.namespace = "com.rafael.inclusimap.core.domain"
 dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.maps.compose)
+    implementation(libs.google.api.services.drive)
 }

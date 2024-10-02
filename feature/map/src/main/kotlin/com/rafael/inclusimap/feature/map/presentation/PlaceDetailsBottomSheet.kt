@@ -81,6 +81,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
+import com.rafael.inclusimap.core.domain.model.toAccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.util.toColor
 import com.rafael.inclusimap.core.domain.model.util.toMessage
 import com.rafael.inclusimap.feature.map.domain.InclusiMapState
@@ -141,8 +142,8 @@ fun PlaceDetailsBottomSheet(
     }
 
     LaunchedEffect(state.currentPlace) {
-        if (state.currentPlace != currentPlace) {
-            latestUpdateMappedPlace(state.currentPlace)
+        if (state.currentPlace.toAccessibleLocalMarker() != currentPlace) {
+            latestUpdateMappedPlace(state.currentPlace.toAccessibleLocalMarker())
         }
     }
 
@@ -240,7 +241,7 @@ fun PlaceDetailsBottomSheet(
                         ),
                         horizontalItemSpacing = 8.dp,
                     ) {
-                        state.currentPlaceImages.forEach { image ->
+                        state.currentPlace.images.forEach { image ->
                             image?.let {
                                 item {
                                     var showRemoveImageBtn by remember { mutableStateOf(false) }
@@ -312,7 +313,7 @@ fun PlaceDetailsBottomSheet(
                                 horizontalArrangement = Arrangement.Center,
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                if (state.currentPlaceImages.isEmpty() && state.allImagesLoaded) {
+                                if (state.currentPlace.images.isEmpty() && state.allImagesLoaded) {
                                     Text(
                                         text = "Nenhuma imagem disponível desse local",
                                         fontSize = 14.sp,
@@ -646,7 +647,7 @@ fun PlaceDetailsBottomSheet(
     }
     AnimatedVisibility(showPlaceInfo) {
         PlaceInfoDialog(
-            localMarker = state.currentPlace,
+            localMarker = state.currentPlace.toAccessibleLocalMarker(),
             onDismiss = {
                 showPlaceInfo = false
             },
