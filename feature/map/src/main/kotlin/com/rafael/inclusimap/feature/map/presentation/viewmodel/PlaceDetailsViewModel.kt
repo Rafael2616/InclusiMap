@@ -159,7 +159,7 @@ class PlaceDetailsViewModel(
                 it.copy(
                     currentPlace = it.currentPlace.copy(
                         imageFolder = driveService.listFiles(
-                            state.value.currentPlace.imageFolderId!!,
+                            state.value.currentPlace.imageFolderId ?: return@launch,
                         ),
                     ),
                 )
