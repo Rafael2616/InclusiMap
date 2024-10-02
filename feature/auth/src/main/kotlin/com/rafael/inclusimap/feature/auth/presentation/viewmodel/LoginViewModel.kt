@@ -52,6 +52,7 @@ class LoginViewModel(
                 }
             }
         }
+        checkUserExists()
     }
 
     fun onEvent(event: LoginEvent) {
@@ -492,6 +493,26 @@ class LoginViewModel(
             }.invokeOnCompletion {
                 logout()
             }
+        }
+    }
+
+    private fun checkUserExists() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val userExists = driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).find {
+                it.name == _state.value.user?.email
+            }
+            _state.update {
+                it.copy(isLoggedIn = userExists != null)
+            }
+            val loginData = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
+            loginData.isLoggedIn = userExists != null
+            if (userExists == null) {
+                loginData.userId = null
+                loginData.userName = null
+                loginData.userEmail = null
+                loginData.userPassword = null
+            }
+            repository.updateLoginInfo(loginData)
         }
     }
 }

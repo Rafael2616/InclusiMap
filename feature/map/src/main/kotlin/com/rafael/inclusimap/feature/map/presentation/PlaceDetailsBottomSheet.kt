@@ -176,18 +176,22 @@ fun PlaceDetailsBottomSheet(
                     )
                 }
                 if (state.currentPlace.authorEmail == userEmail) {
-                    IconButton(onClick = {
-                        latestEvent(PlaceDetailsEvent.SetIsEditingPlace(true))
-                    }) {
+                    IconButton(
+                        onClick = {
+                            latestEvent(PlaceDetailsEvent.SetIsEditingPlace(true))
+                        },
+                    ) {
                         Icon(
                             imageVector = Icons.Outlined.Edit,
                             contentDescription = null,
                         )
                     }
                 }
-                IconButton(onClick = {
-                    showPlaceInfo = true
-                }) {
+                IconButton(
+                    onClick = {
+                        showPlaceInfo = true
+                    },
+                ) {
                     Icon(
                         imageVector = Icons.Outlined.Info,
                         contentDescription = null,
