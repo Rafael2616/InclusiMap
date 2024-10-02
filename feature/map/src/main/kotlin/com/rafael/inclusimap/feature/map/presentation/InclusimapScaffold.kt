@@ -1,5 +1,6 @@
 package com.rafael.inclusimap.feature.map.presentation
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Explore
@@ -18,6 +19,7 @@ import com.rafael.inclusimap.feature.map.domain.InclusiMapState
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchEvent
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchState
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun InclusiMapScaffold(
     state: InclusiMapState,
@@ -78,7 +80,7 @@ fun InclusiMapScaffold(
                 }
             }
         },
-    ) { innerPadding ->
+    ) {
         content()
     }
 }
