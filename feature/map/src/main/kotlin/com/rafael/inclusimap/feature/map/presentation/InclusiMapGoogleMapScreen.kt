@@ -98,7 +98,7 @@ fun InclusiMapGoogleMapScreen(
     val addPlaceBottomSheetScaffoldState = rememberModalBottomSheetState()
     val addPlaceBottomSheetScope = rememberCoroutineScope()
     val locationPermission = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
-    val showMarkers by remember(cameraPositionState.isMoving) { mutableStateOf(cameraPositionState.position.zoom >= 15f) }
+    val showMarkers by remember(cameraPositionState.isMoving, state.allMappedPlaces) { mutableStateOf(cameraPositionState.position.zoom >= 15f) }
     val latestOnEvent by rememberUpdatedState(onEvent)
     val latestOnPlaceDetailsEvent by rememberUpdatedState(onPlaceDetailsEvent)
     val latestOnDismissAppIntro by rememberUpdatedState(onDismissAppIntro)
