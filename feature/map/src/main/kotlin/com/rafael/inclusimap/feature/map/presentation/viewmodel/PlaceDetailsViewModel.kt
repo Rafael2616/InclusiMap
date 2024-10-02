@@ -268,6 +268,11 @@ class PlaceDetailsViewModel(
     }
 
     private fun onSendComment() {
+        if (_state.value.userComment.isEmpty()) {
+            _state.update { it.copy(trySendComment = true) }
+            return
+        }
+
         _state.update {
             it.copy(
                 trySendComment = true,
@@ -276,7 +281,7 @@ class PlaceDetailsViewModel(
                 ),
             )
         }
-        if (state.value.userComment.isNotEmpty() && state.value.userAccessibilityRate != 0) {
+        if (state.value.userAccessibilityRate != 0) {
             val userComment =
                 Comment(
                     postDate = System.currentTimeMillis()

@@ -473,6 +473,14 @@ fun PlaceDetailsBottomSheet(
                                         IconButton(
                                             onClick = {
                                                 latestEvent(PlaceDetailsEvent.OnSendComment)
+                                                if (state.userComment.isEmpty()) {
+                                                    Toast.makeText(
+                                                        context,
+                                                        "O comentário está vazio!",
+                                                        Toast.LENGTH_SHORT,
+                                                    ).show()
+                                                    return@IconButton
+                                                }
                                                 Toast.makeText(
                                                     context,
                                                     "Comentário adicionado!",
