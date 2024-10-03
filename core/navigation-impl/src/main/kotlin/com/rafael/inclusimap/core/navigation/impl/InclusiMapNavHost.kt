@@ -27,7 +27,7 @@ import com.rafael.inclusimap.feature.intro.presentation.viewmodel.AppIntroViewMo
 import com.rafael.inclusimap.feature.libraryinfo.presentation.LibraryScreen
 import com.rafael.inclusimap.feature.libraryinfo.presentation.viewmodel.LibraryViewModel
 import com.rafael.inclusimap.feature.map.presentation.InclusiMapGoogleMapScreen
-import com.rafael.inclusimap.feature.map.presentation.viewmodel.InclusiMapGoogleMapScreenViewModel
+import com.rafael.inclusimap.feature.map.presentation.viewmodel.InclusiMapGoogleMapViewModel
 import com.rafael.inclusimap.feature.map.presentation.viewmodel.PlaceDetailsViewModel
 import com.rafael.inclusimap.feature.map.search.presentation.viewmodel.SearchViewModel
 import com.rafael.inclusimap.feature.settings.presentation.SettingsScreen
@@ -50,7 +50,7 @@ fun InclusiMapNavHost(
     KoinContext {
         val appIntroViewModel = koinViewModel<AppIntroViewModel>()
         val appIntroState by appIntroViewModel.state.collectAsStateWithLifecycle()
-        val mapViewModel = koinViewModel<InclusiMapGoogleMapScreenViewModel>()
+        val mapViewModel = koinViewModel<InclusiMapGoogleMapViewModel>()
         val mapState by mapViewModel.state.collectAsStateWithLifecycle()
         val placeDetailsViewModel = koinViewModel<PlaceDetailsViewModel>()
         val placeDetailsState by placeDetailsViewModel.state.collectAsStateWithLifecycle()

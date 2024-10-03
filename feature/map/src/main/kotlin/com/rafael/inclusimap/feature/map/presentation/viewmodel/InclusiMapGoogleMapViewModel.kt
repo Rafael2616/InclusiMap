@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class InclusiMapGoogleMapScreenViewModel(
+class InclusiMapGoogleMapViewModel(
     private val accessibleLocalsRepository: AccessibleLocalsRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(InclusiMapState())
