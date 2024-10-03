@@ -35,6 +35,7 @@ class InclusiMapGoogleMapScreenViewModel(
             is InclusiMapEvent.OnUpdateMappedPlace -> onUpdateMappedPlace(event.placeUpdated)
             is InclusiMapEvent.OnDeleteMappedPlace -> onDeleteMappedPlace(event.placeId)
             is InclusiMapEvent.OnFailToLoadPlaces -> onLoadPlaces()
+            is InclusiMapEvent.OnFailToConnectToServer -> onLoadPlaces()
         }
     }
 
@@ -48,20 +49,27 @@ class InclusiMapGoogleMapScreenViewModel(
     }
 
     private fun onLoadPlaces() {
-        _state.update { it.copy(failedToLoadPlaces = false) }
+        _state.update { it.copy(
+            failedToLoadPlaces = false,
+            failedToConnectToServer = false,
+        ) }
         viewModelScope.launch(Dispatchers.IO) {
-            accessibleLocalsRepository.getAccessibleLocals()?.let { mappedPlaces ->
-                _state.update { it.copy(allMappedPlaces = mappedPlaces,) }
+            accessibleLocalsRepository.getAccessibleLocals().let { mappedPlaces ->
+                if (mappedPlaces == null) {
+                    _state.update { it.copy(failedToConnectToServer = true) }
+                    return@launch
+                }
+                _state.update { it.copy(allMappedPlaces = mappedPlaces) }
             }
         }.invokeOnCompletion {
-            if (_state.value.allMappedPlaces.isEmpty()) {
-                _state.update { it.copy(failedToLoadPlaces = true,) }
+            if (_state.value.allMappedPlaces.isEmpty() && !_state.value.failedToConnectToServer) {
+                _state.update { it.copy(failedToLoadPlaces = true) }
             }
         }
     }
 
     private fun onMapLoad() {
-        _state.update { it.copy(isMapLoaded = true,) }
+        _state.update { it.copy(isMapLoaded = true) }
     }
 
     private fun onMappedPlaceSelected(place: AccessibleLocalMarker) {

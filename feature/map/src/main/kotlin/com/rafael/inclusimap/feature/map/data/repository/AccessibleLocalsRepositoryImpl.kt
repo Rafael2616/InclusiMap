@@ -30,7 +30,11 @@ class AccessibleLocalsRepositoryImpl(
                         .find { it.name == "places.json" }
                         ?.let { file ->
                             driveService.getFileContent(file.id)?.decodeToString()?.let { content ->
-                                json.decodeFromString<List<AccessibleLocalMarker>>(content)
+                                try {
+                                    json.decodeFromString<List<AccessibleLocalMarker>>(content)
+                                } catch (e: Exception) {
+                                    null
+                                }
                             }
                         }
                 }
