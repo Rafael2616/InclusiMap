@@ -134,7 +134,7 @@ class LoginViewModel(
                 )
             }.await()
             // Artificial Delay
-            delay(600L)
+            delay(500L)
         }.invokeOnCompletion {
             if (!_state.value.userAlreadyRegistered && !_state.value.networkError) {
                 viewModelScope.launch(Dispatchers.IO) {
@@ -154,12 +154,8 @@ class LoginViewModel(
                         )
                     }
                 }
-                _state.update {
-                    it.copy(
-                        isRegistering = false,
-                    )
-                }
             }
+            _state.update { it.copy(isRegistering = false) }
         }
     }
 
@@ -177,7 +173,7 @@ class LoginViewModel(
                 driveService.listFiles(
                     INCLUSIMAP_USERS_FOLDER_ID,
                 ).onSuccess { result ->
-                    result.map { it }.any { userFile ->
+                    result.any { userFile ->
                         _state.update {
                             it.copy(
                                 userAlreadyRegistered =
@@ -400,6 +396,15 @@ class LoginViewModel(
                     }?.let {
                         driveService.deleteFile(it.id)
                     }
+                }.onError {
+                    _state.update {
+                        it.copy(
+                            deleteStep = DeleteProcess.ERROR,
+                            isDeletingAccount = false,
+                            isAccountDeleted = false,
+                            networkError = true,
+                        )
+                    }
                 }
             }.invokeOnCompletion {
                 if (it != null) {
@@ -582,7 +587,6 @@ class LoginViewModel(
                     }
                 }
             }.invokeOnCompletion {
-                _state.update { it.copy(deleteStep = DeleteProcess.NO_OP) }
                 if (!_state.value.networkError) {
                     logout()
                 }

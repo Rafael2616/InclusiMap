@@ -105,6 +105,7 @@ fun LoginScreen(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Next,
                 ),
+                enabled = !state.isRegistering,
             )
             TextField(
                 value = password,
@@ -147,6 +148,7 @@ fun LoginScreen(
                         focusManager.clearFocus()
                     },
                 ),
+                enabled = !state.isRegistering,
             )
             Text(
                 text = "Cadastre-se",

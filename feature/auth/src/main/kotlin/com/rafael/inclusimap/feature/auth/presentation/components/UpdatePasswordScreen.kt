@@ -121,6 +121,7 @@ fun UpdatePasswordScreen(
                         )
                     }
                 },
+                enabled = !state.isUpdatingPassword,
             )
             TextField(
                 value = confirmPassword,
@@ -151,6 +152,7 @@ fun UpdatePasswordScreen(
                         focusManager.clearFocus()
                     },
                 ),
+                enabled = !state.isUpdatingPassword,
             )
             Text(
                 text = "A senha deve conter pelo menos 8 dígitos, sendo: 1 letra maiuscula, 1 caractere especial e 1 número",
@@ -177,6 +179,7 @@ fun UpdatePasswordScreen(
                     onClick = {
                         onCancel()
                     },
+                    enabled = !state.isUpdatingPassword,
                 ) {
                     Text(text = "Cancelar")
                 }

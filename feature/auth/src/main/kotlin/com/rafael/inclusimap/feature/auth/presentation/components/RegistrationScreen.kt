@@ -122,6 +122,7 @@ fun RegistrationScreen(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next,
                 ),
+                enabled = !state.isRegistering,
             )
             TextField(
                 value = email,
@@ -136,12 +137,13 @@ fun RegistrationScreen(
                 placeholder = {
                     Text(text = "E-mail")
                 },
-                isError = canLogin && email.isEmpty() || state.userAlreadyRegistered || !isValidEmail,
+                isError = canLogin && (email.isEmpty() || state.userAlreadyRegistered) || !isValidEmail,
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Next,
                 ),
+                enabled = !state.isRegistering,
             )
             TextField(
                 value = password,
@@ -180,6 +182,7 @@ fun RegistrationScreen(
                     capitalization = KeyboardCapitalization.Words,
                     imeAction = ImeAction.Next,
                 ),
+                enabled = !state.isRegistering,
             )
             TextField(
                 value = confirmPassword,
@@ -210,6 +213,7 @@ fun RegistrationScreen(
                         focusManager.clearFocus()
                     },
                 ),
+                enabled = !state.isRegistering,
             )
             Text(
                 text = "A senha deve conter pelo menos 8 dígitos, sendo: 1 letra maiuscula, 1 caractere especial e 1 número",
@@ -266,6 +270,7 @@ fun RegistrationScreen(
                             MaterialTheme.colorScheme.onSurfaceVariant
                         },
                     ),
+                    enabled = !state.isRegistering,
                 )
             }
         }
