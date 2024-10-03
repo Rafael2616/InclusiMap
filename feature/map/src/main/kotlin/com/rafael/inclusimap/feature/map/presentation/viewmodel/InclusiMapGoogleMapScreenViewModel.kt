@@ -26,14 +26,15 @@ class InclusiMapGoogleMapScreenViewModel(
                 event.isMyLocationFounded,
             )
 
-            InclusiMapEvent.OnMapLoaded -> onMapLoaded()
+            InclusiMapEvent.OnLoadPlaces -> onLoadPlaces()
+            InclusiMapEvent.OnMapLoad -> onMapLoad()
             is InclusiMapEvent.OnMappedPlaceSelected -> onMappedPlaceSelected(event.place)
             is InclusiMapEvent.OnUnmappedPlaceSelected -> onUnmappedPlaceSelected(event.latLng)
             is InclusiMapEvent.OnAddNewMappedPlace -> onAddNewMappedPlace(event.newPlace)
             is InclusiMapEvent.SetLocationPermissionGranted -> setLocationPermissionGranted(event.isGranted)
             is InclusiMapEvent.OnUpdateMappedPlace -> onUpdateMappedPlace(event.placeUpdated)
             is InclusiMapEvent.OnDeleteMappedPlace -> onDeleteMappedPlace(event.placeId)
-            is InclusiMapEvent.OnFailToLoadPlaces -> onMapLoaded()
+            is InclusiMapEvent.OnFailToLoadPlaces -> onLoadPlaces()
         }
     }
 
@@ -46,26 +47,21 @@ class InclusiMapGoogleMapScreenViewModel(
         }
     }
 
-    private fun onMapLoaded() {
+    private fun onLoadPlaces() {
         _state.update { it.copy(failedToLoadPlaces = false) }
         viewModelScope.launch(Dispatchers.IO) {
             accessibleLocalsRepository.getAccessibleLocals()?.let { mappedPlaces ->
-                _state.update {
-                    it.copy(
-                        allMappedPlaces = mappedPlaces,
-                        isMapLoaded = true,
-                    )
-                }
+                _state.update { it.copy(allMappedPlaces = mappedPlaces,) }
             }
         }.invokeOnCompletion {
             if (_state.value.allMappedPlaces.isEmpty()) {
-                _state.update {
-                    it.copy(
-                        failedToLoadPlaces = true,
-                    )
-                }
+                _state.update { it.copy(failedToLoadPlaces = true,) }
             }
         }
+    }
+
+    private fun onMapLoad() {
+        _state.update { it.copy(isMapLoaded = true,) }
     }
 
     private fun onMappedPlaceSelected(place: AccessibleLocalMarker) {

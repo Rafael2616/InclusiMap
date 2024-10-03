@@ -24,6 +24,7 @@ import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -98,7 +99,10 @@ fun InclusiMapGoogleMapScreen(
     val addPlaceBottomSheetScaffoldState = rememberModalBottomSheetState()
     val addPlaceBottomSheetScope = rememberCoroutineScope()
     val locationPermission = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
-    val showMarkers by remember(!cameraPositionState.isMoving, state.allMappedPlaces) { mutableStateOf(cameraPositionState.position.zoom >= 15f) }
+    val showMarkers by remember(
+        !cameraPositionState.isMoving,
+        state.allMappedPlaces,
+    ) { mutableStateOf(cameraPositionState.position.zoom >= 15f) }
     val latestOnEvent by rememberUpdatedState(onEvent)
     val latestOnPlaceDetailsEvent by rememberUpdatedState(onPlaceDetailsEvent)
     val latestOnDismissAppIntro by rememberUpdatedState(onDismissAppIntro)
@@ -286,7 +290,7 @@ fun InclusiMapGoogleMapScreen(
             },
             mapColorScheme = if (settingsState.isDarkThemeOn) ComposeMapColorScheme.DARK else ComposeMapColorScheme.LIGHT,
             onMapLoaded = {
-                latestOnEvent(InclusiMapEvent.OnMapLoaded)
+                latestOnEvent(InclusiMapEvent.OnMapLoad)
                 if (!appIntroState.showAppIntro) {
                     locationPermission.launchPermissionRequest()
                 }
@@ -401,5 +405,10 @@ fun InclusiMapGoogleMapScreen(
     }
     if (searchState.expanded) {
         focusRequester.requestFocus()
+    }
+
+    DisposableEffect(state.allMappedPlaces.isEmpty()) {
+        latestOnEvent(InclusiMapEvent.OnLoadPlaces)
+        onDispose { }
     }
 }

@@ -5,7 +5,7 @@ import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 
 sealed interface InclusiMapEvent {
     data class UpdateMapCameraPosition(val latLng: LatLng, val isMyLocationFounded: Boolean) : InclusiMapEvent
-    data object OnMapLoaded : InclusiMapEvent
+    data object OnLoadPlaces : InclusiMapEvent
     data class OnMappedPlaceSelected(val place: AccessibleLocalMarker) : InclusiMapEvent
     data class OnUnmappedPlaceSelected(val latLng: LatLng) : InclusiMapEvent
     data class OnAddNewMappedPlace(val newPlace: AccessibleLocalMarker) : InclusiMapEvent
@@ -13,4 +13,5 @@ sealed interface InclusiMapEvent {
     data class OnUpdateMappedPlace(val placeUpdated: AccessibleLocalMarker) : InclusiMapEvent
     data class OnDeleteMappedPlace(val placeId: String) : InclusiMapEvent
     data class OnFailToLoadPlaces(val isFailed: Boolean) : InclusiMapEvent
+    data object OnMapLoad : InclusiMapEvent
 }
