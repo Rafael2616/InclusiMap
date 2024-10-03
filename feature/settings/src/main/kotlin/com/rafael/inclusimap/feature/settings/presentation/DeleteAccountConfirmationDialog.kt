@@ -188,7 +188,7 @@ fun DeleteAccountConfirmationDialog(
     if (networkError && deleteStep == DeleteProcess.ERROR) {
         Toast.makeText(context, "Ocorreu um erro durante a exclusão, tente novamente!", Toast.LENGTH_LONG).show()
     }
-    if (deleteStep == DeleteProcess.SUCCESS) {
+    if (deleteStep == DeleteProcess.SUCCESS && !deleteProcessStarted) {
         Toast.makeText(context, "Conta deletada com sucesso!", Toast.LENGTH_LONG).show()
     }
 }
