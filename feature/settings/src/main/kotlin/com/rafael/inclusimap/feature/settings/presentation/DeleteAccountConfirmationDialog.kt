@@ -150,8 +150,8 @@ fun DeleteAccountConfirmationDialog(
                                         DeleteProcess.NO_OP -> "Iniciando..."
                                         DeleteProcess.DELETING_USER_INFO -> "Deletando suas informações..."
                                         DeleteProcess.DELETING_USER_COMMENTS -> "Deletando seus comentários..."
-                                        DeleteProcess.DELETING_USER_LOCAL_MARKERS -> "Deletando seus locais cadastrados..."
-                                        DeleteProcess.DELETING_USER_IMAGES -> "Deletando suas imagens postadas..."
+                                        DeleteProcess.DELETING_USER_LOCAL_MARKERS -> "Deletando locais cadastrados..."
+                                        DeleteProcess.DELETING_USER_IMAGES -> "Deletando imagens postadas..."
                                         DeleteProcess.SUCCESS -> "Conta deletada!"
                                         DeleteProcess.ERROR -> "Ocorreu um erro, tente novamente!"
                                     }

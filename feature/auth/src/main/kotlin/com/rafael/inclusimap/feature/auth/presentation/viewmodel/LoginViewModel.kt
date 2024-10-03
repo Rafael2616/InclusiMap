@@ -556,10 +556,9 @@ class LoginViewModel(
                                     deleteStep = DeleteProcess.ERROR,
                                     isDeletingAccount = false,
                                     isAccountDeleted = false,
+                                    networkError = true
                                 )
                             }
-                        } else {
-                            _state.update { it.copy(networkError = true) }
                         }
                     }
                 }
