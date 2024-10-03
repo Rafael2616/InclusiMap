@@ -196,6 +196,9 @@ class PlaceDetailsViewModel(
                         options.inSampleSize = 3
                         BitmapFactory.decodeStream(fileContent, null, options)
                             ?.asImageBitmap()?.also { image ->
+                                if (placeDetails.id != _state.value.currentPlace.id) {
+                                    return@async
+                                }
                                 _state.update {
                                     it.copy(
                                         currentPlace = it.currentPlace.copy(
