@@ -198,6 +198,7 @@ fun UpdatePasswordScreen(
                     }
                     onUpdatePassword(password)
                 },
+                enabled = !state.isUpdatingPassword,
             ) {
                 Text(text = "Atualizar")
             }

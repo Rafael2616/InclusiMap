@@ -91,18 +91,13 @@ class LoginViewModel(
             password = newUser.password,
         )
         viewModelScope.launch(Dispatchers.IO) {
-            _state.update {
-                it.copy(isRegistering = false)
-            }
             driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID)
                 .onSuccess { result ->
-                    result
-                        .map { it }
-                        .any { userFile ->
-                            _state.update {
-                                it.copy(userAlreadyRegistered = userFile.name.split(".json")[0] == newUser.email)
-                            }.let { true }
-                        }
+                    result.any { userFile ->
+                        _state.update {
+                            it.copy(userAlreadyRegistered = userFile.name.split(".json")[0] == newUser.email)
+                        }.let { true }
+                    }
                 }
                 .onError {
                     _state.update {
@@ -138,6 +133,8 @@ class LoginViewModel(
                         ?: throw IllegalStateException("Folder not found: Maybe an issue has occurred while creating the folder"),
                 )
             }.await()
+            // Artificial Delay
+            delay(600L)
         }.invokeOnCompletion {
             if (!_state.value.userAlreadyRegistered && !_state.value.networkError) {
                 viewModelScope.launch(Dispatchers.IO) {
@@ -393,10 +390,12 @@ class LoginViewModel(
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
+            delay(300L)
             // Delete user info from Google Drive
+            _state.update { it.copy(deleteStep = DeleteProcess.DELETING_USER_INFO) }
             async {
                 driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { result ->
-                    result.map { it }.find { userFile ->
+                    result.find { userFile ->
                         userFile.name == _state.value.user?.email
                     }?.let {
                         driveService.deleteFile(it.id)
@@ -417,10 +416,6 @@ class LoginViewModel(
                         _state.update {
                             it.copy(deleteStep = DeleteProcess.SUCCESS)
                         }
-                    } else {
-                        _state.update {
-                            it.copy(deleteStep = DeleteProcess.DELETING_USER_INFO)
-                        }
                     }
                 }
             }
@@ -429,12 +424,12 @@ class LoginViewModel(
 
             async {
                 // Delete user posted places
+                _state.update { it.copy(deleteStep = DeleteProcess.DELETING_USER_LOCAL_MARKERS) }
                 val json = Json { ignoreUnknownKeys = true }
                 driveService.listFiles(INCLUSIMAP_PLACE_DATA_FOLDER_ID).onSuccess { result ->
-                    result.map { it }.find {
+                    result.find {
                         it.name == "places.json"
                     }.also { places ->
-
                         val placesContent = places?.run {
                             val content = driveService.getFileContent(this.id)?.decodeToString()
                             json.decodeFromString<List<AccessibleLocalMarker>>(
@@ -472,26 +467,22 @@ class LoginViewModel(
                             isAccountDeleted = false,
                         )
                     }
-                } else {
-                    _state.update { it.copy(deleteStep = DeleteProcess.DELETING_USER_LOCAL_MARKERS) }
                 }
                 async {
                     // Delete user posted images
+                    _state.update { it.copy(deleteStep = DeleteProcess.DELETING_USER_IMAGES) }
                     driveService.listFiles(INCLUSIMAP_IMAGE_FOLDER_ID).onSuccess { result ->
                         result.map { it }.also { places ->
                             places.forEach { place ->
-                                driveService.listFiles(place.id).onSuccess { result ->
-                                    result.map { it }
-                                        .also { images ->
-                                            images.filter { image ->
-                                                image.name.extractUserEmail() == _state.value.user?.email
-                                            }.also { userImages ->
-                                                userImages.forEach {
-                                                    println("Deleting file: ${it.name} - ${it.id} posted by user ${_state.value.user?.email}")
-                                                    async { driveService.deleteFile(it.id) }.await()
-                                                }
-                                            }
+                                driveService.listFiles(place.id).onSuccess { images ->
+                                    images.filter { image ->
+                                        image.name.extractUserEmail() == _state.value.user?.email
+                                    }.also { userImages ->
+                                        userImages.forEach {
+                                            println("Deleting file: ${it.name} - ${it.id} posted by user ${_state.value.user?.email}")
+                                            async { driveService.deleteFile(it.id) }.await()
                                         }
+                                    }
                                 }
                             }
                         }
@@ -514,16 +505,15 @@ class LoginViewModel(
                                 isAccountDeleted = false,
                             )
                         }
-                    } else {
-                        _state.update { it.copy(deleteStep = DeleteProcess.DELETING_USER_IMAGES) }
                     }
 
                     async {
                         // Delete user comments
+                        _state.update { it.copy(deleteStep = DeleteProcess.DELETING_USER_COMMENTS) }
                         val json = Json { ignoreUnknownKeys = true }
                         driveService.listFiles(INCLUSIMAP_PLACE_DATA_FOLDER_ID)
                             .onSuccess { result ->
-                                result.map { it }.find {
+                                result.find {
                                     it.name == "places.json"
                                 }.also { places ->
                                     val placesContent = places?.run {
@@ -545,7 +535,15 @@ class LoginViewModel(
                                         "places.json",
                                         updatedPlaces.toByteArray().inputStream(),
                                     )
-                                    _state.update { it.copy(deleteStep = DeleteProcess.DELETING_USER_COMMENTS) }
+                                }
+                            }.onError {
+                                _state.update {
+                                    it.copy(
+                                        deleteStep = DeleteProcess.ERROR,
+                                        isDeletingAccount = false,
+                                        isAccountDeleted = false,
+                                        networkError = true,
+                                    )
                                 }
                             }
                     }.invokeOnCompletion {
@@ -556,7 +554,6 @@ class LoginViewModel(
                                     deleteStep = DeleteProcess.ERROR,
                                     isDeletingAccount = false,
                                     isAccountDeleted = false,
-                                    networkError = true
                                 )
                             }
                         }
@@ -580,9 +577,9 @@ class LoginViewModel(
                             isDeletingAccount = false,
                             deleteStep = DeleteProcess.SUCCESS,
                             isAccountDeleted = true,
+                            isLoginOut = true,
                         )
                     }
-                    delay(500L)
                 }
             }.invokeOnCompletion {
                 _state.update { it.copy(deleteStep = DeleteProcess.NO_OP) }

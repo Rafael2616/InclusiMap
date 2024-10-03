@@ -185,7 +185,10 @@ fun DeleteAccountConfirmationDialog(
         }
     }
     val context = LocalContext.current
-    if (networkError) {
+    if (networkError && deleteStep == DeleteProcess.ERROR) {
         Toast.makeText(context, "Ocorreu um erro durante a exclusão, tente novamente!", Toast.LENGTH_LONG).show()
+    }
+    if (deleteStep == DeleteProcess.SUCCESS) {
+        Toast.makeText(context, "Conta deletada com sucesso!", Toast.LENGTH_LONG).show()
     }
 }

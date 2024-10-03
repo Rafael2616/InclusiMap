@@ -185,6 +185,7 @@ fun LoginScreen(
                         ),
                     )
                 },
+                enabled = !state.isRegistering,
             ) {
                 Text(text = "Entrar")
             }
