@@ -12,4 +12,5 @@ data class InclusiMapState(
     val selectedMappedPlace: AccessibleLocalMarker? = null,
     val defaultLocationLatLng: LatLng = PARAGOMINAS_LAT_LNG,
     val allMappedPlaces: List<AccessibleLocalMarker> = emptyList(),
+    val failedToLoadPlaces: Boolean = false,
 )

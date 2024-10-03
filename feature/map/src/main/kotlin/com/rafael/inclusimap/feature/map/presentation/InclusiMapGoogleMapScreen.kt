@@ -392,7 +392,13 @@ fun InclusiMapGoogleMapScreen(
             },
         )
     }
-
+    AnimatedVisibility(state.failedToLoadPlaces) {
+        PlacesNotLoadedDialog(
+            onRetry = {
+                latestOnEvent(InclusiMapEvent.OnFailToLoadPlaces(false))
+            },
+        )
+    }
     if (searchState.expanded) {
         focusRequester.requestFocus()
     }

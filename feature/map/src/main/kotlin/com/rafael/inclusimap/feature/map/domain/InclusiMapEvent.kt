@@ -12,4 +12,5 @@ sealed interface InclusiMapEvent {
     data class SetLocationPermissionGranted(val isGranted: Boolean) : InclusiMapEvent
     data class OnUpdateMappedPlace(val placeUpdated: AccessibleLocalMarker) : InclusiMapEvent
     data class OnDeleteMappedPlace(val placeId: String) : InclusiMapEvent
+    data class OnFailToLoadPlaces(val isFailed: Boolean) : InclusiMapEvent
 }

@@ -33,6 +33,7 @@ class InclusiMapGoogleMapScreenViewModel(
             is InclusiMapEvent.SetLocationPermissionGranted -> setLocationPermissionGranted(event.isGranted)
             is InclusiMapEvent.OnUpdateMappedPlace -> onUpdateMappedPlace(event.placeUpdated)
             is InclusiMapEvent.OnDeleteMappedPlace -> onDeleteMappedPlace(event.placeId)
+            is InclusiMapEvent.OnFailToLoadPlaces -> onMapLoaded()
         }
     }
 
@@ -46,12 +47,21 @@ class InclusiMapGoogleMapScreenViewModel(
     }
 
     private fun onMapLoaded() {
+        _state.update { it.copy(failedToLoadPlaces = false) }
         viewModelScope.launch(Dispatchers.IO) {
             accessibleLocalsRepository.getAccessibleLocals()?.let { mappedPlaces ->
                 _state.update {
                     it.copy(
                         allMappedPlaces = mappedPlaces,
                         isMapLoaded = true,
+                    )
+                }
+            }
+        }.invokeOnCompletion {
+            if (_state.value.allMappedPlaces.isEmpty()) {
+                _state.update {
+                    it.copy(
+                        failedToLoadPlaces = true,
                     )
                 }
             }
