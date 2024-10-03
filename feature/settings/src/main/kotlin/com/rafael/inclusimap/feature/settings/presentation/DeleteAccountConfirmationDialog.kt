@@ -1,5 +1,6 @@
 package com.rafael.inclusimap.feature.settings.presentation
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -43,6 +45,7 @@ fun DeleteAccountConfirmationDialog(
     isDeleting: Boolean,
     isLoginOut: Boolean,
     deleteStep: DeleteProcess,
+    networkError: Boolean,
     onDismissRequest: () -> Unit,
     onDeleteAccount: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -180,5 +183,9 @@ fun DeleteAccountConfirmationDialog(
                 }
             }
         }
+    }
+    val context = LocalContext.current
+    if (networkError) {
+        Toast.makeText(context, "Ocorreu um erro durante a exclusão, tente novamente!", Toast.LENGTH_LONG).show()
     }
 }

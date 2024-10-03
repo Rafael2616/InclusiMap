@@ -23,6 +23,7 @@ fun SettingsScreen(
     onLogout: () -> Unit,
     onDeleteAccount: (Boolean) -> Unit,
     isDeleting: Boolean,
+    networkError: Boolean,
     deleteStep: DeleteProcess,
 ) {
     val latestOnEvent by rememberUpdatedState(onEvent)
@@ -60,6 +61,7 @@ fun SettingsScreen(
             isDeleting = isDeleting,
             deleteStep = deleteStep,
             isLoginOut = isLoginOut,
+            networkError = networkError,
             onDeleteAccount = { keepContributions ->
                 onDeleteAccount(keepContributions)
             },

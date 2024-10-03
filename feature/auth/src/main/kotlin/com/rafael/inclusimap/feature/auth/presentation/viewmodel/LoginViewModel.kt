@@ -80,6 +80,7 @@ class LoginViewModel(
         _state.update {
             it.copy(
                 isRegistering = true,
+                networkError = false,
             )
         }
         val userID = Uuid.random().toString()
@@ -104,7 +105,13 @@ class LoginViewModel(
                         }
                 }
                 .onError {
-
+                    _state.update {
+                        it.copy(
+                            isRegistering = false,
+                            networkError = true,
+                        )
+                    }
+                    return@launch
                 }
 
             if (_state.value.userAlreadyRegistered) {
@@ -132,7 +139,7 @@ class LoginViewModel(
                 )
             }.await()
         }.invokeOnCompletion {
-            if (!_state.value.userAlreadyRegistered) {
+            if (!_state.value.userAlreadyRegistered && !_state.value.networkError) {
                 viewModelScope.launch(Dispatchers.IO) {
                     val loginData = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
                     loginData.userId = user.id
@@ -147,9 +154,13 @@ class LoginViewModel(
                         it.copy(
                             user = user,
                             isLoggedIn = true,
-                            isRegistering = false,
                         )
                     }
+                }
+                _state.update {
+                    it.copy(
+                        isRegistering = false,
+                    )
                 }
             }
         }
@@ -296,6 +307,7 @@ class LoginViewModel(
                 isUpdatingPassword = true,
                 isPasswordChanged = false,
                 isSamePassword = false,
+                networkError = false,
             )
         }
         // Update the password in local database
@@ -347,11 +359,20 @@ class LoginViewModel(
                                     }
                                 }
                         }
+                    }.onError {
+                        _state.update {
+                            it.copy(
+                                isUpdatingPassword = false,
+                                networkError = true,
+                            )
+                        }
                     }
             }.await()
         }.invokeOnCompletion {
-            // Update the password in the state
             if (_state.value.isSamePassword) return@invokeOnCompletion
+            if (_state.value.networkError) return@invokeOnCompletion
+
+            // Update the password in the state
             _state.update {
                 it.copy(
                     user = it.user?.copy(password = password),
@@ -368,6 +389,7 @@ class LoginViewModel(
                 isDeletingAccount = true,
                 isAccountDeleted = false,
                 deleteStep = DeleteProcess.NO_OP,
+                networkError = false,
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -387,6 +409,7 @@ class LoginViewModel(
                             deleteStep = DeleteProcess.ERROR,
                             isDeletingAccount = false,
                             isAccountDeleted = false,
+                            networkError = true,
                         )
                     }
                 } else {
@@ -430,6 +453,15 @@ class LoginViewModel(
                             updatedPlaces.toByteArray().inputStream(),
                         )
                     }
+                }.onError {
+                    _state.update {
+                        it.copy(
+                            deleteStep = DeleteProcess.ERROR,
+                            isDeletingAccount = false,
+                            isAccountDeleted = false,
+                            networkError = true,
+                        )
+                    }
                 }
             }.invokeOnCompletion {
                 if (it != null) {
@@ -462,6 +494,15 @@ class LoginViewModel(
                                         }
                                 }
                             }
+                        }
+                    }.onError {
+                        _state.update {
+                            it.copy(
+                                deleteStep = DeleteProcess.ERROR,
+                                isDeletingAccount = false,
+                                isAccountDeleted = false,
+                                networkError = true,
+                            )
                         }
                     }
                 }.invokeOnCompletion {
@@ -504,9 +545,11 @@ class LoginViewModel(
                                         "places.json",
                                         updatedPlaces.toByteArray().inputStream(),
                                     )
+                                    _state.update { it.copy(deleteStep = DeleteProcess.DELETING_USER_COMMENTS) }
                                 }
                             }
                     }.invokeOnCompletion {
+                        if (_state.value.networkError) return@invokeOnCompletion
                         if (it != null) {
                             _state.update {
                                 it.copy(
@@ -516,7 +559,7 @@ class LoginViewModel(
                                 )
                             }
                         } else {
-                            _state.update { it.copy(deleteStep = DeleteProcess.DELETING_USER_COMMENTS) }
+                            _state.update { it.copy(networkError = true) }
                         }
                     }
                 }
@@ -529,22 +572,24 @@ class LoginViewModel(
                             deleteStep = DeleteProcess.ERROR,
                             isDeletingAccount = false,
                             isAccountDeleted = false,
+                            isLoginOut = false,
                         )
                     }
                 } else {
-                    _state.update { it.copy(deleteStep = DeleteProcess.SUCCESS) }
+                    _state.update {
+                        it.copy(
+                            isDeletingAccount = false,
+                            deleteStep = DeleteProcess.SUCCESS,
+                            isAccountDeleted = true,
+                        )
+                    }
+                    delay(500L)
                 }
-                _state.update {
-                    it.copy(
-                        isDeletingAccount = false,
-                        deleteStep = DeleteProcess.NO_OP,
-                        isLoginOut = true,
-                        isAccountDeleted = true,
-                    )
-                }
-                delay(1000L)
             }.invokeOnCompletion {
-                logout()
+                _state.update { it.copy(deleteStep = DeleteProcess.NO_OP) }
+                if (!_state.value.networkError) {
+                    logout()
+                }
             }
         }
     }

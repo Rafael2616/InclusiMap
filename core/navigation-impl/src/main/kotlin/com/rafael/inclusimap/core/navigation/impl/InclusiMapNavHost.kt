@@ -149,6 +149,7 @@ fun InclusiMapNavHost(
                             },
                             isDeleting = loginState.isDeletingAccount,
                             deleteStep = loginState.deleteStep,
+                            networkError = loginState.networkError,
                         )
                         LaunchedEffect(loginState.isLoggedIn) {
                             if (!loginState.isLoggedIn) {
