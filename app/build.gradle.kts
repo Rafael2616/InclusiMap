@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.rafael.spotless)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.licensee)
+    alias(libs.plugins.baselineprofile)
 }
 
 android {
@@ -83,6 +84,7 @@ android {
 }
 
 dependencies {
+    baselineProfile(projects.baselineProfile)
     // AndroidX
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
@@ -92,12 +94,17 @@ dependencies {
     // Test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
 
     // Projects
     implementation(projects.core.navigationImpl)
     implementation(projects.core.di)
     implementation(projects.core.resources)
+}
+
+baselineProfile {
+    // Don't build on every iteration of a full assemble.
+    // Instead enable generation directly for the release build variant.
+    automaticGenerationDuringBuild = false
 }
 
 licensee {

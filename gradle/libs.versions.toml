@@ -6,15 +6,16 @@ versionCode = "1"
 versionName = "1.0"
 jvmTarget = "21"
 
-accompanistPermissionsVersion = "0.36.0"
 agp = "8.7.0"
+kotlin = "2.1.0-Beta1"
+licensee = "1.11.0"
+ksp = "2.1.0-Beta1-1.0.25"
+spotless = "7.0.0.BETA2"
+
+accompanistPermissionsVersion = "0.36.0"
 googleApiClientVersion = "2.7.0"
 googleApiServicesDriveVersion = "v3-rev20240914-2.0.0"
-kotlin = "2.1.0-Beta1"
 coreKtx = "1.13.1"
-junit = "4.13.2"
-junitVersion = "1.2.1"
-espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.6"
 activityCompose = "1.9.2"
 composeBom = "2024.09.03"
@@ -25,15 +26,20 @@ kotlinx-coroutines = "1.9.0"
 room = "2.7.0-alpha09"
 koin = "4.0.0"
 coil = "3.0.0-alpha10"
-ksp = "2.1.0-Beta1-1.0.25"
 navigation = "2.8.2"
 kotlinx-serialization = "1.7.3"
 material-motion-compose = "2.0.1"
-spotless = "7.0.0.BETA2"
 compose-rules = "0.4.12"
 compose = "1.3.0"
-licensee = "1.11.0"
 ktor = "3.0.0-rc-1"
+
+junit = "4.13.2"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
+uiautomator = "2.3.0"
+benchmarkMacroJunit4 = "1.3.2"
+profileinstaller = "1.4.1"
+baselineprofile = "1.3.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -81,6 +87,10 @@ material-motion-compose = { module = "io.github.fornewid:material-motion-compose
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 ktlint-compose-rules = { module = "io.nlopez.compose.rules:ktlint", version.ref = "compose-rules" }
 
+androidx-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
+androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmarkMacroJunit4" }
+androidx-profileinstaller = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "profileinstaller" }
+
 # Build-logic dependencies
 android-gradle = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 spotless-gradle = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
@@ -90,6 +100,7 @@ composeCompiler-gradle = { module = "org.jetbrains.kotlin:compose-compiler-gradl
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
+android-test = { id = "com.android.test", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 jetbrains-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 androidx-room = { id = "androidx.room", version.ref = "room" }
@@ -97,6 +108,7 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 licensee = { id = "app.cash.licensee", version.ref = "licensee" }
+baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprofile" }
 
 rafael-spotless = { id = "com.rafael.spotless", version = "unspecified" }
 rafael-library = { id = "com.rafael.library", version = "unspecified" }
