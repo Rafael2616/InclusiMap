@@ -172,14 +172,12 @@ class LoginViewModel(
             async {
                 driveService.listFiles(
                     INCLUSIMAP_USERS_FOLDER_ID,
-                ).onSuccess { result ->
-                    result.any { userFile ->
-                        _state.update {
-                            it.copy(
-                                userAlreadyRegistered =
-                                userFile.name.split(".json")[0] == registeredUser.email,
-                            )
-                        }.let { true }
+                ).onSuccess { userFile ->
+                    _state.update {
+                        it.copy(
+                            userAlreadyRegistered =
+                            userFile.any { user -> user.name.split(".json")[0] == registeredUser.email },
+                        )
                     }.also { isRegistered ->
                         println("User already registered? $isRegistered")
                     }

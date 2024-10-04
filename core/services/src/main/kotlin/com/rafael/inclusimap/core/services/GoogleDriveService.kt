@@ -50,22 +50,22 @@ class GoogleDriveService {
 
         return withContext(Dispatchers.IO) {
             try {
-            do {
-                val request = driveService.files().list()
-                    .setQ("'$folderId' in parents and trashed=false")
-                    .setFields("nextPageToken, files(id, name)")
-                    .setPageToken(pageToken)
+                do {
+                    val request = driveService.files().list()
+                        .setQ("'$folderId' in parents and trashed=false")
+                        .setFields("nextPageToken, files(id, name)")
+                        .setPageToken(pageToken)
 
-                val files = request.execute()
-                result.addAll(files.files ?: emptyList())
-                pageToken = files.nextPageToken
-            } while (!pageToken.isNullOrEmpty())
-            Result.Success(result)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Result.Error(NetworkError.NO_INTERNET)
-        }
+                    val files = request.execute()
+                    result.addAll(files.files ?: emptyList())
+                    pageToken = files.nextPageToken
+                } while (!pageToken.isNullOrEmpty())
+                Result.Success(result)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Result.Error(NetworkError.NO_INTERNET)
             }
+        }
     }
 
     fun listSharedFolders(): List<File> {
@@ -119,35 +119,37 @@ class GoogleDriveService {
         }
     }
 
-    suspend fun createFolder(folderName: String, parentFolderId: String? = null): String? = withContext(Dispatchers.IO) {
-        try {
-            val folderMetadata = File().apply {
-                name = folderName
-                mimeType = "application/vnd.google-apps.folder"
-                if (parentFolderId != null) {
-                    parents = listOf(parentFolderId)
+    suspend fun createFolder(folderName: String, parentFolderId: String? = null): String? =
+        withContext(Dispatchers.IO) {
+            try {
+                val folderMetadata = File().apply {
+                    name = folderName
+                    mimeType = "application/vnd.google-apps.folder"
+                    if (parentFolderId != null) {
+                        parents = listOf(parentFolderId)
+                    }
                 }
+
+                val folder = driveService.files().create(folderMetadata)
+                    .setFields("id")
+                    .execute()
+
+                folder.id
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
             }
-
-            val folder = driveService.files().create(folderMetadata)
-                .setFields("id")
-                .execute()
-
-            folder.id
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
         }
-    }
 
-    suspend fun updateFile(fileId: String, fileName: String, content: InputStream) = withContext(Dispatchers.IO) {
-        try {
-            val fileMetadata = File()
-            fileMetadata.name = fileName
-            val mediaContent = InputStreamContent("application/json", content)
-            driveService.files().update(fileId, fileMetadata, mediaContent).execute()
-        } catch (e: Exception) {
-            e.printStackTrace()
+    suspend fun updateFile(fileId: String, fileName: String, content: InputStream) =
+        withContext(Dispatchers.IO) {
+            try {
+                val fileMetadata = File()
+                fileMetadata.name = fileName
+                val mediaContent = InputStreamContent("application/json", content)
+                driveService.files().update(fileId, fileMetadata, mediaContent).execute()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
-    }
 }
