@@ -39,7 +39,7 @@ class AccessibleLocalsRepositoryImpl(
                         }
                 }
                 is Error -> {
-                    null
+                    emptyList()
                 }
             }
         }

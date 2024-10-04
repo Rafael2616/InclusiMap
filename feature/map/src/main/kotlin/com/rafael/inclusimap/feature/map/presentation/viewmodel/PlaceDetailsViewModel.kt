@@ -3,7 +3,6 @@ package com.rafael.inclusimap.feature.map.presentation.viewmodel
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.net.Uri
-import androidx.compose.ui.geometry.isEmpty
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
