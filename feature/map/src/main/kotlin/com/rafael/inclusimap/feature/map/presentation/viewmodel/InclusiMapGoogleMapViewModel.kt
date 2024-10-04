@@ -106,6 +106,7 @@ class InclusiMapGoogleMapViewModel(
     }
 
     private fun onUpdateMappedPlace(placeUpdated: AccessibleLocalMarker) {
+        if (placeUpdated.id.isNullOrEmpty() || placeUpdated.id !in _state.value.allMappedPlaces.map { it.id }) return
         _state.update {
             it.copy(
                 allMappedPlaces = _state.value.allMappedPlaces.map {
