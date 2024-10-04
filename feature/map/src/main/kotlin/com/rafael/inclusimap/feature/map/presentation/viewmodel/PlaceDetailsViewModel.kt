@@ -144,12 +144,20 @@ class PlaceDetailsViewModel(
                 }
             }.await()
             _state.update {
+                val imageFolderID = state.value.inclusiMapImageRepositoryFolder.find { subPaths ->
+                    subPaths.name == placeDetails.id + "_" + placeDetails.authorEmail
+                }?.id
                 it.copy(
                     currentPlace = it.currentPlace.copy(
-                        imageFolderId = state.value.inclusiMapImageRepositoryFolder.find { subPaths ->
-                            subPaths.name == placeDetails.id + "_" + placeDetails.authorEmail
-                        }?.id,
+                        imageFolderId = imageFolderID,
                     ),
+                    loadedPlaces = it.loadedPlaces.map { place ->
+                        if (place.id == placeDetails.id) {
+                            place.copy(imageFolderId = imageFolderID)
+                        } else {
+                            place
+                        }
+                    },
                 )
             }
             if (_state.value.currentPlace.imageFolderId.isNullOrEmpty() ||
@@ -168,25 +176,26 @@ class PlaceDetailsViewModel(
             async {
                 val folderId = state.value.currentPlace.imageFolderId
                 folderId?.let {
-                    when (val result = driveService.listFiles(folderId)) {
-                        is Result.Success -> {
-                            _state.update {
-                                it.copy(
-                                    currentPlace = it.currentPlace.copy(
-                                        imageFolder = result.data,
-                                    ),
-                                )
-                            }
-                        }
-
-                        is Result.Error -> {
+                    driveService.listFiles(folderId).onSuccess { imageFolder ->
+                        _state.update {
+                            it.copy(
+                                currentPlace = it.currentPlace.copy(
+                                    imageFolder = imageFolder,
+                                ),
+                                loadedPlaces = it.loadedPlaces.map { place ->
+                                    if (place.id == placeDetails.id) {
+                                        place.copy(imageFolder = imageFolder)
+                                    } else {
+                                        place
+                                    }
+                                },
+                            )
                         }
                     }
                 }
             }.await()
 
             _state.value.currentPlace.imageFolder?.map { file ->
-                println("Loading image ${file.name}")
                 async {
                     try {
                         val fileContent = driveService.driveService.files().get(file.id)
@@ -198,16 +207,29 @@ class PlaceDetailsViewModel(
                                 if (placeDetails.id != _state.value.currentPlace.id) {
                                     return@async
                                 }
+                                if (file.name in _state.value.currentPlace.images.map { it?.name }) {
+                                    println("Skipping already loaded image ${file.name}")
+                                    return@async
+                                }
+
+                                val placeImage = PlaceImage(
+                                    userEmail = file.name.extractUserEmail(),
+                                    image = image,
+                                    placeID = placeDetails.id!!,
+                                    name = file.name,
+                                )
                                 _state.update {
                                     it.copy(
                                         currentPlace = it.currentPlace.copy(
-                                            images = it.currentPlace.images +
-                                                PlaceImage(
-                                                    userEmail = file.name.extractUserEmail(),
-                                                    image = image,
-                                                    placeID = it.currentPlace.id!!,
-                                                ),
+                                            images = it.currentPlace.images + placeImage,
                                         ),
+                                        loadedPlaces = it.loadedPlaces.map { place ->
+                                            if (place.id == state.value.currentPlace.id) {
+                                                place.copy(images = place.images + placeImage)
+                                            } else {
+                                                place
+                                            }
+                                        },
                                     ).also {
                                         println("Loading image ${file.name}")
                                     }
@@ -216,6 +238,7 @@ class PlaceDetailsViewModel(
                                     _state.update {
                                         it.copy(allImagesLoaded = true)
                                     }
+                                    println("All images cached successfully for ${placeDetails.title} ${placeDetails.id} + size: ${_state.value.currentPlace.images.size}")
                                 }
                             }
                     } catch (e: Exception) {
@@ -225,17 +248,7 @@ class PlaceDetailsViewModel(
             }?.awaitAll()
         }.invokeOnCompletion {
             _state.update {
-                it.copy(
-                    loadedPlaces = it.loadedPlaces.map { place ->
-                        if (place.id == state.value.currentPlace.id) {
-                            place.copy(images = state.value.currentPlace.images)
-                        } else {
-                            place
-                        }
-                    },
-                ).also {
-                    println("Images cached successfully for ${it.currentPlace.title} ${it.currentPlace.id} + size: ${it.currentPlace.images.size}")
-                }
+                it.copy(allImagesLoaded = true)
             }
         }
     }
@@ -251,10 +264,28 @@ class PlaceDetailsViewModel(
             _state.update {
                 it.copy(
                     currentPlace = placeWithImages,
-                    allImagesLoaded = true,
                 ).also {
-                    println("Loading images from cache + size: ${it.currentPlace.images.size}")
+                    checkAllImagesLoaded(
+                        place = placeDetails,
+                        currentImagesSize = it.currentPlace.images.size,
+                        imagesLoadedSize = placeWithImages.imageFolder!!.size,
+                    )
                 }
+            }
+        }
+    }
+
+    private fun checkAllImagesLoaded(
+        place: AccessibleLocalMarker,
+        currentImagesSize: Int,
+        imagesLoadedSize: Int,
+    ) {
+        if (currentImagesSize != imagesLoadedSize) {
+            println("Some images are not loaded yet, loading now...")
+            loadImages(place)
+        } else {
+            _state.update {
+                it.copy(allImagesLoaded = true)
             }
         }
     }
@@ -267,6 +298,7 @@ class PlaceDetailsViewModel(
                 context.contentResolver.openInputStream(uri),
             ).asImageBitmap(),
             _state.value.currentPlace.id!!,
+            uri.lastPathSegment.toString(),
         )
         _state.update {
             it.copy(
