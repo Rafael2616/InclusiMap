@@ -1,4 +1,4 @@
-package com.rafael.inclusimap.feature.map.presentation
+package com.rafael.inclusimap.feature.map.presentation.dialog
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

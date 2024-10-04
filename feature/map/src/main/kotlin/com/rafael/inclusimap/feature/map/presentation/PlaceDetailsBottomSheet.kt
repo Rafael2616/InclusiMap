@@ -87,6 +87,7 @@ import com.rafael.inclusimap.core.domain.model.util.toMessage
 import com.rafael.inclusimap.feature.map.domain.InclusiMapState
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsState
+import com.rafael.inclusimap.feature.map.presentation.dialog.PlaceInfoDialog
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
