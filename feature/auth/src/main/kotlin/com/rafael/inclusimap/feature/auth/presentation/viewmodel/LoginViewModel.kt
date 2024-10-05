@@ -421,7 +421,7 @@ class LoginViewModel(
                         )
                     }
                 } else {
-                    if (keepContributions) {
+                    if (keepContributions && !_state.value.networkError) {
                         _state.update {
                             it.copy(deleteStep = DeleteProcess.SUCCESS)
                         }
