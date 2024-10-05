@@ -70,7 +70,7 @@ fun UnifiedLoginScreen(
     ) {
         Card(
             modifier = Modifier
-                .fillMaxWidth(0.8f)
+                .fillMaxWidth(0.82f)
                 .imeNestedScroll()
                 .shadow(
                     elevation = 20.dp,
