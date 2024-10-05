@@ -581,7 +581,7 @@ class LoginViewModel(
                             isLoginOut = false,
                         )
                     }
-                } else {
+                } else if (!_state.value.networkError) {
                     _state.update {
                         it.copy(
                             isDeletingAccount = false,
