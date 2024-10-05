@@ -1,7 +1,7 @@
 @file:Suppress("UnstableApiUsage")
 
 plugins {
-    id("com.android.test")
+    alias(libs.plugins.android.test)
     alias(libs.plugins.baselineprofile)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.rafael.spotless)
