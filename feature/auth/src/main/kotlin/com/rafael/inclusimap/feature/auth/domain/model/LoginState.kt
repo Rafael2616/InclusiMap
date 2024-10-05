@@ -15,7 +15,7 @@ data class LoginState(
     val isDeletingAccount: Boolean = false,
     val deleteStep: DeleteProcess = DeleteProcess.NO_OP,
     val isAccountDeleted: Boolean = false,
-    val userAlreadyRegistered: Boolean = false,
+    val userAlreadyRegistered: Boolean = true,
     val isPasswordCorrect: Boolean = true,
     var networkError: Boolean = false,
 )

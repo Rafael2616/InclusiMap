@@ -165,7 +165,6 @@ class LoginViewModel(
             it.copy(
                 isRegistering = true,
                 isPasswordCorrect = true,
-                userAlreadyRegistered = true,
                 networkError = false,
             )
         }

@@ -196,7 +196,7 @@ fun LoginScreen(
     if (!state.isPasswordCorrect && !state.isRegistering && canLogin) {
         passwordIncorrectToast.show()
     }
-    if (!state.userAlreadyRegistered && !state.isRegistering && canLogin) {
+    if (!state.userAlreadyRegistered && !state.isRegistering && canLogin && email.isNotEmpty()) {
         inexistentUserToast.show()
     }
     if (state.isLoggedIn && canLogin) {

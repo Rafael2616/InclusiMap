@@ -324,7 +324,7 @@ fun RegistrationScreen(
             }
         }
     }
-    if (state.userAlreadyRegistered && !state.isRegistering && canLogin) {
+    if (state.userAlreadyRegistered && !state.isRegistering && canLogin && email.isNotEmpty()) {
         existentUserToast.show()
     }
     if (state.isLoggedIn && canLogin) {
