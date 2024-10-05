@@ -602,23 +602,22 @@ class LoginViewModel(
     private fun checkUserExists() {
         viewModelScope.launch(Dispatchers.IO) {
             driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { result ->
-                result.map { it }
-                    .find {
-                        it.name == _state.value.user?.email
-                    }.also { userExists ->
-                        _state.update {
-                            it.copy(isLoggedIn = userExists != null)
-                        }
-                        val loginData = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
-                        loginData.isLoggedIn = userExists != null
-                        if (userExists == null) {
-                            loginData.userId = null
-                            loginData.userName = null
-                            loginData.userEmail = null
-                            loginData.userPassword = null
-                        }
-                        repository.updateLoginInfo(loginData)
+                result.find {
+                    it.name == _state.value.user?.email
+                }.also { userExists ->
+                    _state.update {
+                        it.copy(isLoggedIn = userExists != null)
                     }
+                    val loginData = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
+                    loginData.isLoggedIn = userExists != null
+                    if (userExists == null) {
+                        loginData.userId = null
+                        loginData.userName = null
+                        loginData.userEmail = null
+                        loginData.userPassword = null
+                    }
+                    repository.updateLoginInfo(loginData)
+                }
             }
         }
     }

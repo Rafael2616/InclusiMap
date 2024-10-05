@@ -6,7 +6,6 @@ import org.gradle.kotlin.dsl.dependencies
 internal fun Project.configureComposeAndroid() {
     plugins.withId("org.jetbrains.kotlin.android") {
         dependencies {
-            "implementation"(libs.findLibrary("androidx-compose-bom").get())
             "implementation"(libs.findLibrary("androidx-compose-material3").get())
             "implementation"(libs.findLibrary("androidx-compose-animation").get())
             "implementation"(libs.findLibrary("androidx-compose-ui").get())

@@ -85,6 +85,7 @@ android {
 
 dependencies {
     baselineProfile(projects.baselineProfile)
+    implementation(libs.androidx.profileinstaller)
     // AndroidX
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
