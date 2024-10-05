@@ -43,8 +43,10 @@ class PlaceDetailsViewModel(
     fun onEvent(event: PlaceDetailsEvent) {
         when (event) {
             is PlaceDetailsEvent.OnUploadPlaceImages -> onUploadPlaceImages(
-                event.uri,
+                event.uris,
                 event.context,
+                event.imageFolderId,
+                event.placeId,
             )
 
             PlaceDetailsEvent.OnDestroyPlaceDetails -> onDestroyPlaceDetailsScreen()
@@ -290,22 +292,24 @@ class PlaceDetailsViewModel(
         }
     }
 
-    private fun onUploadPlaceImages(uri: Uri, context: Context) {
+    private fun onUploadPlaceImages(uris: List<Uri>, context: Context, imageFolderId: String?, placeId: String) {
         // Add the image to the list of images tobe showed in the app UI
-        val newImage = PlaceImage(
-            userEmail = userEmail,
-            BitmapFactory.decodeStream(
-                context.contentResolver.openInputStream(uri),
-            ).asImageBitmap(),
-            _state.value.currentPlace.id!!,
-            uri.lastPathSegment.toString(),
-        )
+        val newImages = uris.map { uri ->
+            PlaceImage(
+                userEmail = userEmail,
+                BitmapFactory.decodeStream(
+                    context.contentResolver.openInputStream(uri),
+                ).asImageBitmap(),
+                placeId,
+                uri.lastPathSegment.toString(),
+            )
+        }
         _state.update {
             it.copy(
-                currentPlace = it.currentPlace.copy(images = it.currentPlace.images + newImage),
+                currentPlace = it.currentPlace.copy(images = it.currentPlace.images + newImages),
                 loadedPlaces = it.loadedPlaces.map { place ->
                     if (place.id == it.currentPlace.id) {
-                        place.copy(images = it.currentPlace.images + newImage)
+                        place.copy(images = it.currentPlace.images + newImages)
                     } else {
                         place
                     }
@@ -314,7 +318,8 @@ class PlaceDetailsViewModel(
         }
         viewModelScope.launch(Dispatchers.IO) {
             async {
-                if (_state.value.currentPlace.imageFolderId.isNullOrEmpty()) {
+                if (imageFolderId.isNullOrEmpty()) {
+                    if (imageFolderId != _state.value.currentPlace.imageFolderId) return@async
                     _state.update {
                         it.copy(
                             currentPlace = it.currentPlace.copy(
@@ -327,14 +332,22 @@ class PlaceDetailsViewModel(
                     }
                 }
             }.await()
-            driveService.uploadFile(
-                context.contentResolver.openInputStream(uri),
-                "${
-                    _state.value.currentPlace.id
-                }_$userEmail-${Date().toInstant()}.jpg",
-                _state.value.currentPlace.imageFolderId
-                    ?: throw IllegalStateException("Folder not found: Maybe an issue has occurred while creating the folder"),
-            )
+            uris.mapIndexed { index, uri ->
+                async {
+                    if (imageFolderId != _state.value.currentPlace.imageFolderId) return@async
+                    driveService.uploadFile(
+                        context.contentResolver.openInputStream(uri),
+                        "${
+                            _state.value.currentPlace.imageFolderId
+                        }_$userEmail-${Date().toInstant()}.jpg",
+                        _state.value.currentPlace.imageFolderId
+                            ?: throw IllegalStateException("Folder not found: Maybe an issue has occurred while creating the folder"),
+                    )
+                    if (index == uris.size - 1) {
+                        println("All images uploaded successfully for $placeId")
+                    }
+                }
+            }.awaitAll()
         }
     }
 

@@ -115,10 +115,22 @@ fun PlaceDetailsBottomSheet(
     val focusRequester = remember { FocusRequester() }
     var showPlaceInfo by remember { mutableStateOf(false) }
     val launcher =
-        rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-            uri?.let {
-                latestEvent(PlaceDetailsEvent.OnUploadPlaceImages(it, context))
+        rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) { uris ->
+            uris.takeIf { it.isNotEmpty() }?.let {
+                latestEvent(
+                    PlaceDetailsEvent.OnUploadPlaceImages(
+                        it,
+                        context,
+                        state.currentPlace.imageFolderId,
+                        inclusiMapState.selectedMappedPlace?.id!!,
+                    ),
+                )
+            }
+            if (uris.size <= 1) {
                 Toast.makeText(context, "Imagem adicionada!", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, "${uris.size} imagens adicionadas!", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     val currentPlace = inclusiMapState.selectedMappedPlace!!
