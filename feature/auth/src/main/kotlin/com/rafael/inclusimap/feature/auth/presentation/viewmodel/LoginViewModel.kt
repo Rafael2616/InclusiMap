@@ -409,6 +409,7 @@ class LoginViewModel(
                             networkError = true,
                         )
                     }
+                    return@async
                 }
             }.invokeOnCompletion {
                 if (it != null) {
@@ -417,7 +418,6 @@ class LoginViewModel(
                             deleteStep = DeleteProcess.ERROR,
                             isDeletingAccount = false,
                             isAccountDeleted = false,
-                            networkError = true,
                         )
                     }
                 } else {
@@ -466,6 +466,7 @@ class LoginViewModel(
                             networkError = true,
                         )
                     }
+                    return@async
                 }
             }.invokeOnCompletion {
                 if (it != null) {
@@ -480,17 +481,15 @@ class LoginViewModel(
                 async {
                     // Delete user posted images
                     _state.update { it.copy(deleteStep = DeleteProcess.DELETING_USER_IMAGES) }
-                    driveService.listFiles(INCLUSIMAP_IMAGE_FOLDER_ID).onSuccess { result ->
-                        result.map { it }.also { places ->
-                            places.forEach { place ->
-                                driveService.listFiles(place.id).onSuccess { images ->
-                                    images.filter { image ->
-                                        image.name.extractUserEmail() == _state.value.user?.email
-                                    }.also { userImages ->
-                                        userImages.forEach {
-                                            println("Deleting file: ${it.name} - ${it.id} posted by user ${_state.value.user?.email}")
-                                            async { driveService.deleteFile(it.id) }.await()
-                                        }
+                    driveService.listFiles(INCLUSIMAP_IMAGE_FOLDER_ID).onSuccess { places ->
+                        places.forEach { place ->
+                            driveService.listFiles(place.id).onSuccess { images ->
+                                images.filter { image ->
+                                    image.name.extractUserEmail() == _state.value.user?.email
+                                }.also { userImages ->
+                                    userImages.forEach {
+                                        println("Deleting file: ${it.name} - ${it.id} posted by user ${_state.value.user?.email}")
+                                        async { driveService.deleteFile(it.id) }.await()
                                     }
                                 }
                             }
@@ -504,6 +503,7 @@ class LoginViewModel(
                                 networkError = true,
                             )
                         }
+                        return@async
                     }
                 }.invokeOnCompletion {
                     if (it != null) {
@@ -554,6 +554,7 @@ class LoginViewModel(
                                         networkError = true,
                                     )
                                 }
+                                return@async
                             }
                     }.invokeOnCompletion {
                         if (_state.value.networkError) return@invokeOnCompletion
