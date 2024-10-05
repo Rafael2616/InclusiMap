@@ -81,6 +81,7 @@ class LoginViewModel(
             it.copy(
                 isRegistering = true,
                 networkError = false,
+                userAlreadyRegistered = false,
             )
         }
         val userID = Uuid.random().toString()
@@ -250,6 +251,14 @@ class LoginViewModel(
                                     )
                                 }
                             }
+                        }.onError {
+                            _state.update {
+                                it.copy(
+                                    isRegistering = false,
+                                    networkError = true,
+                                )
+                            }
+                            return@async
                         }
                     }
                 }
@@ -264,9 +273,7 @@ class LoginViewModel(
                 }
             }
             _state.update {
-                it.copy(
-                    isRegistering = false,
-                )
+                it.copy(isRegistering = false)
             }
         }
     }
