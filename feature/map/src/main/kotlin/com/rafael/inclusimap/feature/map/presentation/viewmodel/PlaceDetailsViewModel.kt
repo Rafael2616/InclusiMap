@@ -1,6 +1,7 @@
 package com.rafael.inclusimap.feature.map.presentation.viewmodel
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.compose.ui.graphics.asImageBitmap
@@ -20,6 +21,8 @@ import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsState
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.util.Date
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -203,7 +206,7 @@ class PlaceDetailsViewModel(
                         val fileContent = driveService.driveService.files().get(file.id)
                             .executeMediaAsInputStream()
                         val options = BitmapFactory.Options()
-                        options.inSampleSize = 3
+                        options.inSampleSize = 2
                         BitmapFactory.decodeStream(fileContent, null, options)
                             ?.asImageBitmap()?.also { image ->
                                 if (placeDetails.id != _state.value.currentPlace.id) {
@@ -271,7 +274,7 @@ class PlaceDetailsViewModel(
                     checkAllImagesLoaded(
                         place = placeDetails,
                         currentImagesSize = it.currentPlace.images.size,
-                        imagesLoadedSize = placeWithImages.imageFolder?.size
+                        imagesLoadedSize = placeWithImages.imageFolder?.size,
                     )
                 }
             }
@@ -294,10 +297,18 @@ class PlaceDetailsViewModel(
         }
     }
 
-    private fun onUploadPlaceImages(uris: List<Uri>, context: Context, imageFolderId: String?, placeId: String) {
+    private fun onUploadPlaceImages(
+        uris: List<Uri>,
+        context: Context,
+        imageFolderId: String?,
+        placeId: String,
+    ) {
         // Add the image to the list of images tobe showed in the app UI
         val options = BitmapFactory.Options()
         options.inSampleSize = 3
+        val options2 = BitmapFactory.Options()
+        options2.inSampleSize = 2
+
         val newImages = uris.map { uri ->
             PlaceImage(
                 userEmail = userEmail,
@@ -305,7 +316,13 @@ class PlaceDetailsViewModel(
                     context.contentResolver.openInputStream(uri),
                     null,
                     options,
-                )!!.asImageBitmap(),
+                )?.asImageBitmap() ?: BitmapFactory.decodeStream(
+                    context.contentResolver.openInputStream(uri),
+                    null,
+                    options2,
+                )?.asImageBitmap() ?: BitmapFactory.decodeStream(
+                    context.contentResolver.openInputStream(uri),
+                ).asImageBitmap(),
                 placeId,
                 uri.lastPathSegment.toString(),
             )
@@ -338,11 +355,17 @@ class PlaceDetailsViewModel(
                     }
                 }
             }.await()
+
             uris.mapIndexed { index, uri ->
+                val bitmap =
+                    BitmapFactory.decodeStream(context.contentResolver.openInputStream(uri))
+                val outputStream = ByteArrayOutputStream()
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
+                val compressedImage = outputStream.toByteArray()
                 async {
                     if (imageFolderId != _state.value.currentPlace.imageFolderId) return@async
                     driveService.uploadFile(
-                        context.contentResolver.openInputStream(uri),
+                        ByteArrayInputStream(compressedImage),
                         "${
                             _state.value.currentPlace.imageFolderId
                         }_$userEmail-${Date().toInstant()}.jpg",
