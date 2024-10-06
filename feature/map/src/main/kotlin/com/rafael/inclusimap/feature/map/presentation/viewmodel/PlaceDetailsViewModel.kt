@@ -263,6 +263,7 @@ class PlaceDetailsViewModel(
                 _state.value.loadedPlaces.find { place -> place.id == placeDetails.id }?.imageFolder,
                 _state.value.loadedPlaces.find { place -> place.id == placeDetails.id }?.imageFolderId,
             )
+            println("allimages founded:" + _state.value.loadedPlaces.find { place -> place.id == placeDetails.id }?.images?.size)
             _state.update {
                 it.copy(
                     currentPlace = placeWithImages,
@@ -270,7 +271,7 @@ class PlaceDetailsViewModel(
                     checkAllImagesLoaded(
                         place = placeDetails,
                         currentImagesSize = it.currentPlace.images.size,
-                        imagesLoadedSize = placeWithImages.imageFolder!!.size,
+                        imagesLoadedSize = placeWithImages.imageFolder?.size
                     )
                 }
             }
@@ -280,8 +281,9 @@ class PlaceDetailsViewModel(
     private fun checkAllImagesLoaded(
         place: AccessibleLocalMarker,
         currentImagesSize: Int,
-        imagesLoadedSize: Int,
+        imagesLoadedSize: Int?,
     ) {
+        if (imagesLoadedSize == null) return
         if (currentImagesSize != imagesLoadedSize) {
             println("Some images are not loaded yet, loading now...")
             loadImages(place)
@@ -345,6 +347,7 @@ class PlaceDetailsViewModel(
                     )
                     if (index == uris.size - 1) {
                         println("All images uploaded successfully for $placeId")
+                        println(state.value.loadedPlaces.find { it.id == placeId }?.images?.size)
                     }
                 }
             }.awaitAll()
