@@ -12,5 +12,6 @@ data class SettingsState(
     val mapType: MapType = MapType.NORMAL,
     val showLogoutDialog: Boolean = false,
     val showDeleteAccountDialog: Boolean = false,
+    val showTermsAndConditions: Boolean = false,
     val appVersion: String = "1.0",
 )

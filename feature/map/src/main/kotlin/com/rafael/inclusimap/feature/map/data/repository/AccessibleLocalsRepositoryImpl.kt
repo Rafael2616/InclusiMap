@@ -22,33 +22,33 @@ class AccessibleLocalsRepositoryImpl(
         prettyPrint = true
     }
 
-    override suspend fun getAccessibleLocals(): List<AccessibleLocalMarker>? {
-        return withContext(Dispatchers.IO) {
-            val places = mutableListOf<AccessibleLocalMarker>()
-            when (val result =
-                driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)) {
-                is Success -> {
-                    result.data.map { file ->
-                        async {
-                            driveService.getFileContent(file.id)?.decodeToString()?.let { content ->
-                                try {
-                                    places.add(
-                                        json.decodeFromString<AccessibleLocalMarker>(
-                                            content,
-                                        ),
-                                    )
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-                                }
+    override suspend fun getAccessibleLocals(): List<AccessibleLocalMarker>? = withContext(Dispatchers.IO) {
+        val places = mutableListOf<AccessibleLocalMarker>()
+        when (
+            val result =
+                driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
+        ) {
+            is Success -> {
+                result.data.map { file ->
+                    async {
+                        driveService.getFileContent(file.id)?.decodeToString()?.let { content ->
+                            try {
+                                places.add(
+                                    json.decodeFromString<AccessibleLocalMarker>(
+                                        content,
+                                    ),
+                                )
+                            } catch (e: Exception) {
+                                e.printStackTrace()
                             }
                         }
-                    }.awaitAll()
-                    if (places.isEmpty()) null else places
-                }
+                    }
+                }.awaitAll()
+                if (places.isEmpty()) null else places
+            }
 
-                is Error -> {
-                    emptyList()
-                }
+            is Error -> {
+                emptyList()
             }
         }
     }
@@ -71,12 +71,14 @@ class AccessibleLocalsRepositoryImpl(
         withContext(Dispatchers.IO) {
             val updatedPlace = json.encodeToString(accessibleLocal)
 
-            when (val result =
-                driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)) {
+            when (
+                val result =
+                    driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
+            ) {
                 is Success -> {
                     val fileId =
-                        result.data.find { it.name.extractPlaceID() == accessibleLocal.id }?.id
-                            ?: throw IllegalStateException("File: ${accessibleLocal.id}.json not found")
+                        result.data.find { it.name.extractPlaceID()!!.removeSuffix(".json") == accessibleLocal.id }?.id
+                            ?: throw IllegalStateException("File with id: ${accessibleLocal.id} not found")
                     driveService.updateFile(
                         fileId,
                         accessibleLocal.id + "_" + accessibleLocal.authorEmail + ".json",
@@ -94,8 +96,10 @@ class AccessibleLocalsRepositoryImpl(
 
     override suspend fun deleteAccessibleLocal(id: String) {
         withContext(Dispatchers.IO) {
-            when (val result =
-                driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)) {
+            when (
+                val result =
+                    driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
+            ) {
                 is Success -> {
                     val place = result.data.find { it.name.extractPlaceID() == id }
                         ?: throw IllegalStateException("File: $id.json not found")

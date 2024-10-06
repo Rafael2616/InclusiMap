@@ -108,6 +108,10 @@ class SettingsViewModel(
             is SettingsEvent.ShowDeleteAccountDialog -> _state.update {
                 it.copy(showDeleteAccountDialog = event.value)
             }
+
+            is SettingsEvent.OpenTermsAndConditions -> _state.update {
+                it.copy(showTermsAndConditions = event.value)
+            }
         }
     }
 

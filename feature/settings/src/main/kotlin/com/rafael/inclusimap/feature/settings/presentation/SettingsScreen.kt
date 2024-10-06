@@ -1,5 +1,6 @@
 package com.rafael.inclusimap.feature.settings.presentation
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -10,6 +11,7 @@ import androidx.navigation.NavController
 import com.rafael.inclusimap.core.domain.model.DeleteProcess
 import com.rafael.inclusimap.core.settings.domain.model.SettingsEvent
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
+import com.rafael.inclusimap.core.settings.presentation.TermsAndConditionsDialog
 import com.rafael.inclusimap.feature.intro.presentation.dialogs.AppIntroDialog
 import com.rafael.inclusimap.feature.settings.presentation.components.Preferences
 import com.rafael.inclusimap.feature.settings.presentation.components.SettingsTopBar
@@ -71,10 +73,17 @@ fun SettingsScreen(
         )
     }
 
-    if (showAppIntro) {
+    AnimatedVisibility(showAppIntro) {
         AppIntroDialog(
             onDismiss = {
                 showAppIntro = false
+            },
+        )
+    }
+    AnimatedVisibility(state.showTermsAndConditions) {
+        TermsAndConditionsDialog(
+            onDismissRequest = {
+                latestOnEvent(SettingsEvent.OpenTermsAndConditions(false))
             },
         )
     }

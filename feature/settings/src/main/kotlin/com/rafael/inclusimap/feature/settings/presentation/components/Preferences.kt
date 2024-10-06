@@ -50,7 +50,7 @@ internal fun Preferences(
             MapPreferenceGroup(onEvent, state, navController)
         }
         item {
-            OthersPreferenceGroup(onAppIntroEvent, navController)
+            OthersPreferenceGroup(onEvent, onAppIntroEvent, navController)
         }
     }
 }

@@ -166,8 +166,10 @@ class PlaceDetailsViewModel(
                 )
             }
             if (_state.value.currentPlace.imageFolderId.isNullOrEmpty() ||
-                when (val result =
-                    driveService.listFiles(_state.value.currentPlace.imageFolderId!!)) {
+                when (
+                    val result =
+                        driveService.listFiles(_state.value.currentPlace.imageFolderId!!)
+                ) {
                     is Result.Success -> result.data.isEmpty()
                     is Result.Error -> {
                         true

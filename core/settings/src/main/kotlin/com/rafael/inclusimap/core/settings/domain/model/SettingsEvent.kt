@@ -11,4 +11,5 @@ sealed interface SettingsEvent {
     data class ShowAboutAppCard(val value: Boolean) : SettingsEvent
     data class ShowLogoutDialog(val value: Boolean) : SettingsEvent
     data class ShowDeleteAccountDialog(val value: Boolean) : SettingsEvent
+    data class OpenTermsAndConditions(val value: Boolean) : SettingsEvent
 }

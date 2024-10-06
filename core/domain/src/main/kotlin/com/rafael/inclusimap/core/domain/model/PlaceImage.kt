@@ -6,5 +6,5 @@ data class PlaceImage(
     val userEmail: String?,
     val image: ImageBitmap,
     val placeID: String,
-    val name: String
+    val name: String,
 )

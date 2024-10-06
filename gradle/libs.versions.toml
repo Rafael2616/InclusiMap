@@ -22,6 +22,7 @@ mapsCompose = "6.1.2"
 playServicesLocation = "21.3.0"
 core-splashscreen = "1.2.0-alpha02"
 kotlinx-coroutines = "1.9.0"
+lazycolumn-scrollbar = "2.2.0"
 room = "2.7.0-alpha09"
 koin = "4.0.0"
 coil = "3.0.0-alpha10"
@@ -85,6 +86,7 @@ koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", ver
 
 material-motion-compose = { module = "io.github.fornewid:material-motion-compose-core", version.ref = "material-motion-compose" }
 ktlint-compose-rules = { module = "io.nlopez.compose.rules:ktlint", version.ref = "compose-rules" }
+lazycolumn-scrollbar = { module = "com.github.nanihadesuka:LazyColumnScrollbar", version.ref = "lazycolumn-scrollbar" }
 
 androidx-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmarkMacroJunit4" }

@@ -18,6 +18,8 @@ dependencies {
     implementation(libs.koin.androidx.compose)
 
     implementation(libs.kotlinx.coroutines)
+    implementation(libs.lazycolumn.scrollbar)
+
     // Room
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)

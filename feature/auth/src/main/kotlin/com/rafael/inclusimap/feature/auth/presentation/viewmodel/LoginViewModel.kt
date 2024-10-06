@@ -2,6 +2,7 @@ package com.rafael.inclusimap.feature.auth.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.api.services.drive.model.File
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.DeleteProcess
 import com.rafael.inclusimap.core.domain.model.util.extractPlaceUserEmail
@@ -21,6 +22,7 @@ import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
@@ -398,8 +400,12 @@ class LoginViewModel(
                 driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { result ->
                     result.find { userFile ->
                         userFile.name == _state.value.user?.email
-                    }?.let {
-                        driveService.deleteFile(it.id)
+                    }?.let { user ->
+                        copyUserInfoToPosthumousVerification(user).invokeOnCompletion {
+                            viewModelScope.launch(Dispatchers.IO) {
+                                driveService.deleteFile(user.id)
+                            }
+                        }
                     }
                 }.onError {
                     _state.update {
@@ -515,7 +521,10 @@ class LoginViewModel(
                     async {
                         // Delete user comments
                         _state.update { it.copy(deleteStep = DeleteProcess.DELETING_USER_COMMENTS) }
-                        val json = Json { ignoreUnknownKeys = true }
+                        val json = Json {
+                            ignoreUnknownKeys = true
+                            prettyPrint = true
+                        }
                         driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
                             .onSuccess { result ->
                                 result.map { place ->
@@ -620,6 +629,23 @@ class LoginViewModel(
                     repository.updateLoginInfo(loginData)
                 }
             }
+        }
+    }
+
+    // This is explained in Terms and conditions
+    private fun copyUserInfoToPosthumousVerification(user: File): Job {
+        val json = Json {
+            ignoreUnknownKeys = true
+            prettyPrint = true
+        }
+        return viewModelScope.launch(Dispatchers.IO) {
+            val userContentString = driveService.getFileContent(user.id)?.decodeToString()
+            val userContent = json.decodeFromString<User>(userContentString ?: "")
+            driveService.uploadFile(
+                userContentString?.toByteArray()?.inputStream(),
+                userContent.id + ".json",
+                "1DaCt5NuNaOjLFafEsyvQfwt9NRO6Eso2", // Posthumous Verification Folder
+            )
         }
     }
 }

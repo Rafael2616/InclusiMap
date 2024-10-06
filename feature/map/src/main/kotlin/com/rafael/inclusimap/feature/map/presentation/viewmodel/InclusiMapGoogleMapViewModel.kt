@@ -49,10 +49,12 @@ class InclusiMapGoogleMapViewModel(
     }
 
     private fun onLoadPlaces() {
-        _state.update { it.copy(
-            failedToLoadPlaces = false,
-            failedToConnectToServer = false,
-        ) }
+        _state.update {
+            it.copy(
+                failedToLoadPlaces = false,
+                failedToConnectToServer = false,
+            )
+        }
         viewModelScope.launch(Dispatchers.IO) {
             accessibleLocalsRepository.getAccessibleLocals().let { mappedPlaces ->
                 if (mappedPlaces == null) {

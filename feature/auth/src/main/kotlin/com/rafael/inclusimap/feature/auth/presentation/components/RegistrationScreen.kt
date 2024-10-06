@@ -1,6 +1,7 @@
 package com.rafael.inclusimap.feature.auth.presentation.components
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -46,6 +47,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.rafael.inclusimap.core.settings.presentation.TermsAndConditionsDialog
 import com.rafael.inclusimap.feature.auth.domain.model.LoginState
 import com.rafael.inclusimap.feature.auth.domain.model.User
 import com.rafael.inclusimap.feature.auth.domain.utils.isValidEmail
@@ -86,6 +88,7 @@ fun RegistrationScreen(
     var termsAndConditionsAccepted by remember { mutableStateOf(true) }
     val termsAndConditionsNotAllowedToast =
         Toast.makeText(context, "Aceite os termos e condições", Toast.LENGTH_SHORT)
+    var showTermsAndConditionsDialog by remember { mutableStateOf(false) }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
@@ -251,11 +254,7 @@ fun RegistrationScreen(
                     textDecoration = TextDecoration.Underline,
                     modifier = Modifier
                         .clickable {
-                            Toast.makeText(
-                                context,
-                                "Termos e condições: Em breve",
-                                Toast.LENGTH_SHORT,
-                            ).show()
+                            showTermsAndConditionsDialog = true
                         },
                 )
                 Checkbox(
@@ -333,5 +332,13 @@ fun RegistrationScreen(
     }
     if (state.networkError && canLogin) {
         Toast.makeText(context, "Ocorreu um erro na conexão!", Toast.LENGTH_LONG).show()
+    }
+
+    AnimatedVisibility(showTermsAndConditionsDialog) {
+        TermsAndConditionsDialog(
+            onDismissRequest = {
+                showTermsAndConditionsDialog = false
+            },
+        )
     }
 }
