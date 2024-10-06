@@ -126,12 +126,12 @@ fun PlaceDetailsBottomSheet(
                         inclusiMapState.selectedMappedPlace?.id!!,
                     ),
                 )
-            }
-            if (uris.size <= 1) {
-                Toast.makeText(context, "Imagem adicionada!", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(context, "${uris.size} imagens adicionadas!", Toast.LENGTH_SHORT)
-                    .show()
+                if (uris.size <= 1) {
+                    Toast.makeText(context, "Imagem adicionada!", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "${uris.size} imagens adicionadas!", Toast.LENGTH_SHORT)
+                        .show()
+                }
             }
         }
     val currentPlace = inclusiMapState.selectedMappedPlace!!
