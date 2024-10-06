@@ -56,6 +56,7 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.rafael.inclusimap.core.domain.model.toCategoryName
 import com.rafael.inclusimap.core.domain.model.util.toHUE
 import com.rafael.inclusimap.core.resources.R
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
@@ -319,7 +320,7 @@ fun InclusiMapGoogleMapScreen(
                             ),
                         ),
                         title = place.title,
-                        snippet = place.category,
+                        snippet = place.category!!.toCategoryName(),
                         icon = BitmapDescriptorFactory.defaultMarker(
                             accessibilityAverage.toHUE(),
                         ),

@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 data class AccessibleLocalMarker(
     override var position: Pair<Double, Double> = 0.0 to 0.0,
     override var title: String = "",
-    override var category: String = "",
+    override var category: PlaceCategory? = null,
     override var authorEmail: String = "",
     override var comments: List<Comment> = emptyList(),
     override var time: String = "",
@@ -18,7 +18,7 @@ data class AccessibleLocalMarker(
 interface BaseLocalMarker {
     var position: Pair<Double, Double>
     var title: String
-    var category: String
+    var category: PlaceCategory?
     var authorEmail: String
     var comments: List<Comment>
     var time: String
@@ -28,7 +28,7 @@ interface BaseLocalMarker {
 data class FullAccessibleLocalMarker(
     override var position: Pair<Double, Double> = 0.0 to 0.0,
     override var title: String = "",
-    override var category: String = "",
+    override var category: PlaceCategory? = null,
     override var authorEmail: String = "",
     override var comments: List<Comment> = emptyList(),
     override var time: String = "",

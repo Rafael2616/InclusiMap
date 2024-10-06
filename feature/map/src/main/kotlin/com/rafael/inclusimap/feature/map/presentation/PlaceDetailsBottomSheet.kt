@@ -82,6 +82,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.toAccessibleLocalMarker
+import com.rafael.inclusimap.core.domain.model.toCategoryName
 import com.rafael.inclusimap.core.domain.model.util.toColor
 import com.rafael.inclusimap.core.domain.model.util.toMessage
 import com.rafael.inclusimap.feature.map.domain.InclusiMapState
@@ -185,7 +186,7 @@ fun PlaceDetailsBottomSheet(
                         fontSize = 24.sp,
                     )
                     Text(
-                        text = state.currentPlace.category,
+                        text = state.currentPlace.category?.toCategoryName() ?: "",
                         fontSize = 16.sp,
                     )
                 }

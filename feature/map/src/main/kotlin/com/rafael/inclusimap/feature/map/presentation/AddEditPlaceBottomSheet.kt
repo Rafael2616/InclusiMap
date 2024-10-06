@@ -2,19 +2,28 @@ package com.rafael.inclusimap.feature.map.presentation
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imeNestedScroll
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.twotone.Delete
+import androidx.compose.material.icons.twotone.KeyboardArrowUp
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,12 +41,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.android.gms.maps.model.LatLng
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
+import com.rafael.inclusimap.core.domain.model.PlaceCategory
 import com.rafael.inclusimap.core.domain.model.toAccessibleLocalMarker
+import com.rafael.inclusimap.core.domain.model.toCategoryName
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsState
 import java.util.Date
 import kotlin.uuid.ExperimentalUuidApi
@@ -59,11 +71,11 @@ fun AddEditPlaceBottomSheet(
     defaultRoundedShape: Shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
 ) {
     var placeName by remember { mutableStateOf(if (isEditing) placeDetailsState.currentPlace.title else "") }
-    var placeCategory by remember { mutableStateOf(if (isEditing) placeDetailsState.currentPlace.category else "") }
+    var isCategoryExpanded by remember { mutableStateOf(false) }
     var tryAddUpdate by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
-
+    var selectedPlaceCategory by remember { mutableStateOf(if (isEditing) placeDetailsState.currentPlace.category else null) }
     ModalBottomSheet(
         sheetState = bottomSheetScaffoldState,
         onDismissRequest = onDismiss,
@@ -74,7 +86,7 @@ fun AddEditPlaceBottomSheet(
                 .fillMaxWidth()
                 .imeNestedScroll()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Row {
                 Text(
@@ -123,28 +135,75 @@ fun AddEditPlaceBottomSheet(
                     .fillMaxWidth(),
                 shape = defaultRoundedShape,
             )
-            TextField(
-                value = placeCategory,
-                onValueChange = {
-                    placeCategory = it
-                    tryAddUpdate = false
-                },
-                label = {
-                    Text(text = "Qual a categoria desse lugar?")
-                },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Category,
-                        contentDescription = null,
-                    )
-                },
-                maxLines = 1,
-                singleLine = true,
-                isError = tryAddUpdate && placeCategory.isEmpty(),
+            Card(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                shape = defaultRoundedShape,
-            )
+                    .fillMaxWidth()
+                    .height(55.dp),
+                shape = RoundedCornerShape(16.dp),
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Category,
+                            contentDescription = null,
+                        )
+                        Text(
+                            text = selectedPlaceCategory?.toCategoryName()
+                                ?: "Selecione uma categoria",
+                            modifier = Modifier
+                                .weight(1f)
+                                .align(Alignment.CenterVertically),
+                            fontWeight = if (selectedPlaceCategory == null) FontWeight.Normal else FontWeight.Bold,
+                        )
+                        IconButton(
+                            onClick = {
+                                isCategoryExpanded = true
+                            },
+                        ) {
+                            Icon(
+                                imageVector = Icons.TwoTone.KeyboardArrowUp,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(35.dp),
+                            )
+                        }
+                    }
+                }
+            }
+            Box(
+                modifier = Modifier.align(Alignment.End),
+            ) {
+                DropdownMenu(
+                    expanded = isCategoryExpanded,
+                    onDismissRequest = { isCategoryExpanded = false },
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier.height(400.dp),
+                ) {
+                    PlaceCategory.entries.sortedBy { it.name }.forEach { placeCategory ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = placeCategory.toCategoryName(),
+                                )
+                            },
+                            onClick = {
+                                selectedPlaceCategory = placeCategory
+                                isCategoryExpanded = false
+                            },
+                            contentPadding = PaddingValues(horizontal = 16.dp),
+                        )
+                    }
+                }
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End,
@@ -154,8 +213,17 @@ fun AddEditPlaceBottomSheet(
                     onClick = {
                         tryAddUpdate = true
                         focusManager.clearFocus()
-                        if (placeName.isEmpty() || placeCategory.isEmpty()) {
-                            Toast.makeText(context, "Preencha todos os campos!", Toast.LENGTH_SHORT)
+                        if (placeName.isEmpty()) {
+                            Toast.makeText(
+                                context,
+                                "O nome do local não pode estar vazio!",
+                                Toast.LENGTH_SHORT,
+                            )
+                                .show()
+                            return@Button
+                        }
+                        if (selectedPlaceCategory == null) {
+                            Toast.makeText(context, "Selecione uma categoria!", Toast.LENGTH_SHORT)
                                 .show()
                             return@Button
                         }
@@ -163,7 +231,7 @@ fun AddEditPlaceBottomSheet(
                             onEditNewPlace(
                                 placeDetailsState.currentPlace.copy(
                                     title = placeName,
-                                    category = placeCategory,
+                                    category = selectedPlaceCategory,
                                 ).toAccessibleLocalMarker(),
                             )
                             Toast.makeText(context, "Atualizando local...", Toast.LENGTH_SHORT)
@@ -172,7 +240,7 @@ fun AddEditPlaceBottomSheet(
                             onAddNewPlace(
                                 AccessibleLocalMarker(
                                     title = placeName,
-                                    category = placeCategory,
+                                    category = selectedPlaceCategory,
                                     position = latlng.latitude to latlng.longitude,
                                     authorEmail = userEmail,
                                     time = Date().toInstant().toString(),
