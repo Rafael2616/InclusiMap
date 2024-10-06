@@ -50,6 +50,7 @@ import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.PlaceCategory
 import com.rafael.inclusimap.core.domain.model.toAccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.toCategoryName
+import com.rafael.inclusimap.core.domain.model.toPlaceCategory
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsState
 import java.util.Date
 import kotlin.uuid.ExperimentalUuidApi
@@ -188,7 +189,9 @@ fun AddEditPlaceBottomSheet(
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier.height(400.dp),
                 ) {
-                    PlaceCategory.entries.sortedBy { it.name }.forEach { placeCategory ->
+                    PlaceCategory.entries.sortedBy {
+                        it.toCategoryName()
+                    }.map { it.toCategoryName().toPlaceCategory() }.forEach { placeCategory ->
                         DropdownMenuItem(
                             text = {
                                 Text(

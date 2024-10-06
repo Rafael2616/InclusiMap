@@ -51,3 +51,30 @@ fun PlaceCategory.toCategoryName() = when (this) {
     PlaceCategory.LIBRARY -> "Biblioteca"
     PlaceCategory.OTHER -> "Outro"
 }
+
+fun String.toPlaceCategory() = when (this) {
+    "Shopping" -> PlaceCategory.SHOPPING
+    "Supemercado" -> PlaceCategory.MARKET
+    "Praça" -> PlaceCategory.SQUARE
+    "Loja de Roupas" -> PlaceCategory.CLOTHING_STORE
+    "Loja de Eletrônicos" -> PlaceCategory.ELECTRONICS_STORE
+    "Hospital" -> PlaceCategory.HOSPITAL
+    "Restaurante" -> PlaceCategory.RESTAURANT
+    "Hamburgueria" -> PlaceCategory.BURGER
+    "Escola" -> PlaceCategory.SCHOOL
+    "Universidade" -> PlaceCategory.UNIVERSITY
+    "Banco" -> PlaceCategory.BANK
+    "Hotel" -> PlaceCategory.HOTEL
+    "Café" -> PlaceCategory.CAFE
+    "Parque" -> PlaceCategory.PARK
+    "Lazer" -> PlaceCategory.LEISURE
+    "Padaria" -> PlaceCategory.BAKERY
+    "Estacionamento" -> PlaceCategory.PARKING
+    "Sorveteria" -> PlaceCategory.ICE_CREAM_PARLOR
+    "Academia" -> PlaceCategory.GYM
+    "Igreja" -> PlaceCategory.CHURCH
+    "Bar" -> PlaceCategory.BAR
+    "Biblioteca" -> PlaceCategory.LIBRARY
+    "Outro" -> PlaceCategory.OTHER
+    else -> PlaceCategory.OTHER
+}
