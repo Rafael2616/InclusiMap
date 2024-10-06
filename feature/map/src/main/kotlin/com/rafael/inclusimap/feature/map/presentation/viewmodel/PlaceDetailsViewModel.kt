@@ -296,12 +296,16 @@ class PlaceDetailsViewModel(
 
     private fun onUploadPlaceImages(uris: List<Uri>, context: Context, imageFolderId: String?, placeId: String) {
         // Add the image to the list of images tobe showed in the app UI
+        val options = BitmapFactory.Options()
+        options.inSampleSize = 3
         val newImages = uris.map { uri ->
             PlaceImage(
                 userEmail = userEmail,
                 BitmapFactory.decodeStream(
                     context.contentResolver.openInputStream(uri),
-                ).asImageBitmap(),
+                    null,
+                    options,
+                )!!.asImageBitmap(),
                 placeId,
                 uri.lastPathSegment.toString(),
             )
