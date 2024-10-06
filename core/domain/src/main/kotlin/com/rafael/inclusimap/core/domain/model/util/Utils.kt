@@ -29,3 +29,15 @@ fun String.extractUserEmail(): String? = try {
 } catch (e: Exception) {
     null
 }
+
+fun String.extractPlaceID(): String? = try {
+    this.split("_")[0]
+} catch (e: Exception) {
+    null
+}
+
+fun String.extractPlaceUserEmail(): String? = try {
+    this.split("_")[1].removeSuffix(".json")
+} catch (e: Exception) {
+    null
+}

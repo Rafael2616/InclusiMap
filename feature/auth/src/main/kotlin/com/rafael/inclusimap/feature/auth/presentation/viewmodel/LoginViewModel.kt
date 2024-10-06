@@ -4,11 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.DeleteProcess
+import com.rafael.inclusimap.core.domain.model.util.extractPlaceUserEmail
 import com.rafael.inclusimap.core.domain.model.util.extractUserEmail
 import com.rafael.inclusimap.core.domain.network.onError
 import com.rafael.inclusimap.core.domain.network.onSuccess
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_IMAGE_FOLDER_ID
-import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_PLACE_DATA_FOLDER_ID
+import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_USERS_FOLDER_ID
 import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.feature.auth.domain.model.LoginEntity
@@ -21,7 +22,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -431,32 +432,21 @@ class LoginViewModel(
 
             if (keepContributions) return@launch
 
-            async {
-                // Delete user posted places
-                _state.update { it.copy(deleteStep = DeleteProcess.DELETING_USER_LOCAL_MARKERS) }
-                val json = Json { ignoreUnknownKeys = true }
-                driveService.listFiles(INCLUSIMAP_PLACE_DATA_FOLDER_ID).onSuccess { result ->
-                    result.find {
-                        it.name == "places.json"
-                    }.also { places ->
-                        val placesContent = places?.run {
-                            val content = driveService.getFileContent(this.id)?.decodeToString()
-                            json.decodeFromString<List<AccessibleLocalMarker>>(
-                                content ?: return@async,
-                            )
+            // Delete user posted places
+            _state.update { it.copy(deleteStep = DeleteProcess.DELETING_USER_LOCAL_MARKERS) }
+            driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
+                .onSuccess { result ->
+                    result.map { place ->
+                        async {
+                            if (place.name.extractPlaceUserEmail() != _state.value.user?.email) {
+                                return@async
+                            } else {
+                                println("Deleting place: ${place.name} - ${place.id} posted by user ${_state.value.user?.email}")
+                            }
+
+                            driveService.deleteFile(place.id)
                         }
-                        val placesWithoutUserPlaces = placesContent?.filterNot {
-                            it.authorEmail == _state.value.user?.email
-                        }
-                        val updatedPlaces = json.encodeToString<List<AccessibleLocalMarker>>(
-                            placesWithoutUserPlaces ?: return@async,
-                        )
-                        driveService.updateFile(
-                            places.id,
-                            "places.json",
-                            updatedPlaces.toByteArray().inputStream(),
-                        )
-                    }
+                    }.awaitAll()
                 }.onError {
                     _state.update {
                         it.copy(
@@ -466,23 +456,29 @@ class LoginViewModel(
                             networkError = true,
                         )
                     }
-                    return@async
+                    return@launch
                 }
-            }.invokeOnCompletion {
-                if (it != null) {
-                    _state.update {
-                        it.copy(
-                            deleteStep = DeleteProcess.ERROR,
-                            isDeletingAccount = false,
-                            isAccountDeleted = false,
-                        )
-                    }
+        }.invokeOnCompletion {
+            if (it != null) {
+                _state.update {
+                    it.copy(
+                        deleteStep = DeleteProcess.ERROR,
+                        isDeletingAccount = false,
+                        isAccountDeleted = false,
+                    )
                 }
+            }
+            viewModelScope.launch(Dispatchers.IO) {
                 async {
                     // Delete user posted images
                     _state.update { it.copy(deleteStep = DeleteProcess.DELETING_USER_IMAGES) }
                     driveService.listFiles(INCLUSIMAP_IMAGE_FOLDER_ID).onSuccess { places ->
                         places.forEach { place ->
+                            if (place.name.extractUserEmail() == _state.value.user?.email) {
+                                driveService.deleteFile(place.id)
+                                println("Deleting image folder ${place.name} - ${place.id} posted by user ${_state.value.user?.email}")
+                                return@forEach
+                            }
                             driveService.listFiles(place.id).onSuccess { images ->
                                 images.filter { image ->
                                     image.name.extractUserEmail() == _state.value.user?.email
@@ -520,31 +516,36 @@ class LoginViewModel(
                         // Delete user comments
                         _state.update { it.copy(deleteStep = DeleteProcess.DELETING_USER_COMMENTS) }
                         val json = Json { ignoreUnknownKeys = true }
-                        driveService.listFiles(INCLUSIMAP_PLACE_DATA_FOLDER_ID)
+                        driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
                             .onSuccess { result ->
-                                result.find {
-                                    it.name == "places.json"
-                                }.also { places ->
-                                    val placesContent = places?.run {
-                                        val content =
-                                            driveService.getFileContent(this.id)?.decodeToString()
-                                        json.decodeFromString<List<AccessibleLocalMarker>>(
-                                            content ?: return@async,
+                                result.map { place ->
+                                    async {
+                                        val placeContentString =
+                                            driveService.getFileContent(place.id)
+                                                ?.decodeToString()
+                                        val placeContent =
+                                            json.decodeFromString<AccessibleLocalMarker>(
+                                                placeContentString ?: "",
+                                            )
+
+                                        val placeWithoutUserComments = placeContent.copy(
+                                            comments = placeContent.comments.filterNot { it.email == _state.value.user?.email },
                                         )
+
+                                        if (placeWithoutUserComments.comments != placeContent.comments) {
+                                            println("Deleting comments in place ${place.name}")
+                                            val updatedPlace =
+                                                json.encodeToString<AccessibleLocalMarker>(
+                                                    placeWithoutUserComments,
+                                                )
+                                            driveService.updateFile(
+                                                place.id,
+                                                place.id + "_" + placeContent.authorEmail + ".json",
+                                                updatedPlace.toByteArray().inputStream(),
+                                            )
+                                        }
                                     }
-                                    val placesWithoutUserComments = placesContent?.map { place ->
-                                        place.copy(comments = place.comments.filterNot { it.email == _state.value.user?.email })
-                                    }
-                                    val updatedPlaces =
-                                        json.encodeToString<List<AccessibleLocalMarker>>(
-                                            placesWithoutUserComments ?: return@async,
-                                        )
-                                    driveService.updateFile(
-                                        places.id,
-                                        "places.json",
-                                        updatedPlaces.toByteArray().inputStream(),
-                                    )
-                                }
+                                }.awaitAll()
                             }.onError {
                                 _state.update {
                                     it.copy(
@@ -569,31 +570,31 @@ class LoginViewModel(
                         }
                     }
                 }
-            }
-        }.invokeOnCompletion {
-            viewModelScope.launch(Dispatchers.IO) {
-                if (it != null) {
-                    _state.update {
-                        it.copy(
-                            deleteStep = DeleteProcess.ERROR,
-                            isDeletingAccount = false,
-                            isAccountDeleted = false,
-                            isLoginOut = false,
-                        )
-                    }
-                } else if (!_state.value.networkError) {
-                    _state.update {
-                        it.copy(
-                            isDeletingAccount = false,
-                            deleteStep = DeleteProcess.SUCCESS,
-                            isAccountDeleted = true,
-                            isLoginOut = true,
-                        )
-                    }
-                }
             }.invokeOnCompletion {
-                if (!_state.value.networkError) {
-                    logout()
+                viewModelScope.launch(Dispatchers.IO) {
+                    if (it != null) {
+                        _state.update {
+                            it.copy(
+                                deleteStep = DeleteProcess.ERROR,
+                                isDeletingAccount = false,
+                                isAccountDeleted = false,
+                                isLoginOut = false,
+                            )
+                        }
+                    } else if (!_state.value.networkError) {
+                        _state.update {
+                            it.copy(
+                                isDeletingAccount = false,
+                                deleteStep = DeleteProcess.SUCCESS,
+                                isAccountDeleted = true,
+                                isLoginOut = true,
+                            )
+                        }
+                    }
+                }.invokeOnCompletion {
+                    if (!_state.value.networkError) {
+                        logout()
+                    }
                 }
             }
         }

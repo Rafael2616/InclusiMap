@@ -1,6 +1,7 @@
 package com.rafael.inclusimap.core.services
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
+import com.google.api.client.http.ByteArrayContent
 import com.google.api.client.http.InputStreamContent
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.drive.Drive
@@ -9,11 +10,11 @@ import com.google.auth.http.HttpCredentialsAdapter
 import com.google.auth.oauth2.GoogleCredentials
 import com.rafael.inclusimap.core.domain.network.Error
 import com.rafael.inclusimap.core.domain.network.NetworkError
+import com.rafael.inclusimap.core.domain.network.Result
 import java.io.FileNotFoundException
 import java.io.InputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import com.rafael.inclusimap.core.domain.network.Result
 
 class GoogleDriveService {
     val driveService: Drive
@@ -150,6 +151,31 @@ class GoogleDriveService {
                 driveService.files().update(fileId, fileMetadata, mediaContent).execute()
             } catch (e: Exception) {
                 e.printStackTrace()
+                null
+            }
+        }
+
+    suspend fun createFile(fileName: String, content: String, parentFolderId: String? = null): String? =
+        withContext(Dispatchers.IO) {
+            try {
+                val fileMetadata = File().apply {
+                    name = fileName
+                    mimeType = "application/json"
+                    if (parentFolderId != null) {
+                        parents = listOf(parentFolderId)
+                    }
+                }
+
+                val mediaContent = ByteArrayContent(fileMetadata.mimeType, content.toByteArray())
+
+                val file = driveService.files().create(fileMetadata, mediaContent)
+                    .setFields("id")
+                    .execute()
+
+                file.id
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
             }
         }
 }
