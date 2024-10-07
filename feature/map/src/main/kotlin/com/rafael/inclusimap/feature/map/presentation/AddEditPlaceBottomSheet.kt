@@ -1,6 +1,7 @@
 package com.rafael.inclusimap.feature.map.presentation
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -53,6 +54,7 @@ import com.rafael.inclusimap.core.domain.model.toAccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.toCategoryName
 import com.rafael.inclusimap.core.domain.model.toPlaceCategory
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsState
+import com.rafael.inclusimap.feature.map.presentation.dialog.AddNewPlaceConfirmationDialog
 import java.util.Date
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -79,6 +81,8 @@ fun AddEditPlaceBottomSheet(
     val context = LocalContext.current
     var maxPlaceNameLength by remember { mutableIntStateOf(50) }
     var selectedPlaceCategory by remember { mutableStateOf(if (isEditing) placeDetailsState.currentPlace.category else null) }
+    var showConfirmationDialog by remember { mutableStateOf(false) }
+
     ModalBottomSheet(
         sheetState = bottomSheetScaffoldState,
         onDismissRequest = onDismiss,
@@ -250,29 +254,42 @@ fun AddEditPlaceBottomSheet(
                             )
                             Toast.makeText(context, "Atualizando local...", Toast.LENGTH_SHORT)
                                 .show()
+                            onDismiss()
                         } else {
-                            onAddNewPlace(
-                                AccessibleLocalMarker(
-                                    title = placeName,
-                                    category = selectedPlaceCategory,
-                                    position = latlng.latitude to latlng.longitude,
-                                    authorEmail = userEmail,
-                                    time = Date().toInstant().toString(),
-                                    id = Uuid.random().toString(),
-                                ),
-                            )
-                            Toast.makeText(
-                                context,
-                                "Local adicionado com sucesso!",
-                                Toast.LENGTH_SHORT,
-                            ).show()
+                            showConfirmationDialog = true
                         }
-                        onDismiss()
                     },
                 ) {
                     Text(text = if (isEditing) "Atualizar" else "Adicionar")
                 }
             }
         }
+    }
+
+    AnimatedVisibility(showConfirmationDialog) {
+        AddNewPlaceConfirmationDialog(
+            onDismiss = {
+                showConfirmationDialog = false
+            },
+            onConfirm = {
+                onAddNewPlace(
+                    AccessibleLocalMarker(
+                        title = placeName,
+                        category = selectedPlaceCategory,
+                        position = latlng.latitude to latlng.longitude,
+                        authorEmail = userEmail,
+                        time = Date().toInstant().toString(),
+                        id = Uuid.random().toString(),
+                    ),
+                )
+                Toast.makeText(
+                    context,
+                    "Local adicionado com sucesso!",
+                    Toast.LENGTH_SHORT,
+                ).show()
+                showConfirmationDialog = false
+                onDismiss()
+            },
+        )
     }
 }
