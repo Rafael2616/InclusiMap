@@ -66,6 +66,7 @@ import com.rafael.inclusimap.feature.map.domain.InclusiMapEvent
 import com.rafael.inclusimap.feature.map.domain.InclusiMapState
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsState
+import com.rafael.inclusimap.feature.map.domain.Report
 import com.rafael.inclusimap.feature.map.presentation.dialog.PlacesNotLoadedDialog
 import com.rafael.inclusimap.feature.map.presentation.dialog.ServerUnavailableDialog
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchEvent
@@ -92,6 +93,7 @@ fun InclusiMapGoogleMapScreen(
     onMapTypeChange: (MapType) -> Unit,
     userName: String,
     userEmail: String,
+    onReport: (Report) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var animateMap by remember { mutableStateOf(false) }
@@ -365,6 +367,7 @@ fun InclusiMapGoogleMapScreen(
             onUpdateMappedPlace = { placeUpdated ->
                 latestOnEvent(InclusiMapEvent.OnUpdateMappedPlace(placeUpdated))
             },
+            onReport = onReport,
         )
     }
     AnimatedVisibility(addPlaceBottomSheetScaffoldState.isVisible || placeDetailsState.isEditingPlace) {

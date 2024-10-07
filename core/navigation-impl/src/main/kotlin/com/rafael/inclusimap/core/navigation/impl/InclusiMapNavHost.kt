@@ -29,6 +29,7 @@ import com.rafael.inclusimap.feature.libraryinfo.presentation.viewmodel.LibraryV
 import com.rafael.inclusimap.feature.map.presentation.InclusiMapGoogleMapScreen
 import com.rafael.inclusimap.feature.map.presentation.viewmodel.InclusiMapGoogleMapViewModel
 import com.rafael.inclusimap.feature.map.presentation.viewmodel.PlaceDetailsViewModel
+import com.rafael.inclusimap.feature.map.presentation.viewmodel.ReportViewModel
 import com.rafael.inclusimap.feature.map.search.presentation.viewmodel.SearchViewModel
 import com.rafael.inclusimap.feature.settings.presentation.SettingsScreen
 import com.rafael.inclusimap.feature.settings.presentation.viewmodel.SettingsViewModel
@@ -62,6 +63,7 @@ fun InclusiMapNavHost(
         val settingsState by settingsViewModel.state.collectAsStateWithLifecycle()
         val libraryViewModel = koinViewModel<LibraryViewModel>()
         val ossLibraries by libraryViewModel.ossLibraries.collectAsStateWithLifecycle()
+        val reportViewModel = koinViewModel<ReportViewModel>()
 
         InclusiMapTheme(state = settingsState) {
             Scaffold(
@@ -129,6 +131,9 @@ fun InclusiMapNavHost(
                             onNavigateToSettings = { navController.navigate(Destination.SettingsScreen) },
                             userName = loginState.user?.name ?: "",
                             userEmail = loginState.user?.email ?: "",
+                            onReport = {
+                                reportViewModel.onReport(it)
+                            },
                         )
                     }
                     composable<Destination.SettingsScreen> {

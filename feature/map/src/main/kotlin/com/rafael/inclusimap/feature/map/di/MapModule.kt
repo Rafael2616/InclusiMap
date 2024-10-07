@@ -5,6 +5,7 @@ import com.rafael.inclusimap.feature.auth.data.repository.LoginRepositoryImpl
 import com.rafael.inclusimap.feature.map.data.repository.AccessibleLocalsRepositoryImpl
 import com.rafael.inclusimap.feature.map.presentation.viewmodel.InclusiMapGoogleMapViewModel
 import com.rafael.inclusimap.feature.map.presentation.viewmodel.PlaceDetailsViewModel
+import com.rafael.inclusimap.feature.map.presentation.viewmodel.ReportViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
@@ -17,5 +18,8 @@ val mapModule = module {
     }
     viewModel {
         PlaceDetailsViewModel(get(), get<LoginRepositoryImpl>())
+    }
+    viewModel {
+        ReportViewModel(get<LoginRepositoryImpl>(), get<GoogleDriveService>())
     }
 }

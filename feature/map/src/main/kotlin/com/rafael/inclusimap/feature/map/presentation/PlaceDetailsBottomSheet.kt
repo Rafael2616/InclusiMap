@@ -89,6 +89,7 @@ import com.rafael.inclusimap.core.domain.util.Constants.MAX_IMAGE_NUMBER
 import com.rafael.inclusimap.feature.map.domain.InclusiMapState
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsState
+import com.rafael.inclusimap.feature.map.domain.Report
 import com.rafael.inclusimap.feature.map.presentation.dialog.PlaceInfoDialog
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -105,6 +106,7 @@ fun PlaceDetailsBottomSheet(
     userName: String,
     inclusiMapState: InclusiMapState,
     onDismiss: () -> Unit,
+    onReport: (Report) -> Unit,
     state: PlaceDetailsState,
     onEvent: (PlaceDetailsEvent) -> Unit,
     onUpdateMappedPlace: (AccessibleLocalMarker) -> Unit,
@@ -676,6 +678,7 @@ fun PlaceDetailsBottomSheet(
             onDismiss = {
                 showPlaceInfo = false
             },
+            onReport = onReport,
         )
     }
 }
