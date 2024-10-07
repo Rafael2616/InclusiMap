@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -177,10 +178,10 @@ fun PlaceReportDialog(
                     keyboardOptions = KeyboardOptions(
                         autoCorrectEnabled = true,
                         capitalization = KeyboardCapitalization.Sentences,
-                        imeAction = ImeAction.Send,
+                        imeAction = ImeAction.Done,
                     ),
                     keyboardActions = KeyboardActions(
-                        onSend = {
+                        onDone = {
                             focusManager.clearFocus()
                         }
                     ),
@@ -199,7 +200,10 @@ fun PlaceReportDialog(
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Button(onClick = onDismiss) {
+                    Button(
+                        onClick = onDismiss,
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+                    ) {
                         Text(text = "Cancelar")
                     }
                     IconButton(
