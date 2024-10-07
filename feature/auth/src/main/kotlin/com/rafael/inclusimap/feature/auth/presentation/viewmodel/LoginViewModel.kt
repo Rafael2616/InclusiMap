@@ -213,9 +213,8 @@ class LoginViewModel(
 
                                 val userLoginFileContent = driveService.getFileContent(
                                     userLoginFile?.id
-                                        ?: throw IllegalStateException("User not found"),
+                                        ?: throw IllegalStateException("User data file not found"),
                                 )?.decodeToString()
-                                println("User file content: $userLoginFileContent")
 
                                 if (userLoginFileContent == null) {
                                     println("User file content is null")
