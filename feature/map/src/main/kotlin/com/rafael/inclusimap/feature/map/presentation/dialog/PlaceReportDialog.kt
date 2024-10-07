@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imeNestedScroll
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material3.Button
@@ -35,7 +37,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -58,6 +63,7 @@ fun PlaceReportDialog(
     val maxReportLength by remember { mutableIntStateOf(250) }
     val minReportLength by remember { mutableIntStateOf(15) }
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -168,6 +174,16 @@ fun PlaceReportDialog(
                             )
                         }
                     },
+                    keyboardOptions = KeyboardOptions(
+                        autoCorrectEnabled = true,
+                        capitalization = KeyboardCapitalization.Sentences,
+                        imeAction = ImeAction.Send,
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onSend = {
+                            focusManager.clearFocus()
+                        }
+                    ),
                     shape = RoundedCornerShape(topEnd = 12.dp, topStart = 12.dp),
                 )
                 Text(
