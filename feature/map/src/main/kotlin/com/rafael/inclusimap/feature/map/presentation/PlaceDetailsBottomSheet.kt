@@ -85,6 +85,7 @@ import com.rafael.inclusimap.core.domain.model.toAccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.toCategoryName
 import com.rafael.inclusimap.core.domain.model.util.toColor
 import com.rafael.inclusimap.core.domain.model.util.toMessage
+import com.rafael.inclusimap.core.domain.util.Constants.MAX_IMAGE_NUMBER
 import com.rafael.inclusimap.feature.map.domain.InclusiMapState
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsState
@@ -118,6 +119,14 @@ fun PlaceDetailsBottomSheet(
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) { uris ->
             uris.takeIf { it.isNotEmpty() }?.let {
+                if (uris.size + state.currentPlace.images.size > MAX_IMAGE_NUMBER) {
+                    Toast.makeText(
+                        context,
+                        "Não é possivel adicionar todas essas imagens, o limite de imagens por local é $MAX_IMAGE_NUMBER",
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                    return@rememberLauncherForActivityResult
+                }
                 latestEvent(
                     PlaceDetailsEvent.OnUploadPlaceImages(
                         it,
@@ -358,34 +367,36 @@ fun PlaceDetailsBottomSheet(
                                         )
                                     }
                                 }
-                                Card(
-                                    modifier = Modifier
-                                        .fillMaxHeight()
-                                        .width(imageWidth)
-                                        .clip(RoundedCornerShape(24.dp))
-                                        .clickable {
-                                            launcher.launch(
-                                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
-                                            )
-                                        },
-                                ) {
-                                    Column(
+                                if (state.currentPlace.images.size < MAX_IMAGE_NUMBER) {
+                                    Card(
                                         modifier = Modifier
-                                            .fillMaxSize(),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.Center,
+                                            .fillMaxHeight()
+                                            .width(imageWidth)
+                                            .clip(RoundedCornerShape(24.dp))
+                                            .clickable {
+                                                launcher.launch(
+                                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                                                )
+                                            },
                                     ) {
-                                        Icon(
-                                            imageVector = Icons.Default.AddAPhoto,
-                                            contentDescription = null,
+                                        Column(
                                             modifier = Modifier
-                                                .size(40.dp),
-                                        )
-                                        Text(
-                                            text = "Adicionar imagem",
-                                            fontSize = 14.sp,
-                                            fontWeight = FontWeight.Normal,
-                                        )
+                                                .fillMaxSize(),
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.Center,
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.AddAPhoto,
+                                                contentDescription = null,
+                                                modifier = Modifier
+                                                    .size(40.dp),
+                                            )
+                                            Text(
+                                                text = "Adicionar imagem",
+                                                fontSize = 14.sp,
+                                                fontWeight = FontWeight.Normal,
+                                            )
+                                        }
                                     }
                                 }
                             }

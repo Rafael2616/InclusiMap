@@ -17,6 +17,7 @@ import com.rafael.inclusimap.core.domain.model.util.extractUserEmail
 import com.rafael.inclusimap.core.domain.network.Result
 import com.rafael.inclusimap.core.domain.network.onSuccess
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_IMAGE_FOLDER_ID
+import com.rafael.inclusimap.core.domain.util.Constants.MAX_IMAGE_NUMBER
 import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsEvent
@@ -88,7 +89,7 @@ class PlaceDetailsViewModel(
                         },
                     )
                 }
-                delay(350)
+                delay(300)
             }.await()
         }.invokeOnCompletion {
             if (!state.value.isCurrentPlaceLoaded || state.value.loadedPlaces.find { existingPlace -> existingPlace.id == place.id }?.images?.isEmpty() == true) {
@@ -202,8 +203,18 @@ class PlaceDetailsViewModel(
                 }
             }.await()
 
-            _state.value.currentPlace.imageFolder?.map { file ->
+            _state.value.currentPlace.imageFolder?.mapIndexed { index, file ->
                 async {
+                    // Is expected that this condition never sucessseds, but is important to ensure
+                    // that no more images that max limit loads, as it can cause UI lags, and much processing
+                    if (index >= MAX_IMAGE_NUMBER) {
+                        _state.update {
+                            it.copy(allImagesLoaded = true)
+                        }
+                        println("Max image limit reached, skipping image ${file.name}")
+                        return@async
+                    }
+
                     try {
                         val fileContent = driveService.driveService.files().get(file.id)
                             .executeMediaAsInputStream()
