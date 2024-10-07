@@ -179,10 +179,10 @@ class LoginViewModel(
                     _state.update {
                         it.copy(
                             userAlreadyRegistered =
-                            userFile.any { user -> user.name.split(".json")[0] == registeredUser.email },
+                            userFile.any { user -> user.name.split(".json")[0] == registeredUser.email }.also { isRegistered ->
+                                println("User already registered? $isRegistered")
+                            },
                         )
-                    }.also { isRegistered ->
-                        println("User already registered? $isRegistered")
                     }
                 }.onError {
                     _state.update {
