@@ -55,7 +55,7 @@ fun TermsAndConditionsDialog(
         "3- Como garantimos sua privacidade?",
         "4- O que acontece quando eu excluo minha conta?",
         "1- Ao entrar nesse serviço, você concorda que:",
-        "2- Ao entrar nesse serviço, você se compromente:",
+        "2- Ao entrar nesse serviço, você se compromente a:",
     )
     val termsAndServicesString = buildAnnotatedString {
         val termsAndServicesFileLowercase = termsAndServicesFile.lowercase()
@@ -123,14 +123,14 @@ fun TermsAndConditionsDialog(
                 )
                 LazyColumnScrollbar(
                     modifier = Modifier
-                        .padding(top = 24.dp)
-                        .fillMaxHeight(),
+                        .padding(top = 35.dp),
                     state = state,
                     settings = ScrollbarSettings(
                         scrollbarPadding = 10.dp,
                         thumbUnselectedColor = MaterialTheme.colorScheme.primary,
                         thumbSelectedColor = MaterialTheme.colorScheme.primary,
                         thumbMinLength = 0.05f,
+                        thumbMaxLength = 0.3f,
                         thumbThickness = 6.dp,
                     ),
                 ) {
@@ -138,7 +138,7 @@ fun TermsAndConditionsDialog(
                         modifier = Modifier
                             .height(500.dp)
                             .padding(horizontal = 24.dp)
-                            .padding(top = 24.dp, end = 8.dp),
+                            .padding(top = 24.dp, bottom = 8.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         state = state,
@@ -149,7 +149,7 @@ fun TermsAndConditionsDialog(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .fillMaxHeight(),
-                                textAlign = TextAlign.Start,
+                                textAlign = TextAlign.Justify,
                                 fontSize = 14.sp,
                                 lineHeight = 14.sp,
                                 style = MaterialTheme.typography.titleLarge,
