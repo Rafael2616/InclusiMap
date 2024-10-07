@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -76,6 +77,7 @@ fun AddEditPlaceBottomSheet(
     var tryAddUpdate by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
+    var maxPlaceNameLength by remember { mutableIntStateOf(50) }
     var selectedPlaceCategory by remember { mutableStateOf(if (isEditing) placeDetailsState.currentPlace.category else null) }
     ModalBottomSheet(
         sheetState = bottomSheetScaffoldState,
@@ -114,7 +116,9 @@ fun AddEditPlaceBottomSheet(
             TextField(
                 value = placeName,
                 onValueChange = {
-                    placeName = it
+                    if (it.length <= maxPlaceNameLength) {
+                        placeName = it
+                    }
                     tryAddUpdate = false
                 },
                 label = {
@@ -129,12 +133,19 @@ fun AddEditPlaceBottomSheet(
                         contentDescription = null,
                     )
                 },
+                trailingIcon = {
+                    Text(
+                        text = "${placeName.length}/$maxPlaceNameLength",
+                        fontSize = 14.sp,
+                    )
+                },
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Next,
                 ),
                 modifier = Modifier
                     .fillMaxWidth(),
                 shape = defaultRoundedShape,
+                minLines = maxPlaceNameLength,
             )
             Card(
                 modifier = Modifier
@@ -149,7 +160,7 @@ fun AddEditPlaceBottomSheet(
                     Row(
                         Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
+                            .padding(start = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
