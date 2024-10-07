@@ -369,7 +369,7 @@ class PlaceDetailsViewModel(
                     driveService.uploadFile(
                         ByteArrayInputStream(compressedImage),
                         "${
-                            _state.value.currentPlace.imageFolderId
+                            _state.value.currentPlace.id
                         }_$userEmail-${Date().toInstant()}.jpg",
                         _state.value.currentPlace.imageFolderId
                             ?: throw IllegalStateException("Folder not found: Maybe an issue has occurred while creating the folder"),
