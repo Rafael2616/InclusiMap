@@ -48,7 +48,7 @@ fun AppIntroDialog(
     ) {
         Card(
             modifier = modifier
-                .fillMaxWidth(0.9f)
+                .fillMaxWidth(0.85f)
                 .wrapContentHeight()
                 .clip(RoundedCornerShape(24.dp)),
             colors = CardDefaults.cardColors(

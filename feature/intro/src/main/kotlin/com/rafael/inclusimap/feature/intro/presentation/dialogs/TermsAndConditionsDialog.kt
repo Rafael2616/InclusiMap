@@ -1,6 +1,5 @@
 package com.rafael.inclusimap.feature.intro.presentation.dialogs
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -14,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -103,8 +103,10 @@ fun TermsAndConditionsDialog(
             modifier = modifier
                 .height(560.dp)
                 .fillMaxWidth(0.85f)
-                .clip(RoundedCornerShape(24.dp))
-                .background(MaterialTheme.colorScheme.surfaceColorAtElevation(10.dp)),
+                .clip(RoundedCornerShape(24.dp)),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp),
+            ),
         ) {
             Box(
                 modifier = Modifier
@@ -120,7 +122,7 @@ fun TermsAndConditionsDialog(
                         .align(Alignment.TopCenter)
                         .padding(top = 16.dp),
 
-                )
+                    )
                 LazyColumnScrollbar(
                     modifier = Modifier
                         .padding(top = 35.dp),
