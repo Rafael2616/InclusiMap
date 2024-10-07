@@ -11,8 +11,8 @@ import androidx.navigation.NavController
 import com.rafael.inclusimap.core.domain.model.DeleteProcess
 import com.rafael.inclusimap.core.settings.domain.model.SettingsEvent
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
-import com.rafael.inclusimap.core.settings.presentation.TermsAndConditionsDialog
 import com.rafael.inclusimap.feature.intro.presentation.dialogs.AppIntroDialog
+import com.rafael.inclusimap.feature.intro.presentation.dialogs.TermsAndConditionsDialog
 import com.rafael.inclusimap.feature.settings.presentation.components.Preferences
 import com.rafael.inclusimap.feature.settings.presentation.components.SettingsTopBar
 

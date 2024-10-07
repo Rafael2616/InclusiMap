@@ -1,4 +1,4 @@
-package com.rafael.inclusimap.core.settings.presentation
+package com.rafael.inclusimap.feature.intro.presentation.dialogs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

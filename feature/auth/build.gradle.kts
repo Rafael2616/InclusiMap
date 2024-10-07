@@ -27,7 +27,7 @@ dependencies {
     implementation(projects.core.domain)
     implementation(projects.core.services)
     implementation(projects.core.resources)
-    implementation(projects.core.settings)
+    implementation(projects.feature.intro)
 }
 
 ksp {

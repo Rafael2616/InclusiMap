@@ -47,11 +47,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.rafael.inclusimap.core.settings.presentation.TermsAndConditionsDialog
 import com.rafael.inclusimap.feature.auth.domain.model.LoginState
 import com.rafael.inclusimap.feature.auth.domain.model.User
 import com.rafael.inclusimap.feature.auth.domain.utils.isValidEmail
 import com.rafael.inclusimap.feature.auth.domain.utils.isValidPassword
+import com.rafael.inclusimap.feature.intro.presentation.dialogs.TermsAndConditionsDialog
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -335,7 +335,7 @@ fun RegistrationScreen(
     }
 
     AnimatedVisibility(showTermsAndConditionsDialog) {
-        TermsAndConditionsDialog(
+       TermsAndConditionsDialog(
             onDismissRequest = {
                 showTermsAndConditionsDialog = false
             },
