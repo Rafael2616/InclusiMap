@@ -8,8 +8,8 @@ enum class ReportType {
 }
 
 fun ReportType.toText() = when (this) {
-    ReportType.LOCAL -> "Local"
-    ReportType.COMMENT -> "Comentário"
-    ReportType.IMAGE -> "Imagem"
+    ReportType.LOCAL -> "O local"
+    ReportType.COMMENT -> "Um comentário"
+    ReportType.IMAGE -> "Uma imagem"
     ReportType.OTHER -> "Outro"
 }

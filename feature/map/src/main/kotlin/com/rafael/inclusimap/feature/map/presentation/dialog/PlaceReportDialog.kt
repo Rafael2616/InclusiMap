@@ -88,14 +88,14 @@ fun PlaceReportDialog(
                 Spacer(modifier = Modifier.height(8.dp))
                 Row {
                     Text(
-                        text = "LOCAL: ",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
+                        text = "Local: ",
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 18.sp,
                     )
                     Text(
                         text = localMarker.title,
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 18.sp
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 18.sp,
                     )
                 }
                 Card(
@@ -107,21 +107,21 @@ fun PlaceReportDialog(
                     ),
                     shape = RoundedCornerShape(12.dp),
                 ) {
-                    Text(
-                        text = "Tipo de Report:",
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 16.sp,
-                        modifier = Modifier
-                            .padding(start = 4.dp, top = 8.dp)
-                    )
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
+                        Text(
+                            text = "O que você deseja reportar?",
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 16.sp,
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
                         ReportType.entries.forEach { type ->
-                            Row {
+                            Row(
+                                modifier = Modifier.height(35.dp),
+                            ) {
                                 Text(
                                     text = type.toText(),
                                     modifier = Modifier.weight(1f),
@@ -151,17 +151,19 @@ fun PlaceReportDialog(
                         .height(100.dp),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(20.dp),
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(20.dp),
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                            20.dp,
+                        ),
                     ),
                     trailingIcon = {
                         Row {
                             Text(
-                                text = "${report.length}/",
+                                text = "${report.length}",
                                 fontSize = 12.sp,
-                                color = if (report.length < minReportLength && report.isNotEmpty()) MaterialTheme.colorScheme.error else LocalContentColor.current
+                                color = if (report.length < minReportLength && report.isNotEmpty()) MaterialTheme.colorScheme.error else LocalContentColor.current,
                             )
                             Text(
-                                text = maxReportLength.toString(),
+                                text = "/$maxReportLength",
                                 fontSize = 12.sp,
                             )
                         }
@@ -169,7 +171,7 @@ fun PlaceReportDialog(
                     shape = RoundedCornerShape(topEnd = 12.dp, topStart = 12.dp),
                 )
                 Text(
-                    text = "Certifique-se de que o conteúdo do report está de acordo com as políticas do aplicativo, antes de enviar!",
+                    text = "Antes de enviar, certifique-se de que o conteúdo do report está de acordo com as políticas do aplicativo!",
                     fontSize = 10.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                     lineHeight = 12.sp,
@@ -179,19 +181,27 @@ fun PlaceReportDialog(
                         .fillMaxWidth()
                         .padding(top = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Button(onClick =onDismiss) {
+                    Button(onClick = onDismiss) {
                         Text(text = "Cancelar")
                     }
                     IconButton(
                         onClick = {
                             if (report.isEmpty()) {
-                                Toast.makeText(context, "Report não pode estar vazio!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "Report não pode estar vazio!",
+                                    Toast.LENGTH_SHORT,
+                                ).show()
                                 return@IconButton
                             }
                             if (report.length < minReportLength) {
-                                Toast.makeText(context, "Report deve conter pelo menos $minReportLength caracteres!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "Report deve conter pelo menos $minReportLength caracteres!",
+                                    Toast.LENGTH_SHORT,
+                                ).show()
                                 return@IconButton
                             }
                             onReport(
@@ -200,16 +210,15 @@ fun PlaceReportDialog(
                                     content = report,
                                     reportedLocal = localMarker,
                                     user = null, // User will handled in the viewmodel
-                                )
+                                ),
                             )
                             Toast.makeText(context, "Report enviado!", Toast.LENGTH_SHORT).show()
                             onDismiss()
                         },
-                        modifier = Modifier.padding(end = 8.dp)
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.Send,
-                            contentDescription = "Enviar"
+                            contentDescription = "Enviar",
                         )
                     }
                 }
