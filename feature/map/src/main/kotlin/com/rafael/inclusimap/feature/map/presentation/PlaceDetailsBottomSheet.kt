@@ -122,7 +122,7 @@ fun PlaceDetailsBottomSheet(
                 if (uris.size + state.currentPlace.images.size > MAX_IMAGE_NUMBER) {
                     Toast.makeText(
                         context,
-                        "Não é possivel adicionar todas essas imagens, o limite de imagens por local é $MAX_IMAGE_NUMBER",
+                        "Não foi possível adicionar todas as imagens, o limite de imagens por local é $MAX_IMAGE_NUMBER",
                         Toast.LENGTH_SHORT,
                     ).show()
                     return@rememberLauncherForActivityResult
