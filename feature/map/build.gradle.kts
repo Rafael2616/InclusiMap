@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.rafael.library.compose)
     alias(libs.plugins.rafael.spotless)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.androidx.room)
 }
 
 android.namespace = "com.rafael.inclusimap.feature.map"
@@ -17,8 +19,12 @@ dependencies {
     // Google Maps
     api(libs.maps.compose)
     implementation(libs.play.services.location)
+    // Room
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
     // Koin
     api(libs.koin.core)
+    api(libs.koin.android)
     implementation(libs.koin.core.viewmodel)
 
     // Projects
@@ -29,4 +35,14 @@ dependencies {
     implementation(projects.feature.auth)
     implementation(projects.feature.mapSearch)
     implementation(projects.feature.intro)
+}
+
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+    arg("room.incremental", "true")
+    arg("room.generateKotlin", "true")
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
 }

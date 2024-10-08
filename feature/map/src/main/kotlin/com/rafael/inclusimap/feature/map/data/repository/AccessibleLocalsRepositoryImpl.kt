@@ -6,6 +6,8 @@ import com.rafael.inclusimap.core.domain.network.Result.Error
 import com.rafael.inclusimap.core.domain.network.Result.Success
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID
 import com.rafael.inclusimap.core.services.GoogleDriveService
+import com.rafael.inclusimap.feature.map.data.dao.AccessibleLocalsDao
+import com.rafael.inclusimap.feature.map.domain.AccessibleLocalsEntity
 import com.rafael.inclusimap.feature.map.domain.repository.AccessibleLocalsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -16,6 +18,7 @@ import kotlinx.serialization.json.Json
 
 class AccessibleLocalsRepositoryImpl(
     private val driveService: GoogleDriveService,
+    private val dao: AccessibleLocalsDao,
 ) : AccessibleLocalsRepository {
     private val json = Json {
         ignoreUnknownKeys = true
@@ -115,5 +118,13 @@ class AccessibleLocalsRepositoryImpl(
         }.also {
             println("File uploaded successfully with removed place id: $id")
         }
+    }
+
+    override suspend fun getAccessibleLocalsStored(id: Int): List<AccessibleLocalMarker> {
+        return dao.getLocals(id)
+    }
+
+    override suspend fun updateAccessibleLocalStored(accessibleLocalEntity: AccessibleLocalsEntity) {
+        dao.updateLocals(accessibleLocalEntity)
     }
 }

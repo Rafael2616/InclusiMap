@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
+import com.rafael.inclusimap.feature.map.domain.AccessibleLocalsEntity
 import com.rafael.inclusimap.feature.map.domain.InclusiMapEvent
 import com.rafael.inclusimap.feature.map.domain.InclusiMapState
 import com.rafael.inclusimap.feature.map.domain.repository.AccessibleLocalsRepository
@@ -18,6 +19,17 @@ class InclusiMapGoogleMapViewModel(
 ) : ViewModel() {
     private val _state = MutableStateFlow(InclusiMapState())
     val state = _state.asStateFlow()
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            val allStoredMappedPlaces = accessibleLocalsRepository.getAccessibleLocalsStored(1)
+            _state.update {
+                it.copy(
+                    allMappedPlaces = allStoredMappedPlaces,
+                )
+            }
+        }
+    }
 
     fun onEvent(event: InclusiMapEvent) {
         when (event) {
@@ -62,6 +74,12 @@ class InclusiMapGoogleMapViewModel(
                     return@launch
                 }
                 _state.update { it.copy(allMappedPlaces = mappedPlaces) }
+                accessibleLocalsRepository.updateAccessibleLocalStored(
+                    AccessibleLocalsEntity(
+                        id = 1,
+                        locals = mappedPlaces,
+                    ),
+                )
             }
         }.invokeOnCompletion {
             if (_state.value.allMappedPlaces.isEmpty() && !_state.value.failedToConnectToServer) {
