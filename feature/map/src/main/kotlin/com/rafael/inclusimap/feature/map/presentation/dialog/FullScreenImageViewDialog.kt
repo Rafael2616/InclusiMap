@@ -2,6 +2,7 @@ package com.rafael.inclusimap.feature.map.presentation.dialog
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -123,14 +124,20 @@ fun FullScreenImageViewDialog(
                     ) { index ->
                         images[index]?.let { image ->
                             currentImageIndex = index
-                            Image(
-                                bitmap = image.image,
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
+                            Box(
                                 modifier = Modifier
-                                    .aspectRatio(image.image.width / image.image.height.toFloat())
-                                    .maskClip(RoundedCornerShape(12.dp)),
-                            )
+                                    .fillMaxWidth(),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Image(
+                                    bitmap = image.image,
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .aspectRatio(image.image.width / image.image.height.toFloat())
+                                        .maskClip(RoundedCornerShape(12.dp)),
+                                )
+                            }
                         }
                     }
                 } else {
@@ -146,13 +153,19 @@ fun FullScreenImageViewDialog(
                     ) { index ->
                         images[index]?.let { image ->
                             currentImageIndex = index
-                            Image(
-                                bitmap = image.image,
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
+                            Box(
                                 modifier = Modifier
-                                    .aspectRatio(image.image.width / image.image.height.toFloat()),
-                            )
+                                    .fillMaxWidth(),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Image(
+                                    bitmap = image.image,
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .aspectRatio(image.image.width / image.image.height.toFloat()),
+                                )
+                            }
                         }
                     }
                 }
@@ -161,7 +174,7 @@ fun FullScreenImageViewDialog(
                     modifier = Modifier
                         .padding(bottom = 16.dp)
                         .fillMaxWidth()
-                        .weight(0.12f),
+                        .weight(0.1f),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.Top,
                 ) {
