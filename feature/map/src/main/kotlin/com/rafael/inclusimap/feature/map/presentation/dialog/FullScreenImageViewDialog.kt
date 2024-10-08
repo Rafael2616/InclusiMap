@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -78,7 +79,7 @@ fun FullScreenImageViewDialog(
                 modifier = Modifier
                     .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
+                verticalArrangement = Arrangement.Top,
             ) {
                 Row(
                     modifier = Modifier
@@ -112,76 +113,85 @@ fun FullScreenImageViewDialog(
                         )
                     }
                 }
-                if (isMultiBrowserView) {
-                    HorizontalMultiBrowseCarousel(
-                        state = state,
-                        preferredItemWidth = (0.85 * width).dp,
-                        itemSpacing = 10.dp,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .navigationBarsPadding(),
-                        flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(state),
-                    ) { index ->
-                        images[index]?.let { image ->
-                            currentImageIndex = index
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Image(
-                                    bitmap = image.image,
-                                    contentDescription = null,
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier
-                                        .aspectRatio(image.image.width / image.image.height.toFloat())
-                                        .maskClip(RoundedCornerShape(12.dp)),
-                                )
-                            }
-                        }
-                    }
-                } else {
-                    HorizontalUncontainedCarousel(
-                        state = state,
-                        itemWidth = (0.85 * width).dp,
-                        itemSpacing = 10.dp,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .navigationBarsPadding(),
-                        flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(state),
-                    ) { index ->
-                        images[index]?.let { image ->
-                            currentImageIndex = index
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Image(
-                                    bitmap = image.image,
-                                    contentDescription = null,
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier
-                                        .aspectRatio(image.image.width / image.image.height.toFloat()),
-                                )
-                            }
-                        }
-                    }
-                }
-
-                Row(
+                Column(
                     modifier = Modifier
-                        .padding(bottom = 16.dp)
-                        .fillMaxWidth()
-                        .weight(0.1f),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.Top,
+                        .fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
                 ) {
-                    Text(
-                        text = "Imagem publicada em: ${images[currentImageIndex]?.name?.extractImageDate() ?: "Sem dados"}",
-                        fontSize = 14.sp,
-                        color = LocalContentColor.current.copy(alpha = 0.8f),
-                    )
+                    if (isMultiBrowserView) {
+                        HorizontalMultiBrowseCarousel(
+                            state = state,
+                            preferredItemWidth = (0.85 * width).dp,
+                            itemSpacing = 10.dp,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .navigationBarsPadding(),
+                            flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(state),
+                        ) { index ->
+                            images[index]?.let { image ->
+                                currentImageIndex = index
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Image(
+                                        bitmap = image.image,
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .aspectRatio(image.image.width / image.image.height.toFloat())
+                                            .maskClip(RoundedCornerShape(12.dp)),
+                                    )
+                                }
+                            }
+                        }
+                    } else {
+                        HorizontalUncontainedCarousel(
+                            state = state,
+                            itemWidth = (0.85 * width).dp,
+                            itemSpacing = 10.dp,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .navigationBarsPadding(),
+                            flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(state),
+                        ) { index ->
+                            images[index]?.let { image ->
+                                currentImageIndex = index
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Image(
+                                        bitmap = image.image,
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .aspectRatio(image.image.width / image.image.height.toFloat()),
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .padding(bottom = 16.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.Top,
+                    ) {
+                        Text(
+                            text = "Imagem publicada em: ${images[currentImageIndex]?.name?.extractImageDate() ?: "Sem dados"}",
+                            fontSize = 14.sp,
+                            color = LocalContentColor.current.copy(alpha = 0.8f),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .fillMaxWidth(if (isMultiBrowserView) 0.85f else 1f)
+                                .padding(vertical = 4.dp),
+                        )
+                    }
                 }
             }
         }
