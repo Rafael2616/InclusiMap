@@ -10,8 +10,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemGesturesPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.ViewCarousel
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -21,9 +24,14 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.carousel.CarouselDefaults
+import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.HorizontalUncontainedCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -48,6 +56,8 @@ fun FullScreenImageViewDialog(
         itemCount = { images.size },
     )
     val width = LocalView.current.width
+    var isMultiBrowserView by remember { mutableStateOf(false) }
+
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(
@@ -55,15 +65,17 @@ fun FullScreenImageViewDialog(
         ),
     ) {
         Card(
-            modifier = modifier.fillMaxSize(),
+            modifier = modifier
+                .fillMaxSize()
+                .systemGesturesPadding()
+                .navigationBarsPadding(),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surface,
             ),
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .navigationBarsPadding(),
+                    .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
@@ -87,26 +99,60 @@ fun FullScreenImageViewDialog(
                         text = "Imagens de $placeName",
                         fontSize = 20.sp,
                         color = LocalContentColor.current.copy(alpha = 0.8f),
+                        modifier = Modifier.weight(1f),
                     )
+                    IconButton(
+                        onClick = { isMultiBrowserView = !isMultiBrowserView },
+                        modifier = Modifier.size(45.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.ViewCarousel,
+                            contentDescription = null,
+                        )
+                    }
                 }
-                HorizontalUncontainedCarousel(
-                    state = state,
-                    itemWidth = (0.85 * width).dp,
-                    itemSpacing = 10.dp,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .navigationBarsPadding(),
-                    flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(state),
-                ) { index ->
-                    images[index]?.let { image ->
+                if (isMultiBrowserView) {
+                    HorizontalMultiBrowseCarousel(
+                        state = state,
+                        preferredItemWidth = (0.85 * width).dp,
+                        itemSpacing = 10.dp,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .navigationBarsPadding(),
+                        flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(state),
+                    ) { index ->
+                        images[index]?.let { image ->
                             Image(
                                 bitmap = image.image,
                                 contentDescription = null,
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
-                                    .aspectRatio(image.image.width/image.image.height.toFloat())
+                                    .aspectRatio(image.image.width / image.image.height.toFloat())
+                                    .maskClip(RoundedCornerShape(12.dp))
+                                ,
                             )
                         }
+                    }
+                } else {
+                    HorizontalUncontainedCarousel(
+                        state = state,
+                        itemWidth = (0.85 * width).dp,
+                        itemSpacing = 10.dp,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .navigationBarsPadding(),
+                        flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(state),
+                    ) { index ->
+                        images[index]?.let { image ->
+                            Image(
+                                bitmap = image.image,
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .aspectRatio(image.image.width / image.image.height.toFloat()),
+                            )
+                        }
+                    }
                 }
             }
         }
