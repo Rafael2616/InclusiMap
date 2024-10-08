@@ -1,5 +1,7 @@
 package com.rafael.inclusimap.feature.map.presentation.viewmodel
 
+import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_REPORT_FOLDER_ID
@@ -19,7 +21,7 @@ class ReportViewModel(
     private val driveService: GoogleDriveService,
 ) : ViewModel() {
 
-    fun onReport(report: Report) {
+    fun onReport(report: Report, context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
             val loginData = loginRepository.getLoginInfo(1)!!
             val user = User(
@@ -35,23 +37,23 @@ class ReportViewModel(
             val completedReport = report.copy(
                 user = user,
                 reportedLocal = report.reportedLocal.copy(
-                    comments = if (report.type == ReportType.COMMENT) report.reportedLocal.comments else emptyList()
+                    comments = if (report.type == ReportType.COMMENT || report.type == ReportType.OTHER) report.reportedLocal.comments else emptyList()
                 )
             )
             val jsonReport = json.encodeToString<Report>(completedReport)
 
             async {
                 driveService.createFile(
-                    "Report_${System.currentTimeMillis()}_${user.name}.txt",
+                    "Report_${System.currentTimeMillis()}_${user.email}.txt",
                     jsonReport,
                     INCLUSIMAP_REPORT_FOLDER_ID,
                 )
             }.await()
         }.invokeOnCompletion {
             if (it != null) {
-                println("Error sending report: $it")
+                Toast.makeText(context, "Ocorreu uma falha ao enviar o report!", Toast.LENGTH_SHORT).show()
             } else {
-                println("Report sent!")
+                Toast.makeText(context, "Report enviado!", Toast.LENGTH_SHORT).show()
             }
         }
     }

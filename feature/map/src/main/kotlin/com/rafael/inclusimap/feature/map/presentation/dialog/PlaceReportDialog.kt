@@ -232,7 +232,6 @@ fun PlaceReportDialog(
                                     user = null, // User will handled in the viewmodel
                                 ),
                             )
-                            Toast.makeText(context, "Report enviado!", Toast.LENGTH_SHORT).show()
                             onDismiss()
                         },
                     ) {
