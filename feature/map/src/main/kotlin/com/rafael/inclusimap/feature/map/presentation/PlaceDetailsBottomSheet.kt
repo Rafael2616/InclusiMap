@@ -6,12 +6,14 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -90,6 +92,7 @@ import com.rafael.inclusimap.feature.map.domain.InclusiMapState
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsState
 import com.rafael.inclusimap.feature.map.domain.Report
+import com.rafael.inclusimap.feature.map.presentation.dialog.FullScreenImageViewDialog
 import com.rafael.inclusimap.feature.map.presentation.dialog.PlaceInfoDialog
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -162,6 +165,9 @@ fun PlaceDetailsBottomSheet(
     )
     val gridHeight by remember { mutableStateOf(260.dp) }
     val imageWidth by remember { mutableStateOf(185.dp) }
+    var showFullScreenImageViewer by remember { mutableStateOf(false) }
+    var selectedImageIndex by remember { mutableStateOf(0) }
+
     LaunchedEffect(Unit) {
         latestEvent(PlaceDetailsEvent.SetCurrentPlace(currentPlace))
     }
@@ -266,7 +272,7 @@ fun PlaceDetailsBottomSheet(
                         ),
                         horizontalItemSpacing = 8.dp,
                     ) {
-                        state.currentPlace.images.forEach { image ->
+                        state.currentPlace.images.forEachIndexed { index, image ->
                             image?.let {
                                 item {
                                     var showRemoveImageBtn by remember { mutableStateOf(false) }
@@ -278,12 +284,10 @@ fun PlaceDetailsBottomSheet(
                                             .width(185.dp)
                                             .height(250.dp)
                                             .clip(RoundedCornerShape(20.dp))
-                                            .combinedClickable(
+                                            .clickable(
                                                 onClick = {
-                                                    // Do nothing
-                                                },
-                                                onLongClick = {
-                                                    showRemoveImageBtn = true
+                                                    selectedImageIndex = index
+                                                    showFullScreenImageViewer = true
                                                 },
                                             ),
                                     )
@@ -679,6 +683,21 @@ fun PlaceDetailsBottomSheet(
                 showPlaceInfo = false
             },
             onReport = onReport,
+        )
+    }
+
+    AnimatedVisibility(
+        showFullScreenImageViewer,
+        enter = scaleIn(),
+        exit = scaleOut() + fadeOut(),
+    ) {
+        FullScreenImageViewDialog(
+            placeName = state.currentPlace.title,
+            images = state.currentPlace.images,
+            index = selectedImageIndex,
+            onDismiss = {
+                showFullScreenImageViewer = false
+            }
         )
     }
 }
