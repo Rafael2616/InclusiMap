@@ -147,7 +147,6 @@ fun FullScreenImageViewDialog(
                         itemSpacing = 10.dp,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .weight(1f)
                             .navigationBarsPadding(),
                         flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(state),
                     ) { index ->
