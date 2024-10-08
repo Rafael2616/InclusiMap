@@ -224,6 +224,11 @@ fun PlaceReportDialog(
                                 ).show()
                                 return@IconButton
                             }
+                            Toast.makeText(
+                                context,
+                                "Enviando report...",
+                                Toast.LENGTH_SHORT,
+                            ).show()
                             onReport(
                                 Report(
                                     type = reportType,

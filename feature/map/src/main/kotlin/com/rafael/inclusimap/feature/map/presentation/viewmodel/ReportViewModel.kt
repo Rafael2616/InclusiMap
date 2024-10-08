@@ -56,12 +56,12 @@ class ReportViewModel(
             val jsonReport = json.encodeToString<Report>(completedReport)
 
             async {
-                val report = driveService.createFile(
+                val reportId = driveService.createFile(
                     "Report_${Date().toInstant()}_${user.email}.txt",
                     jsonReport,
                     INCLUSIMAP_REPORT_FOLDER_ID,
                 )
-                if (report == null) {
+                if (reportId == null) {
                     _state.update {
                         it.copy(
                             isReported = false,
@@ -78,8 +78,6 @@ class ReportViewModel(
             _state.update {
                 it.copy(
                     isReporting = false,
-                    isError = false,
-                    isReported = false,
                 )
             }
         }

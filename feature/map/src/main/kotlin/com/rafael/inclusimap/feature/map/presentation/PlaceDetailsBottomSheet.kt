@@ -58,6 +58,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -168,9 +169,10 @@ fun PlaceDetailsBottomSheet(
     val gridHeight by remember { mutableStateOf(260.dp) }
     val imageWidth by remember { mutableStateOf(185.dp) }
     var showFullScreenImageViewer by remember { mutableStateOf(false) }
-    var selectedImageIndex by remember { mutableStateOf(0) }
+    var selectedImageIndex by remember { mutableIntStateOf(0) }
     val internetState = remember { InternetConnectionState(context) }
     val isInternetAvailable by internetState.state.collectAsStateWithLifecycle()
+    var showToast by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         latestEvent(PlaceDetailsEvent.SetCurrentPlace(currentPlace))
@@ -385,13 +387,16 @@ fun PlaceDetailsBottomSheet(
                                             .clip(RoundedCornerShape(24.dp))
                                             .clickable {
                                                 if (!isInternetAvailable) {
-                                                    Toast.makeText(
-                                                        context,
-                                                        "Sem conexão com a internet",
-                                                        Toast.LENGTH_SHORT,
-                                                    ).show()
+                                                    Toast
+                                                        .makeText(
+                                                            context,
+                                                            "Sem conexão com a internet",
+                                                            Toast.LENGTH_SHORT,
+                                                        )
+                                                        .show()
                                                     return@clickable
                                                 }
+                                                showToast = true
                                                 launcher.launch(
                                                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
                                                 )
@@ -713,14 +718,16 @@ fun PlaceDetailsBottomSheet(
             index = selectedImageIndex,
             onDismiss = {
                 showFullScreenImageViewer = false
-            }
+            },
         )
     }
 
-    if (reportState.isReported && !reportState.isReporting) {
+    if (reportState.isReported && showToast) {
+        showToast = false
         Toast.makeText(context, "Report enviado!", Toast.LENGTH_SHORT).show()
     }
-    if (reportState.isError && !reportState.isReported) {
+    if (reportState.isError && !reportState.isReported && showToast) {
+        showToast = false
         Toast.makeText(context, "Ocorreu um erro ao enviar report", Toast.LENGTH_SHORT).show()
     }
 }
