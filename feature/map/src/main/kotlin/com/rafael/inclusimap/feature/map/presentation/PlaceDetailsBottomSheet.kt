@@ -81,6 +81,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.toAccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.toCategoryName
@@ -88,6 +89,7 @@ import com.rafael.inclusimap.core.domain.model.util.toColor
 import com.rafael.inclusimap.core.domain.model.util.toMessage
 import com.rafael.inclusimap.core.domain.util.Constants.MAX_IMAGE_NUMBER
 import com.rafael.inclusimap.feature.map.domain.InclusiMapState
+import com.rafael.inclusimap.feature.map.domain.InternetConnectionState
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsState
 import com.rafael.inclusimap.feature.map.domain.Report
@@ -165,6 +167,8 @@ fun PlaceDetailsBottomSheet(
     val imageWidth by remember { mutableStateOf(185.dp) }
     var showFullScreenImageViewer by remember { mutableStateOf(false) }
     var selectedImageIndex by remember { mutableStateOf(0) }
+    val internetState = remember { InternetConnectionState(context) }
+    val isInternetAvailable by internetState.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         latestEvent(PlaceDetailsEvent.SetCurrentPlace(currentPlace))
@@ -210,6 +214,7 @@ fun PlaceDetailsBottomSheet(
                         onClick = {
                             latestEvent(PlaceDetailsEvent.SetIsEditingPlace(true))
                         },
+                        enabled = isInternetAvailable,
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Edit,
@@ -221,6 +226,7 @@ fun PlaceDetailsBottomSheet(
                     onClick = {
                         showPlaceInfo = true
                     },
+                    enabled = isInternetAvailable,
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.Info,
@@ -273,7 +279,6 @@ fun PlaceDetailsBottomSheet(
                         state.currentPlace.images.forEachIndexed { index, image ->
                             image?.let {
                                 item {
-                                    var showRemoveImageBtn by remember { mutableStateOf(false) }
                                     Image(
                                         bitmap = it.image,
                                         contentDescription = null,
@@ -303,7 +308,6 @@ fun PlaceDetailsBottomSheet(
                                                             image,
                                                         ),
                                                     )
-                                                    showRemoveImageBtn = false
                                                     Toast.makeText(
                                                         context,
                                                         "Imagem removida!",
@@ -378,6 +382,14 @@ fun PlaceDetailsBottomSheet(
                                             .width(imageWidth)
                                             .clip(RoundedCornerShape(24.dp))
                                             .clickable {
+                                                if (!isInternetAvailable) {
+                                                    Toast.makeText(
+                                                        context,
+                                                        "Sem conexão com a internet",
+                                                        Toast.LENGTH_SHORT,
+                                                    ).show()
+                                                    return@clickable
+                                                }
                                                 launcher.launch(
                                                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
                                                 )
@@ -469,7 +481,7 @@ fun PlaceDetailsBottomSheet(
                                                     Modifier.background(
                                                         userAccessibilityColor
                                                             .copy(
-                                                                alpha = if (state.isUserCommented) 0.4f else 1f,
+                                                                alpha = if (state.isUserCommented || !isInternetAvailable) 0.4f else 1f,
                                                             ),
                                                     )
                                                 } else {
@@ -521,6 +533,7 @@ fun PlaceDetailsBottomSheet(
                                                     Toast.LENGTH_SHORT,
                                                 ).show()
                                             },
+                                            enabled = isInternetAvailable,
                                         ) {
                                             Icon(
                                                 imageVector = Icons.AutoMirrored.Filled.Send,
@@ -539,6 +552,7 @@ fun PlaceDetailsBottomSheet(
                                             latestEvent(PlaceDetailsEvent.OnSendComment)
                                         },
                                     ),
+                                    enabled = isInternetAvailable,
                                     isError =
                                     (state.userAccessibilityRate == 0 || state.userComment.isEmpty()) && state.trySendComment,
                                 )
@@ -570,6 +584,7 @@ fun PlaceDetailsBottomSheet(
                                         modifier = Modifier
                                             .size(35.dp)
                                             .clip(CircleShape),
+                                        enabled = isInternetAvailable,
                                     ) {
                                         Icon(
                                             imageVector = Icons.Filled.Edit,
@@ -588,6 +603,7 @@ fun PlaceDetailsBottomSheet(
                                         modifier = Modifier
                                             .size(35.dp)
                                             .clip(CircleShape),
+                                        enabled = isInternetAvailable,
                                     ) {
                                         Icon(
                                             imageVector = Icons.TwoTone.Delete,

@@ -13,22 +13,17 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 class InclusiMapGoogleMapViewModel(
     private val accessibleLocalsRepository: AccessibleLocalsRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(InclusiMapState())
     val state = _state.asStateFlow()
-
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            val allStoredMappedPlaces = accessibleLocalsRepository.getAccessibleLocalsStored(1)
-            _state.update {
-                it.copy(
-                    allMappedPlaces = allStoredMappedPlaces,
-                )
-            }
-        }
+    private val json = Json {
+        ignoreUnknownKeys = true
+        prettyPrint = true
     }
 
     fun onEvent(event: InclusiMapEvent) {
@@ -48,6 +43,7 @@ class InclusiMapGoogleMapViewModel(
             is InclusiMapEvent.OnDeleteMappedPlace -> onDeleteMappedPlace(event.placeId)
             is InclusiMapEvent.OnFailToLoadPlaces -> onLoadPlaces()
             is InclusiMapEvent.OnFailToConnectToServer -> onLoadPlaces()
+            InclusiMapEvent.UseAppWithoutInternet -> _state.update { it.copy(failedToGetNewPlaces = false) }
         }
     }
 
@@ -60,7 +56,27 @@ class InclusiMapGoogleMapViewModel(
         }
     }
 
+    private fun loadCachedPlaces() {
+        viewModelScope.launch(Dispatchers.IO) {
+            // Get the cached places from local database
+            val accessibleLocalsEntity = accessibleLocalsRepository.getAccessibleLocalsStored(1)
+                ?: AccessibleLocalsEntity.getDefault()
+            _state.update {
+                it.copy(
+                    allMappedPlaces = json.decodeFromString<List<AccessibleLocalMarker>>(
+                        accessibleLocalsEntity.locals,
+                    ).also {
+                        println("Loaded ${it.size} places from cache")
+                    },
+                )
+            }
+        }
+    }
+
+
     private fun onLoadPlaces() {
+        loadCachedPlaces()
+
         _state.update {
             it.copy(
                 failedToLoadPlaces = false,
@@ -68,22 +84,34 @@ class InclusiMapGoogleMapViewModel(
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
+            // try to fetch new and updated places from server
             accessibleLocalsRepository.getAccessibleLocals().let { mappedPlaces ->
                 if (mappedPlaces == null) {
                     _state.update { it.copy(failedToConnectToServer = true) }
                     return@launch
                 }
+                if (mappedPlaces.isEmpty() && _state.value.allMappedPlaces.isEmpty()) {
+                    _state.update { it.copy(failedToLoadPlaces = true) }
+                    return@launch
+                }
+                if (mappedPlaces.isEmpty()) {
+                    _state.update { it.copy(failedToGetNewPlaces = true) }
+                    return@launch
+                }
                 _state.update { it.copy(allMappedPlaces = mappedPlaces) }
-                accessibleLocalsRepository.updateAccessibleLocalStored(
-                    AccessibleLocalsEntity(
-                        id = 1,
-                        locals = mappedPlaces,
-                    ),
-                )
+                println("Loaded ${state.value.allMappedPlaces.size} places from server")
             }
         }.invokeOnCompletion {
-            if (_state.value.allMappedPlaces.isEmpty() && !_state.value.failedToConnectToServer) {
-                _state.update { it.copy(failedToLoadPlaces = true) }
+            // Update the cache for places
+            if (!_state.value.failedToConnectToServer && !_state.value.failedToLoadPlaces) {
+                viewModelScope.launch(Dispatchers.IO) {
+                    accessibleLocalsRepository.updateAccessibleLocalStored(
+                        AccessibleLocalsEntity(
+                            id = 1,
+                            locals = json.encodeToString<List<AccessibleLocalMarker>>(state.value.allMappedPlaces),
+                        ),
+                    )
+                }
             }
         }
     }
@@ -140,6 +168,12 @@ class InclusiMapGoogleMapViewModel(
         }
         viewModelScope.launch(Dispatchers.IO) {
             accessibleLocalsRepository.updateAccessibleLocal(placeUpdated)
+            accessibleLocalsRepository.updateAccessibleLocalStored(
+                AccessibleLocalsEntity(
+                    id = 1,
+                    locals = json.encodeToString<List<AccessibleLocalMarker>>(state.value.allMappedPlaces),
+                ),
+            )
         }
     }
 
@@ -151,6 +185,12 @@ class InclusiMapGoogleMapViewModel(
         }
         viewModelScope.launch(Dispatchers.IO) {
             accessibleLocalsRepository.deleteAccessibleLocal(placeID)
+            accessibleLocalsRepository.updateAccessibleLocalStored(
+                AccessibleLocalsEntity(
+                    id = 1,
+                    locals = json.encodeToString<List<AccessibleLocalMarker>>(state.value.allMappedPlaces),
+                ),
+            )
         }
     }
 }

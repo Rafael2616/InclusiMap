@@ -10,6 +10,6 @@ interface AccessibleLocalsRepository {
     suspend fun deleteAccessibleLocal(id: String)
 
     // ROOM
-    suspend fun getAccessibleLocalsStored(id: Int): List<AccessibleLocalMarker>
+    suspend fun getAccessibleLocalsStored(id: Int): AccessibleLocalsEntity?
     suspend fun updateAccessibleLocalStored(accessibleLocalEntity: AccessibleLocalsEntity)
 }

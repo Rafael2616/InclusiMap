@@ -1,6 +1,7 @@
 package com.rafael.inclusimap.feature.map.presentation
 
 import android.Manifest
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.displayCutoutPadding
@@ -36,10 +37,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
@@ -64,10 +67,12 @@ import com.rafael.inclusimap.feature.intro.domain.model.AppIntroState
 import com.rafael.inclusimap.feature.intro.presentation.dialogs.AppIntroDialog
 import com.rafael.inclusimap.feature.map.domain.InclusiMapEvent
 import com.rafael.inclusimap.feature.map.domain.InclusiMapState
+import com.rafael.inclusimap.feature.map.domain.InternetConnectionState
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsState
 import com.rafael.inclusimap.feature.map.domain.Report
 import com.rafael.inclusimap.feature.map.presentation.dialog.PlacesNotLoadedDialog
+import com.rafael.inclusimap.feature.map.presentation.dialog.PlacesNotUpdatedDialog
 import com.rafael.inclusimap.feature.map.presentation.dialog.ServerUnavailableDialog
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchEvent
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchState
@@ -114,6 +119,9 @@ fun InclusiMapGoogleMapScreen(
     val latestSearchEvent by rememberUpdatedState(onSearchEvent)
     val latestNavigateToSettings by rememberUpdatedState(onNavigateToSettings)
     val focusRequester = remember { FocusRequester() }
+    val context = LocalContext.current
+    val internetState = remember { InternetConnectionState(context) }
+    val isInternetAvailable by internetState.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(animateMap, appIntroState.showAppIntro) {
         if (animateMap) {
@@ -302,8 +310,16 @@ fun InclusiMapGoogleMapScreen(
             },
             onMapLongClick = {
                 latestOnEvent(InclusiMapEvent.OnUnmappedPlaceSelected(it))
-                addPlaceBottomSheetScope.launch {
-                    addPlaceBottomSheetScaffoldState.show()
+                if (isInternetAvailable) {
+                    addPlaceBottomSheetScope.launch {
+                        addPlaceBottomSheetScaffoldState.show()
+                    }
+                } else {
+                    Toast.makeText(
+                        context,
+                        "Não é possivel adicionar novos locais sem interne, verifique sua conexão",
+                        Toast.LENGTH_SHORT,
+                    ).show()
                 }
             },
         ) {
@@ -370,6 +386,7 @@ fun InclusiMapGoogleMapScreen(
             onReport = onReport,
         )
     }
+
     AnimatedVisibility(addPlaceBottomSheetScaffoldState.isVisible || placeDetailsState.isEditingPlace) {
         AddEditPlaceBottomSheet(
             latlng = state.selectedUnmappedPlaceLatLng ?: LatLng(0.0, 0.0),
@@ -402,6 +419,7 @@ fun InclusiMapGoogleMapScreen(
             },
         )
     }
+
     AnimatedVisibility(state.failedToLoadPlaces) {
         PlacesNotLoadedDialog(
             onRetry = {
@@ -416,6 +434,18 @@ fun InclusiMapGoogleMapScreen(
             },
         )
     }
+
+    AnimatedVisibility(state.failedToGetNewPlaces) {
+        PlacesNotUpdatedDialog(
+            onRetry = {
+                latestOnEvent(InclusiMapEvent.OnFailToLoadPlaces(false))
+            },
+            onDismiss = {
+                latestOnEvent(InclusiMapEvent.UseAppWithoutInternet)
+            },
+        )
+    }
+
     if (searchState.expanded) {
         focusRequester.requestFocus()
     }

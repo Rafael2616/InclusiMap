@@ -19,6 +19,8 @@ val mapModule = module {
             MapDatabase::class.java,
             MapDatabase.DATABASE_NAME,
         )
+            .fallbackToDestructiveMigration(true)
+            .build()
     }
     single {
         AccessibleLocalsRepositoryImpl(get<GoogleDriveService>(), get<MapDatabase>().accessibleLocalsDao())
