@@ -15,4 +15,5 @@ data class InclusiMapState(
     val failedToLoadPlaces: Boolean = false,
     val failedToGetNewPlaces: Boolean = false,
     val failedToConnectToServer: Boolean = false,
+    var useAppWithoutInternet: Boolean = false,
 )

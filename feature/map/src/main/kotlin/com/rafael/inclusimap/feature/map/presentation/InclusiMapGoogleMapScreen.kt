@@ -435,7 +435,7 @@ fun InclusiMapGoogleMapScreen(
         )
     }
 
-    AnimatedVisibility(state.failedToGetNewPlaces) {
+    AnimatedVisibility(state.failedToGetNewPlaces && !state.useAppWithoutInternet) {
         PlacesNotUpdatedDialog(
             onRetry = {
                 latestOnEvent(InclusiMapEvent.OnFailToLoadPlaces(false))
@@ -450,7 +450,13 @@ fun InclusiMapGoogleMapScreen(
         focusRequester.requestFocus()
     }
 
-    DisposableEffect(state.allMappedPlaces.isEmpty()) {
+    LaunchedEffect(!isInternetAvailable) {
+        addPlaceBottomSheetScope.launch {
+            addPlaceBottomSheetScaffoldState.hide()
+        }
+    }
+
+    DisposableEffect(state.allMappedPlaces.isEmpty() || state.useAppWithoutInternet && isInternetAvailable) {
         latestOnEvent(InclusiMapEvent.OnLoadPlaces)
         onDispose { }
     }

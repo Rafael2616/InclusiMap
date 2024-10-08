@@ -43,7 +43,7 @@ class InclusiMapGoogleMapViewModel(
             is InclusiMapEvent.OnDeleteMappedPlace -> onDeleteMappedPlace(event.placeId)
             is InclusiMapEvent.OnFailToLoadPlaces -> onLoadPlaces()
             is InclusiMapEvent.OnFailToConnectToServer -> onLoadPlaces()
-            InclusiMapEvent.UseAppWithoutInternet -> _state.update { it.copy(failedToGetNewPlaces = false) }
+            InclusiMapEvent.UseAppWithoutInternet -> _state.update { it.copy(useAppWithoutInternet = true) }
         }
     }
 
@@ -81,6 +81,8 @@ class InclusiMapGoogleMapViewModel(
             it.copy(
                 failedToLoadPlaces = false,
                 failedToConnectToServer = false,
+                failedToGetNewPlaces = false,
+                useAppWithoutInternet = false,
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -144,6 +146,12 @@ class InclusiMapGoogleMapViewModel(
         }
         viewModelScope.launch(Dispatchers.IO) {
             accessibleLocalsRepository.saveAccessibleLocal(newPlace)
+            accessibleLocalsRepository.updateAccessibleLocalStored(
+                AccessibleLocalsEntity(
+                    id = 1,
+                    locals = json.encodeToString<List<AccessibleLocalMarker>>(state.value.allMappedPlaces),
+                ),
+            )
         }
     }
 
