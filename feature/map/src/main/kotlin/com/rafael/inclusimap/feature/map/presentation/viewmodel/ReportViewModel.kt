@@ -1,7 +1,5 @@
 package com.rafael.inclusimap.feature.map.presentation.viewmodel
 
-import android.content.Context
-import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_REPORT_FOLDER_ID
@@ -9,9 +7,14 @@ import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.feature.auth.domain.model.User
 import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
 import com.rafael.inclusimap.feature.map.domain.Report
+import com.rafael.inclusimap.feature.map.domain.ReportState
 import com.rafael.inclusimap.feature.map.domain.ReportType
+import java.util.Date
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -21,8 +24,18 @@ class ReportViewModel(
     private val driveService: GoogleDriveService,
 ) : ViewModel() {
 
-    fun onReport(report: Report, context: Context) {
+    private val _state = MutableStateFlow(ReportState())
+    val state = _state.asStateFlow()
+
+    fun onReport(report: Report) {
         viewModelScope.launch(Dispatchers.IO) {
+            _state.update {
+                it.copy(
+                    isReported = false,
+                    isReporting = true,
+                    isError = false,
+                )
+            }
             val loginData = loginRepository.getLoginInfo(1)!!
             val user = User(
                 name = loginData.userName!!,
@@ -37,23 +50,33 @@ class ReportViewModel(
             val completedReport = report.copy(
                 user = user,
                 reportedLocal = report.reportedLocal.copy(
-                    comments = if (report.type == ReportType.COMMENT || report.type == ReportType.OTHER) report.reportedLocal.comments else emptyList()
-                )
+                    comments = if (report.type == ReportType.COMMENT || report.type == ReportType.OTHER) report.reportedLocal.comments else emptyList(),
+                ),
             )
             val jsonReport = json.encodeToString<Report>(completedReport)
 
             async {
-                driveService.createFile(
-                    "Report_${System.currentTimeMillis()}_${user.email}.txt",
+                val report = driveService.createFile(
+                    "Report_${Date().toInstant()}_${user.email}.txt",
                     jsonReport,
                     INCLUSIMAP_REPORT_FOLDER_ID,
                 )
+                if (report == null) {
+                    _state.update {
+                        it.copy(
+                            isReported = false,
+                            isError = true,
+                        )
+                    }
+                } else {
+                    _state.update {
+                        it.copy(isReported = true)
+                    }
+                }
             }.await()
         }.invokeOnCompletion {
-            if (it != null) {
-                Toast.makeText(context, "Ocorreu uma falha ao enviar o report!", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(context, "Report enviado!", Toast.LENGTH_SHORT).show()
+            _state.update {
+                it.copy(isReporting = false)
             }
         }
     }

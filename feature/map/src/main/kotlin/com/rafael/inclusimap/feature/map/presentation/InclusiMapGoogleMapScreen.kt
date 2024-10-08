@@ -71,6 +71,7 @@ import com.rafael.inclusimap.feature.map.domain.InternetConnectionState
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsState
 import com.rafael.inclusimap.feature.map.domain.Report
+import com.rafael.inclusimap.feature.map.domain.ReportState
 import com.rafael.inclusimap.feature.map.presentation.dialog.PlacesNotLoadedDialog
 import com.rafael.inclusimap.feature.map.presentation.dialog.PlacesNotUpdatedDialog
 import com.rafael.inclusimap.feature.map.presentation.dialog.ServerUnavailableDialog
@@ -99,6 +100,7 @@ fun InclusiMapGoogleMapScreen(
     userName: String,
     userEmail: String,
     onReport: (Report) -> Unit,
+    reportState: ReportState,
     modifier: Modifier = Modifier,
 ) {
     var animateMap by remember { mutableStateOf(false) }
@@ -384,6 +386,7 @@ fun InclusiMapGoogleMapScreen(
                 latestOnEvent(InclusiMapEvent.OnUpdateMappedPlace(placeUpdated))
             },
             onReport = onReport,
+            reportState = reportState,
         )
     }
 

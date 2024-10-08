@@ -7,7 +7,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -65,7 +64,7 @@ fun InclusiMapNavHost(
         val libraryViewModel = koinViewModel<LibraryViewModel>()
         val ossLibraries by libraryViewModel.ossLibraries.collectAsStateWithLifecycle()
         val reportViewModel = koinViewModel<ReportViewModel>()
-        val context = LocalContext.current
+        val reportState by reportViewModel.state.collectAsStateWithLifecycle()
 
         InclusiMapTheme(state = settingsState) {
             Scaffold(
@@ -134,8 +133,9 @@ fun InclusiMapNavHost(
                             userName = loginState.user?.name ?: "",
                             userEmail = loginState.user?.email ?: "",
                             onReport = {
-                                reportViewModel.onReport(it, context)
+                                reportViewModel.onReport(it)
                             },
+                            reportState = reportState,
                         )
                     }
                     composable<Destination.SettingsScreen> {

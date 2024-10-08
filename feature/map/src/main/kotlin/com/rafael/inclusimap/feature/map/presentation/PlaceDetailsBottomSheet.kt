@@ -93,6 +93,7 @@ import com.rafael.inclusimap.feature.map.domain.InternetConnectionState
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsState
 import com.rafael.inclusimap.feature.map.domain.Report
+import com.rafael.inclusimap.feature.map.domain.ReportState
 import com.rafael.inclusimap.feature.map.presentation.dialog.FullScreenImageViewDialog
 import com.rafael.inclusimap.feature.map.presentation.dialog.PlaceInfoDialog
 import kotlinx.coroutines.async
@@ -113,6 +114,7 @@ fun PlaceDetailsBottomSheet(
     state: PlaceDetailsState,
     onEvent: (PlaceDetailsEvent) -> Unit,
     onUpdateMappedPlace: (AccessibleLocalMarker) -> Unit,
+    reportState: ReportState,
     modifier: Modifier = Modifier,
 ) {
     val latestEvent by rememberUpdatedState(onEvent)
@@ -713,5 +715,12 @@ fun PlaceDetailsBottomSheet(
                 showFullScreenImageViewer = false
             }
         )
+    }
+
+    if (reportState.isReported && !reportState.isReporting) {
+        Toast.makeText(context, "Report enviado!", Toast.LENGTH_SHORT).show()
+    }
+    if (reportState.isError && !reportState.isReported) {
+        Toast.makeText(context, "Ocorreu um erro ao enviar report", Toast.LENGTH_SHORT).show()
     }
 }
