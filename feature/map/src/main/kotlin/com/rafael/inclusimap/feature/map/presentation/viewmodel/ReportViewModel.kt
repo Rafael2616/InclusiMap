@@ -76,7 +76,11 @@ class ReportViewModel(
             }.await()
         }.invokeOnCompletion {
             _state.update {
-                it.copy(isReporting = false)
+                it.copy(
+                    isReporting = false,
+                    isError = false,
+                    isReported = false,
+                )
             }
         }
     }

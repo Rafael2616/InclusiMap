@@ -41,3 +41,13 @@ fun String.extractPlaceUserEmail(): String? = try {
 } catch (e: Exception) {
     null
 }
+
+fun String.extractImageDate(): String? = try {
+    this.split("_")[1]
+        .split("-")
+        .drop(1)
+        .joinToString("-")
+        .split("T")[0]
+} catch (e: Exception) {
+    null
+}

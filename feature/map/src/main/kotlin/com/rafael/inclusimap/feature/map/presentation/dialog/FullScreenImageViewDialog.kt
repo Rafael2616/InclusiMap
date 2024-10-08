@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.rafael.inclusimap.core.domain.model.PlaceImage
+import com.rafael.inclusimap.core.domain.model.util.extractImageDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,6 +57,7 @@ fun FullScreenImageViewDialog(
     )
     val width = LocalView.current.width
     var isMultiBrowserView by remember { mutableStateOf(false) }
+    var currentImageIndex by remember { mutableStateOf(index) }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -120,14 +122,14 @@ fun FullScreenImageViewDialog(
                         flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(state),
                     ) { index ->
                         images[index]?.let { image ->
+                            currentImageIndex = index
                             Image(
                                 bitmap = image.image,
                                 contentDescription = null,
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
                                     .aspectRatio(image.image.width / image.image.height.toFloat())
-                                    .maskClip(RoundedCornerShape(12.dp))
-                                ,
+                                    .maskClip(RoundedCornerShape(12.dp)),
                             )
                         }
                     }
@@ -137,11 +139,13 @@ fun FullScreenImageViewDialog(
                         itemWidth = (0.85 * width).dp,
                         itemSpacing = 10.dp,
                         modifier = Modifier
-                            .fillMaxSize()
+                            .fillMaxWidth()
+                            .weight(1f)
                             .navigationBarsPadding(),
                         flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(state),
                     ) { index ->
                         images[index]?.let { image ->
+                            currentImageIndex = index
                             Image(
                                 bitmap = image.image,
                                 contentDescription = null,
@@ -151,6 +155,21 @@ fun FullScreenImageViewDialog(
                             )
                         }
                     }
+                }
+
+                Row(
+                    modifier = Modifier
+                        .padding(bottom = 16.dp)
+                        .fillMaxWidth()
+                        .weight(0.12f),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.Top,
+                ) {
+                    Text(
+                        text = "Imagem publicada em: ${images[currentImageIndex]?.name?.extractImageDate() ?: "Sem dados"}",
+                        fontSize = 14.sp,
+                        color = LocalContentColor.current.copy(alpha = 0.8f),
+                    )
                 }
             }
         }
