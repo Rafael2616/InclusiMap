@@ -20,6 +20,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.carousel.CarouselDefaults
 import androidx.compose.material3.carousel.HorizontalUncontainedCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
@@ -70,25 +71,32 @@ fun FullScreenImageViewDialog(
                     modifier = Modifier
                         .padding(top = 16.dp, start = 16.dp)
                         .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Start,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.Start),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     IconButton(
                         onClick = onDismiss,
-                        modifier = Modifier.size(40.dp),
+                        modifier = Modifier.size(45.dp),
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = null,
                         )
                     }
+                    Text(
+                        text = "Imagens de $placeName",
+                        fontSize = 20.sp,
+                        color = LocalContentColor.current.copy(alpha = 0.8f),
+                    )
                 }
                 HorizontalUncontainedCarousel(
                     state = state,
-                    itemWidth = (0.95 * width).dp,
+                    itemWidth = (0.85 * width).dp,
                     itemSpacing = 10.dp,
                     modifier = Modifier
                         .fillMaxSize()
-                        .weight(1f),
+                        .navigationBarsPadding(),
+                    flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(state),
                 ) { index ->
                     images[index]?.let { image ->
                             Image(
@@ -99,20 +107,6 @@ fun FullScreenImageViewDialog(
                                     .aspectRatio(image.image.width/image.image.height.toFloat())
                             )
                         }
-                }
-                Row(
-                    modifier = Modifier
-                        .weight(0.15f)
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.Top,
-                ) {
-                    Text(
-                        text = "Imagens de $placeName",
-                        fontSize = 14.sp,
-                        color = LocalContentColor.current.copy(alpha = 0.8f),
-                    )
                 }
             }
         }
