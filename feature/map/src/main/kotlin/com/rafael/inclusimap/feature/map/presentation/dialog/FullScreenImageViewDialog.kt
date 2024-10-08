@@ -102,17 +102,16 @@ fun FullScreenImageViewDialog(
                 }
                 Row(
                     modifier = Modifier
-                        .weight(0.2f)
+                        .weight(0.15f)
                         .fillMaxWidth()
-                        .padding(bottom = 20.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically,
+                        .padding(bottom = 16.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.Top,
                 ) {
                     Text(
                         text = "Imagens de $placeName",
                         fontSize = 14.sp,
                         color = LocalContentColor.current.copy(alpha = 0.8f),
-                        modifier = Modifier.padding(bottom = 8.dp)
                     )
                 }
             }
