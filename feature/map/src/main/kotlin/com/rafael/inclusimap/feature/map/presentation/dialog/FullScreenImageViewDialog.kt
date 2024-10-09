@@ -182,8 +182,7 @@ fun FullScreenImageViewDialog(
                     }
                     Row(
                         modifier = Modifier
-                            .padding(bottom = 16.dp)
-                            .weight(0.06f)
+                            .weight(0.08f)
                             .fillMaxWidth(),
                         horizontalArrangement = Arrangement.Start,
                         verticalAlignment = Alignment.Top,
@@ -194,8 +193,7 @@ fun FullScreenImageViewDialog(
                             color = LocalContentColor.current.copy(alpha = 0.7f),
                             textAlign = TextAlign.Center,
                             modifier = Modifier
-                                .fillMaxWidth(if (isMultiBrowserView) 0.85f else 1f)
-                                .padding(vertical = 4.dp),
+                                .fillMaxWidth()
                         )
                     }
                 }
