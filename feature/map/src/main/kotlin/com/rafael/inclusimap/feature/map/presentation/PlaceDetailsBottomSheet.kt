@@ -272,7 +272,7 @@ fun PlaceDetailsBottomSheet(
                 item {
                     Text(
                         text = "Imagens de ${state.currentPlace.title}",
-                        fontSize = 22.sp,
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
@@ -440,7 +440,7 @@ fun PlaceDetailsBottomSheet(
                     Spacer(Modifier.height(6.dp))
                     Text(
                         text = "Comentários" + " (${state.currentPlace.comments.size})",
-                        fontSize = 22.sp,
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
@@ -509,7 +509,7 @@ fun PlaceDetailsBottomSheet(
                                             )
                                             .border(
                                                 1.25.dp,
-                                                MaterialTheme.colorScheme.onSurface.copy(alpha = if (state.isUserCommented) 0.4f else 0.8f),
+                                                MaterialTheme.colorScheme.primary.copy(alpha = if (state.isUserCommented) 0.4f else 0.8f),
                                                 CircleShape,
                                             )
                                             .clickable {
@@ -699,8 +699,8 @@ fun PlaceDetailsBottomSheet(
                                                             .toColor(),
                                                     )
                                                     .border(
-                                                        1.25.dp,
-                                                        MaterialTheme.colorScheme.onSurface.copy(
+                                                        1.dp,
+                                                        MaterialTheme.colorScheme.primary.copy(
                                                             alpha = 0.8f,
                                                         ),
                                                         CircleShape,
