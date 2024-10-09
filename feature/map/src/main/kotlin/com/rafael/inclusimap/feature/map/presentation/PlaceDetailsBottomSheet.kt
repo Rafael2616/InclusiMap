@@ -720,25 +720,32 @@ fun PlaceDetailsBottomSheet(
                                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
                                             modifier = Modifier.weight(1f),
                                         )
-                                        for (i in 1..comment.accessibilityRate) {
-                                            Box(
-                                                modifier = Modifier
-                                                    .size(15.dp)
-                                                    .padding(1.5.dp)
-                                                    .clip(CircleShape)
-                                                    .background(
-                                                        comment.accessibilityRate
-                                                            .toFloat()
-                                                            .toColor(),
-                                                    )
-                                                    .border(
-                                                        1.dp,
-                                                        MaterialTheme.colorScheme.primary.copy(
-                                                            alpha = 0.8f,
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .weight(1f),
+                                            contentAlignment = Alignment.CenterEnd,
+                                        ) {
+                                            for (i in 1..comment.accessibilityRate) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .size(15.dp)
+                                                        .padding(1.5.dp)
+                                                        .clip(CircleShape)
+                                                        .background(
+                                                            comment.accessibilityRate
+                                                                .toFloat()
+                                                                .toColor(),
+                                                        )
+                                                        .border(
+                                                            1.dp,
+                                                            MaterialTheme.colorScheme.primary.copy(
+                                                                alpha = 0.8f,
+                                                            ),
+                                                            CircleShape,
                                                         ),
-                                                        CircleShape,
-                                                    ),
-                                            )
+                                                )
+                                            }
                                         }
                                     }
                                     Text(
