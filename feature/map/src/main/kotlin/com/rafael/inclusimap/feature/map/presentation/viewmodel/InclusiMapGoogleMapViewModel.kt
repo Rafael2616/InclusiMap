@@ -26,6 +26,12 @@ class InclusiMapGoogleMapViewModel(
         prettyPrint = true
     }
 
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            loadCachedPlaces()
+        }
+    }
+
     fun onEvent(event: InclusiMapEvent) {
         when (event) {
             is InclusiMapEvent.UpdateMapCameraPosition -> updateMapCameraPosition(
@@ -74,8 +80,6 @@ class InclusiMapGoogleMapViewModel(
     }
 
     private fun onLoadPlaces() {
-        loadCachedPlaces()
-
         _state.update {
             it.copy(
                 failedToLoadPlaces = false,

@@ -439,7 +439,7 @@ fun PlaceDetailsBottomSheet(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(24.dp))
-                            .background(MaterialTheme.colorScheme.surfaceColorAtElevation(30.dp))
+                            .background(MaterialTheme.colorScheme.surfaceColorAtElevation(15.dp))
                             .border(
                                 1.25.dp,
                                 MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
