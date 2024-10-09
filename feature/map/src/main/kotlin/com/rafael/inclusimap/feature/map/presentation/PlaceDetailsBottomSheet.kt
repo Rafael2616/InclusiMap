@@ -672,6 +672,7 @@ fun PlaceDetailsBottomSheet(
                                     Text(
                                         text = comment.body,
                                         fontSize = 14.sp,
+                                        lineHeight = 18.sp,
                                         fontWeight = FontWeight.Normal,
                                     )
                                     if (index != (state.currentPlace.comments.filter { it.email != userEmail }.size - 1)) {
