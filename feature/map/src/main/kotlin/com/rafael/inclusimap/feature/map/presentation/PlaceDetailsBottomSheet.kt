@@ -570,6 +570,13 @@ fun PlaceDetailsBottomSheet(
                                                         ).show()
                                                         return@IconButton
                                                     }
+                                                    if (state.userAccessibilityRate == 0) {
+                                                        Toast.makeText(
+                                                            context,
+                                                            "Selecione uma avaliação!",
+                                                            Toast.LENGTH_SHORT,
+                                                        ).show()
+                                                    }
                                                     Toast.makeText(
                                                         context,
                                                         "Comentário adicionado!",
