@@ -110,14 +110,16 @@ class PlaceDetailsViewModel(
                 }
             }.await()
         }.invokeOnCompletion {
+            val userComment = state.value.loadedPlaces.find {
+                existingPlace -> existingPlace.id == place.id
+            }?.comments?.find { it.email == userEmail }
+
             _state.update {
                 it.copy(
-                    isUserCommented = it.loadedPlaces.find { existingPlace -> existingPlace.id == place.id }?.comments?.any { comment -> comment.email == userEmail }
-                        ?: false,
-                    userComment = it.loadedPlaces.find { existingPlace -> existingPlace.id == place.id }?.comments?.find { comment -> comment.email == userEmail }?.body
-                        ?: "",
-                    userAccessibilityRate = it.loadedPlaces.find { existingPlace -> existingPlace.id == place.id }?.comments?.find { comment -> comment.email == userEmail }?.accessibilityRate
-                        ?: 0,
+                    isUserCommented = userComment != null,
+                    userComment = userComment?.body ?: "",
+                    userCommentDate = userComment?.postDate ?: "",
+                    userAccessibilityRate = userComment?.accessibilityRate ?: 0,
                 )
             }
         }
@@ -441,35 +443,33 @@ class PlaceDetailsViewModel(
                 ),
             )
         }
-        if (state.value.userAccessibilityRate != 0) {
-            val userComment =
-                Comment(
-                    postDate = System.currentTimeMillis()
-                        .toString(),
-                    id = _state.value.currentPlace.comments.size.plus(
-                        1,
-                    ),
-                    name = userName,
-                    body = state.value.userComment,
-                    email = userEmail,
-                    accessibilityRate = state.value.userAccessibilityRate,
-                )
-            _state.update {
-                it.copy(
-                    currentPlace = it.currentPlace.copy(
-                        comments = it.currentPlace.comments + userComment,
-                    ),
-                    trySendComment = false,
-                    isUserCommented = true,
-                    loadedPlaces = it.loadedPlaces.map { place ->
-                        if (place.id == _state.value.currentPlace.id) {
-                            place.copy(comments = place.comments + userComment)
-                        } else {
-                            place
-                        }
-                    },
-                )
-            }
+        val userComment =
+            Comment(
+                postDate = Date().toInstant().toString(),
+                id = _state.value.currentPlace.comments.size.plus(
+                    1,
+                ),
+                name = userName,
+                body = state.value.userComment,
+                email = userEmail,
+                accessibilityRate = state.value.userAccessibilityRate,
+            )
+        _state.update {
+            it.copy(
+                currentPlace = it.currentPlace.copy(
+                    comments = it.currentPlace.comments + userComment,
+                ),
+                trySendComment = false,
+                isUserCommented = true,
+                loadedPlaces = it.loadedPlaces.map { place ->
+                    if (place.id == _state.value.currentPlace.id) {
+                        place.copy(comments = place.comments + userComment)
+                    } else {
+                        place
+                    }
+                },
+                userCommentDate = Date().toInstant().toString(),
+            )
         }
     }
 

@@ -10,6 +10,7 @@ data class PlaceDetailsState(
     val currentPlace: FullAccessibleLocalMarker = FullAccessibleLocalMarker(),
     val allImagesLoaded: Boolean = false,
     val userComment: String = "",
+    val userCommentDate: String = "",
     val userAccessibilityRate: Int = 0,
     val trySendComment: Boolean = false,
     val isUserCommented: Boolean = false,

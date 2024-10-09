@@ -62,5 +62,13 @@ fun String.formatDate(): String? = try {
         "$day/$month/$year"
     }
 } catch (e: Exception) {
+    e.printStackTrace()
+    null
+}
+
+fun String.removeTime(): String? = try {
+    this.split("T")[0]
+} catch (e: Exception) {
+    e.printStackTrace()
     null
 }

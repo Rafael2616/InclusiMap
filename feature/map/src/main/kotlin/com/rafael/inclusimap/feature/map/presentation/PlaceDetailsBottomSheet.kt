@@ -88,6 +88,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.toAccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.toCategoryName
+import com.rafael.inclusimap.core.domain.model.util.formatDate
+import com.rafael.inclusimap.core.domain.model.util.removeTime
 import com.rafael.inclusimap.core.domain.model.util.toColor
 import com.rafael.inclusimap.core.domain.model.util.toMessage
 import com.rafael.inclusimap.core.domain.network.InternetConnectionState
@@ -197,7 +199,7 @@ fun PlaceDetailsBottomSheet(
             onDismiss()
         },
         properties = ModalBottomSheetProperties(
-            shouldDismissOnBackPress = true
+            shouldDismissOnBackPress = true,
         ),
         modifier = Modifier.imeNestedScroll(),
     ) {
@@ -438,6 +440,7 @@ fun PlaceDetailsBottomSheet(
                             }
                         }
                     }
+                    // Comments UI
                     Spacer(Modifier.height(6.dp))
                     Text(
                         text = "Comentários" + " (${state.currentPlace.comments.size})",
@@ -515,7 +518,7 @@ fun PlaceDetailsBottomSheet(
                                             )
                                             .clickable {
                                                 latestEvent(
-                                                    PlaceDetailsEvent.SetUserAccessibilityRate(it,),
+                                                    PlaceDetailsEvent.SetUserAccessibilityRate(it),
                                                 )
                                             },
                                     )
@@ -548,7 +551,7 @@ fun PlaceDetailsBottomSheet(
                                                 Text(
                                                     text = "/$maxCommentLength",
                                                     fontSize = 12.sp,
-                                                    color = MaterialTheme.colorScheme.onSurface
+                                                    color = MaterialTheme.colorScheme.onSurface,
                                                 )
                                             }
                                             IconButton(
@@ -608,11 +611,21 @@ fun PlaceDetailsBottomSheet(
                                     (state.userAccessibilityRate == 0 || state.userComment.isEmpty()) && state.trySendComment,
                                 )
                             } else {
-                                Text(
-                                    text = userName,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                )
+                                Row {
+                                    Text(
+                                        text = userName,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                    Spacer(Modifier.width(6.dp))
+                                    Text(
+                                        text = state.userCommentDate.removeTime()?.formatDate()
+                                            ?: "",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
+                                    )
+                                }
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier.fillMaxWidth(),
@@ -687,12 +700,20 @@ fun PlaceDetailsBottomSheet(
                                 .forEachIndexed { index, comment ->
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically,
+                                        verticalAlignment = Alignment.Top,
                                     ) {
                                         Text(
                                             text = comment.name,
                                             fontSize = 16.sp,
                                             fontWeight = FontWeight.Bold,
+                                        )
+                                        Spacer(Modifier.width(6.dp))
+                                        Text(
+                                            text = comment.postDate.removeTime()?.formatDate()
+                                                ?: "",
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Normal,
+                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
                                             modifier = Modifier.weight(1f),
                                         )
                                         for (i in 1..comment.accessibilityRate) {
