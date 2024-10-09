@@ -82,6 +82,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -706,13 +707,16 @@ fun PlaceDetailsBottomSheet(
                                             text = comment.name,
                                             fontSize = 16.sp,
                                             fontWeight = FontWeight.Bold,
+                                            overflow = TextOverflow.Ellipsis,
                                         )
                                         Spacer(Modifier.width(6.dp))
                                         Text(
                                             text = comment.postDate.removeTime()?.formatDate()
                                                 ?: "",
                                             fontSize = 12.sp,
+                                            maxLines = 1,
                                             fontWeight = FontWeight.Normal,
+                                            overflow = TextOverflow.Ellipsis,
                                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
                                             modifier = Modifier.weight(1f),
                                         )
