@@ -48,6 +48,19 @@ fun String.extractImageDate(): String? = try {
         .drop(1)
         .joinToString("-")
         .split("T")[0]
+        .formatDate()
+} catch (e: Exception) {
+    null
+}
+
+fun String.formatDate(): String? = try {
+    val dateRegex = """(\d{4}-\d{2}-\d{2})""".toRegex()
+    val date = dateRegex.find(this)?.value
+
+    date?.let {
+        val (year, month, day) = it.split("-")
+        "$day/$month/$year"
+    }
 } catch (e: Exception) {
     null
 }

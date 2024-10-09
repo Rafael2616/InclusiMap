@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
+import com.rafael.inclusimap.core.domain.model.util.formatDate
 import com.rafael.inclusimap.feature.map.domain.Report
 
 @Composable
@@ -62,7 +63,7 @@ fun PlaceInfoDialog(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(
@@ -80,7 +81,7 @@ fun PlaceInfoDialog(
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                     )
-                    Text(text = "Esse local foi adicionado em ${localMarker.time}")
+                    Text(text = "Esse local foi adicionado em: ${localMarker.time.split(".")[0].formatDate()}")
                 }
                 Column(
                     modifier = Modifier,
