@@ -561,7 +561,7 @@ fun PlaceDetailsBottomSheet(
                                                         ).show()
                                                         return@IconButton
                                                     }
-                                                    if (state.userComment.length < 3) {
+                                                    if (state.userComment.length <= 3) {
                                                         Toast.makeText(
                                                             context,
                                                             "O comentário é muito curto!",
