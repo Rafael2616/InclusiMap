@@ -10,12 +10,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CopyAll
 import androidx.compose.material.icons.outlined.Report
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.surfaceColorAtElevation
@@ -27,7 +29,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -44,6 +49,7 @@ fun PlaceInfoDialog(
     modifier: Modifier = Modifier,
 ) {
     var showReportDialog by remember { mutableStateOf(false) }
+    val clipboardManager = LocalClipboardManager.current
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -69,7 +75,7 @@ fun PlaceInfoDialog(
                 Column(
                     modifier = Modifier
                         .weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     Text(
                         text = "Informações",
@@ -81,7 +87,45 @@ fun PlaceInfoDialog(
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                     )
-                    Text(text = "Esse local foi adicionado em: ${localMarker.time.split(".")[0].formatDate()}")
+                    Text(
+                        text = "Esse local foi adicionado em: ${localMarker.time.split(".")[0].formatDate()}",
+                        fontSize = 16.sp,
+                    )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "Coordenadas:",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.weight(1f),
+                        )
+                        Text(
+                            text = "(${localMarker.position.first.toFloat()}, ${localMarker.position.second.toFloat()})",
+                            fontSize = 12.sp,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1,
+                            modifier = Modifier.weight(1.5f),
+                        )
+                        IconButton(
+                            onClick = {
+                                clipboardManager.setText(
+                                    AnnotatedString(
+                                        "${localMarker.position.first.toFloat()}, ${localMarker.position.second.toFloat()}"
+                                    )
+                                )
+                            },
+                            modifier = Modifier
+                                .size(24.dp)
+                                .weight(0.5f),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.CopyAll,
+                                contentDescription = null,
+                            )
+                        }
+                    }
                 }
                 Column(
                     modifier = Modifier,
