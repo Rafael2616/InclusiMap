@@ -65,99 +65,104 @@ fun PlaceInfoDialog(
                 containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp),
             ),
         ) {
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Column(
+                Row(
                     modifier = Modifier
-                        .weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(
-                        text = "Informações",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                    Text(
-                        text = localMarker.title,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Text(
-                        text = "Esse local foi adicionado em: ${localMarker.time.split(".")[0].formatDate()}",
-                        fontSize = 16.sp,
-                    )
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
+                    Column(
+                        modifier = Modifier
+                            .weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
                         Text(
-                            text = "Coordenadas:",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.weight(1f),
+                            text = "Informações",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.SemiBold,
                         )
                         Text(
-                            text = "(${localMarker.position.first.toFloat()}, ${localMarker.position.second.toFloat()})",
-                            fontSize = 12.sp,
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1,
-                            modifier = Modifier.weight(1.5f),
+                            text = localMarker.title,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
                         )
-                        IconButton(
+                        Text(
+                            text = "Esse local foi adicionado em: ${localMarker.time.split(".")[0].formatDate()}",
+                            fontSize = 16.sp,
+                        )
+                    }
+                    Column(
+                        modifier = Modifier,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        ElevatedButton(
                             onClick = {
-                                clipboardManager.setText(
-                                    AnnotatedString(
-                                        "${localMarker.position.first.toFloat()}, ${localMarker.position.second.toFloat()}"
-                                    )
-                                )
+                                showReportDialog = true
                             },
-                            modifier = Modifier
-                                .size(24.dp)
-                                .weight(0.5f),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp),
+                            ),
                         ) {
-                            Icon(
-                                imageVector = Icons.Outlined.CopyAll,
-                                contentDescription = null,
-                            )
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(2.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Report,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(30.dp),
+                                    tint = MaterialTheme.colorScheme.error,
+                                )
+                                Text(
+                                    text = "Reportar",
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Normal,
+                                    color = MaterialTheme.colorScheme.error,
+                                )
+                            }
                         }
                     }
                 }
-                Column(
-                    modifier = Modifier,
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    ElevatedButton(
+                    Text(
+                        text = "Coordenadas:",
+                        fontSize = 14.sp,
+                        maxLines = 1,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        text = "(${localMarker.position.first.toFloat()}, ${localMarker.position.second.toFloat()})",
+                        fontSize = 12.sp,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                    )
+                    IconButton(
                         onClick = {
-                            showReportDialog = true
+                            clipboardManager.setText(
+                                AnnotatedString(
+                                    "${localMarker.position.first.toFloat()}, ${localMarker.position.second.toFloat()}"
+                                )
+                            )
                         },
-                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp),
-                        ),
+                        modifier = Modifier
+                            .size(24.dp)
+                            .weight(1f)
                     ) {
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(2.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Report,
-                                contentDescription = null,
-                                modifier = Modifier.size(30.dp),
-                                tint = MaterialTheme.colorScheme.error,
-                            )
-                            Text(
-                                text = "Reportar",
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Normal,
-                                color = MaterialTheme.colorScheme.error,
-                            )
-                        }
+                        Icon(
+                            imageVector = Icons.Outlined.CopyAll,
+                            contentDescription = null,
+                        )
                     }
                 }
             }
