@@ -327,6 +327,7 @@ fun PlaceDetailsBottomSheet(
                                                             alpha = 0.5f,
                                                         ),
                                                     ),
+                                                enabled = isInternetAvailable,
                                             ) {
                                                 Icon(
                                                     imageVector = Icons.TwoTone.Delete,
