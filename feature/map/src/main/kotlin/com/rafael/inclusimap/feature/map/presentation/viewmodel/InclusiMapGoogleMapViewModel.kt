@@ -100,7 +100,6 @@ class InclusiMapGoogleMapViewModel(
                     return@launch
                 }
                 _state.update { it.copy(allMappedPlaces = mappedPlaces) }
-                println("Loaded ${state.value.allMappedPlaces.size} places from server")
             }
         }.invokeOnCompletion {
             // Update the cache for places

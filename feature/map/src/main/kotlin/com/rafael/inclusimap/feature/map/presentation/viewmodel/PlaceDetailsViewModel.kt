@@ -279,7 +279,7 @@ class PlaceDetailsViewModel(
                 _state.value.loadedPlaces.find { place -> place.id == placeDetails.id }?.imageFolder,
                 _state.value.loadedPlaces.find { place -> place.id == placeDetails.id }?.imageFolderId,
             )
-            println("allimages founded:" + _state.value.loadedPlaces.find { place -> place.id == placeDetails.id }?.images?.size)
+            println("All images founded:" + _state.value.loadedPlaces.find { place -> place.id == placeDetails.id }?.images?.size)
             _state.update {
                 it.copy(
                     currentPlace = placeWithImages,

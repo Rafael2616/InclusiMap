@@ -178,8 +178,8 @@ fun PlaceDetailsBottomSheet(
         latestEvent(PlaceDetailsEvent.SetCurrentPlace(currentPlace))
     }
 
-    LaunchedEffect(state.currentPlace) {
-        if (state.currentPlace.toAccessibleLocalMarker() != currentPlace) {
+    LaunchedEffect(state.currentPlace, state.userComment) {
+        if (state.currentPlace.toAccessibleLocalMarker() != currentPlace || state.userComment == "") {
             latestUpdateMappedPlace(state.currentPlace.toAccessibleLocalMarker())
         }
     }
