@@ -534,19 +534,19 @@ fun PlaceDetailsBottomSheet(
                                     placeholder = {
                                         Text(text = "Adicione um comentário sobre a acessibilidade desse local")
                                     },
-                                    maxLines = 6,
+                                    maxLines = 3,
                                     shape = RoundedCornerShape(16.dp),
                                     trailingIcon = {
                                         Column {
                                             Row {
                                                 Text(
                                                     text = state.userComment.length.toString(),
-                                                    fontSize = 14.sp,
+                                                    fontSize = 12.sp,
                                                     color = if (state.userComment.length < 3 && state.userComment.isNotEmpty()) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
                                                 )
                                                 Text(
                                                     text = "/$maxCommentLenght",
-                                                    fontSize = 14.sp,
+                                                    fontSize = 12.sp,
                                                     color = MaterialTheme.colorScheme.onSurface
                                                 )
                                             }
