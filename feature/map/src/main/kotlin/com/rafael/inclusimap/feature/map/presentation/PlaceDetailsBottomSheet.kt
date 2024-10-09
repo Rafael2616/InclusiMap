@@ -50,11 +50,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -97,6 +99,7 @@ import com.rafael.inclusimap.feature.map.domain.Report
 import com.rafael.inclusimap.feature.map.domain.ReportState
 import com.rafael.inclusimap.feature.map.presentation.dialog.FullScreenImageViewDialog
 import com.rafael.inclusimap.feature.map.presentation.dialog.PlaceInfoDialog
+import com.rafael.inclusimap.feature.map.presentation.dialog.UnsavedCommentDialog
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
@@ -173,9 +176,12 @@ fun PlaceDetailsBottomSheet(
     val internetState = remember { InternetConnectionState(context) }
     val isInternetAvailable by internetState.state.collectAsStateWithLifecycle()
     var showToast by remember { mutableStateOf(false) }
+    val maxCommentLenght by remember { mutableIntStateOf(300) }
+    var showUnsavedCommentDialog by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
+    DisposableEffect(Unit) {
         latestEvent(PlaceDetailsEvent.SetCurrentPlace(currentPlace))
+        onDispose {}
     }
 
     LaunchedEffect(state.currentPlace, state.userComment) {
@@ -189,6 +195,9 @@ fun PlaceDetailsBottomSheet(
         onDismissRequest = {
             onDismiss()
         },
+        properties = ModalBottomSheetProperties(
+            shouldDismissOnBackPress = true
+        ),
         modifier = Modifier.imeNestedScroll(),
     ) {
         Column(
@@ -399,7 +408,9 @@ fun PlaceDetailsBottomSheet(
                                                 }
                                                 showToast = true
                                                 launcher.launch(
-                                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                                                    PickVisualMediaRequest(
+                                                        ActivityResultContracts.PickVisualMedia.ImageOnly,
+                                                    ),
                                                 )
                                             },
                                     ) {
@@ -503,7 +514,7 @@ fun PlaceDetailsBottomSheet(
                                             )
                                             .clickable {
                                                 latestEvent(
-                                                    PlaceDetailsEvent.SetUserAccessibilityRate(it),
+                                                    PlaceDetailsEvent.SetUserAccessibilityRate(it,),
                                                 )
                                             },
                                     )
@@ -513,7 +524,9 @@ fun PlaceDetailsBottomSheet(
                                 TextField(
                                     value = state.userComment,
                                     onValueChange = {
-                                        latestEvent(PlaceDetailsEvent.SetUserComment(it))
+                                        if (it.length <= maxCommentLenght) {
+                                            latestEvent(PlaceDetailsEvent.SetUserComment(it))
+                                        }
                                     },
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -524,29 +537,51 @@ fun PlaceDetailsBottomSheet(
                                     maxLines = 6,
                                     shape = RoundedCornerShape(16.dp),
                                     trailingIcon = {
-                                        IconButton(
-                                            onClick = {
-                                                latestEvent(PlaceDetailsEvent.OnSendComment)
-                                                if (state.userComment.isEmpty()) {
+                                        Column {
+                                            Row {
+                                                Text(
+                                                    text = state.userComment.length.toString(),
+                                                    fontSize = 14.sp,
+                                                    color = if (state.userComment.length < 3 && state.userComment.isNotEmpty()) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                                                )
+                                                Text(
+                                                    text = "/$maxCommentLenght",
+                                                    fontSize = 14.sp,
+                                                    color = MaterialTheme.colorScheme.onSurface
+                                                )
+                                            }
+                                            IconButton(
+                                                onClick = {
+                                                    latestEvent(PlaceDetailsEvent.OnSendComment)
+                                                    if (state.userComment.isEmpty()) {
+                                                        Toast.makeText(
+                                                            context,
+                                                            "O comentário está vazio!",
+                                                            Toast.LENGTH_SHORT,
+                                                        ).show()
+                                                        return@IconButton
+                                                    }
+                                                    if (state.userComment.length < 3) {
+                                                        Toast.makeText(
+                                                            context,
+                                                            "O comentário é muito curto!",
+                                                            Toast.LENGTH_SHORT,
+                                                        ).show()
+                                                        return@IconButton
+                                                    }
                                                     Toast.makeText(
                                                         context,
-                                                        "O comentário está vazio!",
+                                                        "Comentário adicionado!",
                                                         Toast.LENGTH_SHORT,
                                                     ).show()
-                                                    return@IconButton
-                                                }
-                                                Toast.makeText(
-                                                    context,
-                                                    "Comentário adicionado!",
-                                                    Toast.LENGTH_SHORT,
-                                                ).show()
-                                            },
-                                            enabled = isInternetAvailable,
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.AutoMirrored.Filled.Send,
-                                                contentDescription = null,
-                                            )
+                                                },
+                                                enabled = isInternetAvailable,
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.AutoMirrored.Filled.Send,
+                                                    contentDescription = null,
+                                                )
+                                            }
                                         }
                                     },
                                     keyboardOptions = KeyboardOptions(
@@ -583,7 +618,11 @@ fun PlaceDetailsBottomSheet(
                                     )
                                     IconButton(
                                         onClick = {
-                                            latestEvent(PlaceDetailsEvent.SetIsUserCommented(false))
+                                            latestEvent(
+                                                PlaceDetailsEvent.SetIsUserCommented(
+                                                    false,
+                                                ),
+                                            )
                                             scope.launch {
                                                 async { bottomSheetScaffoldState.expand() }.await()
                                                 focusRequester.requestFocus()
@@ -628,10 +667,10 @@ fun PlaceDetailsBottomSheet(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(24.dp))
-                            .background(MaterialTheme.colorScheme.surfaceColorAtElevation(30.dp)),
+                            .background(MaterialTheme.colorScheme.surfaceColorAtElevation(15.dp)),
                     ) {
                         Column(
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
                             modifier = Modifier
                                 .padding(16.dp)
                                 .fillMaxWidth(),
@@ -676,7 +715,9 @@ fun PlaceDetailsBottomSheet(
                                         fontWeight = FontWeight.Normal,
                                     )
                                     if (index != (state.currentPlace.comments.filter { it.email != userEmail }.size - 1)) {
-                                        HorizontalDivider()
+                                        HorizontalDivider(
+                                            thickness = 2.dp,
+                                        )
                                     }
                                 }
                             if (state.currentPlace.comments.isEmpty()) {
@@ -730,6 +771,18 @@ fun PlaceDetailsBottomSheet(
     }
     if (reportState.isError && !reportState.isReported && showToast) {
         showToast = false
-        Toast.makeText(context, "Ocorreu um erro ao enviar report", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Ocorreu um erro ao enviar report", Toast.LENGTH_SHORT)
+            .show()
+    }
+
+    AnimatedVisibility(showUnsavedCommentDialog) {
+        UnsavedCommentDialog(
+            onDismiss = {
+                onDismiss()
+            },
+            onContinue = {
+                showUnsavedCommentDialog = false
+            },
+        )
     }
 }
