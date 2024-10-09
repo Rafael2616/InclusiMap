@@ -5,11 +5,9 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imeNestedScroll
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -55,7 +53,7 @@ import com.rafael.inclusimap.feature.intro.presentation.dialogs.TermsAndConditio
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalUuidApi::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalUuidApi::class)
 @Composable
 fun RegistrationScreen(
     state: LoginState,
@@ -98,7 +96,6 @@ fun RegistrationScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
             modifier = Modifier
                 .fillMaxWidth()
-                .imeNestedScroll(),
         ) {
             Text(
                 text = "Bem-vindo",

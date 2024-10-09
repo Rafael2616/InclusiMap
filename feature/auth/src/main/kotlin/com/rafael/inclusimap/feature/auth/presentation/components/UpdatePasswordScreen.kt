@@ -3,12 +3,10 @@ package com.rafael.inclusimap.feature.auth.presentation.components
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imeNestedScroll
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -47,7 +45,6 @@ import androidx.compose.ui.unit.sp
 import com.rafael.inclusimap.feature.auth.domain.model.LoginState
 import com.rafael.inclusimap.feature.auth.domain.utils.isValidPassword
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun UpdatePasswordScreen(
     state: LoginState,
@@ -73,8 +70,7 @@ fun UpdatePasswordScreen(
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
             modifier = Modifier
-                .fillMaxWidth()
-                .imeNestedScroll(),
+                .fillMaxWidth(),
         ) {
             Text(
                 text = "Olá!, ${state.user?.name?.split(" ")?.first()}",
@@ -179,7 +175,6 @@ fun UpdatePasswordScreen(
                     onClick = {
                         onCancel()
                     },
-                    enabled = !state.isUpdatingPassword,
                 ) {
                     Text(text = "Cancelar")
                 }

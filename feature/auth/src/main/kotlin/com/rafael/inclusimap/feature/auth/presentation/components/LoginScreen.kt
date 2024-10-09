@@ -4,12 +4,10 @@ import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imeNestedScroll
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -48,7 +46,6 @@ import androidx.compose.ui.unit.sp
 import com.rafael.inclusimap.feature.auth.domain.model.LoginState
 import com.rafael.inclusimap.feature.auth.domain.model.RegisteredUser
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun LoginScreen(
     state: LoginState,
@@ -76,8 +73,7 @@ fun LoginScreen(
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
             modifier = Modifier
-                .fillMaxWidth()
-                .imeNestedScroll(),
+                .fillMaxWidth(),
         ) {
             Text(
                 text = "Bem-vindo de volta!",
