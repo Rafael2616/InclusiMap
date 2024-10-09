@@ -176,8 +176,9 @@ fun PlaceDetailsBottomSheet(
     val internetState = remember { InternetConnectionState(context) }
     val isInternetAvailable by internetState.state.collectAsStateWithLifecycle()
     var showToast by remember { mutableStateOf(false) }
-    val maxCommentLenght by remember { mutableIntStateOf(300) }
+    val maxCommentLength by remember { mutableIntStateOf(300) }
     var showUnsavedCommentDialog by remember { mutableStateOf(false) }
+    var currentCommentLength by remember { mutableIntStateOf(0) }
 
     DisposableEffect(Unit) {
         latestEvent(PlaceDetailsEvent.SetCurrentPlace(currentPlace))
@@ -524,7 +525,7 @@ fun PlaceDetailsBottomSheet(
                                 TextField(
                                     value = state.userComment,
                                     onValueChange = {
-                                        if (it.length <= maxCommentLenght) {
+                                        if (it.length <= maxCommentLength) {
                                             latestEvent(PlaceDetailsEvent.SetUserComment(it))
                                         }
                                     },
@@ -545,7 +546,7 @@ fun PlaceDetailsBottomSheet(
                                                     color = if (state.userComment.length < 3 && state.userComment.isNotEmpty()) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
                                                 )
                                                 Text(
-                                                    text = "/$maxCommentLenght",
+                                                    text = "/$maxCommentLength",
                                                     fontSize = 12.sp,
                                                     color = MaterialTheme.colorScheme.onSurface
                                                 )
@@ -561,7 +562,7 @@ fun PlaceDetailsBottomSheet(
                                                         ).show()
                                                         return@IconButton
                                                     }
-                                                    if (state.userComment.length <= 3) {
+                                                    if (state.userComment.length < 3) {
                                                         Toast.makeText(
                                                             context,
                                                             "O comentário é muito curto!",
