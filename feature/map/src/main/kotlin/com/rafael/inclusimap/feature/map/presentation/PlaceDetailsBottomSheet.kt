@@ -332,7 +332,7 @@ fun PlaceDetailsBottomSheet(
                                                 Icon(
                                                     imageVector = Icons.TwoTone.Delete,
                                                     contentDescription = null,
-                                                    tint = MaterialTheme.colorScheme.primary,
+                                                    tint = if (isInternetAvailable) MaterialTheme.colorScheme.primary else Color.Gray,
                                                     modifier = Modifier.size(30.dp),
                                                 )
                                             }
