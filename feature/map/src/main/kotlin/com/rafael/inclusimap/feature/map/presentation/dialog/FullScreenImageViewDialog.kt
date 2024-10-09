@@ -5,9 +5,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -113,6 +115,7 @@ fun FullScreenImageViewDialog(
                         )
                     }
                 }
+                Spacer(Modifier.height(6.dp))
                 Column(
                     modifier = Modifier
                         .fillMaxSize(),
@@ -123,9 +126,10 @@ fun FullScreenImageViewDialog(
                         HorizontalMultiBrowseCarousel(
                             state = state,
                             preferredItemWidth = (0.85 * width).dp,
-                            itemSpacing = 10.dp,
+                            itemSpacing = 8.dp,
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .weight(0.94f)
                                 .navigationBarsPadding(),
                             flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(state),
                         ) { index ->
@@ -154,6 +158,7 @@ fun FullScreenImageViewDialog(
                             itemSpacing = 10.dp,
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .weight(0.94f)
                                 .navigationBarsPadding(),
                             flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(state),
                         ) { index ->
@@ -178,6 +183,7 @@ fun FullScreenImageViewDialog(
                     Row(
                         modifier = Modifier
                             .padding(bottom = 16.dp)
+                            .weight(0.06f)
                             .fillMaxWidth(),
                         horizontalArrangement = Arrangement.Start,
                         verticalAlignment = Alignment.Top,
@@ -185,7 +191,7 @@ fun FullScreenImageViewDialog(
                         Text(
                             text = "Imagem publicada em: ${images[currentImageIndex]?.name?.extractImageDate() ?: "Sem dados"}",
                             fontSize = 14.sp,
-                            color = LocalContentColor.current.copy(alpha = 0.8f),
+                            color = LocalContentColor.current.copy(alpha = 0.7f),
                             textAlign = TextAlign.Center,
                             modifier = Modifier
                                 .fillMaxWidth(if (isMultiBrowserView) 0.85f else 1f)
