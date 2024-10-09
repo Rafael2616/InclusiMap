@@ -7,12 +7,13 @@ import androidx.room.PrimaryKey
 data class AccessibleLocalsEntity(
     @PrimaryKey
     val id: Int,
-    val locals : String // Serialized List<AccessibleLocalMarker>
+    // Serialized List<AccessibleLocalMarker>
+    val locals: String,
 ) {
     companion object {
         fun getDefault(): AccessibleLocalsEntity = AccessibleLocalsEntity(
             id = 1,
-            locals = "[]"
+            locals = "[]",
         )
     }
 }

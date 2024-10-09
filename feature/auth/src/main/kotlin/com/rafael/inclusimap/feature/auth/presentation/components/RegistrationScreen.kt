@@ -335,7 +335,7 @@ fun RegistrationScreen(
     }
 
     AnimatedVisibility(showTermsAndConditionsDialog) {
-       TermsAndConditionsDialog(
+        TermsAndConditionsDialog(
             onDismissRequest = {
                 showTermsAndConditionsDialog = false
             },

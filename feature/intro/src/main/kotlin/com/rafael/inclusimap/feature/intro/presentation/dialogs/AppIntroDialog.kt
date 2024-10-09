@@ -52,8 +52,8 @@ fun AppIntroDialog(
                 .wrapContentHeight()
                 .clip(RoundedCornerShape(24.dp)),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp)
-            )
+                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp),
+            ),
         ) {
             Column(
                 Modifier

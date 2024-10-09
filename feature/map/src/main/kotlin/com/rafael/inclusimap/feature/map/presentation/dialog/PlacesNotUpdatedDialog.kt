@@ -23,7 +23,7 @@ fun PlacesNotUpdatedDialog(
 ) {
     AlertDialog(
         properties = DialogProperties(
-            usePlatformDefaultWidth = false
+            usePlatformDefaultWidth = false,
         ),
         onDismissRequest = { },
         icon = {

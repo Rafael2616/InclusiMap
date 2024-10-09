@@ -4,7 +4,7 @@ enum class ReportType {
     LOCAL,
     COMMENT,
     IMAGE,
-    OTHER
+    OTHER,
 }
 
 fun ReportType.toText() = when (this) {

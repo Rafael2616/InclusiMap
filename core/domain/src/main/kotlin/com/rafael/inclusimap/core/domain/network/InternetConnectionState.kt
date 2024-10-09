@@ -1,4 +1,4 @@
-package com.rafael.inclusimap.feature.map.domain
+package com.rafael.inclusimap.core.domain.network
 
 import android.content.Context
 import android.net.ConnectivityManager

@@ -183,7 +183,7 @@ fun PlaceReportDialog(
                     keyboardActions = KeyboardActions(
                         onDone = {
                             focusManager.clearFocus()
-                        }
+                        },
                     ),
                     shape = RoundedCornerShape(topEnd = 12.dp, topStart = 12.dp),
                 )

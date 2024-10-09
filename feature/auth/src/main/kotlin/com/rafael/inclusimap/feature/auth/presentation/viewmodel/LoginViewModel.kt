@@ -632,18 +632,16 @@ class LoginViewModel(
     }
 
     // This is explained in Terms and conditions
-    private fun copyUserInfoToPosthumousVerification(user: File): Job {
-        return viewModelScope.launch(Dispatchers.IO) {
-            driveService.listFiles(user.id).onSuccess { userFiles ->
-                val userDataFile = userFiles.find { it.name == state.value.user?.email + ".json" }
-                val userContentString = driveService.getFileContent(userDataFile?.id ?: "")?.decodeToString()
-                driveService.uploadFile(
-                    userContentString?.toByteArray()?.inputStream(),
-                    _state.value.user?.email + ".json",
-                    "1DaCt5NuNaOjLFafEsyvQfwt9NRO6Eso2", // Posthumous Verification Folder
-                ).also {
-                    println("User data copied to verification directory!")
-                }
+    private fun copyUserInfoToPosthumousVerification(user: File): Job = viewModelScope.launch(Dispatchers.IO) {
+        driveService.listFiles(user.id).onSuccess { userFiles ->
+            val userDataFile = userFiles.find { it.name == state.value.user?.email + ".json" }
+            val userContentString = driveService.getFileContent(userDataFile?.id ?: "")?.decodeToString()
+            driveService.uploadFile(
+                userContentString?.toByteArray()?.inputStream(),
+                _state.value.user?.email + ".json",
+                "1DaCt5NuNaOjLFafEsyvQfwt9NRO6Eso2", // Posthumous Verification Folder
+            ).also {
+                println("User data copied to verification directory!")
             }
         }
     }

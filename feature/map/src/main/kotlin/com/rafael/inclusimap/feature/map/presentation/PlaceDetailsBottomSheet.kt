@@ -88,9 +88,9 @@ import com.rafael.inclusimap.core.domain.model.toAccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.toCategoryName
 import com.rafael.inclusimap.core.domain.model.util.toColor
 import com.rafael.inclusimap.core.domain.model.util.toMessage
+import com.rafael.inclusimap.core.domain.network.InternetConnectionState
 import com.rafael.inclusimap.core.domain.util.Constants.MAX_IMAGE_NUMBER
 import com.rafael.inclusimap.feature.map.domain.InclusiMapState
-import com.rafael.inclusimap.feature.map.domain.InternetConnectionState
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsState
 import com.rafael.inclusimap.feature.map.domain.Report

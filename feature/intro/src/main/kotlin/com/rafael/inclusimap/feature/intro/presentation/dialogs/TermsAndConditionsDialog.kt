@@ -122,7 +122,7 @@ fun TermsAndConditionsDialog(
                         .align(Alignment.TopCenter)
                         .padding(top = 16.dp),
 
-                    )
+                )
                 LazyColumnScrollbar(
                     modifier = Modifier
                         .padding(top = 35.dp),

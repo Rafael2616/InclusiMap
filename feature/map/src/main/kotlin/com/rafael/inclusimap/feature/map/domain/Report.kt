@@ -8,6 +8,6 @@ import kotlinx.serialization.Serializable
 data class Report(
     val type: ReportType,
     val content: String,
-    val reportedLocal : AccessibleLocalMarker,
+    val reportedLocal: AccessibleLocalMarker,
     val user: User? = null,
 )

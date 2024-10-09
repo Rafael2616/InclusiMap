@@ -61,13 +61,13 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.rafael.inclusimap.core.domain.model.toCategoryName
 import com.rafael.inclusimap.core.domain.model.util.toHUE
+import com.rafael.inclusimap.core.domain.network.InternetConnectionState
 import com.rafael.inclusimap.core.resources.R
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 import com.rafael.inclusimap.feature.intro.domain.model.AppIntroState
 import com.rafael.inclusimap.feature.intro.presentation.dialogs.AppIntroDialog
 import com.rafael.inclusimap.feature.map.domain.InclusiMapEvent
 import com.rafael.inclusimap.feature.map.domain.InclusiMapState
-import com.rafael.inclusimap.feature.map.domain.InternetConnectionState
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsState
 import com.rafael.inclusimap.feature.map.domain.Report

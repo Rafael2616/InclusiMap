@@ -31,6 +31,7 @@ import androidx.compose.material3.carousel.HorizontalUncontainedCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -61,7 +62,7 @@ fun FullScreenImageViewDialog(
     )
     val width = LocalView.current.width
     var isMultiBrowserView by remember { mutableStateOf(false) }
-    var currentImageIndex by remember { mutableStateOf(index) }
+    var currentImageIndex by remember { mutableIntStateOf(index) }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -193,7 +194,7 @@ fun FullScreenImageViewDialog(
                             color = LocalContentColor.current.copy(alpha = 0.7f),
                             textAlign = TextAlign.Center,
                             modifier = Modifier
-                                .fillMaxWidth()
+                                .fillMaxWidth(),
                         )
                     }
                 }

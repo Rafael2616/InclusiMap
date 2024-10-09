@@ -120,9 +120,7 @@ class AccessibleLocalsRepositoryImpl(
         }
     }
 
-    override suspend fun getAccessibleLocalsStored(id: Int): AccessibleLocalsEntity? {
-        return dao.getLocals(id)
-    }
+    override suspend fun getAccessibleLocalsStored(id: Int): AccessibleLocalsEntity? = dao.getLocals(id)
 
     override suspend fun updateAccessibleLocalStored(accessibleLocalEntity: AccessibleLocalsEntity) {
         dao.updateLocals(accessibleLocalEntity)
