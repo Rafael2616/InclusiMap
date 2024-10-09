@@ -81,7 +81,7 @@ class AccessibleLocalsRepositoryImpl(
                 is Success -> {
                     val fileId =
                         result.data.find { it.name.extractPlaceID()!!.removeSuffix(".json") == accessibleLocal.id }?.id
-                            ?: throw IllegalStateException("File with id: ${accessibleLocal.id} not found")
+                            ?: return@withContext
                     driveService.updateFile(
                         fileId,
                         accessibleLocal.id + "_" + accessibleLocal.authorEmail + ".json",
