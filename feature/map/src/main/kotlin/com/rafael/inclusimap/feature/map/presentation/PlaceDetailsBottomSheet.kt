@@ -184,8 +184,8 @@ fun PlaceDetailsBottomSheet(
         onDispose {}
     }
 
-    LaunchedEffect(state.currentPlace) {
-        if (state.currentPlace.toAccessibleLocalMarker() != currentPlace) {
+    LaunchedEffect(state.currentPlace, state.userComment) {
+        if (state.currentPlace.toAccessibleLocalMarker() != currentPlace || state.userComment == "") {
             latestUpdateMappedPlace(state.currentPlace.toAccessibleLocalMarker())
         }
     }
@@ -641,7 +641,6 @@ fun PlaceDetailsBottomSheet(
                                     IconButton(
                                         onClick = {
                                             latestEvent(PlaceDetailsEvent.OnDeleteComment)
-                                            latestUpdateMappedPlace(state.currentPlace.toAccessibleLocalMarker())
                                             Toast.makeText(
                                                 context,
                                                 "Comentário removido!",
