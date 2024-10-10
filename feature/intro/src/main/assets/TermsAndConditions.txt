@@ -2,20 +2,21 @@ Termos de serviço:
 
 1- Que informações coletamos?
 
-    Para o pleno funcionamento do app, nós coletamos seu email e nome de usuário, além da senha definida no ato do cadastro. Estas são as únicas informações pessoais armazenadas.
+    Para o pleno funcionamento do app, nós coletamos seu email e nome de usuário, uma foto de perfil totalmente opicional, além da senha definida no ato do cadastro. Estas são as únicas informações pessoais armazenadas.
 
 2- O que é feito com seus dados?
 
     Seu email funciona como um ID (Identificador Único), ele é utilizado para definir e fazer associações dos locais que você interage/cadastra para possibilitar a postuma edição ou exclusão de comentários, imagens ou locais adicionados por você, além de garantir que ninguém mais consiga cadastrar e entrar no serviço com seu email.
     Seu nome é utilizado para que outros usuários consigam identificar quem publicou um comentário ou uma foto.
-
+    Sua foto serve como identificação para os outros usuários.
 3- Como garantimos sua privacidade?
 
     Ao se cadastrar, um ID de 32 caracteres é gerado e asssociado á sua conta, através dele que todas as interações no aplicativo feita por você são representadas, garantindo que seu nome de usuário e email sejam preservados.
+    Voce também pode optar a qualquer momento em tornar publico sua foto de perfil, tornando-a visvel ou não para os outros usuários´.
 
 4- O que acontece quando eu excluo minha conta?
 
-    Quando voçê exclui sua conta, todas as informações associadas a você como email, senha, id e nome de usuário são excluidos do nosso servidor. Quando você opta por apagar tudo ao excluir sua conta, além dos dados anteriores, todas as interações realizadas também são excluidas, como: comentários, locais adicionadas e imagens postadas. No entanto, uma cópia de dados como: seu email e ID são mantidos por 72 horas nos nossos servidores, para fins de análise e são automaticamente deletados após esse período.
+    Quando voçê exclui sua conta, todas as informações associadas a você como email, senha, ID, foto de perfil e nome de usuário são excluidos do nosso servidor. Quando você opta por apagar tudo ao excluir sua conta, além dos dados anteriores, todas as interações realizadas também são excluidas, como: comentários, locais adicionadas e imagens postadas. No entanto, uma cópia de dados como: seu email e ID e nome de usuário são mantidos por 72 horas nos nossos servidores, para fins de análise e são automaticamente deletados após esse período.
 
 
 Condições:
@@ -23,6 +24,7 @@ Condições:
 1- Ao entrar nesse serviço, você concorda que:
 
     Seu email será utilizado para os fins listados acima.
+    Sua foto poderá ser exibida para outros usuários do aplicativo em recursos como os comentários, a menos que você desabilite isso via configurações.
     Algumas informações serão mantidas por um periodo após a exclusão da conta, como descrito acima.
 
 2- Ao entrar nesse serviço, você se compromente a:
@@ -31,3 +33,4 @@ Condições:
     Não publicar comentários não relacionados a acessibilidade do local onde se prentende comentar, sobre punição de exclusão de conta.
     Não publicar imagens que não tenhar relação com a acessibilidade do local, sobre punição de exclusão de conta.
     Apenas fazer report/denúncia se realmente houver alguma inconformidade com os itens listados acima, sobre punição de exclusão de conta.
+    Usar o recurso de foto de perfil com cautela, de modo que a imagem se encaixe nos fins propostos - retratar a pessoa do usuário -, sobre punição de exclusão de conta.
