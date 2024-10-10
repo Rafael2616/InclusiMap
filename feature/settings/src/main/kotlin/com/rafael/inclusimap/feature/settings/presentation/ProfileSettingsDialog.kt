@@ -166,7 +166,7 @@ fun ProfileSettingsDialog(
                                 isPictureRemoved = false
                                 isPictureEdited = true
                             },
-                        contentAlignment = Alignment.Center
+                        contentAlignment = Alignment.Center,
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.AddAPhoto,
@@ -380,7 +380,7 @@ fun ProfileSettingsDialog(
                 "Informações atualizadas!",
                 Toast.LENGTH_SHORT,
             ).show()
-            onDismiss()
         }
+        onDismiss()
     }
 }
