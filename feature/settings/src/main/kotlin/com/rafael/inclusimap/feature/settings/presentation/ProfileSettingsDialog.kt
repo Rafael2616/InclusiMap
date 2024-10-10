@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -51,10 +52,13 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 
 @Composable
@@ -96,9 +100,13 @@ fun ProfileSettingsDialog(
 
     Dialog(
         onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+        )
     ) {
         Card(
-            modifier = modifier,
+            modifier = modifier
+                .fillMaxWidth(0.75f),
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(10.dp),
@@ -111,6 +119,17 @@ fun ProfileSettingsDialog(
                 verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                Text(
+                    text = "Configurações do perfil",
+                    fontSize = 22.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Start,
+                    softWrap = true,
+
+                )
                 profilePicture?.let { image ->
                     Image(
                         bitmap = image,
@@ -158,6 +177,7 @@ fun ProfileSettingsDialog(
                             )
                         }
                     }
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
                 if (profilePicture != null)
                     IconButton(
