@@ -228,9 +228,9 @@ fun InclusiMapGoogleMapScreen(
                         } else {
                             Image(
                                 modifier = Modifier
-                                    .size(40.dp)
+                                    .size(45.dp)
                                     .clip(CircleShape),
-                                painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                                painter = painterResource(id = R.drawable.ic_splash),
                                 contentDescription = null,
                             )
                         }
