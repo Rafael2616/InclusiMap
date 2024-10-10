@@ -253,6 +253,15 @@ class LoginViewModel(
                                     println("Password is incorrect")
                                     return@async
                                 }
+                                val userImageByteArray = ByteArrayOutputStream()
+                                async {
+                                    downloadUserProfilePicture(userObj.email)?.asAndroidBitmap()
+                                        ?.compress(
+                                            Bitmap.CompressFormat.PNG,
+                                            100,
+                                            userImageByteArray
+                                        )
+                                }.await()
                                 val loginData =
                                     repository.getLoginInfo(1) ?: LoginEntity.getDefault()
                                 loginData.userId = userObj.id
@@ -260,7 +269,9 @@ class LoginViewModel(
                                 loginData.userEmail = userObj.email
                                 loginData.userPassword = userObj.password
                                 loginData.isLoggedIn = true
-
+                                loginData.showProfilePictureOptedIn =
+                                    userObj.showProfilePictureOptedIn
+                                loginData.profilePicture = userImageByteArray.toByteArray()
                                 repository.updateLoginInfo(loginData)
 
                                 _state.update {
@@ -273,6 +284,13 @@ class LoginViewModel(
                                             password = userObj.password,
                                             showProfilePictureOptedIn = userObj.showProfilePictureOptedIn,
                                         ),
+                                        userProfilePicture = userImageByteArray.run {
+                                            BitmapFactory.decodeByteArray(
+                                                userImageByteArray.toByteArray(),
+                                                0,
+                                                userImageByteArray.toByteArray().size,
+                                            ).asImageBitmap()
+                                        },
                                     )
                                 }
                             }
