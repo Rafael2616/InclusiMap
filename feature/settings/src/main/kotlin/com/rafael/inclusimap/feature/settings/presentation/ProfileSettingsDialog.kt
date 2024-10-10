@@ -60,6 +60,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.rafael.inclusimap.core.domain.network.InternetConnectionState
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 
 @Composable
@@ -98,6 +100,8 @@ fun ProfileSettingsDialog(
     var newName by remember { mutableStateOf(userName) }
     var isUserNameEdited by remember { mutableStateOf(false) }
     var shouldDismissDialog by remember { mutableStateOf(false) }
+    val internetState = remember { InternetConnectionState(context) }
+    val isInternetAvailable by internetState.state.collectAsStateWithLifecycle()
 
     Dialog(
         onDismissRequest = { },
@@ -354,7 +358,7 @@ fun ProfileSettingsDialog(
                             }
                             shouldDismissDialog = true
                         },
-                        enabled = isSuccessfulUpdatingUserInfos,
+                        enabled = isSuccessfulUpdatingUserInfos && isInternetAvailable,
                     ) {
                         Text(
                             text = "Atualizar",
