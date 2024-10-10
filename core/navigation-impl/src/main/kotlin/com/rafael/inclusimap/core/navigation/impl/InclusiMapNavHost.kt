@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
@@ -65,6 +67,7 @@ fun InclusiMapNavHost(
         val ossLibraries by libraryViewModel.ossLibraries.collectAsStateWithLifecycle()
         val reportViewModel = koinViewModel<ReportViewModel>()
         val reportState by reportViewModel.state.collectAsStateWithLifecycle()
+        val scope = rememberCoroutineScope()
 
         InclusiMapTheme(state = settingsState) {
             Scaffold(
@@ -136,6 +139,8 @@ fun InclusiMapNavHost(
                                 reportViewModel.onReport(it)
                             },
                             reportState = reportState,
+                            allowedShowUserProfilePicture = loginViewModel::allowedShowUserProfilePicture,
+                            downloadUserProfilePicture = loginViewModel::downloadUserProfilePicture
                         )
                     }
                     composable<Destination.SettingsScreen> {
@@ -157,6 +162,34 @@ fun InclusiMapNavHost(
                             isDeleting = loginState.isDeletingAccount,
                             deleteStep = loginState.deleteStep,
                             networkError = loginState.networkError,
+                            userName = loginState.user?.name ?: "",
+                            onEditUserName = {
+                                loginViewModel.onEvent(
+                                    LoginEvent.UpdateUserName(it),
+                                )
+                            },
+                            onAddEditProfilePicture = {
+                                settingsViewModel.onEvent(
+                                    SettingsEvent.OnAddEditProfilePicture(it),
+                                )
+                                loginViewModel.onEvent(
+                                    LoginEvent.OnAddEditUserProfilePicture(it),
+                                )
+                            },
+                            onRemoveProfilePicture = {
+                                settingsViewModel.onEvent(
+                                    SettingsEvent.OnRemoveProfilePicture,
+                                )
+                                loginViewModel.onEvent(
+                                    LoginEvent.OnRemoveUserProfilePicture,
+                                )
+                            },
+                            onAllowPictureOptedIn = {
+                                loginViewModel.onEvent(
+                                    LoginEvent.OnAllowPictureOptedIn(it),
+                                )
+                            },
+                            allowOtherUsersToSeeProfilePicture = loginState.user?.showProfilePictureOptedIn ?: false,
                         )
                         LaunchedEffect(loginState.isLoggedIn) {
                             if (!loginState.isLoggedIn) {
@@ -191,6 +224,13 @@ fun InclusiMapNavHost(
             if (loginState.isLoggedIn && appIntroState.showAppIntro) {
                 navController.navigate(Destination.MapScreen)
             }
+        }
+
+        DisposableEffect(loginState.userProfilePicture) {
+            settingsViewModel.onEvent(
+                SettingsEvent.OnAddEditProfilePicture(loginState.userProfilePicture)
+            )
+            onDispose {  }
         }
     }
 }

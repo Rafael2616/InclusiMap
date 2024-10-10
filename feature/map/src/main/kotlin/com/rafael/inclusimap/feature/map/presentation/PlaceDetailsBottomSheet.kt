@@ -41,6 +41,7 @@ import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.twotone.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -72,6 +73,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -115,6 +117,7 @@ fun PlaceDetailsBottomSheet(
     bottomSheetScaffoldState: SheetState,
     userEmail: String,
     userName: String,
+    userPicture: ImageBitmap?,
     inclusiMapState: InclusiMapState,
     onDismiss: () -> Unit,
     onReport: (Report) -> Unit,
@@ -122,6 +125,8 @@ fun PlaceDetailsBottomSheet(
     onEvent: (PlaceDetailsEvent) -> Unit,
     onUpdateMappedPlace: (AccessibleLocalMarker) -> Unit,
     reportState: ReportState,
+    allowedShowUserProfilePicture: suspend (String) -> Boolean,
+    downloadUserProfilePicture: suspend (String) -> ImageBitmap?,
     modifier: Modifier = Modifier,
 ) {
     val latestEvent by rememberUpdatedState(onEvent)
@@ -613,6 +618,24 @@ fun PlaceDetailsBottomSheet(
                                 )
                             } else {
                                 Row {
+                                    if (userPicture != null) {
+                                        Image(
+                                            bitmap = userPicture,
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .size(30.dp)
+                                                .clip(CircleShape),
+                                            contentScale = ContentScale.Crop,
+                                        )
+                                    } else {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Person,
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .size(30.dp)
+                                        )
+                                    }
+                                    Spacer(Modifier.width(6.dp))
                                     Text(
                                         text = userName,
                                         fontSize = 14.sp,
@@ -699,10 +722,39 @@ fun PlaceDetailsBottomSheet(
                         ) {
                             state.currentPlace.comments.filter { comment -> comment.email != userEmail }
                                 .forEachIndexed { index, comment ->
+                                    var userProfilePicture by remember { mutableStateOf<ImageBitmap?>(null) }
+                                    var allowedShowUserPicture by remember {
+                                        mutableStateOf<Boolean?>(null)
+                                    }
+                                    LaunchedEffect(Unit) {
+                                        allowedShowUserPicture =
+                                            allowedShowUserProfilePicture(comment.email)
+                                    }
+                                    LaunchedEffect(allowedShowUserPicture == true) {
+                                        userProfilePicture = downloadUserProfilePicture(comment.email)
+                                    }
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         verticalAlignment = Alignment.Top,
                                     ) {
+                                        if (allowedShowUserPicture == true && userProfilePicture != null) {
+                                            Image(
+                                                bitmap = userProfilePicture!!,
+                                                contentDescription = null,
+                                                modifier = Modifier
+                                                    .size(30.dp)
+                                                    .clip(CircleShape),
+                                                contentScale = ContentScale.Crop,
+                                            )
+                                        } else {
+                                            Icon(
+                                                imageVector = Icons.Outlined.Person,
+                                                contentDescription = null,
+                                                modifier = Modifier
+                                                    .size(30.dp)
+                                            )
+                                        }
+                                        Spacer(Modifier.width(6.dp))
                                         Text(
                                             text = comment.name,
                                             fontSize = 16.sp,

@@ -1,5 +1,6 @@
 package com.rafael.inclusimap.feature.auth.domain.model
 
+import androidx.compose.ui.graphics.ImageBitmap
 import com.rafael.inclusimap.core.domain.model.DeleteProcess
 
 data class LoginState(
@@ -18,4 +19,5 @@ data class LoginState(
     val userAlreadyRegistered: Boolean = true,
     val isPasswordCorrect: Boolean = true,
     var networkError: Boolean = false,
+    val userProfilePicture: ImageBitmap? = null,
 )

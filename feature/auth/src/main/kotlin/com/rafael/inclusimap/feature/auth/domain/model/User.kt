@@ -5,7 +5,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class User(
     val id: String,
-    val name: String,
+    var name: String,
     val email: String,
     var password: String,
+    var showProfilePictureOptedIn: Boolean,
 )

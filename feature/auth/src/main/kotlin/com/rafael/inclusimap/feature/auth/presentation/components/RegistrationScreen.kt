@@ -313,6 +313,7 @@ fun RegistrationScreen(
                             name = userName,
                             email = email,
                             password = password,
+                            showProfilePictureOptedIn = true,
                         ),
                     )
                 },

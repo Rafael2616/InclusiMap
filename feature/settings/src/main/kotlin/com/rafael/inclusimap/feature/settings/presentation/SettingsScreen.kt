@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.navigation.NavController
 import com.rafael.inclusimap.core.domain.model.DeleteProcess
 import com.rafael.inclusimap.core.settings.domain.model.SettingsEvent
@@ -27,6 +28,12 @@ fun SettingsScreen(
     isDeleting: Boolean,
     networkError: Boolean,
     deleteStep: DeleteProcess,
+    userName: String,
+    allowOtherUsersToSeeProfilePicture: Boolean,
+    onEditUserName: (String) -> Unit,
+    onAddEditProfilePicture: (ImageBitmap) -> Unit,
+    onRemoveProfilePicture: () -> Unit,
+    onAllowPictureOptedIn: (Boolean) -> Unit,
 ) {
     val latestOnEvent by rememberUpdatedState(onEvent)
     var showAppIntro by remember { mutableStateOf(false) }
@@ -85,6 +92,28 @@ fun SettingsScreen(
             onDismissRequest = {
                 latestOnEvent(SettingsEvent.OpenTermsAndConditions(false))
             },
+        )
+    }
+    AnimatedVisibility(state.showProfilePictureSettings) {
+        ProfileSettingsDialog(
+            onDismiss = {
+                latestOnEvent(SettingsEvent.ShowProfilePictureSettings(false))
+            },
+            onAddUpdatePicture = {
+                onAddEditProfilePicture(it)
+            },
+            onRemovePicture = {
+                onRemoveProfilePicture()
+            },
+            userName = userName,
+            allowOtherUsersToSeeProfilePicture = allowOtherUsersToSeeProfilePicture,
+            onEditUserName = {
+                onEditUserName(it)
+            },
+            onAllowPictureOptedIn = {
+                onAllowPictureOptedIn(it)
+            },
+            state,
         )
     }
 }

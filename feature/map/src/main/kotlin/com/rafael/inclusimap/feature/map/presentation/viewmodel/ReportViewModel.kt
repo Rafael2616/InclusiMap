@@ -42,6 +42,7 @@ class ReportViewModel(
                 email = loginData.userEmail!!,
                 password = loginData.userPassword!!,
                 id = loginData.userId!!,
+                showProfilePictureOptedIn = loginData.showProfilePictureOptedIn,
             )
             val json = Json {
                 prettyPrint = true

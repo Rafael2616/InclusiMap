@@ -4,6 +4,7 @@ import android.Manifest
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,6 +38,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.semantics
@@ -101,6 +104,8 @@ fun InclusiMapGoogleMapScreen(
     userEmail: String,
     onReport: (Report) -> Unit,
     reportState: ReportState,
+    allowedShowUserProfilePicture: suspend (String) -> Boolean,
+    downloadUserProfilePicture: suspend (String) -> ImageBitmap?,
     modifier: Modifier = Modifier,
 ) {
     var animateMap by remember { mutableStateOf(false) }
@@ -244,17 +249,31 @@ fun InclusiMapGoogleMapScreen(
                             }
                         }
                         if (!searchState.expanded) {
-                            IconButton(
-                                onClick = {
-                                    latestNavigateToSettings()
-                                },
-                            ) {
-                                Icon(
-                                    imageVector = Icons.TwoTone.ManageAccounts,
-                                    contentDescription = null,
+                            if (settingsState.profilePicture != null) {
+                                Image(
                                     modifier = Modifier
-                                        .size(35.dp),
+                                        .size(40.dp)
+                                        .clip(CircleShape)
+                                        .clickable {
+                                            latestNavigateToSettings()
+                                        },
+                                    bitmap = settingsState.profilePicture!!,
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
                                 )
+                            } else {
+                                IconButton(
+                                    onClick = {
+                                        latestNavigateToSettings()
+                                    },
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.TwoTone.ManageAccounts,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(35.dp),
+                                    )
+                                }
                             }
                         }
                     },
@@ -387,6 +406,9 @@ fun InclusiMapGoogleMapScreen(
             },
             onReport = onReport,
             reportState = reportState,
+            downloadUserProfilePicture = downloadUserProfilePicture,
+            allowedShowUserProfilePicture = allowedShowUserProfilePicture,
+            userPicture = settingsState.profilePicture,
         )
     }
 
