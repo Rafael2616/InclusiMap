@@ -11,6 +11,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -99,17 +100,18 @@ fun ProfileSettingsDialog(
     var shouldDismissDialog by remember { mutableStateOf(false) }
 
     Dialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { },
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
-        )
+            dismissOnBackPress = false,
+        ),
     ) {
         Card(
             modifier = modifier
-                .fillMaxWidth(0.75f),
+                .fillMaxWidth(0.8f),
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(10.dp),
+                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp),
             ),
         ) {
             Column(
@@ -129,7 +131,7 @@ fun ProfileSettingsDialog(
                     textAlign = TextAlign.Start,
                     softWrap = true,
 
-                )
+                    )
                 profilePicture?.let { image ->
                     Image(
                         bitmap = image,
@@ -155,9 +157,7 @@ fun ProfileSettingsDialog(
                             .size(120.dp)
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp))
-                    ) {
-                        IconButton(
-                            onClick = {
+                            .clickable {
                                 launcher.launch(
                                     PickVisualMediaRequest(
                                         ActivityResultContracts.PickVisualMedia.ImageOnly,
@@ -166,16 +166,13 @@ fun ProfileSettingsDialog(
                                 isPictureRemoved = false
                                 isPictureEdited = true
                             },
-                            modifier = Modifier
-                                .size(150.dp)
-                                .clip(CircleShape),
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.AddAPhoto,
-                                contentDescription = "No profile picture",
-                                modifier = Modifier.size(80.dp),
-                            )
-                        }
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.AddAPhoto,
+                            contentDescription = "No profile picture",
+                            modifier = Modifier.size(50.dp),
+                        )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                 }
@@ -195,6 +192,7 @@ fun ProfileSettingsDialog(
                             imageVector = Icons.Outlined.Delete,
                             contentDescription = "Remove",
                             modifier = Modifier.size(30.dp),
+                            tint = MaterialTheme.colorScheme.error,
                         )
                     }
                 Row(
@@ -303,25 +301,30 @@ fun ProfileSettingsDialog(
                             onClick = {
                                 onDismiss()
                             },
+                            contentPadding = PaddingValues(
+                                horizontal = 16.dp,
+                                vertical = 8.dp,
+                            ),
                         ) {
                             Text(
                                 text = "Cancelar",
                             )
                         }
                     } else {
-                        Row (
+                        Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            modifier = Modifier.height(45.dp)
+                            modifier = Modifier.height(45.dp),
                         ) {
                             Text(
-                                text = "Atualizando informações...",
+                                text = "Atualizando\ninformações...",
+                                maxLines = 2,
                                 fontSize = 10.sp,
                             )
                             CircularProgressIndicator(
                                 modifier = Modifier.size(30.dp),
                                 color = MaterialTheme.colorScheme.primary,
-                                strokeCap = StrokeCap.Round
+                                strokeCap = StrokeCap.Round,
                             )
                         }
                     }
@@ -353,7 +356,7 @@ fun ProfileSettingsDialog(
                         enabled = isSuccessfulUpdatingUserInfos,
                     ) {
                         Text(
-                            text = "Salvar",
+                            text = "Atualizar",
                         )
                     }
                 }
@@ -369,11 +372,15 @@ fun ProfileSettingsDialog(
         shouldDismissDialog = false
     }
     if (isSuccessfulUpdatingUserInfos && shouldDismissDialog) {
-        Toast.makeText(
-            context,
-            "Informações atualizadas!",
-            Toast.LENGTH_SHORT,
-        ).show()
-        onDismiss()
+        if (isUserNameEdited || isPictureEdited || isPictureRemoved ||
+            allowOtherUsersToSeeProfilePictureOptedId != allowOtherUsersToSeeProfilePicture
+        ) {
+            Toast.makeText(
+                context,
+                "Informações atualizadas!",
+                Toast.LENGTH_SHORT,
+            ).show()
+            onDismiss()
+        }
     }
 }
