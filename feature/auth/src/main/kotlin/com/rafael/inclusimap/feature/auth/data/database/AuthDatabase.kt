@@ -28,7 +28,7 @@ internal class Migrations {
                 val addProfilePictureOptedIn=
                     "ALTER TABLE 'login_db' ADD COLUMN 'showProfilePictureOptedIn' INTEGER NOT NULL DEFAULT '1'"
                 val addProfilePicture=
-                    "ALTER TABLE 'login_db' ADD COLUMN 'showProfilePictureOptedIn' BLOB DEFAULT null"
+                    "ALTER TABLE 'login_db' ADD COLUMN 'profilePicture' BLOB DEFAULT null"
 
                 connection.execSQL(addProfilePictureOptedIn)
                 connection.execSQL(addProfilePicture)
