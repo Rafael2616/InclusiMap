@@ -319,7 +319,8 @@ fun ProfileSettingsDialog(
                             Text(
                                 text = "Atualizando\ninformações...",
                                 maxLines = 2,
-                                fontSize = 10.sp,
+                                lineHeight = 14.sp,
+                                fontSize = 12.sp,
                             )
                             CircularProgressIndicator(
                                 modifier = Modifier.size(30.dp),
