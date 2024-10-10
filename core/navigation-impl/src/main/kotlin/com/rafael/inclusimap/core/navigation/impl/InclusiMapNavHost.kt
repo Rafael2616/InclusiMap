@@ -6,8 +6,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
@@ -67,7 +68,6 @@ fun InclusiMapNavHost(
         val ossLibraries by libraryViewModel.ossLibraries.collectAsStateWithLifecycle()
         val reportViewModel = koinViewModel<ReportViewModel>()
         val reportState by reportViewModel.state.collectAsStateWithLifecycle()
-        val scope = rememberCoroutineScope()
 
         InclusiMapTheme(state = settingsState) {
             Scaffold(
@@ -144,6 +144,16 @@ fun InclusiMapNavHost(
                         )
                     }
                     composable<Destination.SettingsScreen> {
+                        val isErrorUpdatingUserInfos by remember {
+                            derivedStateOf {
+                                loginState.isErrorUpdatingUserName && loginState.isErrorUpdatingProfilePicture && loginState.isErrorRemovingProfilePicture && loginState.isErrorAllowingPictureOptedIn
+                            }
+                        }
+                        val isSuccessfullUpdatingUserInfo by remember {
+                            derivedStateOf {
+                                loginState.isPictureOptedInSuccessfullyChanged && loginState.isUserNameUpdated && loginState.isProfilePictureUpdated && loginState.isProfilePictureRemoved
+                            }
+                        }
                         SettingsScreen(
                             loginState.isLoginOut,
                             navController,
@@ -190,6 +200,8 @@ fun InclusiMapNavHost(
                                 )
                             },
                             allowOtherUsersToSeeProfilePicture = loginState.user?.showProfilePictureOptedIn ?: false,
+                            isErrorUpdatingUserInfos = isErrorUpdatingUserInfos,
+                            isSuccessfulUpdatingUserInfos = isSuccessfullUpdatingUserInfo,
                         )
                         LaunchedEffect(loginState.isLoggedIn) {
                             if (!loginState.isLoggedIn) {

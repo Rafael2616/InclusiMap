@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -85,8 +85,9 @@ internal fun SettingsTopBar(
                         }
                         if (state.profilePicture == null) {
                             Icon(
-                                imageVector = Icons.Filled.Person,
+                                imageVector = Icons.Outlined.Person,
                                 contentDescription = "No profile picture",
+                                modifier = Modifier.size(30.dp)
                             )
                         }
                     }

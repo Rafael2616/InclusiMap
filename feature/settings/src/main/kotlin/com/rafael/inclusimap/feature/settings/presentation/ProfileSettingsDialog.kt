@@ -9,9 +9,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -19,12 +21,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.outlined.AddAPhoto
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.twotone.AddAPhoto
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -44,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -63,6 +67,8 @@ fun ProfileSettingsDialog(
     onEditUserName: (String) -> Unit,
     onAllowPictureOptedIn: (Boolean) -> Unit,
     state: SettingsState,
+    isSuccessfulUpdatingUserInfos: Boolean,
+    isErrorUpdatingUserInfos: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -86,6 +92,7 @@ fun ProfileSettingsDialog(
     var isPictureRemoved by remember { mutableStateOf(false) }
     var newName by remember { mutableStateOf(userName) }
     var isUserNameEdited by remember { mutableStateOf(false) }
+    var shouldDismissDialog by remember { mutableStateOf(false) }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -124,25 +131,32 @@ fun ProfileSettingsDialog(
                     )
                 }
                 if (profilePicture == null) {
-                    IconButton(
-                        onClick = {
-                            launcher.launch(
-                                PickVisualMediaRequest(
-                                    ActivityResultContracts.PickVisualMedia.ImageOnly,
-                                ),
-                            )
-                            isPictureRemoved = false
-                            isPictureEdited = true
-                        },
+                    Box(
                         modifier = Modifier
-                            .size(150.dp)
-                            .clip(CircleShape),
+                            .size(120.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp))
                     ) {
-                        Icon(
-                            imageVector = Icons.TwoTone.AddAPhoto,
-                            contentDescription = "No profile picture",
-                            modifier = Modifier.size(80.dp),
-                        )
+                        IconButton(
+                            onClick = {
+                                launcher.launch(
+                                    PickVisualMediaRequest(
+                                        ActivityResultContracts.PickVisualMedia.ImageOnly,
+                                    ),
+                                )
+                                isPictureRemoved = false
+                                isPictureEdited = true
+                            },
+                            modifier = Modifier
+                                .size(150.dp)
+                                .clip(CircleShape),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.AddAPhoto,
+                                contentDescription = "No profile picture",
+                                modifier = Modifier.size(80.dp),
+                            )
+                        }
                     }
                 }
                 if (profilePicture != null)
@@ -154,8 +168,8 @@ fun ProfileSettingsDialog(
                         },
                         modifier = Modifier.size(40.dp),
                         colors = IconButtonDefaults.iconButtonColors(
-                            containerColor =  MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp),
-                        )
+                            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp),
+                        ),
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Delete,
@@ -232,7 +246,7 @@ fun ProfileSettingsDialog(
                         maxLines = 1,
                         shape = RoundedCornerShape(16.dp),
                         trailingIcon = {
-                            Row{
+                            Row {
                                 Text(
                                     text = newName.length.toString(),
                                     fontSize = 10.sp,
@@ -243,7 +257,7 @@ fun ProfileSettingsDialog(
                                     fontSize = 10.sp,
                                 )
                             }
-                        }
+                        },
                     )
                     IconButton(
                         onClick = {
@@ -264,19 +278,39 @@ fun ProfileSettingsDialog(
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    OutlinedButton(
-                        onClick = {
-                            onDismiss()
-                        },
-                    ) {
-                        Text(
-                            text = "Cancelar",
-                        )
+                    if (isSuccessfulUpdatingUserInfos) {
+                        OutlinedButton(
+                            onClick = {
+                                onDismiss()
+                            },
+                        ) {
+                            Text(
+                                text = "Cancelar",
+                            )
+                        }
+                    } else {
+                        Row (
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier.height(45.dp)
+                        ) {
+                            Text(
+                                text = "Atualizando informações...",
+                                fontSize = 10.sp,
+                            )
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(30.dp),
+                                color = MaterialTheme.colorScheme.primary,
+                                strokeCap = StrokeCap.Round
+                            )
+                        }
                     }
                     Button(
                         onClick = {
                             if (isPictureEdited) {
-                                onAddUpdatePicture(profilePicture!!)
+                                profilePicture?.let {
+                                    onAddUpdatePicture(it)
+                                }
                             }
                             if (isPictureRemoved) {
                                 onRemovePicture()
@@ -294,8 +328,9 @@ fun ProfileSettingsDialog(
                             if (allowOtherUsersToSeeProfilePictureOptedId != allowOtherUsersToSeeProfilePicture) {
                                 onAllowPictureOptedIn(allowOtherUsersToSeeProfilePictureOptedId)
                             }
-                            onDismiss()
+                            shouldDismissDialog = true
                         },
+                        enabled = isSuccessfulUpdatingUserInfos,
                     ) {
                         Text(
                             text = "Salvar",
@@ -304,5 +339,21 @@ fun ProfileSettingsDialog(
                 }
             }
         }
+    }
+    if (isErrorUpdatingUserInfos && !isSuccessfulUpdatingUserInfos) {
+        Toast.makeText(
+            context,
+            "Erro ao atualizar informações",
+            Toast.LENGTH_SHORT,
+        ).show()
+        shouldDismissDialog = false
+    }
+    if (isSuccessfulUpdatingUserInfos && shouldDismissDialog) {
+        Toast.makeText(
+            context,
+            "Informações atualizadas!",
+            Toast.LENGTH_SHORT,
+        ).show()
+        onDismiss()
     }
 }

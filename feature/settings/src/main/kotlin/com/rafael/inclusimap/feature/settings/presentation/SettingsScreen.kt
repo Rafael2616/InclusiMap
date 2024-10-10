@@ -34,6 +34,8 @@ fun SettingsScreen(
     onAddEditProfilePicture: (ImageBitmap) -> Unit,
     onRemoveProfilePicture: () -> Unit,
     onAllowPictureOptedIn: (Boolean) -> Unit,
+    isSuccessfulUpdatingUserInfos: Boolean,
+    isErrorUpdatingUserInfos: Boolean,
 ) {
     val latestOnEvent by rememberUpdatedState(onEvent)
     var showAppIntro by remember { mutableStateOf(false) }
@@ -113,7 +115,9 @@ fun SettingsScreen(
             onAllowPictureOptedIn = {
                 onAllowPictureOptedIn(it)
             },
-            state,
+            isSuccessfulUpdatingUserInfos = isSuccessfulUpdatingUserInfos,
+            isErrorUpdatingUserInfos = isErrorUpdatingUserInfos,
+            state = state,
         )
     }
 }
