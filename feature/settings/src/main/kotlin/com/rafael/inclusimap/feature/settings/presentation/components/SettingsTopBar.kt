@@ -79,7 +79,7 @@ internal fun SettingsTopBar(
                                 contentDescription = "Profile picture",
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
-                                    .size(35.dp)
+                                    .size(45.dp)
                                     .clip(CircleShape),
                             )
                         }

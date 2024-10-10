@@ -68,7 +68,7 @@ class LoginViewModel(
                                 picture,
                                 0,
                                 picture.size,
-                            )?.asImageBitmap() ?: downloadUserProfilePicture(state.value.user?.email)
+                            )?.asImageBitmap()
                         },
                     )
                 }
@@ -654,6 +654,25 @@ class LoginViewModel(
                     repository.updateLoginInfo(loginData)
                 }
             }
+        }.invokeOnCompletion {
+            if (state.value.userProfilePicture == null) {
+                // Download user profile picture
+                viewModelScope.launch(Dispatchers.IO) {
+                    val picture = downloadUserProfilePicture(state.value.user?.email)
+                    _state.update {
+                        it.copy(
+                            userProfilePicture = picture,
+                        )
+                    }
+                    val imageByteArrayOutputStream = ByteArrayOutputStream()
+                    picture?.asAndroidBitmap()
+                        ?.compress(Bitmap.CompressFormat.JPEG, 70, imageByteArrayOutputStream)
+
+                    val loginData = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
+                    loginData.profilePicture = imageByteArrayOutputStream.toByteArray()
+                    repository.updateLoginInfo(loginData)
+                }
+            }
         }
     }
 
@@ -750,7 +769,7 @@ class LoginViewModel(
                             driveService.getFileContent(userDataFile?.id ?: "")?.decodeToString()
                         val userObj = json.decodeFromString<User>(userContentString ?: "")
                         println("User ${userObj.email} opted in for show profile picture: ${userObj.showProfilePictureOptedIn}")
-                        continuation.resume(userObj.showProfilePictureOptedIn) // Retorna o valor de isAllowed
+                        continuation.resume(userObj.showProfilePictureOptedIn)
                     }
                 }
             }
