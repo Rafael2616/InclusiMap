@@ -1,6 +1,7 @@
 package com.rafael.inclusimap.feature.settings.presentation
 
 import android.graphics.BitmapFactory
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -201,7 +202,9 @@ fun ProfileSettingsDialog(
                     TextField(
                         value = newName,
                         onValueChange = {
-                            newName = it
+                            if (it.length <= 30) {
+                                newName = it
+                            }
                         },
                         modifier = Modifier.weight(1f),
                         enabled = isUserNameEdited,
@@ -235,7 +238,7 @@ fun ProfileSettingsDialog(
                                     color = if (newName.length < 3 && newName.isNotEmpty()) MaterialTheme.colorScheme.error else LocalContentColor.current,
                                 )
                                 Text(
-                                    text = "/15",
+                                    text = "/30",
                                     fontSize = 10.sp,
                                 )
                             }
@@ -278,6 +281,13 @@ fun ProfileSettingsDialog(
                                 onRemovePicture()
                             }
                             if (newName != userName) {
+                                if (newName.length < 3) {
+                                    Toast.makeText(
+                                        context,
+                                        "O nome deve ter no mínimo 3 caracteres",
+                                        Toast.LENGTH_SHORT,
+                                    ).show()
+                                }
                                 onEditUserName(newName)
                             }
                             if (allowOtherUsersToSeeProfilePictureOptedId != allowOtherUsersToSeeProfilePicture) {
@@ -292,7 +302,6 @@ fun ProfileSettingsDialog(
                     }
                 }
             }
-
         }
     }
 }
