@@ -108,7 +108,6 @@ fun InclusiMapGoogleMapScreen(
     downloadUserProfilePicture: suspend (String) -> ImageBitmap?,
     modifier: Modifier = Modifier,
 ) {
-    var animateMap by remember { mutableStateOf(false) }
     val cameraPositionState = rememberCameraPositionState()
     val bottomSheetScaffoldState = rememberModalBottomSheetState()
     val bottomSheetScope = rememberCoroutineScope()
@@ -130,9 +129,10 @@ fun InclusiMapGoogleMapScreen(
     val internetState = remember { InternetConnectionState(context) }
     val isInternetAvailable by internetState.state.collectAsStateWithLifecycle()
     var isFullScreenMode by remember { mutableStateOf(false) }
+    var firstTimeAnimation by remember { mutableStateOf(false) }
 
-    LaunchedEffect(animateMap, appIntroState.showAppIntro) {
-        if (animateMap) {
+    LaunchedEffect(state.shouldAnimateMap, firstTimeAnimation) {
+        if (firstTimeAnimation) {
             async {
                 cameraPositionState.animate(
                     update = CameraUpdateFactory.newLatLngZoom(
@@ -144,11 +144,12 @@ fun InclusiMapGoogleMapScreen(
             }.await()
             locationPermission.launchPermissionRequest()
         }
-        if (!animateMap && !appIntroState.showAppIntro) {
+        if (state.shouldAnimateMap) {
             cameraPositionState.position = CameraPosition.fromLatLngZoom(
                 state.defaultLocationLatLng,
                 15f,
             )
+            onEvent(InclusiMapEvent.ShouldAnimateMap(false))
         }
     }
 
@@ -384,7 +385,7 @@ fun InclusiMapGoogleMapScreen(
             userName = userName,
             onDismiss = {
                 latestOnDismissAppIntro(false)
-                animateMap = true
+                firstTimeAnimation = true
             },
         )
     }

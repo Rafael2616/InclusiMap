@@ -29,6 +29,7 @@ import com.rafael.inclusimap.feature.auth.presentation.viewmodel.LoginViewModel
 import com.rafael.inclusimap.feature.intro.presentation.viewmodel.AppIntroViewModel
 import com.rafael.inclusimap.feature.libraryinfo.presentation.LibraryScreen
 import com.rafael.inclusimap.feature.libraryinfo.presentation.viewmodel.LibraryViewModel
+import com.rafael.inclusimap.feature.map.domain.InclusiMapEvent
 import com.rafael.inclusimap.feature.map.presentation.InclusiMapGoogleMapScreen
 import com.rafael.inclusimap.feature.map.presentation.viewmodel.InclusiMapGoogleMapViewModel
 import com.rafael.inclusimap.feature.map.presentation.viewmodel.PlaceDetailsViewModel
@@ -122,7 +123,10 @@ fun InclusiMapNavHost(
                             placeDetailsState,
                             placeDetailsViewModel::onEvent,
                             appIntroState,
-                            appIntroViewModel::setShowAppIntro,
+                            onDismissAppIntro = {
+                                appIntroViewModel.setShowAppIntro(it)
+                                mapViewModel.onEvent(InclusiMapEvent.ShouldAnimateMap(it))
+                            },
                             searchState,
                             searchViewModel::onEvent,
                             settingsState,

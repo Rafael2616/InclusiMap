@@ -50,6 +50,7 @@ class InclusiMapGoogleMapViewModel(
             is InclusiMapEvent.OnFailToLoadPlaces -> onLoadPlaces()
             is InclusiMapEvent.OnFailToConnectToServer -> onLoadPlaces()
             InclusiMapEvent.UseAppWithoutInternet -> _state.update { it.copy(useAppWithoutInternet = true) }
+            is InclusiMapEvent.ShouldAnimateMap -> _state.update { it.copy(shouldAnimateMap = event.shouldAnimate) }
         }
     }
 

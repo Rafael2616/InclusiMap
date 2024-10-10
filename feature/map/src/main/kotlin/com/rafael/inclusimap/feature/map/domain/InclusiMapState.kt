@@ -7,6 +7,7 @@ import com.rafael.inclusimap.core.domain.util.Constants.PARAGOMINAS_LAT_LNG
 data class InclusiMapState(
     val isMyLocationFound: Boolean = false,
     val isMapLoaded: Boolean = false,
+    val shouldAnimateMap: Boolean = true,
     val isLocationPermissionGranted: Boolean = false,
     val selectedUnmappedPlaceLatLng: LatLng? = null,
     val selectedMappedPlace: AccessibleLocalMarker? = null,
