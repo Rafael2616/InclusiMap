@@ -151,31 +151,26 @@ fun InclusiMapGoogleMapScreen(
             )
         }
     }
-    LaunchedEffect(state.isLocationPermissionGranted) {
-        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-            location?.let {
-                latestOnEvent(
-                    InclusiMapEvent.UpdateMapCameraPosition(
-                        LatLng(
-                            it.latitude,
-                            it.longitude,
-                        ),
-                        true,
-                    ).also { pos ->
-                        launch {
-                            cameraPositionState.animate(
-                                update = CameraUpdateFactory.newLatLngZoom(
-                                    pos.latLng,
-                                    25f,
-                                ),
-                                durationMs = 3500,
-                            )
-                        }
-                    },
-                )
-            }
-        }
-    }
+
+//    LaunchedEffect(state.isLocationPermissionGranted) {
+//        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+//            location?.let {
+//                latestOnEvent(
+//                    InclusiMapEvent.UpdateMapCameraPosition(
+//                        LatLng(it.latitude, it.longitude),
+//                        true,
+//                    ).also { pos ->
+//                        launch {
+//                            cameraPositionState.animate(
+//                                update = CameraUpdateFactory.newLatLngZoom(pos.latLng, 25f),
+//                                durationMs = 3500,
+//                            )
+//                        }
+//                    },
+//                )
+//            }
+//        }
+//    }
 
     LaunchedEffect(locationPermission.status) {
         latestOnEvent(InclusiMapEvent.SetLocationPermissionGranted(locationPermission.status == PermissionStatus.Granted))
