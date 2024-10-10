@@ -20,7 +20,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.PersonPinCircle
+import androidx.compose.material.icons.twotone.AddAPhoto
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -135,13 +135,13 @@ fun ProfileSettingsDialog(
                             isPictureEdited = true
                         },
                         modifier = Modifier
-                            .size(120.dp)
+                            .size(150.dp)
                             .clip(CircleShape),
                     ) {
                         Icon(
-                            imageVector = Icons.Outlined.PersonPinCircle,
+                            imageVector = Icons.TwoTone.AddAPhoto,
                             contentDescription = "No profile picture",
-                            modifier = Modifier.size(100.dp),
+                            modifier = Modifier.size(80.dp),
                         )
                     }
                 }
@@ -152,7 +152,7 @@ fun ProfileSettingsDialog(
                             isPictureRemoved = true
                             isPictureEdited = false
                         },
-                        modifier = Modifier.size(35.dp),
+                        modifier = Modifier.size(40.dp),
                         colors = IconButtonDefaults.iconButtonColors(
                             containerColor =  MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp),
                         )
@@ -160,6 +160,7 @@ fun ProfileSettingsDialog(
                         Icon(
                             imageVector = Icons.Outlined.Delete,
                             contentDescription = "Remove",
+                            modifier = Modifier.size(30.dp),
                         )
                     }
                 Row(
