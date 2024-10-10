@@ -5,13 +5,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.Check
+import androidx.compose.material.icons.twotone.Fullscreen
+import androidx.compose.material.icons.twotone.FullscreenExit
 import androidx.compose.material.icons.twotone.Layers
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -36,6 +40,8 @@ import com.rafael.inclusimap.feature.map.domain.GoogleMapType
 fun MapTypeToggleButton(
     selectedMapType: MapType,
     onMapTypeChange: (MapType) -> Unit,
+    isFullScreenMode: Boolean,
+    onFullScreenModeChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var showMapTypes by remember { mutableStateOf(false) }
@@ -47,17 +53,34 @@ fun MapTypeToggleButton(
         horizontalAlignment = Alignment.End,
     ) {
         FloatingActionButton(
-            onClick = { showMapTypes = !showMapTypes },
+            onClick = { onFullScreenModeChange(!isFullScreenMode) },
             modifier = Modifier
                 .clip(RoundedCornerShape(16.dp))
-                .size(60.dp),
+                .size(45.dp),
             shape = RoundedCornerShape(16.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
         ) {
             Icon(
-                imageVector = Icons.TwoTone.Layers,
-                contentDescription = "Tipos de Mapa",
-                modifier = Modifier.size(40.dp),
+                imageVector = if (isFullScreenMode) Icons.TwoTone.FullscreenExit else Icons.TwoTone.Fullscreen,
+                contentDescription = "Immersive mode",
+                modifier = Modifier.size(30.dp),
             )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        if (!isFullScreenMode) {
+            FloatingActionButton(
+                onClick = { showMapTypes = !showMapTypes },
+                modifier = Modifier
+                    .clip(RoundedCornerShape(16.dp))
+                    .size(60.dp),
+                shape = RoundedCornerShape(16.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.TwoTone.Layers,
+                    contentDescription = "Tipos de Mapa",
+                    modifier = Modifier.size(40.dp),
+                )
+            }
         }
         Box(
             modifier = Modifier.wrapContentSize(),

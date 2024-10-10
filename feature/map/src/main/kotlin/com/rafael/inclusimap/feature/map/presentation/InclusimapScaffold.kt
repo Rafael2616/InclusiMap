@@ -27,6 +27,8 @@ fun InclusiMapScaffold(
     settingsState: SettingsState,
     searchEvent: (SearchEvent) -> Unit,
     onMapTypeChange: (MapType) -> Unit,
+    isFullScreenMode: Boolean = false,
+    onFullScreenModeChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
@@ -56,27 +58,31 @@ fun InclusiMapScaffold(
                 MapTypeToggleButton(
                     settingsState.mapType,
                     onMapTypeChange = { onMapTypeChange(it) },
+                    isFullScreenMode = isFullScreenMode,
+                    onFullScreenModeChange = { onFullScreenModeChange(it) },
                 )
             }
         },
-        bottomBar = {
-            NavigationBar {
-                items.forEach { item ->
-                    NavigationBarItem(
-                        selected = item.selected,
-                        onClick = item.onClick,
-                        icon = {
-                            Icon(
-                                imageVector = item.icon,
-                                contentDescription = null,
-                            )
-                        },
-                        label = {
-                            Text(
-                                item.name,
-                            )
-                        },
-                    )
+        bottomBar =  {
+            if (!isFullScreenMode) {
+                NavigationBar {
+                    items.forEach { item ->
+                        NavigationBarItem(
+                            selected = item.selected,
+                            onClick = item.onClick,
+                            icon = {
+                                Icon(
+                                    imageVector = item.icon,
+                                    contentDescription = null,
+                                )
+                            },
+                            label = {
+                                Text(
+                                    item.name,
+                                )
+                            },
+                        )
+                    }
                 }
             }
         },

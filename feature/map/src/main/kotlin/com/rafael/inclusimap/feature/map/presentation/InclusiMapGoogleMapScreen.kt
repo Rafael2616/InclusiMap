@@ -129,6 +129,7 @@ fun InclusiMapGoogleMapScreen(
     val context = LocalContext.current
     val internetState = remember { InternetConnectionState(context) }
     val isInternetAvailable by internetState.state.collectAsStateWithLifecycle()
+    var isFullScreenMode by remember { mutableStateOf(false) }
 
     LaunchedEffect(animateMap, appIntroState.showAppIntro) {
         if (animateMap) {
@@ -188,121 +189,127 @@ fun InclusiMapGoogleMapScreen(
         onMapTypeChange = {
             onMapTypeChange(it)
         },
+        isFullScreenMode = isFullScreenMode,
+        onFullScreenModeChange = {
+            isFullScreenMode = it
+        },
     ) {
-        SearchBar(
-            modifier = Modifier
-                .fillMaxWidth()
-                .statusBarsPadding()
-                .displayCutoutPadding()
-                .padding(horizontal = 12.dp)
-                .clip(RoundedCornerShape(24.dp))
-                .semantics { traversalIndex = -1f },
-            inputField = {
-                SearchBarDefaults.InputField(
-                    modifier = Modifier.focusRequester(focusRequester),
-                    query = searchState.searchQuery,
-                    onQueryChange = {
-                        latestSearchEvent(SearchEvent.OnSearch(it, state.allMappedPlaces))
-                    },
-                    onSearch = {
-                        latestSearchEvent(SearchEvent.SetExpanded(false))
-                    },
-                    expanded = searchState.expanded,
-                    onExpandedChange = {
-                        latestSearchEvent(SearchEvent.SetExpanded(it))
-                    },
-                    placeholder = { Text("Pesquise um local aqui") },
-                    leadingIcon = {
-                        if (searchState.expanded) {
-                            IconButton(
-                                onClick = {
-                                    latestSearchEvent(SearchEvent.SetExpanded(false))
-                                    latestSearchEvent(SearchEvent.OnSearch("", emptyList()))
-                                },
-                            ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = null,
-                                )
-                            }
-                        } else {
-                            Image(
-                                modifier = Modifier
-                                    .size(45.dp)
-                                    .clip(CircleShape),
-                                painter = painterResource(id = R.drawable.ic_splash),
-                                contentDescription = null,
-                            )
-                        }
-                    },
-                    trailingIcon = {
-                        if (searchState.searchQuery.isNotEmpty()) {
-                            IconButton(
-                                onClick = {
-                                    latestSearchEvent(SearchEvent.OnSearch("", emptyList()))
-                                },
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Close,
-                                    contentDescription = null,
-                                )
-                            }
-                        }
-                        if (!searchState.expanded) {
-                            if (settingsState.profilePicture != null) {
-                                Image(
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .clip(CircleShape)
-                                        .clickable {
-                                            latestNavigateToSettings()
-                                        },
-                                    bitmap = settingsState.profilePicture!!,
-                                    contentDescription = null,
-                                    contentScale = ContentScale.Crop,
-                                )
-                            } else {
+        if (!isFullScreenMode) {
+            SearchBar(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .statusBarsPadding()
+                    .displayCutoutPadding()
+                    .padding(horizontal = 12.dp)
+                    .clip(RoundedCornerShape(24.dp))
+                    .semantics { traversalIndex = -1f },
+                inputField = {
+                    SearchBarDefaults.InputField(
+                        modifier = Modifier.focusRequester(focusRequester),
+                        query = searchState.searchQuery,
+                        onQueryChange = {
+                            latestSearchEvent(SearchEvent.OnSearch(it, state.allMappedPlaces))
+                        },
+                        onSearch = {
+                            latestSearchEvent(SearchEvent.SetExpanded(false))
+                        },
+                        expanded = searchState.expanded,
+                        onExpandedChange = {
+                            latestSearchEvent(SearchEvent.SetExpanded(it))
+                        },
+                        placeholder = { Text("Pesquise um local aqui") },
+                        leadingIcon = {
+                            if (searchState.expanded) {
                                 IconButton(
                                     onClick = {
-                                        latestNavigateToSettings()
+                                        latestSearchEvent(SearchEvent.SetExpanded(false))
+                                        latestSearchEvent(SearchEvent.OnSearch("", emptyList()))
                                     },
                                 ) {
                                     Icon(
-                                        imageVector = Icons.TwoTone.ManageAccounts,
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                         contentDescription = null,
-                                        modifier = Modifier
-                                            .size(35.dp),
+                                    )
+                                }
+                            } else {
+                                Image(
+                                    modifier = Modifier
+                                        .size(45.dp)
+                                        .clip(CircleShape),
+                                    painter = painterResource(id = R.drawable.ic_splash),
+                                    contentDescription = null,
+                                )
+                            }
+                        },
+                        trailingIcon = {
+                            if (searchState.searchQuery.isNotEmpty()) {
+                                IconButton(
+                                    onClick = {
+                                        latestSearchEvent(SearchEvent.OnSearch("", emptyList()))
+                                    },
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Close,
+                                        contentDescription = null,
                                     )
                                 }
                             }
+                            if (!searchState.expanded) {
+                                if (settingsState.profilePicture != null) {
+                                    Image(
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .clip(CircleShape)
+                                            .clickable {
+                                                latestNavigateToSettings()
+                                            },
+                                        bitmap = settingsState.profilePicture!!,
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Crop,
+                                    )
+                                } else {
+                                    IconButton(
+                                        onClick = {
+                                            latestNavigateToSettings()
+                                        },
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.TwoTone.ManageAccounts,
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .size(35.dp),
+                                        )
+                                    }
+                                }
+                            }
+                        },
+                    )
+                },
+                expanded = searchState.expanded,
+                onExpandedChange = { latestSearchEvent(SearchEvent.SetExpanded(it)) },
+                colors = SearchBarDefaults.colors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    dividerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+                ),
+            ) {
+                PlaceSearchScreen(
+                    matchingPlaces = searchState.matchingPlaces,
+                    query = searchState.searchQuery,
+                    onPlaceClick = {
+                        latestSearchEvent(SearchEvent.SetExpanded(false))
+                        latestSearchEvent(SearchEvent.OnSearch("", emptyList()))
+                        onPlaceTravelScope.launch {
+                            cameraPositionState.animate(
+                                CameraUpdateFactory.newLatLngZoom(
+                                    it,
+                                    20f,
+                                ),
+                                2500,
+                            )
                         }
                     },
                 )
-            },
-            expanded = searchState.expanded,
-            onExpandedChange = { latestSearchEvent(SearchEvent.SetExpanded(it)) },
-            colors = SearchBarDefaults.colors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                dividerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
-            ),
-        ) {
-            PlaceSearchScreen(
-                matchingPlaces = searchState.matchingPlaces,
-                query = searchState.searchQuery,
-                onPlaceClick = {
-                    latestSearchEvent(SearchEvent.SetExpanded(false))
-                    latestSearchEvent(SearchEvent.OnSearch("", emptyList()))
-                    onPlaceTravelScope.launch {
-                        cameraPositionState.animate(
-                            CameraUpdateFactory.newLatLngZoom(
-                                it,
-                                20f,
-                            ),
-                            2500,
-                        )
-                    }
-                },
-            )
+            }
         }
         GoogleMap(
             modifier = modifier
