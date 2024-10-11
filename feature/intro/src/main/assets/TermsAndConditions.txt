@@ -9,14 +9,17 @@ Termos de serviço:
     Seu email funciona como um ID (Identificador Único), ele é utilizado para definir e fazer associações dos locais que você interage/cadastra para possibilitar a postuma edição ou exclusão de comentários, imagens ou locais adicionados por você, além de garantir que ninguém mais consiga cadastrar e entrar no serviço com seu email.
     Seu nome é utilizado para que outros usuários consigam identificar quem publicou um comentário ou uma foto.
     Sua foto serve como identificação para os outros usuários.
+
 3- Como garantimos sua privacidade?
 
     Ao se cadastrar, um ID de 32 caracteres é gerado e asssociado á sua conta, através dele que todas as interações no aplicativo feita por você são representadas, garantindo que seu nome de usuário e email sejam preservados.
-    Voce também pode optar a qualquer momento em tornar publico sua foto de perfil, tornando-a visvel ou não para os outros usuários´.
+    Voce também pode optar a qualquer momento em tornar público sua foto de perfil, tornando-a visível ou não para os outros usuários.
 
-4- O que acontece quando eu excluo minha conta?
+4- O que acontece quando você exclui sua conta?
 
-    Quando voçê exclui sua conta, todas as informações associadas a você como email, senha, ID, foto de perfil e nome de usuário são excluidos do nosso servidor. Quando você opta por apagar tudo ao excluir sua conta, além dos dados anteriores, todas as interações realizadas também são excluidas, como: comentários, locais adicionadas e imagens postadas. No entanto, uma cópia de dados como: seu email e ID e nome de usuário são mantidos por 72 horas nos nossos servidores, para fins de análise e são automaticamente deletados após esse período.
+    Quando você exclui sua conta, todas as informações associadas a você como: email, senha, ID, foto de perfil e nome de usuário são excluidos do nosso servidor
+    Quando você opta por apagar tudo ao excluir sua conta, além dos dados anteriores, todas as interações realizadas também são excluidas, como: comentários, locais adicionadas e imagens postadas.
+    No entanto, uma cópia de dados como: seu email, ID e nome de usuário são mantidos por 72 horas nos nossos servidores, para fins de análise e são automaticamente deletados após esse período.
 
 
 Condições:
