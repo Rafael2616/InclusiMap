@@ -70,9 +70,7 @@ class InclusiMapGoogleMapViewModel(
 
     private fun updateMapState(mapState: CameraPosition) {
         _state.update {
-            it.copy(
-                currentLocation = mapState,
-            )
+            it.copy(currentLocation = mapState)
         }
         viewModelScope.launch(Dispatchers.IO) {
             val currentState = inclusiMapRepository.getPosition(1) ?: InclusiMapEntity.getDefault()
@@ -103,11 +101,13 @@ class InclusiMapGoogleMapViewModel(
     }
 
     private fun onResetState() {
-        _state.update { InclusiMapState() }
-        onLoadPlaces()
+        _state.update {
+            InclusiMapState(isMapLoaded = true)
+        }
         viewModelScope.launch(Dispatchers.IO) {
             accessibleLocalsRepository.updateAccessibleLocalStored(AccessibleLocalsEntity.getDefault())
         }
+        onLoadPlaces()
     }
 
     private fun loadCachedPlaces() {
