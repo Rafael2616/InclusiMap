@@ -327,9 +327,10 @@ fun InclusiMapGoogleMapScreen(
             ),
             uiSettings = MapUiSettings(
                 zoomGesturesEnabled = true,
-                compassEnabled = true,
+                compassEnabled = false,
                 rotationGesturesEnabled = true,
                 zoomControlsEnabled = false,
+                mapToolbarEnabled = false,
             ),
             cameraPositionState = cameraPositionState,
             onMapClick = {
