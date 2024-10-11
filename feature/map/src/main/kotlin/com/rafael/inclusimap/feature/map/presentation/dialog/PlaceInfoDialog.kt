@@ -1,6 +1,8 @@
 package com.rafael.inclusimap.feature.map.presentation.dialog
 
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ArrowOutward
 import androidx.compose.material.icons.outlined.CopyAll
 import androidx.compose.material.icons.outlined.Report
 import androidx.compose.material3.ButtonDefaults
@@ -37,9 +40,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.google.android.gms.maps.model.LatLng
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.util.formatDate
 import com.rafael.inclusimap.feature.map.domain.Report
+import com.rafael.inclusimap.feature.map.domain.util.OpenInGoogleMapContract
 
 @Composable
 fun PlaceInfoDialog(
@@ -50,6 +55,7 @@ fun PlaceInfoDialog(
 ) {
     var showReportDialog by remember { mutableStateOf(false) }
     val clipboardManager = LocalClipboardManager.current
+    val launcher = rememberLauncherForActivityResult(OpenInGoogleMapContract()) { }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -151,19 +157,48 @@ fun PlaceInfoDialog(
                         onClick = {
                             clipboardManager.setText(
                                 AnnotatedString(
-                                    "${localMarker.position.first.toFloat()}, ${localMarker.position.second.toFloat()}"
-                                )
+                                    "${localMarker.position.first.toFloat()}, ${localMarker.position.second.toFloat()}",
+                                ),
                             )
                         },
                         modifier = Modifier
                             .size(24.dp)
-                            .weight(1f)
+                            .weight(1f),
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.CopyAll,
                             contentDescription = null,
                         )
                     }
+                }
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .clickable {
+                            launcher.launch(
+                                LatLng(
+                                    localMarker.position.first,
+                                    localMarker.position.second,
+                                ),
+                            )
+                        }
+                ) {
+                    Text(
+                        text = "Ver no Google Maps",
+                        fontSize = 14.sp,
+                        maxLines = 1,
+                        fontWeight = FontWeight.Normal,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(start = 2.dp),
+                    )
+                    Icon(
+                        imageVector = Icons.Outlined.ArrowOutward,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp),
+                    )
                 }
             }
         }
