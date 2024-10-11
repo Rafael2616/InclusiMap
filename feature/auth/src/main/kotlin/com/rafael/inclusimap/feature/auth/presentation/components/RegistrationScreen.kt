@@ -123,7 +123,7 @@ fun RegistrationScreen(
                 placeholder = {
                     Text(text = "Nome completo")
                 },
-                isError = canLogin && userName.isEmpty(),
+                isError = canLogin && (userName.isEmpty() || userName.length < minNameLength),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
