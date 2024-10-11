@@ -157,7 +157,7 @@ fun RegistrationScreen(
                 placeholder = {
                     Text(text = "E-mail")
                 },
-                isError = canLogin && (email.isEmpty() || state.userAlreadyRegistered) || !isValidEmail,
+                isError = canLogin && (email.isEmpty() || state.userAlreadyRegistered || userName.length < minNameLength) || !isValidEmail,
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
@@ -349,7 +349,7 @@ fun RegistrationScreen(
             }
         }
     }
-    if (state.userAlreadyRegistered && state.isRegistering && canLogin && email.isNotEmpty()) {
+    if (state.userAlreadyRegistered && !state.isRegistering && canLogin && email.isNotEmpty() && userName.length < minNameLength) {
         existentUserToast.show()
     }
     if (state.isLoggedIn && canLogin) {
