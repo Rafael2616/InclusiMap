@@ -97,14 +97,12 @@ fun ProfileSettingsDialog(
             allowOtherUsersToSeeProfilePicture,
         )
     }
-    var isPictureEdited by remember { mutableStateOf(false) }
-    var isPictureRemoved by remember { mutableStateOf(false) }
     var newName by remember { mutableStateOf(userName) }
-    var isUserNameEdited by remember { mutableStateOf(false) }
     var shouldDismissDialog by remember { mutableStateOf(false) }
     val internetState = remember { InternetConnectionState(context) }
     val isInternetAvailable by internetState.state.collectAsStateWithLifecycle()
     val focusRequester = remember { FocusRequester() }
+    var editUserName by remember { mutableStateOf(false) }
 
     Dialog(
         onDismissRequest = { },
@@ -153,8 +151,6 @@ fun ProfileSettingsDialog(
                                         ActivityResultContracts.PickVisualMedia.ImageOnly,
                                     ),
                                 )
-                                isPictureRemoved = false
-                                isPictureEdited = true
                             },
                     )
                 }
@@ -170,8 +166,6 @@ fun ProfileSettingsDialog(
                                         ActivityResultContracts.PickVisualMedia.ImageOnly,
                                     ),
                                 )
-                                isPictureRemoved = false
-                                isPictureEdited = true
                             },
                         contentAlignment = Alignment.Center,
                     ) {
@@ -187,8 +181,6 @@ fun ProfileSettingsDialog(
                     IconButton(
                         onClick = {
                             profilePicture = null
-                            isPictureRemoved = true
-                            isPictureEdited = false
                         },
                         modifier = Modifier.size(40.dp),
                         colors = IconButtonDefaults.iconButtonColors(
@@ -249,7 +241,7 @@ fun ProfileSettingsDialog(
                         modifier = Modifier
                             .focusRequester(focusRequester)
                             .weight(1f),
-                        enabled = isUserNameEdited,
+                        enabled = editUserName,
                         keyboardOptions = KeyboardOptions(
                             autoCorrectEnabled = true,
                             capitalization = KeyboardCapitalization.Words,
@@ -288,8 +280,8 @@ fun ProfileSettingsDialog(
                     )
                     IconButton(
                         onClick = {
-                            isUserNameEdited = !isUserNameEdited
-                            if (!isUserNameEdited) {
+                            editUserName = !editUserName
+                            if (!editUserName) {
                                 newName = userName
                                 focusRequester.freeFocus()
                             } else {
@@ -341,36 +333,38 @@ fun ProfileSettingsDialog(
                             )
                         }
                     }
-                    Button(
-                        onClick = {
-                            if (isPictureEdited) {
-                                profilePicture?.let {
-                                    onAddUpdatePicture(it)
+                    if (profilePicture != state.profilePicture || userName != newName || allowOtherUsersToSeeProfilePicture != allowOtherUsersToSeeProfilePictureOptedId) {
+                        Button(
+                            onClick = {
+                                if (profilePicture != state.profilePicture) {
+                                    profilePicture?.let {
+                                        onAddUpdatePicture(it)
+                                    }
                                 }
-                            }
-                            if (isPictureRemoved) {
-                                onRemovePicture()
-                            }
-                            if (newName != userName) {
-                                if (newName.length < 3) {
-                                    Toast.makeText(
-                                        context,
-                                        "O nome deve ter no mínimo 3 caracteres",
-                                        Toast.LENGTH_SHORT,
-                                    ).show()
+                                if (profilePicture == null) {
+                                    onRemovePicture()
                                 }
-                                onEditUserName(newName)
-                            }
-                            if (allowOtherUsersToSeeProfilePictureOptedId != allowOtherUsersToSeeProfilePicture) {
-                                onAllowPictureOptedIn(allowOtherUsersToSeeProfilePictureOptedId)
-                            }
-                            shouldDismissDialog = true
-                        },
-                        enabled = isSuccessfulUpdatingUserInfos && isInternetAvailable,
-                    ) {
-                        Text(
-                            text = "Atualizar",
-                        )
+                                if (newName != userName) {
+                                    if (newName.length < 3) {
+                                        Toast.makeText(
+                                            context,
+                                            "O nome deve ter no mínimo 3 caracteres",
+                                            Toast.LENGTH_SHORT,
+                                        ).show()
+                                    }
+                                    onEditUserName(newName)
+                                }
+                                if (allowOtherUsersToSeeProfilePictureOptedId != allowOtherUsersToSeeProfilePicture) {
+                                    onAllowPictureOptedIn(allowOtherUsersToSeeProfilePictureOptedId)
+                                }
+                                shouldDismissDialog = true
+                            },
+                            enabled = isSuccessfulUpdatingUserInfos && isInternetAvailable,
+                        ) {
+                            Text(
+                                text = "Atualizar",
+                            )
+                        }
                     }
                 }
             }
@@ -385,15 +379,11 @@ fun ProfileSettingsDialog(
         shouldDismissDialog = false
     }
     if (isSuccessfulUpdatingUserInfos && shouldDismissDialog) {
-        if (isUserNameEdited || isPictureEdited || isPictureRemoved ||
-            allowOtherUsersToSeeProfilePictureOptedId != allowOtherUsersToSeeProfilePicture
-        ) {
-            Toast.makeText(
-                context,
-                "Informações atualizadas!",
-                Toast.LENGTH_SHORT,
-            ).show()
-        }
+        Toast.makeText(
+            context,
+            "Informações atualizadas!",
+            Toast.LENGTH_SHORT,
+        ).show()
         onDismiss()
     }
 }
