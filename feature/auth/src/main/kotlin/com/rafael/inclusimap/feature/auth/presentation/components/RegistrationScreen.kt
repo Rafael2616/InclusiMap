@@ -246,10 +246,11 @@ fun RegistrationScreen(
             Text(
                 text = "Já tem uma conta? Entrar",
                 fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.primary,
+                color = if (state.isRegistering) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary,
                 textDecoration = TextDecoration.Underline,
                 modifier = Modifier
                     .clickable {
+                        if (state.isRegistering) return@clickable
                         onGoToLogin()
                     },
             )
@@ -267,10 +268,11 @@ fun RegistrationScreen(
                 Text(
                     text = "Termos e condições",
                     fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = if (state.isRegistering) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary,
                     textDecoration = TextDecoration.Underline,
                     modifier = Modifier
                         .clickable {
+                            if (state.isRegistering) return@clickable
                             showTermsAndConditionsDialog = true
                         },
                 )
@@ -340,6 +342,7 @@ fun RegistrationScreen(
                             showProfilePictureOptedIn = true,
                         ),
                     )
+                    showTermsAndConditionsDialog = false
                 },
             ) {
                 Text(text = "Cadastrar")

@@ -149,10 +149,11 @@ fun LoginScreen(
             Text(
                 text = "Cadastre-se",
                 fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.primary,
+                color = if (state.isRegistering) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary,
                 textDecoration = TextDecoration.Underline,
                 modifier = Modifier
                     .clickable {
+                        if (state.isRegistering) return@clickable
                         onGoToRegister()
                     },
             )
