@@ -8,7 +8,7 @@ import com.google.android.gms.maps.model.LatLng
 
 class OpenInGoogleMapContract : ActivityResultContract<LatLng, Unit>() {
     override fun createIntent(context: Context, input: LatLng): Intent {
-        val gmmIntentUri = Uri.parse("geo:${input.latitude},${input.longitude}")
+        val gmmIntentUri = Uri.parse("geo:${input.latitude},${input.longitude}?z=17")
         return Intent(Intent.ACTION_VIEW, gmmIntentUri)
             .setPackage("com.google.android.apps.maps")
     }
