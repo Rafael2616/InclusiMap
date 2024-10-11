@@ -610,8 +610,7 @@ class LoginViewModel(
                                 return@async
                             }
                     }.invokeOnCompletion {
-                        if (_state.value.networkError) return@invokeOnCompletion
-                        if (it != null) {
+                        if (!_state.value.networkError) {
                             _state.update {
                                 it.copy(
                                     deleteStep = DeleteProcess.ERROR,
@@ -721,16 +720,11 @@ class LoginViewModel(
                 isProfilePictureUpdated = false,
             )
         }
+        val imageByteArrayOutputStream = ByteArrayOutputStream()
+        image.asAndroidBitmap()
+            .compress(Bitmap.CompressFormat.JPEG, 70, imageByteArrayOutputStream)
+
         viewModelScope.launch(Dispatchers.IO) {
-            val imageByteArrayOutputStream = ByteArrayOutputStream()
-            image.asAndroidBitmap()
-                .compress(Bitmap.CompressFormat.JPEG, 70, imageByteArrayOutputStream)
-            val user = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
-            repository.updateLoginInfo(
-                user.copy(
-                    profilePicture = imageByteArrayOutputStream.toByteArray(),
-                ),
-            )
             driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { result ->
                 val userPathId = result.find {
                     it.name == _state.value.user?.email
@@ -772,8 +766,16 @@ class LoginViewModel(
                 _state.update {
                     it.copy(
                         isUpdatingProfilePicture = false,
-                        isErrorUpdatingProfilePicture = false,
                         isProfilePictureUpdated = true,
+                    )
+                }
+                // Update in local database
+                viewModelScope.launch(Dispatchers.IO) {
+                    val user = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
+                    repository.updateLoginInfo(
+                        user.copy(
+                            profilePicture = imageByteArrayOutputStream.toByteArray(),
+                        ),
                     )
                 }
             }
@@ -789,10 +791,6 @@ class LoginViewModel(
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
-            val user = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
-            repository.updateLoginInfo(
-                user.copy(profilePicture = null),
-            )
             driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { result ->
                 val userPathId = result.find {
                     it.name == _state.value.user?.email
@@ -833,8 +831,13 @@ class LoginViewModel(
                 _state.update {
                     it.copy(
                         isRemovingProfilePicture = false,
-                        isErrorRemovingProfilePicture = false,
                         isProfilePictureRemoved = true,
+                    )
+                }
+                viewModelScope.launch(Dispatchers.IO) {
+                    val user = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
+                    repository.updateLoginInfo(
+                        user.copy(profilePicture = null),
                     )
                 }
             }
@@ -890,12 +893,6 @@ class LoginViewModel(
                 isUserNameUpdated = false,
             )
         }
-        // Update the value in local database
-        viewModelScope.launch(Dispatchers.IO) {
-            val loginData = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
-            loginData.userName = name
-            repository.updateLoginInfo(loginData)
-        }
         // Update the value in Google Drive
         viewModelScope.launch(Dispatchers.IO) {
             async {
@@ -949,14 +946,21 @@ class LoginViewModel(
                     }
             }.await()
         }.invokeOnCompletion {
-            // Update the value in the state
-            _state.update {
-                it.copy(
-                    user = it.user?.copy(name = name),
-                    isUpdatingUserName = false,
-                    isErrorUpdatingUserName = false,
-                    isUserNameUpdated = true,
-                )
+            if (!state.value.isErrorUpdatingUserName) {
+                // Update the value in the state
+                _state.update {
+                    it.copy(
+                        user = it.user?.copy(name = name),
+                        isUpdatingUserName = false,
+                        isUserNameUpdated = true,
+                    )
+                }
+                // Update the value in local database
+                viewModelScope.launch(Dispatchers.IO) {
+                    val loginData = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
+                    loginData.userName = name
+                    repository.updateLoginInfo(loginData)
+                }
             }
         }
     }
@@ -968,12 +972,6 @@ class LoginViewModel(
                 isErrorAllowingPictureOptedIn = false,
                 isPictureOptedInSuccessfullyChanged = false,
             )
-        }
-        // Update the value in local database
-        viewModelScope.launch(Dispatchers.IO) {
-            val loginData = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
-            loginData.showProfilePictureOptedIn = isAllowed
-            repository.updateLoginInfo(loginData)
         }
         // Update the value in Google Drive
         viewModelScope.launch(Dispatchers.IO) {
@@ -1028,14 +1026,21 @@ class LoginViewModel(
                     }
             }.await()
         }.invokeOnCompletion {
-            // Update the value in the state
-            _state.update {
-                it.copy(
-                    user = it.user?.copy(showProfilePictureOptedIn = isAllowed),
-                    isAllowingPictureOptedIn = false,
-                    isErrorAllowingPictureOptedIn = false,
-                    isPictureOptedInSuccessfullyChanged = true,
-                )
+            if (!state.value.isErrorAllowingPictureOptedIn) {
+                // Update the value in the state
+                _state.update {
+                    it.copy(
+                        user = it.user?.copy(showProfilePictureOptedIn = isAllowed),
+                        isAllowingPictureOptedIn = false,
+                        isPictureOptedInSuccessfullyChanged = true,
+                    )
+                }
+                // Update the value in local database
+                viewModelScope.launch(Dispatchers.IO) {
+                    val loginData = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
+                    loginData.showProfilePictureOptedIn = isAllowed
+                    repository.updateLoginInfo(loginData)
+                }
             }
         }
     }
