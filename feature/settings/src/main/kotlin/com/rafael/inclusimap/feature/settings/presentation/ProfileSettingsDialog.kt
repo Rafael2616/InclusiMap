@@ -48,6 +48,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -102,6 +104,7 @@ fun ProfileSettingsDialog(
     var shouldDismissDialog by remember { mutableStateOf(false) }
     val internetState = remember { InternetConnectionState(context) }
     val isInternetAvailable by internetState.state.collectAsStateWithLifecycle()
+    val focusRequester = remember { FocusRequester() }
 
     Dialog(
         onDismissRequest = { },
@@ -232,7 +235,7 @@ fun ProfileSettingsDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(16.dp))
-                        .background(MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp))
+                        .background(MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp))
                         .padding(8.dp)
                         .padding(horizontal = 4.dp),
                 ) {
@@ -243,7 +246,9 @@ fun ProfileSettingsDialog(
                                 newName = it
                             }
                         },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .focusRequester(focusRequester)
+                            .weight(1f),
                         enabled = isUserNameEdited,
                         keyboardOptions = KeyboardOptions(
                             autoCorrectEnabled = true,
@@ -286,6 +291,9 @@ fun ProfileSettingsDialog(
                             isUserNameEdited = !isUserNameEdited
                             if (!isUserNameEdited) {
                                 newName = userName
+                                focusRequester.freeFocus()
+                            } else {
+                                focusRequester.requestFocus()
                             }
                         },
                         modifier = Modifier.size(35.dp),
