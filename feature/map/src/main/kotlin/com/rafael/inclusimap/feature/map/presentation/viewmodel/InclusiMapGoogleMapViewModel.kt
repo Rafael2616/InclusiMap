@@ -55,7 +55,7 @@ class InclusiMapGoogleMapViewModel(
             is InclusiMapEvent.ShouldAnimateMap -> _state.update { it.copy(shouldAnimateMap = event.shouldAnimate) }
             is InclusiMapEvent.UpdateMapState -> updateMapState(event.mapState)
             InclusiMapEvent.GetCurrentState -> getCurrentState()
-            InclusiMapEvent.ResetState -> _state.update { InclusiMapState() }
+            InclusiMapEvent.ResetState -> onResetState()
         }
     }
 
@@ -101,6 +101,15 @@ class InclusiMapGoogleMapViewModel(
             }
         }
     }
+
+    private fun onResetState() {
+        _state.update { InclusiMapState() }
+        onLoadPlaces()
+        viewModelScope.launch(Dispatchers.IO) {
+            accessibleLocalsRepository.updateAccessibleLocalStored(AccessibleLocalsEntity.getDefault())
+        }
+    }
+
     private fun loadCachedPlaces() {
         viewModelScope.launch(Dispatchers.IO) {
             // Get the cached places from local database

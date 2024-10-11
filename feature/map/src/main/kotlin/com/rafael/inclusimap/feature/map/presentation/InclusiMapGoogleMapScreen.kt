@@ -147,6 +147,7 @@ fun InclusiMapGoogleMapScreen(
                 )
             }.await()
             locationPermission.launchPermissionRequest()
+            firstTimeAnimation = false
         }
         if (state.shouldAnimateMap) {
             cameraPositionState.position = CameraPosition(
