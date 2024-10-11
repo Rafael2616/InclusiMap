@@ -21,11 +21,13 @@ import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -68,6 +70,7 @@ fun RegistrationScreen(
     var email by remember { mutableStateOf("") }
     var canLogin by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val minNameLength by remember { mutableIntStateOf(3) }
     val toast = Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT)
     val invalidEmailToast = Toast.makeText(context, "O email é inválido", Toast.LENGTH_SHORT)
     val invalidPasswordToast = Toast.makeText(context, "A senha é inválida", Toast.LENGTH_SHORT)
@@ -87,6 +90,8 @@ fun RegistrationScreen(
     val termsAndConditionsNotAllowedToast =
         Toast.makeText(context, "Aceite os termos e condições", Toast.LENGTH_SHORT)
     var showTermsAndConditionsDialog by remember { mutableStateOf(false) }
+    val shortNameToast =
+        Toast.makeText(context, "O nome precisa ter no mínimo $minNameLength letras", Toast.LENGTH_SHORT)
 
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
@@ -107,7 +112,9 @@ fun RegistrationScreen(
             TextField(
                 value = userName,
                 onValueChange = {
-                    userName = it
+                    if (it.length <= 30) {
+                        userName = it
+                    }
                     canLogin = false
                 },
                 modifier = Modifier
@@ -123,6 +130,19 @@ fun RegistrationScreen(
                     imeAction = ImeAction.Next,
                 ),
                 enabled = !state.isRegistering,
+                trailingIcon = {
+                    Row {
+                        Text(
+                            text = userName.length.toString(),
+                            fontSize = 10.sp,
+                            color = if (userName.length < minNameLength && userName.isNotEmpty()) MaterialTheme.colorScheme.error else LocalContentColor.current,
+                        )
+                        Text(
+                            text = "/30",
+                            fontSize = 10.sp,
+                        )
+                    }
+                },
             )
             TextField(
                 value = email,
@@ -289,6 +309,10 @@ fun RegistrationScreen(
                     canLogin = true
                     if (userName.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
                         toast.show()
+                        return@Button
+                    }
+                    if (userName.length < minNameLength) {
+                        shortNameToast.show()
                         return@Button
                     }
                     if (password != confirmPassword) {
