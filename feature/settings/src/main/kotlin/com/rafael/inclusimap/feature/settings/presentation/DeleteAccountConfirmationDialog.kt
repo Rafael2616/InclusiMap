@@ -154,7 +154,7 @@ fun DeleteAccountConfirmationDialog(
                                         DeleteProcess.DELETING_USER_COMMENTS -> "Deletando seus comentários..."
                                         DeleteProcess.DELETING_USER_LOCAL_MARKERS -> "Deletando locais cadastrados..."
                                         DeleteProcess.DELETING_USER_IMAGES -> "Deletando imagens postadas..."
-                                        DeleteProcess.SUCCESS -> "Conta deletada!"
+                                        DeleteProcess.SUCCESS -> "Saindo..."
                                         DeleteProcess.ERROR -> "Ocorreu um erro, tente novamente!"
                                     }
                                 } else {

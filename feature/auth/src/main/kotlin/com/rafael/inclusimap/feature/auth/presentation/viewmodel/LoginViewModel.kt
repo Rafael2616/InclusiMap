@@ -473,7 +473,11 @@ class LoginViewModel(
                 } else {
                     if (keepContributions && !_state.value.networkError) {
                         _state.update {
-                            it.copy(deleteStep = DeleteProcess.SUCCESS)
+                            it.copy(
+                                deleteStep = DeleteProcess.SUCCESS,
+                                isDeletingAccount = false,
+                                isAccountDeleted = true,
+                            )
                         }
                     }
                 }
@@ -508,14 +512,9 @@ class LoginViewModel(
                     return@launch
                 }
         }.invokeOnCompletion {
-            if (it != null) {
-                _state.update {
-                    it.copy(
-                        deleteStep = DeleteProcess.ERROR,
-                        isDeletingAccount = false,
-                        isAccountDeleted = false,
-                    )
-                }
+            if (keepContributions && !_state.value.networkError) {
+                logout()
+                return@invokeOnCompletion
             }
             viewModelScope.launch(Dispatchers.IO) {
                 async {
