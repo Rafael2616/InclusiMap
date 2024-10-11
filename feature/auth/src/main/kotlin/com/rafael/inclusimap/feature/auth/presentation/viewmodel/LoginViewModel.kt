@@ -105,6 +105,7 @@ class LoginViewModel(
             it.copy(
                 isRegistering = true,
                 networkError = false,
+                userAlreadyRegistered = false,
             )
         }
         val userID = Uuid.random().toString()
