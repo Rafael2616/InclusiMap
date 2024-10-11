@@ -53,7 +53,7 @@ fun TermsAndConditionsDialog(
         "1- Que informações coletamos?",
         "2- O que é feito com seus dados?",
         "3- Como garantimos sua privacidade?",
-        "4- O que acontece quando eu excluo minha conta?",
+        "4- O que acontece quando você exclui sua conta?",
         "1- Ao entrar nesse serviço, você concorda que:",
         "2- Ao entrar nesse serviço, você se compromente a:",
     )
