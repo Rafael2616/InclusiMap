@@ -675,12 +675,10 @@ class LoginViewModel(
             // Download user profile picture
             viewModelScope.launch(Dispatchers.IO) {
                 val picture = downloadUserProfilePicture(state.value.user?.email)
-                _state.update {
-                    it.copy(
-                        userProfilePicture = picture,
-                    )
-                }
+
                 if (picture == state.value.userProfilePicture) return@launch
+
+                _state.update { it.copy(userProfilePicture = picture) }
 
                 val imageByteArrayOutputStream = ByteArrayOutputStream()
                 picture?.asAndroidBitmap()
