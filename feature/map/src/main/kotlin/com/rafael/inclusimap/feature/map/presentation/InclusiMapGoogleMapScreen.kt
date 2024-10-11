@@ -395,6 +395,7 @@ fun InclusiMapGoogleMapScreen(
         AppIntroDialog(
             userName = userName,
             onDismiss = {
+                latestOnEvent(InclusiMapEvent.ResetState)
                 latestOnDismissAppIntro(false)
                 firstTimeAnimation = true
             },

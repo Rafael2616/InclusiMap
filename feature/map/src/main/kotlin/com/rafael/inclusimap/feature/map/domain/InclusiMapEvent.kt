@@ -20,4 +20,5 @@ sealed interface InclusiMapEvent {
     data class ShouldAnimateMap(val shouldAnimate: Boolean) : InclusiMapEvent
     data class UpdateMapState(val mapState: CameraPosition) : InclusiMapEvent
     data object GetCurrentState : InclusiMapEvent
+    data object ResetState : InclusiMapEvent
 }

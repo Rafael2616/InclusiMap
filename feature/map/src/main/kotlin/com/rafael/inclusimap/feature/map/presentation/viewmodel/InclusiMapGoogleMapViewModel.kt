@@ -55,6 +55,7 @@ class InclusiMapGoogleMapViewModel(
             is InclusiMapEvent.ShouldAnimateMap -> _state.update { it.copy(shouldAnimateMap = event.shouldAnimate) }
             is InclusiMapEvent.UpdateMapState -> updateMapState(event.mapState)
             InclusiMapEvent.GetCurrentState -> getCurrentState()
+            InclusiMapEvent.ResetState -> _state.update { InclusiMapState() }
         }
     }
 
