@@ -131,7 +131,11 @@ fun InclusiMapGoogleMapScreen(
     var isFullScreenMode by remember { mutableStateOf(false) }
     var firstTimeAnimation by remember { mutableStateOf(false) }
 
-    LaunchedEffect(state.shouldAnimateMap, firstTimeAnimation) {
+    LaunchedEffect(Unit) {
+        onEvent(InclusiMapEvent.GetCurrentState)
+    }
+
+    LaunchedEffect(state.shouldAnimateMap, firstTimeAnimation, state.currentLocation) {
         if (firstTimeAnimation) {
             async {
                 cameraPositionState.animate(
@@ -145,11 +149,21 @@ fun InclusiMapGoogleMapScreen(
             locationPermission.launchPermissionRequest()
         }
         if (state.shouldAnimateMap) {
-            cameraPositionState.position = CameraPosition.fromLatLngZoom(
-                state.defaultLocationLatLng,
-                15f,
+            cameraPositionState.position = CameraPosition(
+                state.currentLocation?.target ?: state.defaultLocationLatLng,
+                state.currentLocation?.zoom ?: 15f,
+                state.currentLocation?.tilt ?: 0f,
+                state.currentLocation?.bearing ?: 0f,
             )
-            onEvent(InclusiMapEvent.ShouldAnimateMap(false))
+            if (state.currentLocation != null) {
+                onEvent(InclusiMapEvent.ShouldAnimateMap(false))
+            }
+        }
+    }
+
+    LaunchedEffect(!cameraPositionState.isMoving) {
+        if (!cameraPositionState.isMoving) {
+            onEvent(InclusiMapEvent.UpdateMapState(cameraPositionState.position))
         }
     }
 
@@ -172,10 +186,6 @@ fun InclusiMapGoogleMapScreen(
 //            }
 //        }
 //    }
-
-    LaunchedEffect(locationPermission.status) {
-        latestOnEvent(InclusiMapEvent.SetLocationPermissionGranted(locationPermission.status == PermissionStatus.Granted))
-    }
 
     InclusiMapScaffold(
         searchState = searchState,
@@ -486,6 +496,11 @@ fun InclusiMapGoogleMapScreen(
 
     DisposableEffect(state.allMappedPlaces.isEmpty() || state.useAppWithoutInternet && isInternetAvailable) {
         latestOnEvent(InclusiMapEvent.OnLoadPlaces)
+        onDispose { }
+    }
+
+    DisposableEffect(locationPermission.status) {
+        latestOnEvent(InclusiMapEvent.SetLocationPermissionGranted(locationPermission.status == PermissionStatus.Granted))
         onDispose { }
     }
 }

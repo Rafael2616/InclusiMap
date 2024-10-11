@@ -5,6 +5,7 @@ import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.feature.auth.data.repository.LoginRepositoryImpl
 import com.rafael.inclusimap.feature.map.data.database.MapDatabase
 import com.rafael.inclusimap.feature.map.data.repository.AccessibleLocalsRepositoryImpl
+import com.rafael.inclusimap.feature.map.data.repository.InclusiMapRepositoryImpl
 import com.rafael.inclusimap.feature.map.presentation.viewmodel.InclusiMapGoogleMapViewModel
 import com.rafael.inclusimap.feature.map.presentation.viewmodel.PlaceDetailsViewModel
 import com.rafael.inclusimap.feature.map.presentation.viewmodel.ReportViewModel
@@ -25,8 +26,11 @@ val mapModule = module {
     single {
         AccessibleLocalsRepositoryImpl(get<GoogleDriveService>(), get<MapDatabase>().accessibleLocalsDao())
     }
+    single {
+        InclusiMapRepositoryImpl(get<MapDatabase>().inclusiMapDao())
+    }
     viewModel {
-        InclusiMapGoogleMapViewModel(get<AccessibleLocalsRepositoryImpl>())
+        InclusiMapGoogleMapViewModel(get<AccessibleLocalsRepositoryImpl>(), get<InclusiMapRepositoryImpl>())
     }
     viewModel {
         PlaceDetailsViewModel(get(), get<LoginRepositoryImpl>())

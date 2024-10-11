@@ -1,5 +1,6 @@
 package com.rafael.inclusimap.feature.map.domain
 
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 
@@ -17,4 +18,6 @@ sealed interface InclusiMapEvent {
     data object OnMapLoad : InclusiMapEvent
     data object UseAppWithoutInternet : InclusiMapEvent
     data class ShouldAnimateMap(val shouldAnimate: Boolean) : InclusiMapEvent
+    data class UpdateMapState(val mapState: CameraPosition) : InclusiMapEvent
+    data object GetCurrentState : InclusiMapEvent
 }

@@ -2,12 +2,15 @@ package com.rafael.inclusimap.feature.map.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.feature.map.domain.AccessibleLocalsEntity
+import com.rafael.inclusimap.feature.map.domain.InclusiMapEntity
 import com.rafael.inclusimap.feature.map.domain.InclusiMapEvent
 import com.rafael.inclusimap.feature.map.domain.InclusiMapState
 import com.rafael.inclusimap.feature.map.domain.repository.AccessibleLocalsRepository
+import com.rafael.inclusimap.feature.map.domain.repository.InclusiMapRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,6 +21,7 @@ import kotlinx.serialization.json.Json
 
 class InclusiMapGoogleMapViewModel(
     private val accessibleLocalsRepository: AccessibleLocalsRepository,
+    private val inclusiMapRepository: InclusiMapRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(InclusiMapState())
     val state = _state.asStateFlow()
@@ -27,9 +31,7 @@ class InclusiMapGoogleMapViewModel(
     }
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            loadCachedPlaces()
-        }
+        loadCachedPlaces()
     }
 
     fun onEvent(event: InclusiMapEvent) {
@@ -51,6 +53,8 @@ class InclusiMapGoogleMapViewModel(
             is InclusiMapEvent.OnFailToConnectToServer -> onLoadPlaces()
             InclusiMapEvent.UseAppWithoutInternet -> _state.update { it.copy(useAppWithoutInternet = true) }
             is InclusiMapEvent.ShouldAnimateMap -> _state.update { it.copy(shouldAnimateMap = event.shouldAnimate) }
+            is InclusiMapEvent.UpdateMapState -> updateMapState(event.mapState)
+            InclusiMapEvent.GetCurrentState -> getCurrentState()
         }
     }
 
@@ -63,6 +67,39 @@ class InclusiMapGoogleMapViewModel(
         }
     }
 
+    private fun updateMapState(mapState: CameraPosition) {
+        _state.update {
+            it.copy(
+                currentLocation = mapState,
+            )
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            val currentState = inclusiMapRepository.getPosition(1) ?: InclusiMapEntity.getDefault()
+            currentState.lat = mapState.target.latitude
+            currentState.lng = mapState.target.longitude
+            currentState.zoom = mapState.zoom
+            currentState.tilt = mapState.tilt
+            currentState.bearing = mapState.bearing
+
+            inclusiMapRepository.updatePosition(currentState)
+        }
+    }
+
+    private fun getCurrentState() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val currentState = inclusiMapRepository.getPosition(1) ?: InclusiMapEntity.getDefault()
+            _state.update {
+                it.copy(
+                    currentLocation = CameraPosition(
+                        LatLng(currentState.lat, currentState.lng),
+                        currentState.zoom,
+                        currentState.tilt,
+                        currentState.bearing,
+                    ),
+                )
+            }
+        }
+    }
     private fun loadCachedPlaces() {
         viewModelScope.launch(Dispatchers.IO) {
             // Get the cached places from local database
