@@ -157,7 +157,7 @@ fun RegistrationScreen(
                 placeholder = {
                     Text(text = "E-mail")
                 },
-                isError = canLogin && (email.isEmpty() || state.userAlreadyRegistered || userName.length < minNameLength) || !isValidEmail,
+                isError = canLogin && (email.isEmpty() || state.userAlreadyRegistered) || !isValidEmail,
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,

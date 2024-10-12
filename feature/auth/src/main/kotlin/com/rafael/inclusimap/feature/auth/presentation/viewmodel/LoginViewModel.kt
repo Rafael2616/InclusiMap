@@ -181,7 +181,12 @@ class LoginViewModel(
                     }
                 }
             }
-            _state.update { it.copy(isRegistering = false) }
+            _state.update {
+                it.copy(
+                    isRegistering = false,
+                    userAlreadyRegistered = false,
+                )
+            }
         }
     }
 
