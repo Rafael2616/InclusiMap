@@ -349,7 +349,7 @@ fun RegistrationScreen(
             }
         }
     }
-    if (state.userAlreadyRegistered && !state.isRegistering && canLogin && email.isNotEmpty() && userName.length < minNameLength) {
+    if (state.userAlreadyRegistered && !state.isRegistering && canLogin && email.isNotEmpty()) {
         existentUserToast.show()
     }
     if (state.isLoggedIn && canLogin) {
