@@ -28,6 +28,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
@@ -56,6 +57,7 @@ import com.rafael.inclusimap.core.domain.model.toCategoryName
 import com.rafael.inclusimap.core.domain.model.toPlaceCategory
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsState
 import com.rafael.inclusimap.feature.map.presentation.dialog.AddNewPlaceConfirmationDialog
+import com.rafael.inclusimap.feature.map.presentation.dialog.DeletePlaceConfirmationDialog
 import java.util.Date
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -80,9 +82,10 @@ fun AddEditPlaceBottomSheet(
     var tryAddUpdate by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
-    var maxPlaceNameLength by remember { mutableIntStateOf(50) }
+    val maxPlaceNameLength by remember { mutableIntStateOf(50) }
     var selectedPlaceCategory by remember { mutableStateOf(if (isEditing) placeDetailsState.currentPlace.category else null) }
     var showConfirmationDialog by remember { mutableStateOf(false) }
+    var showDeleteConfirmationDialog by remember { mutableStateOf(false) }
 
     ModalBottomSheet(
         sheetState = bottomSheetScaffoldState,
@@ -106,14 +109,14 @@ fun AddEditPlaceBottomSheet(
                     IconButton(
                         onClick = {
                             focusManager.clearFocus()
-                            Toast.makeText(context, "Excluindo local...", Toast.LENGTH_SHORT).show()
-                            onDeletePlace(placeDetailsState.currentPlace.id!!)
+                            showDeleteConfirmationDialog = true
                         },
                         modifier = Modifier.align(Alignment.CenterVertically),
                     ) {
                         Icon(
                             imageVector = Icons.TwoTone.Delete,
                             contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error,
                         )
                     }
                 }
@@ -266,6 +269,23 @@ fun AddEditPlaceBottomSheet(
                 }
             }
         }
+    }
+
+    AnimatedVisibility(showDeleteConfirmationDialog) {
+        DeletePlaceConfirmationDialog(
+            onDismiss = {
+                showDeleteConfirmationDialog = false
+            },
+            onDelete = {
+                Toast.makeText(
+                    context,
+                    "Excluindo local...",
+                    Toast.LENGTH_SHORT).show()
+                onDeletePlace(placeDetailsState.currentPlace.id!!)
+                showDeleteConfirmationDialog = false
+                onDismiss()
+            },
+        )
     }
 
     AnimatedVisibility(showConfirmationDialog) {
