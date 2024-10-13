@@ -119,10 +119,10 @@ class LoginViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID)
                 .onSuccess { result ->
-                    result.any { userFile ->
-                        _state.update {
-                            it.copy(userAlreadyRegistered = userFile.name.split(".json")[0] == newUser.email)
-                        }.let { true }
+                    val isUserRegistered =
+                        result.any { userFile -> userFile.name.split(".json")[0] == newUser.email }
+                    _state.update {
+                        it.copy(userAlreadyRegistered = isUserRegistered)
                     }
                 }
                 .onError {
@@ -135,7 +135,8 @@ class LoginViewModel(
                     return@launch
                 }
 
-            if (_state.value.userAlreadyRegistered || newUser.email.length < 3) {
+            if (_state.value.userAlreadyRegistered) {
+                _state.update { it.copy(isRegistering = false) }
                 return@launch
             }
 
@@ -182,10 +183,7 @@ class LoginViewModel(
                 }
             }
             _state.update {
-                it.copy(
-                    isRegistering = false,
-                    userAlreadyRegistered = false,
-                )
+                it.copy(isRegistering = false)
             }
         }
     }

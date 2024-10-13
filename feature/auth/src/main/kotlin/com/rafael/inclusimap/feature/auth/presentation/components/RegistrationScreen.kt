@@ -92,7 +92,7 @@ fun RegistrationScreen(
     var showTermsAndConditionsDialog by remember { mutableStateOf(false) }
     val shortNameToast =
         Toast.makeText(context, "O nome precisa ter no mínimo $minNameLength letras", Toast.LENGTH_SHORT)
-
+    var userAlreadyRegistered by remember(state.userAlreadyRegistered) { mutableStateOf(state.userAlreadyRegistered) }
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
         modifier = modifier,
@@ -157,7 +157,7 @@ fun RegistrationScreen(
                 placeholder = {
                     Text(text = "E-mail")
                 },
-                isError = canLogin && (email.isEmpty() || state.userAlreadyRegistered) || !isValidEmail,
+                isError = canLogin && (email.isEmpty() || userAlreadyRegistered) || !isValidEmail,
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
@@ -309,12 +309,14 @@ fun RegistrationScreen(
                 enabled = !state.isRegistering,
                 onClick = {
                     canLogin = true
+                    userAlreadyRegistered = false
                     if (userName.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
                         toast.show()
                         return@Button
                     }
                     if (userName.length < minNameLength) {
                         shortNameToast.show()
+                        return@Button
                     }
                     if (password != confirmPassword) {
                         differentPasswordToast.show()
@@ -348,7 +350,7 @@ fun RegistrationScreen(
             }
         }
     }
-    if (state.userAlreadyRegistered && !state.isRegistering && canLogin && email.isNotEmpty()) {
+    if (userAlreadyRegistered && !state.isRegistering && canLogin && email.isNotEmpty()) {
         existentUserToast.show()
     }
     if (state.isLoggedIn && canLogin) {
