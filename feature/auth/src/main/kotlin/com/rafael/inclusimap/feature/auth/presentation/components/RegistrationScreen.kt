@@ -315,7 +315,6 @@ fun RegistrationScreen(
                     }
                     if (userName.length < minNameLength) {
                         shortNameToast.show()
-                        return@Button
                     }
                     if (password != confirmPassword) {
                         differentPasswordToast.show()

@@ -135,7 +135,7 @@ class LoginViewModel(
                     return@launch
                 }
 
-            if (_state.value.userAlreadyRegistered) {
+            if (_state.value.userAlreadyRegistered || newUser.email.length < 3) {
                 return@launch
             }
 
