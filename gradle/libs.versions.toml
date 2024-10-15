@@ -10,7 +10,7 @@ agp = "8.7.1"
 kotlin = "2.1.0-Beta2"
 licensee = "1.11.0"
 ksp = "2.1.0-Beta1-1.0.25"
-spotless = "7.0.0.BETA2"
+spotless = "7.0.0.BETA3"
 
 accompanistPermissionsVersion = "0.36.0"
 googleApiClientVersion = "2.7.0"
