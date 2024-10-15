@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.MapType
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 import com.rafael.inclusimap.feature.map.domain.InclusiMapState
@@ -27,6 +28,8 @@ fun InclusiMapScaffold(
     settingsState: SettingsState,
     searchEvent: (SearchEvent) -> Unit,
     onMapTypeChange: (MapType) -> Unit,
+    onNavigateToSettings: () -> Unit,
+    onTravelToPlace: (LatLng) -> Unit,
     isFullScreenMode: Boolean = false,
     onFullScreenModeChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -60,6 +63,18 @@ fun InclusiMapScaffold(
                     onMapTypeChange = { onMapTypeChange(it) },
                     isFullScreenMode = isFullScreenMode,
                     onFullScreenModeChange = { onFullScreenModeChange(it) },
+                )
+            }
+        },
+        topBar = {
+            if (!isFullScreenMode) {
+                PlaceSearchLayout(
+                    state = state,
+                    searchState = searchState,
+                    onSearchEvent = searchEvent,
+                    settingsState = settingsState,
+                    onNavigateToSettings = onNavigateToSettings,
+                    onTravelToPlace = onTravelToPlace,
                 )
             }
         },

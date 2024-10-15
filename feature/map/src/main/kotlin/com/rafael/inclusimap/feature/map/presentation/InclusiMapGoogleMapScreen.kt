@@ -3,27 +3,8 @@ package com.rafael.inclusimap.feature.map.presentation
 import android.Manifest
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.twotone.ManageAccounts
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SearchBar
-import androidx.compose.material3.SearchBarDefaults
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -35,16 +16,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.traversalIndex
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
@@ -65,7 +38,6 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.rafael.inclusimap.core.domain.model.toCategoryName
 import com.rafael.inclusimap.core.domain.model.util.toHUE
 import com.rafael.inclusimap.core.domain.network.InternetConnectionState
-import com.rafael.inclusimap.core.resources.R
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 import com.rafael.inclusimap.feature.intro.domain.model.AppIntroState
 import com.rafael.inclusimap.feature.intro.presentation.dialogs.AppIntroDialog
@@ -80,7 +52,6 @@ import com.rafael.inclusimap.feature.map.presentation.dialog.PlacesNotUpdatedDia
 import com.rafael.inclusimap.feature.map.presentation.dialog.ServerUnavailableDialog
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchEvent
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchState
-import com.rafael.inclusimap.feature.map.search.presentation.PlaceSearchScreen
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
@@ -108,10 +79,10 @@ fun InclusiMapGoogleMapScreen(
     downloadUserProfilePicture: suspend (String) -> ImageBitmap?,
     modifier: Modifier = Modifier,
 ) {
+    val onPlaceTravelScope = rememberCoroutineScope()
     val cameraPositionState = rememberCameraPositionState()
     val bottomSheetScaffoldState = rememberModalBottomSheetState()
     val bottomSheetScope = rememberCoroutineScope()
-    val onPlaceTravelScope = rememberCoroutineScope()
     val addPlaceBottomSheetScaffoldState = rememberModalBottomSheetState()
     val addPlaceBottomSheetScope = rememberCoroutineScope()
     val locationPermission = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -122,9 +93,7 @@ fun InclusiMapGoogleMapScreen(
     val latestOnEvent by rememberUpdatedState(onEvent)
     val latestOnPlaceDetailsEvent by rememberUpdatedState(onPlaceDetailsEvent)
     val latestOnDismissAppIntro by rememberUpdatedState(onDismissAppIntro)
-    val latestSearchEvent by rememberUpdatedState(onSearchEvent)
     val latestNavigateToSettings by rememberUpdatedState(onNavigateToSettings)
-    val focusRequester = remember { FocusRequester() }
     val context = LocalContext.current
     val internetState = remember { InternetConnectionState(context) }
     val isInternetAvailable by internetState.state.collectAsStateWithLifecycle()
@@ -168,26 +137,6 @@ fun InclusiMapGoogleMapScreen(
         }
     }
 
-//    LaunchedEffect(state.isLocationPermissionGranted) {
-//        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-//            location?.let {
-//                latestOnEvent(
-//                    InclusiMapEvent.UpdateMapCameraPosition(
-//                        LatLng(it.latitude, it.longitude),
-//                        true,
-//                    ).also { pos ->
-//                        launch {
-//                            cameraPositionState.animate(
-//                                update = CameraUpdateFactory.newLatLngZoom(pos.latLng, 25f),
-//                                durationMs = 3500,
-//                            )
-//                        }
-//                    },
-//                )
-//            }
-//        }
-//    }
-
     InclusiMapScaffold(
         searchState = searchState,
         settingsState = settingsState,
@@ -200,124 +149,21 @@ fun InclusiMapGoogleMapScreen(
         onFullScreenModeChange = {
             isFullScreenMode = it
         },
-    ) {
-        if (!isFullScreenMode) {
-            SearchBar(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .statusBarsPadding()
-                    .displayCutoutPadding()
-                    .padding(horizontal = 12.dp)
-                    .clip(RoundedCornerShape(24.dp))
-                    .semantics { traversalIndex = -1f },
-                inputField = {
-                    SearchBarDefaults.InputField(
-                        modifier = Modifier.focusRequester(focusRequester),
-                        query = searchState.searchQuery,
-                        onQueryChange = {
-                            latestSearchEvent(SearchEvent.OnSearch(it, state.allMappedPlaces))
-                        },
-                        onSearch = {
-                            latestSearchEvent(SearchEvent.SetExpanded(false))
-                        },
-                        expanded = searchState.expanded,
-                        onExpandedChange = {
-                            latestSearchEvent(SearchEvent.SetExpanded(it))
-                        },
-                        placeholder = { Text("Pesquise um local aqui") },
-                        leadingIcon = {
-                            if (searchState.expanded) {
-                                IconButton(
-                                    onClick = {
-                                        latestSearchEvent(SearchEvent.SetExpanded(false))
-                                        latestSearchEvent(SearchEvent.OnSearch("", emptyList()))
-                                    },
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                        contentDescription = null,
-                                    )
-                                }
-                            } else {
-                                Image(
-                                    modifier = Modifier
-                                        .size(45.dp)
-                                        .clip(CircleShape),
-                                    painter = painterResource(id = R.drawable.ic_splash),
-                                    contentDescription = null,
-                                )
-                            }
-                        },
-                        trailingIcon = {
-                            if (searchState.searchQuery.isNotEmpty()) {
-                                IconButton(
-                                    onClick = {
-                                        latestSearchEvent(SearchEvent.OnSearch("", emptyList()))
-                                    },
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Close,
-                                        contentDescription = null,
-                                    )
-                                }
-                            }
-                            if (!searchState.expanded) {
-                                if (settingsState.profilePicture != null) {
-                                    Image(
-                                        modifier = Modifier
-                                            .size(40.dp)
-                                            .clip(CircleShape)
-                                            .clickable {
-                                                latestNavigateToSettings()
-                                            },
-                                        bitmap = settingsState.profilePicture!!,
-                                        contentDescription = null,
-                                        contentScale = ContentScale.Crop,
-                                    )
-                                } else {
-                                    IconButton(
-                                        onClick = {
-                                            latestNavigateToSettings()
-                                        },
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.TwoTone.ManageAccounts,
-                                            contentDescription = null,
-                                            modifier = Modifier
-                                                .size(35.dp),
-                                        )
-                                    }
-                                }
-                            }
-                        },
-                    )
-                },
-                expanded = searchState.expanded,
-                onExpandedChange = { latestSearchEvent(SearchEvent.SetExpanded(it)) },
-                colors = SearchBarDefaults.colors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    dividerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
-                ),
-            ) {
-                PlaceSearchScreen(
-                    matchingPlaces = searchState.matchingPlaces,
-                    query = searchState.searchQuery,
-                    onPlaceClick = {
-                        latestSearchEvent(SearchEvent.SetExpanded(false))
-                        latestSearchEvent(SearchEvent.OnSearch("", emptyList()))
-                        onPlaceTravelScope.launch {
-                            cameraPositionState.animate(
-                                CameraUpdateFactory.newLatLngZoom(
-                                    it,
-                                    20f,
-                                ),
-                                2500,
-                            )
-                        }
-                    },
+        onNavigateToSettings = {
+            latestNavigateToSettings()
+        },
+        onTravelToPlace = {
+            onPlaceTravelScope.launch {
+                cameraPositionState.animate(
+                    CameraUpdateFactory.newLatLngZoom(
+                        it,
+                        20f,
+                    ),
+                    2500,
                 )
             }
         }
+    ) {
         GoogleMap(
             modifier = modifier
                 .fillMaxSize(),
@@ -353,7 +199,7 @@ fun InclusiMapGoogleMapScreen(
                 } else {
                     Toast.makeText(
                         context,
-                        "Não é possivel adicionar novos locais sem interne, verifique sua conexão",
+                        "Não é possivel adicionar novos locais sem internet, verifique sua conexão!",
                         Toast.LENGTH_SHORT,
                     ).show()
                 }
@@ -485,10 +331,6 @@ fun InclusiMapGoogleMapScreen(
                 latestOnEvent(InclusiMapEvent.UseAppWithoutInternet)
             },
         )
-    }
-
-    if (searchState.expanded) {
-        focusRequester.requestFocus()
     }
 
     LaunchedEffect(!isInternetAvailable) {
