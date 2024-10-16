@@ -2,6 +2,7 @@ package com.rafael.inclusimap.feature.map.presentation
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Search
@@ -13,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.MapType
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
@@ -80,7 +82,10 @@ fun InclusiMapScaffold(
         },
         bottomBar =  {
             if (!isFullScreenMode) {
-                NavigationBar {
+                NavigationBar(
+                    modifier = Modifier
+                        .height(90.dp)
+                ) {
                     items.forEach { item ->
                         NavigationBarItem(
                             selected = item.selected,
