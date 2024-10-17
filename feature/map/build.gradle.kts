@@ -16,6 +16,7 @@ dependencies {
     // AndroidX
     implementation(libs.google.accompanist.permissions)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.navigation)
     // Google Maps
     api(libs.maps.compose)
     implementation(libs.play.services.location)
@@ -29,6 +30,7 @@ dependencies {
 
     // Projects
     implementation(projects.core.domain)
+    implementation(projects.core.navigation)
     implementation(projects.core.resources)
     implementation(projects.core.services)
     implementation(projects.core.settings)

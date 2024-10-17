@@ -53,6 +53,7 @@ import com.rafael.inclusimap.feature.map.presentation.dialog.ServerUnavailableDi
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchEvent
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchState
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Suppress("ktlint:compose:modifier-not-used-at-root")
@@ -76,6 +77,9 @@ fun InclusiMapGoogleMapScreen(
     userEmail: String,
     onReport: (Report) -> Unit,
     reportState: ReportState,
+    lat: Double?,
+    lng: Double?,
+    placeID: String?,
     allowedShowUserProfilePicture: suspend (String) -> Boolean,
     downloadUserProfilePicture: suspend (String) -> ImageBitmap?,
     modifier: Modifier = Modifier,
@@ -350,5 +354,25 @@ fun InclusiMapGoogleMapScreen(
     DisposableEffect(locationPermission.status) {
         latestOnEvent(InclusiMapEvent.SetLocationPermissionGranted(locationPermission.status == PermissionStatus.Granted))
         onDispose { }
+    }
+
+    LaunchedEffect(lat) {
+        delay(1500)
+        latestOnEvent(InclusiMapEvent.SetIsContributionsScreen(false))
+        if (!state.isMapLoaded)  return@LaunchedEffect
+        if (lat != null && lng != null) {
+            onPlaceTravelScope.launch {
+                async {
+                    cameraPositionState.animate(
+                        CameraUpdateFactory.newLatLngZoom(
+                            LatLng(lat, lng),
+                            18f,
+                        ),
+                        3500,
+                    )
+                }.await()
+                latestOnPlaceDetailsEvent(PlaceDetailsEvent.SetCurrentPlaceById(placeID!!))
+            }
+        }
     }
 }

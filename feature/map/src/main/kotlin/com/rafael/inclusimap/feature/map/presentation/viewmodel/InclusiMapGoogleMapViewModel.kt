@@ -349,6 +349,9 @@ class InclusiMapGoogleMapViewModel(
                         )
                     }
             }
+        }.invokeOnCompletion {
+            _state.update { it.copy(allNonUserImagesContributionsLoaded = true) }
+            checkAllContributionsLoaded()
         }
     }
 
@@ -356,6 +359,7 @@ class InclusiMapGoogleMapViewModel(
         userEmail: String,
         contributions: List<Contribution>,
     ) {
+        _state.update { it.copy(allUserImagesContributionsLoaded = false) }
         viewModelScope.launch(Dispatchers.IO) {
             val options = BitmapFactory.Options()
             options.inSampleSize = 3

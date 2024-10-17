@@ -29,6 +29,7 @@ import com.rafael.inclusimap.feature.auth.presentation.viewmodel.LoginViewModel
 import com.rafael.inclusimap.feature.intro.presentation.viewmodel.AppIntroViewModel
 import com.rafael.inclusimap.feature.libraryinfo.presentation.LibraryScreen
 import com.rafael.inclusimap.feature.libraryinfo.presentation.viewmodel.LibraryViewModel
+import com.rafael.inclusimap.feature.map.di.mapModule
 import com.rafael.inclusimap.feature.map.domain.InclusiMapEvent
 import com.rafael.inclusimap.feature.map.presentation.ContributionsScreen
 import com.rafael.inclusimap.feature.map.presentation.InclusiMapGoogleMapScreen
@@ -40,6 +41,7 @@ import com.rafael.inclusimap.feature.settings.presentation.SettingsScreen
 import com.rafael.inclusimap.feature.settings.presentation.viewmodel.SettingsViewModel
 import org.koin.compose.KoinContext
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.context.unloadKoinModules
 import soup.compose.material.motion.animation.materialSharedAxisXIn
 import soup.compose.material.motion.animation.materialSharedAxisXOut
 import soup.compose.material.motion.animation.rememberSlideDistance
@@ -78,7 +80,7 @@ fun InclusiMapNavHost(
             ) { innerPadding ->
                 NavHost(
                     navController = navController,
-                    startDestination = if (!loginState.isLoggedIn) Destination.LoginScreen(false) else Destination.MapScreen,
+                    startDestination = if (!loginState.isLoggedIn) Destination.LoginScreen(false) else Destination.MapScreen(),
                     enterTransition = { materialSharedAxisXIn(!isRtl, slideDistance) },
                     exitTransition = { materialSharedAxisXOut(!isRtl, slideDistance) },
                     popEnterTransition = { materialSharedAxisXIn(isRtl, slideDistance) },
@@ -118,6 +120,7 @@ fun InclusiMapNavHost(
                         )
                     }
                     composable<Destination.MapScreen> {
+                        val args = it.toRoute<Destination.MapScreen>()
                         InclusiMapGoogleMapScreen(
                             mapState,
                             mapViewModel::onEvent,
@@ -147,6 +150,9 @@ fun InclusiMapNavHost(
                             reportState = reportState,
                             allowedShowUserProfilePicture = loginViewModel::allowedShowUserProfilePicture,
                             downloadUserProfilePicture = loginViewModel::downloadUserProfilePicture,
+                            lat = args.lat,
+                            lng = args.lng,
+                            placeID = args.id,
                         )
                     }
                     composable<Destination.SettingsScreen> {
@@ -169,6 +175,7 @@ fun InclusiMapNavHost(
                                 loginViewModel.onEvent(
                                     LoginEvent.OnLogout,
                                 )
+                                unloadKoinModules(mapModule)
                             },
                             onDeleteAccount = { keepContributions ->
                                 loginViewModel.onEvent(
@@ -205,15 +212,20 @@ fun InclusiMapNavHost(
                                     LoginEvent.OnAllowPictureOptedIn(it),
                                 )
                             },
-                            allowOtherUsersToSeeProfilePicture = loginState.user?.showProfilePictureOptedIn ?: false,
+                            allowOtherUsersToSeeProfilePicture = loginState.user?.showProfilePictureOptedIn
+                                ?: false,
                             isErrorUpdatingUserInfos = isErrorUpdatingUserInfos,
                             isSuccessfulUpdatingUserInfos = isSuccessfullUpdatingUserInfo,
                         )
                         LaunchedEffect(loginState.isLoggedIn) {
                             if (!loginState.isLoggedIn) {
                                 settingsViewModel.onEvent(SettingsEvent.ShowLogoutDialog(false))
-                                settingsViewModel.onEvent(SettingsEvent.ShowDeleteAccountDialog(false))
-                                navController.clearBackStack(Destination.MapScreen)
+                                settingsViewModel.onEvent(
+                                    SettingsEvent.ShowDeleteAccountDialog(
+                                        false,
+                                    ),
+                                )
+                                navController.clearBackStack(Destination.MapScreen())
                             }
                         }
                     }
@@ -243,6 +255,7 @@ fun InclusiMapNavHost(
                                 navController.popBackStack()
                                 mapViewModel.onEvent(InclusiMapEvent.SetIsContributionsScreen(false))
                             },
+                            navController = navController,
                         )
                     }
                 }
@@ -253,7 +266,7 @@ fun InclusiMapNavHost(
 
         LaunchedEffect(loginState.isLoggedIn, appIntroState.showAppIntro) {
             if (loginState.isLoggedIn && appIntroState.showAppIntro) {
-                navController.navigate(Destination.MapScreen)
+                navController.navigate(Destination.MapScreen())
             }
         }
 

@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed interface Destination {
     @Serializable
-    data object MapScreen : Destination
+    data class MapScreen(val lat: Double? = null, val lng: Double? = null, val id: String? = null) : Destination
 
     @Serializable
     data class LoginScreen(val isEditPasswordMode: Boolean = false) : Destination

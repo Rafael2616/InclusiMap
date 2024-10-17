@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -49,10 +50,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.rafael.inclusimap.core.domain.model.toCategoryName
 import com.rafael.inclusimap.core.domain.model.util.formatDate
 import com.rafael.inclusimap.core.domain.model.util.removeTime
 import com.rafael.inclusimap.core.domain.model.util.toColor
+import com.rafael.inclusimap.core.navigation.Destination
 import com.rafael.inclusimap.feature.map.domain.InclusiMapEvent
 import com.rafael.inclusimap.feature.map.domain.InclusiMapState
 
@@ -65,6 +68,7 @@ fun ContributionsScreen(
     userEmail: String,
     userName: String,
     userPicture: ImageBitmap?,
+    navController: NavController,
     modifier: Modifier = Modifier,
 ) {
     val latestOnEvent by rememberUpdatedState(onEvent)
@@ -85,12 +89,26 @@ fun ContributionsScreen(
     ) {
         CenterAlignedTopAppBar(
             title = {
-                Text(
-                    text = "Contribuições",
-                    fontSize = 26.sp,
-                    textAlign = TextAlign.Center,
-                )
+                Row(
+                    verticalAlignment = Alignment.Top,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.height(40.dp),
+                ) {
+                    Text(
+                        text = "Contribuições",
+                        fontSize = 26.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxHeight()
+                    )
+                    Text(
+                        text = "BETA",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
             },
+            expandedHeight = 60.dp,
             navigationIcon = {
                 IconButton(
                     onClick = onPopBackStack,
@@ -102,16 +120,6 @@ fun ContributionsScreen(
                 }
             },
         )
-        if (!state.allContributionsLoaded) {
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.Top,
-            ) {
-                CircularProgressIndicator(
-                    strokeCap = StrokeCap.Round,
-                )
-            }
-        }
         if (state.userContributions.places.isEmpty() && state.userContributions.comments.isEmpty() && state.userContributions.images.isEmpty() && state.allContributionsLoaded) {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -154,7 +162,7 @@ fun ContributionsScreen(
                             .fillMaxWidth()
                             .animateItem()
                             .animateContentSize()
-                            .height(((state.userContributions.places.size.coerceAtLeast(2) / 2) * 140).dp),
+                            .height(((state.userContributions.places.size.coerceAtLeast(2) / 2) * 130).dp),
                         horizontalArrangement = Arrangement.Center,
                         userScrollEnabled = false,
                     ) {
@@ -166,7 +174,7 @@ fun ContributionsScreen(
                                     modifier = Modifier
                                         .padding(vertical = 6.dp)
                                         .padding(end = if (index == 0 || index % 2 == 0) 8.dp else 0.dp)
-                                        .height(130.dp)
+                                        .height(120.dp)
                                         .clip(MaterialTheme.shapes.medium)
                                         .background(
                                             MaterialTheme.colorScheme.surfaceColorAtElevation(
@@ -184,32 +192,49 @@ fun ContributionsScreen(
                                             text = place.title,
                                             fontSize = 16.sp,
                                             fontWeight = FontWeight.SemiBold,
-                                            maxLines = 2,
+                                            maxLines = 1,
                                             overflow = TextOverflow.Ellipsis,
                                         )
                                         Text(
-                                            text = place.category?.toCategoryName()?.uppercase() ?: "",
+                                            text = place.category?.toCategoryName()?.uppercase()
+                                                ?: "",
                                             fontSize = 14.sp,
                                             fontWeight = FontWeight.Normal,
                                             color = MaterialTheme.colorScheme.onSurface,
                                         )
-                                        Text(
-                                            text = "Adicionado em: ${
-                                                place.time.removeTime()?.formatDate() ?: "Unknown"
-                                            }",
-                                            fontSize = 12.sp,
-                                            fontWeight = FontWeight.Normal,
-                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                                        )
                                         Row(
-                                            horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End),
+                                            horizontalArrangement = Arrangement.spacedBy(
+                                                4.dp,
+                                                Alignment.Start,
+                                            ),
                                             verticalAlignment = Alignment.CenterVertically,
                                             modifier = Modifier.fillMaxWidth(),
                                         ) {
+                                            Text(
+                                                text = "Adicionado em:\n${
+                                                    place.time.removeTime()
+                                                        ?.formatDate() ?: "Unknown"
+                                                }",
+                                                fontSize = 12.sp,
+                                                fontWeight = FontWeight.Normal,
+                                                color = MaterialTheme.colorScheme.onSurface.copy(
+                                                    alpha = 0.8f,
+                                                ),
+                                            )
+                                            Spacer(modifier = Modifier.weight(1f))
                                             IconButton(
                                                 onClick = {
+                                                    navController.popBackStack()
+                                                    navController.navigate(
+                                                        Destination.MapScreen(
+                                                            place.position.first,
+                                                            place.position.second,
+                                                            place.id ?: return@IconButton,
+                                                        ),
+                                                    )
                                                 },
-                                                modifier = Modifier.size(35.dp),
+                                                modifier = Modifier
+                                                    .size(35.dp),
                                             ) {
                                                 Icon(
                                                     imageVector = Icons.Outlined.ArrowOutward,
@@ -246,7 +271,6 @@ fun ContributionsScreen(
                             .clip(MaterialTheme.shapes.medium)
                             .background(MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp))
                             .padding(12.dp),
-
                     ) {
                         Column(
                             modifier = Modifier.fillMaxWidth(),
@@ -296,7 +320,7 @@ fun ContributionsScreen(
                                                 .toColor(),
                                         ),
 
-                                )
+                                    )
                             }
                             Text(
                                 text = comment.body,
@@ -335,6 +359,7 @@ fun ContributionsScreen(
                                 text = "Local: " + image.place.title,
                                 overflow = TextOverflow.Ellipsis,
                                 maxLines = 1,
+                                modifier = Modifier.fillMaxWidth(0.6f),
                             )
                             Text(
                                 text = "Postada em: " + image.place.time.removeTime()?.formatDate(),
@@ -352,6 +377,21 @@ fun ContributionsScreen(
                                 .height(100.dp)
                                 .aspectRatio(image.placeImage.image.width / image.placeImage.image.height.toFloat())
                                 .clip(RoundedCornerShape(8.dp)),
+                        )
+                    }
+                }
+            }
+            if (!state.allContributionsLoaded) {
+                item {
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.Top,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .animateItem(),
+                    ) {
+                        CircularProgressIndicator(
+                            strokeCap = StrokeCap.Round,
                         )
                     }
                 }

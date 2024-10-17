@@ -152,13 +152,23 @@ class LoginViewModel(
                 }
             }.await()
 
-            val json = Json { ignoreUnknownKeys = true }
+            val json = Json {
+                ignoreUnknownKeys = true
+                prettyPrint = true
+            }
             async {
                 driveService.uploadFile(
                     json.encodeToString(user).byteInputStream(),
                     "${newUser.email}.json",
                     _state.value.userPathID
                         ?: throw IllegalStateException("Folder not found: Maybe an issue has occurred while creating the folder"),
+                )
+            }.await()
+            async {
+                driveService.createFile(
+                    "contributions.json",
+                    "[]",
+                    state.value.userPathID
                 )
             }.await()
             // Artificial Delay

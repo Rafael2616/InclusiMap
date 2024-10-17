@@ -70,6 +70,7 @@ class PlaceDetailsViewModel(
             is PlaceDetailsEvent.SetIsUserCommented -> _state.update { it.copy(isUserCommented = event.isCommented) }
             PlaceDetailsEvent.OnDeleteComment -> onDeleteComment()
             is PlaceDetailsEvent.SetIsEditingPlace -> _state.update { it.copy(isEditingPlace = event.isEditing) }
+            is PlaceDetailsEvent.SetCurrentPlaceById -> setCurrentPlaceById(event.placeId)
         }
     }
 
@@ -107,6 +108,11 @@ class PlaceDetailsViewModel(
             }
         }
         loadUserComment(place)
+    }
+
+    private fun setCurrentPlaceById(placeId: String) {
+        val place = state.value.loadedPlaces.find { it.id == placeId }?.toAccessibleLocalMarker()
+        setCurrentPlace(place ?: return)
     }
 
     private fun loadUserComment(place: AccessibleLocalMarker) {
