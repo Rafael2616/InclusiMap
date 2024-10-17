@@ -16,7 +16,7 @@ val authModule = module {
             AuthDatabase::class.java,
             AuthDatabase.DATABASE_NAME,
         )
-            .addMigrations(Migrations.migration1To2)
+            .addMigrations(Migrations.migration1To2, Migrations.migration2To3)
             .fallbackToDestructiveMigration(true)
             .build()
     }

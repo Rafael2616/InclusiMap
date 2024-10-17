@@ -1,27 +1,44 @@
 package com.rafael.inclusimap.feature.map.presentation.viewmodel
 
+import android.graphics.BitmapFactory
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
+import com.rafael.inclusimap.core.domain.model.PlaceImage
+import com.rafael.inclusimap.core.domain.model.util.extractPlaceID
+import com.rafael.inclusimap.core.domain.network.onError
+import com.rafael.inclusimap.core.domain.network.onSuccess
+import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID
+import com.rafael.inclusimap.core.services.GoogleDriveService
+import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
 import com.rafael.inclusimap.feature.map.domain.AccessibleLocalsEntity
+import com.rafael.inclusimap.feature.map.domain.Contribution
+import com.rafael.inclusimap.feature.map.domain.ContributionType
 import com.rafael.inclusimap.feature.map.domain.InclusiMapEntity
 import com.rafael.inclusimap.feature.map.domain.InclusiMapEvent
 import com.rafael.inclusimap.feature.map.domain.InclusiMapState
+import com.rafael.inclusimap.feature.map.domain.PlaceImageWithPlace
 import com.rafael.inclusimap.feature.map.domain.repository.AccessibleLocalsRepository
 import com.rafael.inclusimap.feature.map.domain.repository.InclusiMapRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class InclusiMapGoogleMapViewModel(
     private val accessibleLocalsRepository: AccessibleLocalsRepository,
     private val inclusiMapRepository: InclusiMapRepository,
+    private val driveService: GoogleDriveService,
+    private val loginRepository: LoginRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(InclusiMapState())
     val state = _state.asStateFlow()
@@ -29,9 +46,13 @@ class InclusiMapGoogleMapViewModel(
         ignoreUnknownKeys = true
         prettyPrint = true
     }
+    private var userEmail: MutableStateFlow<String?> = MutableStateFlow(null)
 
     init {
         loadCachedPlaces()
+        viewModelScope.launch(Dispatchers.IO) {
+            userEmail.update { loginRepository.getLoginInfo(1)?.userEmail }
+        }
     }
 
     fun onEvent(event: InclusiMapEvent) {
@@ -56,6 +77,12 @@ class InclusiMapGoogleMapViewModel(
             is InclusiMapEvent.UpdateMapState -> updateMapState(event.mapState)
             InclusiMapEvent.GetCurrentState -> getCurrentState()
             InclusiMapEvent.ResetState -> onResetState()
+            is InclusiMapEvent.LoadUserContributions -> loadUserContributions(event.userEmail)
+            is InclusiMapEvent.SetIsContributionsScreen -> _state.update {
+                it.copy(
+                    isContributionsScreen = event.isContributionsScreen,
+                )
+            }
         }
     }
 
@@ -202,6 +229,22 @@ class InclusiMapGoogleMapViewModel(
                     locals = json.encodeToString<List<AccessibleLocalMarker>>(state.value.allMappedPlaces),
                 ),
             )
+        }.invokeOnCompletion {
+            viewModelScope.launch(Dispatchers.IO) {
+                driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID).onSuccess {
+                    it.find { it.name.extractPlaceID() == newPlace.id }?.also { placeFile ->
+                        addNewContribution(
+                            Contribution(
+                                fileId = placeFile.id,
+                                type = ContributionType.PLACE,
+                            ),
+                        )
+                    }
+                    println("Founded place in server")
+                }.onError {
+                    println("Place not in server yet")
+                }
+            }
         }
     }
 
@@ -249,6 +292,217 @@ class InclusiMapGoogleMapViewModel(
                     locals = json.encodeToString<List<AccessibleLocalMarker>>(state.value.allMappedPlaces),
                 ),
             )
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID).onSuccess {
+                it.find { it.name.extractPlaceID() == placeID }?.also { contributionsFile ->
+                    removeContribution(
+                        Contribution(
+                            fileId = contributionsFile.id,
+                            type = ContributionType.PLACE,
+                        ),
+                    )
+                }
+            }
+        }
+    }
+
+    private fun loadUserContributions(userEmail: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val userPathId = loginRepository.getLoginInfo(1)?.userPathID ?: return@launch
+            driveService.listFiles(userPathId).onSuccess { userFiles ->
+                userFiles.find { it.name == "contributions.json" }
+                    ?.also { contributionsFile ->
+                        val userContributionsString =
+                            driveService.getFileContent(contributionsFile.id)
+                                ?.decodeToString()
+                        val userContributions = json.decodeFromString<List<Contribution>>(
+                            userContributionsString ?: return@launch,
+                        )
+
+                        userContributions.forEachIndexed { index, contribution ->
+                            when (contribution.type) {
+                                ContributionType.COMMENT -> {
+                                    driveService.getFileContent(contribution.fileId)
+                                        ?.also { content ->
+                                            loadCommentContributions(content)
+                                        }
+                                }
+
+                                ContributionType.PLACE -> {
+                                    driveService.getFileContent(contribution.fileId)
+                                        ?.also { content ->
+                                            loadPlaceContributions(content)
+                                        }
+                                }
+
+                                else -> {}
+                            }
+                            if (index == userContributions.lastIndex) {
+                                _state.update { it.copy(allNonUserImagesContributionsLoaded = true) }
+                                checkAllContributionsLoaded()
+                            }
+                        }
+                        loadImageContributions(
+                            userEmail,
+                            userContributions,
+                        )
+                    }
+            }
+        }
+    }
+
+    private fun loadImageContributions(
+        userEmail: String,
+        contributions: List<Contribution>,
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val options = BitmapFactory.Options()
+            options.inSampleSize = 3
+            contributions.map { contribution ->
+                async {
+                    if (contribution.type != ContributionType.IMAGE) return@async
+                    val placeID = driveService.getFileMetadata(
+                        contribution.fileId,
+                    )?.name?.extractPlaceID()
+
+                    driveService.getFileContent(contribution.fileId)
+                        ?.let { content ->
+                            BitmapFactory.decodeByteArray(
+                                content,
+                                0,
+                                content.size,
+                                options,
+                            )?.asImageBitmap()?.let { img ->
+                                _state.update {
+                                    it.copy(
+                                        userContributions = it.userContributions.copy(
+                                            images = it.userContributions.images + PlaceImageWithPlace(
+                                                placeImage = PlaceImage(
+                                                    image = img,
+                                                    userEmail = userEmail,
+                                                    placeID = placeID ?: return@async,
+                                                    name = "",
+                                                ),
+                                                place = loadPlaceById(placeID)
+                                                    ?: return@async,
+                                            ),
+                                        ),
+                                    )
+                                }
+                            }
+                        }
+                }
+            }.awaitAll()
+        }.invokeOnCompletion {
+            _state.update { it.copy(allUserImagesContributionsLoaded = true) }
+            checkAllContributionsLoaded()
+        }
+    }
+
+    private fun loadCommentContributions(
+        content: ByteArray,
+    ) {
+        val place =
+            json.decodeFromString<AccessibleLocalMarker>(content.decodeToString())
+
+        _state.update {
+            it.copy(
+                userContributions = it.userContributions.copy(
+                    comments = it.userContributions.comments + place.comments,
+                ),
+            )
+        }
+    }
+
+    private fun loadPlaceContributions(
+        content: ByteArray,
+    ) {
+        val place =
+            json.decodeFromString<AccessibleLocalMarker>(
+                content.decodeToString(),
+            )
+        _state.update {
+            it.copy(
+                userContributions = it.userContributions.copy(
+                    places = it.userContributions.places + place,
+                ),
+            )
+        }
+    }
+
+    private suspend fun loadPlaceById(placeID: String): AccessibleLocalMarker? {
+        var place: AccessibleLocalMarker? = null
+        return withContext(Dispatchers.IO) {
+            driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID).onSuccess {
+                val placeFileID =
+                    it.find { it.name.extractPlaceID() == placeID }?.id ?: return@withContext null
+                driveService.getFileContent(placeFileID)?.let { content ->
+                    place = json.decodeFromString<AccessibleLocalMarker>(content.decodeToString())
+                }
+            }
+            place
+        }
+    }
+
+    private fun addNewContribution(contribution: Contribution) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val userPathId = loginRepository.getLoginInfo(1)?.userPathID ?: return@launch
+
+            driveService.listFiles(userPathId).onSuccess { userFiles ->
+                userFiles.find { it.name == "contributions.json" }
+                    ?.also { contributionsFile ->
+                        val contributions =
+                            driveService.getFileContent(contributionsFile.id)
+                        val file = json.decodeFromString<List<Contribution>>(
+                            contributions?.decodeToString() ?: return@launch,
+                        )
+                        val updatedContributions = file + contribution
+                        val updatedContributionsString =
+                            json.encodeToString(updatedContributions)
+                        driveService.updateFile(
+                            contributionsFile.id,
+                            "contributions.json",
+                            updatedContributionsString.byteInputStream(),
+                        )
+                        println("Contribution added successfully" + contribution.fileId)
+                    }
+            }
+        }
+    }
+
+    private fun removeContribution(contribution: Contribution) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val userPathId = loginRepository.getLoginInfo(1)?.userPathID ?: return@launch
+
+            driveService.listFiles(userPathId).onSuccess { userFiles ->
+                userFiles.find { it.name == "contributions.json" }
+                    ?.also { contributionsFile ->
+                        val contributions =
+                            driveService.getFileContent(contributionsFile.id)
+                        val file = json.decodeFromString<List<Contribution>>(
+                            contributions?.decodeToString() ?: return@launch,
+                        )
+                        val updatedContributions =
+                            file.filter { it.fileId != contribution.fileId }
+                        val updatedContributionsString =
+                            json.encodeToString(updatedContributions)
+                        driveService.updateFile(
+                            contributionsFile.id,
+                            "contributions.json",
+                            updatedContributionsString.byteInputStream(),
+                        )
+                        println("Contribution removed successfully" + contribution.fileId)
+                    }
+            }
+        }
+    }
+
+    private fun checkAllContributionsLoaded() {
+        if (_state.value.allNonUserImagesContributionsLoaded && _state.value.allUserImagesContributionsLoaded) {
+            _state.update {
+                it.copy(allContributionsLoaded = true)
+            }
         }
     }
 }

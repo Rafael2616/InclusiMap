@@ -280,7 +280,8 @@ fun AddEditPlaceBottomSheet(
                 Toast.makeText(
                     context,
                     "Excluindo local...",
-                    Toast.LENGTH_SHORT).show()
+                    Toast.LENGTH_SHORT,
+                ).show()
                 onDeletePlace(placeDetailsState.currentPlace.id!!)
                 showDeleteConfirmationDialog = false
                 onDismiss()

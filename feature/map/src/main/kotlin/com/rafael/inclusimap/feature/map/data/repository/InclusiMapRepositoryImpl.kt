@@ -5,11 +5,9 @@ import com.rafael.inclusimap.feature.map.domain.InclusiMapEntity
 import com.rafael.inclusimap.feature.map.domain.repository.InclusiMapRepository
 
 class InclusiMapRepositoryImpl(
-    private val inclusiMapDao: InclusiMapDao
-): InclusiMapRepository {
-    override suspend fun getPosition(id: Int): InclusiMapEntity? {
-        return inclusiMapDao.getPosition(id)
-    }
+    private val inclusiMapDao: InclusiMapDao,
+) : InclusiMapRepository {
+    override suspend fun getPosition(id: Int): InclusiMapEntity? = inclusiMapDao.getPosition(id)
     override suspend fun updatePosition(position: InclusiMapEntity) {
         inclusiMapDao.updatePosition(position)
     }

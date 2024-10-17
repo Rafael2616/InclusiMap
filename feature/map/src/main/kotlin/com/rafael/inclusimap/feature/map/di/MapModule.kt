@@ -24,13 +24,21 @@ val mapModule = module {
             .build()
     }
     single {
-        AccessibleLocalsRepositoryImpl(get<GoogleDriveService>(), get<MapDatabase>().accessibleLocalsDao())
+        AccessibleLocalsRepositoryImpl(
+            get<GoogleDriveService>(),
+            get<MapDatabase>().accessibleLocalsDao(),
+        )
     }
     single {
         InclusiMapRepositoryImpl(get<MapDatabase>().inclusiMapDao())
     }
     viewModel {
-        InclusiMapGoogleMapViewModel(get<AccessibleLocalsRepositoryImpl>(), get<InclusiMapRepositoryImpl>())
+        InclusiMapGoogleMapViewModel(
+            get<AccessibleLocalsRepositoryImpl>(),
+            get<InclusiMapRepositoryImpl>(),
+            get<GoogleDriveService>(),
+            get<LoginRepositoryImpl>(),
+        )
     }
     viewModel {
         PlaceDetailsViewModel(get(), get<LoginRepositoryImpl>())

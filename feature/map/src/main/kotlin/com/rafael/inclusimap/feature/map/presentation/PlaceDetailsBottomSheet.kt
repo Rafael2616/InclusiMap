@@ -131,6 +131,8 @@ fun PlaceDetailsBottomSheet(
 ) {
     val latestEvent by rememberUpdatedState(onEvent)
     val latestUpdateMappedPlace by rememberUpdatedState(onUpdateMappedPlace)
+    val latestAllowedShowUserProfilePicture by rememberUpdatedState(allowedShowUserProfilePicture)
+    val latestDownloadUserProfilePicture by rememberUpdatedState(downloadUserProfilePicture)
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val focusRequester = remember { FocusRequester() }
@@ -186,7 +188,6 @@ fun PlaceDetailsBottomSheet(
     var showToast by remember { mutableStateOf(false) }
     val maxCommentLength by remember { mutableIntStateOf(300) }
     var showUnsavedCommentDialog by remember { mutableStateOf(false) }
-    var currentCommentLength by remember { mutableIntStateOf(0) }
 
     DisposableEffect(Unit) {
         latestEvent(PlaceDetailsEvent.SetCurrentPlace(currentPlace))
@@ -632,7 +633,7 @@ fun PlaceDetailsBottomSheet(
                                             imageVector = Icons.Outlined.Person,
                                             contentDescription = null,
                                             modifier = Modifier
-                                                .size(30.dp)
+                                                .size(30.dp),
                                         )
                                     }
                                     Spacer(Modifier.width(6.dp))
@@ -728,10 +729,10 @@ fun PlaceDetailsBottomSheet(
                                     }
                                     LaunchedEffect(Unit) {
                                         allowedShowUserPicture =
-                                            allowedShowUserProfilePicture(comment.email)
+                                            latestAllowedShowUserProfilePicture(comment.email)
                                     }
                                     LaunchedEffect(allowedShowUserPicture == true) {
-                                        userProfilePicture = downloadUserProfilePicture(comment.email)
+                                        userProfilePicture = latestDownloadUserProfilePicture(comment.email)
                                     }
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
@@ -751,7 +752,7 @@ fun PlaceDetailsBottomSheet(
                                                 imageVector = Icons.Outlined.Person,
                                                 contentDescription = null,
                                                 modifier = Modifier
-                                                    .size(30.dp)
+                                                    .size(30.dp),
                                             )
                                         }
                                         Spacer(Modifier.width(6.dp))

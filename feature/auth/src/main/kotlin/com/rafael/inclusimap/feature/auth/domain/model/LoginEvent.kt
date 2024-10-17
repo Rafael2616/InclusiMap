@@ -14,5 +14,4 @@ sealed interface LoginEvent {
     data class OnAddEditUserProfilePicture(val image: ImageBitmap) : LoginEvent
     data object OnRemoveUserProfilePicture : LoginEvent
     data class OnAllowPictureOptedIn(val value: Boolean) : LoginEvent
-
 }

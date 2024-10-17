@@ -183,7 +183,7 @@ fun PlaceInfoDialog(
                                     localMarker.position.second,
                                 ),
                             )
-                        }
+                        },
                 ) {
                     Text(
                         text = "Ver no Google Maps",

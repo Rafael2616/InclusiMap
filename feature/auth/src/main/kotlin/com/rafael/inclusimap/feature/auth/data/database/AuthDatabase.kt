@@ -10,7 +10,7 @@ import com.rafael.inclusimap.feature.auth.domain.model.LoginEntity
 
 @Database(
     entities = [LoginEntity::class],
-    version = 2,
+    version = 3,
     exportSchema = false,
 )
 abstract class AuthDatabase : RoomDatabase() {
@@ -25,13 +25,21 @@ internal class Migrations {
     companion object {
         val migration1To2 = object : Migration(1, 2) {
             override fun migrate(connection: SQLiteConnection) {
-                val addProfilePictureOptedIn=
+                val addProfilePictureOptedIn =
                     "ALTER TABLE 'login_db' ADD COLUMN 'showProfilePictureOptedIn' INTEGER NOT NULL DEFAULT '1'"
-                val addProfilePicture=
+                val addProfilePicture =
                     "ALTER TABLE 'login_db' ADD COLUMN 'profilePicture' BLOB DEFAULT null"
 
                 connection.execSQL(addProfilePictureOptedIn)
                 connection.execSQL(addProfilePicture)
+            }
+        }
+        val migration2To3 = object : Migration(2, 3) {
+            override fun migrate(connection: SQLiteConnection) {
+                val addUserPathID =
+                    "ALTER TABLE 'login_db' ADD COLUMN 'userPathID' TEXT DEFAULT 'null'"
+
+                connection.execSQL(addUserPathID)
             }
         }
     }

@@ -70,6 +70,7 @@ class LoginViewModel(
                                 picture.size,
                             )?.asImageBitmap()
                         },
+                        userPathID = loginData.userPathID,
                     )
                 }
             }
@@ -234,7 +235,7 @@ class LoginViewModel(
                     }.also { user ->
                         driveService.listFiles(user?.id ?: "").onSuccess { result ->
                             result.map { it }.find { userFile ->
-                                userFile.name.endsWith(".json")
+                                userFile.name == "${registeredUser.email}.json"
                             }.also { userLoginFile ->
 
                                 val userLoginFileContent = driveService.getFileContent(
@@ -664,11 +665,18 @@ class LoginViewModel(
                     }
                     val loginData = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
                     loginData.isLoggedIn = userExists != null
+                    loginData.userPathID = userExists?.id
                     if (userExists == null) {
                         loginData.userId = null
                         loginData.userName = null
                         loginData.userEmail = null
                         loginData.userPassword = null
+                        loginData.showProfilePictureOptedIn = true
+                        loginData.profilePicture = null
+                        loginData.userPathID = null
+                    } else {
+                        _state.update { it.copy(userPathID = userExists.id) }
+                        println("Working on user path: ${_state.value.userPathID}")
                     }
                     repository.updateLoginInfo(loginData)
                 }
@@ -710,7 +718,6 @@ class LoginViewModel(
                 }
             }
         }
-
 
     private fun addEditProfilePicture(image: ImageBitmap) {
         _state.update {

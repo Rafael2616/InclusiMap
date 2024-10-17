@@ -18,4 +18,7 @@ sealed interface Destination {
 
     @Serializable
     data object AboutScreen : Destination
+
+    @Serializable
+    data object ContributionsScreen : Destination
 }

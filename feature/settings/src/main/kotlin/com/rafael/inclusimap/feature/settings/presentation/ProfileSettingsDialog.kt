@@ -136,7 +136,7 @@ fun ProfileSettingsDialog(
                     textAlign = TextAlign.Start,
                     softWrap = true,
 
-                    )
+                )
                 profilePicture?.let { image ->
                     Image(
                         bitmap = image,
@@ -177,7 +177,7 @@ fun ProfileSettingsDialog(
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                 }
-                if (profilePicture != null)
+                if (profilePicture != null) {
                     IconButton(
                         onClick = {
                             profilePicture = null
@@ -194,6 +194,7 @@ fun ProfileSettingsDialog(
                             tint = MaterialTheme.colorScheme.error,
                         )
                     }
+                }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()

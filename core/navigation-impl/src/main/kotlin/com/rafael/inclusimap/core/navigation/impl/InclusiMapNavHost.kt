@@ -30,6 +30,7 @@ import com.rafael.inclusimap.feature.intro.presentation.viewmodel.AppIntroViewMo
 import com.rafael.inclusimap.feature.libraryinfo.presentation.LibraryScreen
 import com.rafael.inclusimap.feature.libraryinfo.presentation.viewmodel.LibraryViewModel
 import com.rafael.inclusimap.feature.map.domain.InclusiMapEvent
+import com.rafael.inclusimap.feature.map.presentation.ContributionsScreen
 import com.rafael.inclusimap.feature.map.presentation.InclusiMapGoogleMapScreen
 import com.rafael.inclusimap.feature.map.presentation.viewmodel.InclusiMapGoogleMapViewModel
 import com.rafael.inclusimap.feature.map.presentation.viewmodel.PlaceDetailsViewModel
@@ -137,6 +138,7 @@ fun InclusiMapNavHost(
                                 )
                             },
                             onNavigateToSettings = { navController.navigate(Destination.SettingsScreen) },
+                            onNavigateToContributions = { navController.navigate(Destination.ContributionsScreen) },
                             userName = loginState.user?.name ?: "",
                             userEmail = loginState.user?.email ?: "",
                             onReport = {
@@ -144,7 +146,7 @@ fun InclusiMapNavHost(
                             },
                             reportState = reportState,
                             allowedShowUserProfilePicture = loginViewModel::allowedShowUserProfilePicture,
-                            downloadUserProfilePicture = loginViewModel::downloadUserProfilePicture
+                            downloadUserProfilePicture = loginViewModel::downloadUserProfilePicture,
                         )
                     }
                     composable<Destination.SettingsScreen> {
@@ -230,6 +232,19 @@ fun InclusiMapNavHost(
                             },
                         )
                     }
+                    composable<Destination.ContributionsScreen> {
+                        ContributionsScreen(
+                            state = mapState,
+                            onEvent = mapViewModel::onEvent,
+                            userEmail = loginState.user?.email ?: "",
+                            userName = loginState.user?.name ?: "",
+                            userPicture = settingsState.profilePicture,
+                            onPopBackStack = {
+                                navController.popBackStack()
+                                mapViewModel.onEvent(InclusiMapEvent.SetIsContributionsScreen(false))
+                            },
+                        )
+                    }
                 }
             }
         }
@@ -244,9 +259,9 @@ fun InclusiMapNavHost(
 
         DisposableEffect(loginState.userProfilePicture) {
             settingsViewModel.onEvent(
-                SettingsEvent.OnAddEditProfilePicture(loginState.userProfilePicture)
+                SettingsEvent.OnAddEditProfilePicture(loginState.userProfilePicture),
             )
-            onDispose {  }
+            onDispose { }
         }
     }
 }

@@ -70,6 +70,7 @@ fun InclusiMapGoogleMapScreen(
     settingsState: SettingsState,
     fusedLocationClient: FusedLocationProviderClient,
     onNavigateToSettings: () -> Unit,
+    onNavigateToContributions: () -> Unit,
     onMapTypeChange: (MapType) -> Unit,
     userName: String,
     userEmail: String,
@@ -101,7 +102,7 @@ fun InclusiMapGoogleMapScreen(
     var firstTimeAnimation by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        onEvent(InclusiMapEvent.GetCurrentState)
+        latestOnEvent(InclusiMapEvent.GetCurrentState)
     }
 
     LaunchedEffect(state.shouldAnimateMap, firstTimeAnimation, state.currentLocation) {
@@ -126,14 +127,14 @@ fun InclusiMapGoogleMapScreen(
                 state.currentLocation?.bearing ?: 0f,
             )
             if (state.currentLocation != null) {
-                onEvent(InclusiMapEvent.ShouldAnimateMap(false))
+                latestOnEvent(InclusiMapEvent.ShouldAnimateMap(false))
             }
         }
     }
 
     LaunchedEffect(!cameraPositionState.isMoving) {
         if (!cameraPositionState.isMoving) {
-            onEvent(InclusiMapEvent.UpdateMapState(cameraPositionState.position))
+            latestOnEvent(InclusiMapEvent.UpdateMapState(cameraPositionState.position))
         }
     }
 
@@ -142,6 +143,7 @@ fun InclusiMapGoogleMapScreen(
         settingsState = settingsState,
         searchEvent = onSearchEvent,
         state = state,
+        onEvent = latestOnEvent,
         onMapTypeChange = {
             onMapTypeChange(it)
         },
@@ -162,7 +164,8 @@ fun InclusiMapGoogleMapScreen(
                     2500,
                 )
             }
-        }
+        },
+        onNavigateToContributions = onNavigateToContributions,
     ) {
         GoogleMap(
             modifier = modifier

@@ -20,6 +20,8 @@ import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_IMAGE_FOLDER_
 import com.rafael.inclusimap.core.domain.util.Constants.MAX_IMAGE_NUMBER
 import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
+import com.rafael.inclusimap.feature.map.domain.Contribution
+import com.rafael.inclusimap.feature.map.domain.ContributionType
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsState
 import java.io.ByteArrayInputStream
@@ -33,6 +35,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 class PlaceDetailsViewModel(
     private val driveService: GoogleDriveService,
@@ -43,6 +47,10 @@ class PlaceDetailsViewModel(
     val state = _state.asStateFlow()
     private var userName = ""
     private var userEmail = ""
+    private val json = Json {
+        prettyPrint = true
+        ignoreUnknownKeys = true
+    }
 
     fun onEvent(event: PlaceDetailsEvent) {
         when (event) {
@@ -110,8 +118,8 @@ class PlaceDetailsViewModel(
                 }
             }.await()
         }.invokeOnCompletion {
-            val userComment = state.value.loadedPlaces.find {
-                existingPlace -> existingPlace.id == place.id
+            val userComment = state.value.loadedPlaces.find { existingPlace ->
+                existingPlace.id == place.id
             }?.comments?.find { it.email == userEmail }
 
             _state.update {
@@ -394,6 +402,16 @@ class PlaceDetailsViewModel(
                 }
             }.awaitAll()
         }
+        viewModelScope.launch(Dispatchers.IO) {
+            addNewContribution(
+                Contribution(
+                    fileId = driveService.getFileMetadata(
+                        _state.value.currentPlace.id ?: return@launch,
+                    )?.id ?: return@launch,
+                    type = ContributionType.IMAGE,
+                ),
+            )
+        }
     }
 
     private fun onDeletePlaceImage(image: PlaceImage) {
@@ -426,6 +444,16 @@ class PlaceDetailsViewModel(
                 is Result.Error -> {
                 }
             }
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            removeContribution(
+                Contribution(
+                    fileId = driveService.getFileMetadata(
+                        _state.value.currentPlace.id ?: return@launch,
+                    )?.id ?: return@launch,
+                    type = ContributionType.IMAGE,
+                ),
+            )
         }
     }
 
@@ -471,6 +499,16 @@ class PlaceDetailsViewModel(
                 userCommentDate = Date().toInstant().toString(),
             )
         }
+        viewModelScope.launch(Dispatchers.IO) {
+            addNewContribution(
+                Contribution(
+                    fileId = driveService.getFileMetadata(
+                        _state.value.currentPlace.id ?: return@launch,
+                    )?.id ?: return@launch,
+                    type = ContributionType.COMMENT,
+                ),
+            )
+        }
     }
 
     private fun onDeleteComment() {
@@ -492,6 +530,16 @@ class PlaceDetailsViewModel(
                 },
             )
         }
+        viewModelScope.launch(Dispatchers.IO) {
+            removeContribution(
+                Contribution(
+                    fileId = driveService.getFileMetadata(
+                        _state.value.currentPlace.id ?: return@launch,
+                    )?.id ?: return@launch,
+                    type = ContributionType.COMMENT,
+                ),
+            )
+        }
     }
 
     private fun setUserAccessibilityRate(rate: Int) {
@@ -507,6 +555,58 @@ class PlaceDetailsViewModel(
                 trySendComment = false,
                 userComment = comment,
             )
+        }
+    }
+
+    private fun addNewContribution(contribution: Contribution) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val userPathId = loginRepository.getLoginInfo(1)?.userPathID ?: return@launch
+            driveService.listFiles(userPathId).onSuccess { userFiles ->
+                userFiles.find { it.name == "contributions.json" }
+                    ?.also { contributionsFile ->
+                        val contributions =
+                            driveService.getFileContent(contributionsFile.id)
+                        val file = json.decodeFromString<List<Contribution>>(
+                            contributions?.decodeToString() ?: return@launch,
+                        )
+                        if (file.any { it.fileId == contribution.fileId }) return@launch
+                        val updatedContributions = file + contribution
+                        val updatedContributionsString =
+                            json.encodeToString(updatedContributions)
+                        driveService.updateFile(
+                            contributionsFile.id,
+                            "contributions.json",
+                            updatedContributionsString.byteInputStream(),
+                        )
+                        println("Contribution added successfully" + contribution.fileId)
+                    }
+            }
+        }
+    }
+
+    private fun removeContribution(contribution: Contribution) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val userPathId = loginRepository.getLoginInfo(1)?.userPathID ?: return@launch
+            driveService.listFiles(userPathId).onSuccess { userFiles ->
+                userFiles.find { it.name == "contributions.json" }
+                    ?.also { contributionsFile ->
+                        val contributions =
+                            driveService.getFileContent(contributionsFile.id)
+                        val file = json.decodeFromString<List<Contribution>>(
+                            contributions?.decodeToString() ?: return@launch,
+                        )
+                        val updatedContributions =
+                            file.filter { it.fileId != contribution.fileId }
+                        val updatedContributionsString =
+                            json.encodeToString(updatedContributions)
+                        driveService.updateFile(
+                            contributionsFile.id,
+                            "contributions.json",
+                            updatedContributionsString.byteInputStream(),
+                        )
+                        println("Contribution removed successfully" + contribution.fileId)
+                    }
+            }
         }
     }
 }

@@ -12,8 +12,9 @@ data class LoginEntity(
     var userPassword: String?,
     var userEmail: String?,
     var userId: String?,
+    var userPathID: String?,
     var showProfilePictureOptedIn: Boolean,
-    var profilePicture: ByteArray? = null
+    var profilePicture: ByteArray? = null,
 ) {
     companion object {
         fun getDefault() = LoginEntity(
@@ -24,7 +25,8 @@ data class LoginEntity(
             userEmail = null,
             userId = null,
             showProfilePictureOptedIn = true,
-            profilePicture = null
+            profilePicture = null,
+            userPathID = null,
         )
     }
 }

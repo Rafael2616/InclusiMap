@@ -87,11 +87,11 @@ internal fun SettingsTopBar(
                             Icon(
                                 imageVector = Icons.Outlined.Person,
                                 contentDescription = "No profile picture",
-                                modifier = Modifier.size(30.dp)
+                                modifier = Modifier.size(30.dp),
                             )
                         }
                     }
-                }
+                },
             )
         },
     ) { innerPadding ->
