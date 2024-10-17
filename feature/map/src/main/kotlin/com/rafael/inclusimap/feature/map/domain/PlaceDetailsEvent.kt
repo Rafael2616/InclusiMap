@@ -10,7 +10,6 @@ sealed interface PlaceDetailsEvent {
     data class OnDeletePlaceImage(val image: PlaceImage) : PlaceDetailsEvent
     data object OnDestroyPlaceDetails : PlaceDetailsEvent
     data class SetCurrentPlace(val place: AccessibleLocalMarker) : PlaceDetailsEvent
-    data class SetCurrentPlaceById(val placeId: String) : PlaceDetailsEvent
     data class SetUserAccessibilityRate(val rate: Int) : PlaceDetailsEvent
     data object OnSendComment : PlaceDetailsEvent
     data object OnDeleteComment : PlaceDetailsEvent

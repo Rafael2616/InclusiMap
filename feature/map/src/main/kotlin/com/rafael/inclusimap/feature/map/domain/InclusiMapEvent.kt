@@ -20,6 +20,7 @@ sealed interface InclusiMapEvent {
     data class ShouldAnimateMap(val shouldAnimate: Boolean) : InclusiMapEvent
     data class UpdateMapState(val mapState: CameraPosition) : InclusiMapEvent
     data object GetCurrentState : InclusiMapEvent
+    data class SetCurrentPlaceById(val placeId: String) : InclusiMapEvent
     data object ResetState : InclusiMapEvent
     data class LoadUserContributions(val userEmail: String) : InclusiMapEvent
     data class SetIsContributionsScreen(val isContributionsScreen: Boolean) : InclusiMapEvent

@@ -83,6 +83,8 @@ class InclusiMapGoogleMapViewModel(
                     isContributionsScreen = event.isContributionsScreen,
                 )
             }
+
+            is InclusiMapEvent.SetCurrentPlaceById -> setPlaceById(event.placeId)
         }
     }
 
@@ -446,6 +448,14 @@ class InclusiMapGoogleMapViewModel(
                 }
             }
             place
+        }
+    }
+
+    private fun setPlaceById(placeID: String) {
+        _state.update {
+            it.copy(
+                selectedMappedPlace = it.allMappedPlaces.find { it.id == placeID },
+            )
         }
     }
 

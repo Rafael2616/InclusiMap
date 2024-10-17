@@ -35,7 +35,6 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.rafael.inclusimap.core.domain.model.toAccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.toCategoryName
 import com.rafael.inclusimap.core.domain.model.util.toHUE
 import com.rafael.inclusimap.core.domain.network.InternetConnectionState
@@ -359,8 +358,7 @@ fun InclusiMapGoogleMapScreen(
     LaunchedEffect(lat) {
         latestOnEvent(InclusiMapEvent.SetIsContributionsScreen(false))
         if (lat != null && lng != null) {
-            latestOnPlaceDetailsEvent(PlaceDetailsEvent.SetCurrentPlaceById(placeID!!))
-            latestOnEvent(InclusiMapEvent.OnMappedPlaceSelected(placeDetailsState.currentPlace.toAccessibleLocalMarker()))
+            latestOnEvent(InclusiMapEvent.SetCurrentPlaceById(placeID!!))
             onPlaceTravelScope.launch {
                 async {
                     cameraPositionState.animate(
