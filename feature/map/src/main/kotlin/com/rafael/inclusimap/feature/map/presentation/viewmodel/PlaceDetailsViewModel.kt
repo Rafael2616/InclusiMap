@@ -13,10 +13,12 @@ import com.rafael.inclusimap.core.domain.model.FullAccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.PlaceImage
 import com.rafael.inclusimap.core.domain.model.toAccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.toFullAccessibleLocalMarker
+import com.rafael.inclusimap.core.domain.model.util.extractPlaceID
 import com.rafael.inclusimap.core.domain.model.util.extractUserEmail
 import com.rafael.inclusimap.core.domain.network.Result
 import com.rafael.inclusimap.core.domain.network.onSuccess
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_IMAGE_FOLDER_ID
+import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID
 import com.rafael.inclusimap.core.domain.util.Constants.MAX_IMAGE_NUMBER
 import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
@@ -409,14 +411,18 @@ class PlaceDetailsViewModel(
             }.awaitAll()
         }
         viewModelScope.launch(Dispatchers.IO) {
-            addNewContribution(
-                Contribution(
-                    fileId = driveService.getFileMetadata(
-                        _state.value.currentPlace.id ?: return@launch,
-                    )?.id ?: return@launch,
-                    type = ContributionType.IMAGE,
-                ),
-            )
+            driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
+                .onSuccess { places ->
+                    places.find { it.name.extractPlaceID() == _state.value.currentPlace.id }
+                        .also { place ->
+                            addNewContribution(
+                                Contribution(
+                                    fileId = place?.id ?: return@launch,
+                                    type = ContributionType.IMAGE,
+                                ),
+                            )
+                        }
+                }
         }
     }
 
@@ -452,14 +458,18 @@ class PlaceDetailsViewModel(
             }
         }
         viewModelScope.launch(Dispatchers.IO) {
-            removeContribution(
-                Contribution(
-                    fileId = driveService.getFileMetadata(
-                        _state.value.currentPlace.id ?: return@launch,
-                    )?.id ?: return@launch,
-                    type = ContributionType.IMAGE,
-                ),
-            )
+            driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
+                .onSuccess { places ->
+                    places.find { it.name.extractPlaceID() == _state.value.currentPlace.id }
+                        .also { place ->
+                            removeContribution(
+                                Contribution(
+                                    fileId = place?.id ?: return@launch,
+                                    type = ContributionType.IMAGE,
+                                ),
+                            )
+                        }
+                }
         }
     }
 
@@ -506,14 +516,18 @@ class PlaceDetailsViewModel(
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
-            addNewContribution(
-                Contribution(
-                    fileId = driveService.getFileMetadata(
-                        _state.value.currentPlace.id ?: return@launch,
-                    )?.id ?: return@launch,
-                    type = ContributionType.COMMENT,
-                ),
-            )
+            driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
+                .onSuccess { places ->
+                    places.find { it.name.extractPlaceID() == _state.value.currentPlace.id }
+                        .also { place ->
+                            addNewContribution(
+                                Contribution(
+                                    fileId = place?.id ?: return@launch,
+                                    type = ContributionType.COMMENT,
+                                ),
+                            )
+                        }
+                }
         }
     }
 
@@ -537,14 +551,18 @@ class PlaceDetailsViewModel(
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
-            removeContribution(
-                Contribution(
-                    fileId = driveService.getFileMetadata(
-                        _state.value.currentPlace.id ?: return@launch,
-                    )?.id ?: return@launch,
-                    type = ContributionType.COMMENT,
-                ),
-            )
+            driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
+                .onSuccess { places ->
+                    places.find { it.name.extractPlaceID() == _state.value.currentPlace.id }
+                        .also { place ->
+                            removeContribution(
+                                Contribution(
+                                    fileId = place?.id ?: return@launch,
+                                    type = ContributionType.COMMENT,
+                                ),
+                            )
+                        }
+                }
         }
     }
 

@@ -357,7 +357,7 @@ fun ContributionsScreen(
                     ) {
                         Column {
                             Text(
-                                text = "Local: " + image.place.title,
+                                text = image.place.title,
                                 overflow = TextOverflow.Ellipsis,
                                 maxLines = 1,
                                 modifier = Modifier.fillMaxWidth(0.6f),

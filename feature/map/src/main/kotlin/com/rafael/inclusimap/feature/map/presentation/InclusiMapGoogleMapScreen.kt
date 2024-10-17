@@ -53,7 +53,6 @@ import com.rafael.inclusimap.feature.map.presentation.dialog.ServerUnavailableDi
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchEvent
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchState
 import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Suppress("ktlint:compose:modifier-not-used-at-root")
@@ -357,10 +356,9 @@ fun InclusiMapGoogleMapScreen(
     }
 
     LaunchedEffect(lat) {
-        delay(1500)
         latestOnEvent(InclusiMapEvent.SetIsContributionsScreen(false))
-        if (!state.isMapLoaded)  return@LaunchedEffect
         if (lat != null && lng != null) {
+            latestOnPlaceDetailsEvent(PlaceDetailsEvent.SetCurrentPlaceById(placeID!!))
             onPlaceTravelScope.launch {
                 async {
                     cameraPositionState.animate(
@@ -371,7 +369,7 @@ fun InclusiMapGoogleMapScreen(
                         3500,
                     )
                 }.await()
-                latestOnPlaceDetailsEvent(PlaceDetailsEvent.SetCurrentPlaceById(placeID!!))
+                bottomSheetScaffoldState.show()
             }
         }
     }
