@@ -461,6 +461,7 @@ class InclusiMapGoogleMapViewModel(
                         val file = json.decodeFromString<List<Contribution>>(
                             contributions?.decodeToString() ?: return@launch,
                         )
+                        if (file.any { it.fileId == contribution.fileId && it.type == contribution.type }) return@launch
                         val updatedContributions = file + contribution
                         val updatedContributionsString =
                             json.encodeToString(updatedContributions)
