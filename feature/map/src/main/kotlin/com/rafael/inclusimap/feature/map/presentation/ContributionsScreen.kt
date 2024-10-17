@@ -216,6 +216,7 @@ fun ContributionsScreen(
                                                         ?.formatDate() ?: "Unknown"
                                                 }",
                                                 fontSize = 12.sp,
+                                                lineHeight = 14.sp,
                                                 fontWeight = FontWeight.Normal,
                                                 color = MaterialTheme.colorScheme.onSurface.copy(
                                                     alpha = 0.8f,

@@ -243,7 +243,7 @@ class LoginViewModel(
                     result.map { it }.find { userFile ->
                         userFile.name.split(".json")[0] == registeredUser.email
                     }.also { user ->
-                        driveService.listFiles(user?.id ?: "").onSuccess { result ->
+                        driveService.listFiles(user?.id ?: return@async).onSuccess { result ->
                             result.map { it }.find { userFile ->
                                 userFile.name == "${registeredUser.email}.json"
                             }.also { userLoginFile ->
@@ -282,6 +282,7 @@ class LoginViewModel(
                                 loginData.userName = userObj.name
                                 loginData.userEmail = userObj.email
                                 loginData.userPassword = userObj.password
+                                loginData.userPathID = userLoginFile.id
                                 loginData.isLoggedIn = true
                                 loginData.showProfilePictureOptedIn =
                                     userObj.showProfilePictureOptedIn
