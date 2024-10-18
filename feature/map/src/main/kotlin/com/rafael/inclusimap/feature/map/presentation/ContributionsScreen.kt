@@ -221,7 +221,7 @@ fun ContributionsScreen(
                                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                                             modifier = Modifier
                                                 .padding(vertical = 6.dp)
-                                                .padding(end = if (index == 0 && state.userContributions.places.size != 1 || index % 2 == 0) 8.dp else 0.dp)
+                                                .padding(end = if (index % 2 == 0 && (index != 0 && state.userContributions.places.size != 1)) 8.dp else 0.dp)
                                                 .height(120.dp)
                                                 .clip(MaterialTheme.shapes.medium)
                                                 .background(
