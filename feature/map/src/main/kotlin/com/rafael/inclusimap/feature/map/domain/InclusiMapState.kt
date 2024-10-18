@@ -20,8 +20,8 @@ data class InclusiMapState(
     val failedToConnectToServer: Boolean = false,
     var useAppWithoutInternet: Boolean = false,
     val userContributions: Contributions = Contributions(),
-    var allNonUserImagesContributionsLoaded: Boolean = false,
-    val allUserImagesContributionsLoaded: Boolean = false,
+    var allCommentsContributionsLoaded: Boolean = false,
+    val allPlacesContributionsLoaded: Boolean = false,
+    val allImagesContributionsLoaded: Boolean = false,
     val isContributionsScreen: Boolean = false,
-    val allContributionsLoaded: Boolean = false,
 )

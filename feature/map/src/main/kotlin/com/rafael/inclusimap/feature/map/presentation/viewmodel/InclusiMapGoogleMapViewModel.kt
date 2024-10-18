@@ -322,38 +322,28 @@ class InclusiMapGoogleMapViewModel(
                             userContributionsString ?: return@launch,
                         )
 
-                        userContributions.forEachIndexed { index, contribution ->
-                            when (contribution.type) {
-                                ContributionType.COMMENT -> {
-                                    driveService.getFileContent(contribution.fileId)
-                                        ?.also { content ->
-                                            loadCommentContributions(content)
-                                        }
-                                }
-
-                                ContributionType.PLACE -> {
-                                    driveService.getFileContent(contribution.fileId)
-                                        ?.also { content ->
-                                            loadPlaceContributions(content)
-                                        }
-                                }
-
-                                else -> {}
-                            }
-                            if (index == userContributions.lastIndex) {
-                                _state.update { it.copy(allNonUserImagesContributionsLoaded = true) }
-                                checkAllContributionsLoaded()
-                            }
+                        if (!_state.value.allCommentsContributionsLoaded) {
+                            val commentsContributions =
+                                userContributions.filter { it.type == ContributionType.COMMENT }
+                            loadCommentContributions(commentsContributions)
                         }
-                        loadImageContributions(
-                            userEmail,
-                            userContributions,
-                        )
+
+                        if (!_state.value.allPlacesContributionsLoaded) {
+                            val placesContributions =
+                                userContributions.filter { it.type == ContributionType.PLACE }
+                            loadPlaceContributions(placesContributions)
+                        }
+
+                        if (!_state.value.allImagesContributionsLoaded) {
+                            val imageContributions =
+                                userContributions.filter { it.type == ContributionType.IMAGE }
+                            loadImageContributions(
+                                userEmail,
+                                imageContributions,
+                            )
+                        }
                     }
             }
-        }.invokeOnCompletion {
-            _state.update { it.copy(allNonUserImagesContributionsLoaded = true) }
-            checkAllContributionsLoaded()
         }
     }
 
@@ -361,17 +351,15 @@ class InclusiMapGoogleMapViewModel(
         userEmail: String,
         contributions: List<Contribution>,
     ) {
-        _state.update { it.copy(allUserImagesContributionsLoaded = false) }
+        _state.update { it.copy(allImagesContributionsLoaded = false) }
         viewModelScope.launch(Dispatchers.IO) {
             val options = BitmapFactory.Options()
             options.inSampleSize = 3
             contributions.map { contribution ->
                 async {
-                    if (contribution.type != ContributionType.IMAGE) return@async
                     val placeID = driveService.getFileMetadata(
                         contribution.fileId,
                     )?.name?.extractPlaceID()
-
                     driveService.getFileContent(contribution.fileId)
                         ?.let { content ->
                             BitmapFactory.decodeByteArray(
@@ -380,6 +368,7 @@ class InclusiMapGoogleMapViewModel(
                                 content.size,
                                 options,
                             )?.asImageBitmap()?.let { img ->
+                                if (img in state.value.userContributions.images.map { it.placeImage.image }) return@async
                                 _state.update {
                                     it.copy(
                                         userContributions = it.userContributions.copy(
@@ -401,52 +390,79 @@ class InclusiMapGoogleMapViewModel(
                 }
             }.awaitAll()
         }.invokeOnCompletion {
-            _state.update { it.copy(allUserImagesContributionsLoaded = true) }
-            checkAllContributionsLoaded()
+            _state.update { it.copy(allImagesContributionsLoaded = true) }
         }
     }
 
     private fun loadCommentContributions(
-        content: ByteArray,
+        contributions: List<Contribution>,
     ) {
-        val place =
-            json.decodeFromString<AccessibleLocalMarker>(content.decodeToString())
+        _state.update { it.copy(allCommentsContributionsLoaded = false) }
+        viewModelScope.launch(Dispatchers.IO) {
+            contributions.map { contribution ->
+                async {
+                    driveService.getFileContent(contribution.fileId)
+                        ?.also { content ->
+                            val place =
+                                json.decodeFromString<AccessibleLocalMarker>(content.decodeToString())
 
-        _state.update {
-            it.copy(
-                userContributions = it.userContributions.copy(
-                    comments = it.userContributions.comments + place.comments,
-                ),
-            )
+                            _state.update {
+                                it.copy(
+                                    userContributions = it.userContributions.copy(
+                                        comments = it.userContributions.comments + place.comments.filterNot { it in state.value.userContributions.comments },
+                                    ),
+                                )
+                            }
+                        }
+                }
+            }.awaitAll()
+        }.invokeOnCompletion {
+            _state.update { it.copy(allCommentsContributionsLoaded = true) }
         }
     }
 
     private fun loadPlaceContributions(
-        content: ByteArray,
+        contributions: List<Contribution>,
     ) {
-        val place =
-            json.decodeFromString<AccessibleLocalMarker>(
-                content.decodeToString(),
-            )
-        _state.update {
-            it.copy(
-                userContributions = it.userContributions.copy(
-                    places = it.userContributions.places + place,
-                ),
-            )
+        _state.update { it.copy(allPlacesContributionsLoaded = false) }
+        viewModelScope.launch(Dispatchers.IO) {
+            contributions.map { contribution ->
+                async {
+                    driveService.getFileContent(contribution.fileId)
+                        ?.also { content ->
+                            val place =
+                                json.decodeFromString<AccessibleLocalMarker>(
+                                    content.decodeToString(),
+                                )
+                            if (place.id in state.value.userContributions.places.map { it.id }) return@async
+                            _state.update {
+                                it.copy(
+                                    userContributions = it.userContributions.copy(
+                                        places = it.userContributions.places + place,
+                                    ),
+                                )
+                            }
+                        }
+                }
+            }
+        }.invokeOnCompletion {
+            _state.update { it.copy(allPlacesContributionsLoaded = true) }
         }
     }
 
     private suspend fun loadPlaceById(placeID: String): AccessibleLocalMarker? {
         var place: AccessibleLocalMarker? = null
         return withContext(Dispatchers.IO) {
-            driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID).onSuccess {
-                val placeFileID =
-                    it.find { it.name.extractPlaceID() == placeID }?.id ?: return@withContext null
-                driveService.getFileContent(placeFileID)?.let { content ->
-                    place = json.decodeFromString<AccessibleLocalMarker>(content.decodeToString())
+            driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
+                .onSuccess {
+                    val placeFileID =
+                        it.find { it.name.extractPlaceID() == placeID }?.id
+                            ?: return@withContext null
+                    driveService.getFileContent(placeFileID)?.let { content ->
+                        place =
+                            json.decodeFromString<AccessibleLocalMarker>(content.decodeToString())
+                    }
                 }
-            }
             place
         }
     }
@@ -461,7 +477,8 @@ class InclusiMapGoogleMapViewModel(
 
     private fun addNewContribution(contribution: Contribution) {
         viewModelScope.launch(Dispatchers.IO) {
-            val userPathId = loginRepository.getLoginInfo(1)?.userPathID ?: return@launch
+            val userPathId =
+                loginRepository.getLoginInfo(1)?.userPathID ?: return@launch
 
             driveService.listFiles(userPathId).onSuccess { userFiles ->
                 userFiles.find { it.name == "contributions.json" }
@@ -488,7 +505,8 @@ class InclusiMapGoogleMapViewModel(
 
     private fun removeContribution(contribution: Contribution) {
         viewModelScope.launch(Dispatchers.IO) {
-            val userPathId = loginRepository.getLoginInfo(1)?.userPathID ?: return@launch
+            val userPathId =
+                loginRepository.getLoginInfo(1)?.userPathID ?: return@launch
 
             driveService.listFiles(userPathId).onSuccess { userFiles ->
                 userFiles.find { it.name == "contributions.json" }
@@ -509,14 +527,6 @@ class InclusiMapGoogleMapViewModel(
                         )
                         println("Contribution removed successfully" + contribution.fileId)
                     }
-            }
-        }
-    }
-
-    private fun checkAllContributionsLoaded() {
-        if (_state.value.allNonUserImagesContributionsLoaded && _state.value.allUserImagesContributionsLoaded) {
-            _state.update {
-                it.copy(allContributionsLoaded = true)
             }
         }
     }

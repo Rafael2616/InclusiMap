@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
@@ -84,26 +85,28 @@ fun ContributionsScreen(
     val latestOnEvent by rememberUpdatedState(onEvent)
 
     LaunchedEffect(Unit) {
-        if (!state.allContributionsLoaded) {
-            latestOnEvent(InclusiMapEvent.LoadUserContributions(userEmail))
-        }
+        latestOnEvent(InclusiMapEvent.LoadUserContributions(userEmail))
     }
+
     var selectedButton by remember { mutableStateOf(ContributionType.PLACE) }
     val buttons = listOf(
         ContributionItem(
             icon = Icons.Outlined.Place,
             name = "Perfil",
             type = ContributionType.PLACE,
+            quantity = state.userContributions.places.size,
         ),
         ContributionItem(
             icon = Icons.AutoMirrored.Outlined.Comment,
             name = "Comentários",
             type = ContributionType.COMMENT,
+            quantity = state.userContributions.comments.size,
         ),
         ContributionItem(
             icon = Icons.Outlined.Image,
             name = "Locais",
             type = ContributionType.IMAGE,
+            quantity = state.userContributions.images.size,
         ),
     )
 
@@ -126,7 +129,7 @@ fun ContributionsScreen(
                         text = "Contribuições",
                         fontSize = 26.sp,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxHeight()
+                        modifier = Modifier.fillMaxHeight(),
                     )
                     Text(
                         text = "BETA",
@@ -160,11 +163,21 @@ fun ContributionsScreen(
                     },
                     selected = button.type == selectedButton,
                     label = {
-                        Icon(
-                            imageVector = button.icon,
-                            contentDescription = null,
-                            modifier = Modifier.size(30.dp),
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            Icon(
+                                imageVector = button.icon,
+                                contentDescription = null,
+                                modifier = Modifier.size(30.dp),
+                            )
+                            Text(
+                                text = "(${button.quantity})",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                        }
                     },
                     shape = MaterialTheme.shapes.medium,
                     modifier = Modifier
@@ -287,8 +300,16 @@ fun ContributionsScreen(
                                 }
                             }
                         }
+                    } else {
+                        item {
+                            NoContributionsFoundedScreen(
+                                message = "Você ainda não adicionou nenhum local",
+                            )
+                        }
                     }
+                    loadingProgressIndicator(condition = !state.allPlacesContributionsLoaded)
                 }
+
                 ContributionType.COMMENT -> {
                     if (state.userContributions.comments.isNotEmpty()) {
                         item {
@@ -299,78 +320,93 @@ fun ContributionsScreen(
                                 color = MaterialTheme.colorScheme.primary,
                             )
                         }
-                    }
-                    state.userContributions.comments.forEach { comment ->
-                        item {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                modifier = Modifier
-                                    .animateItem()
-                                    .clip(MaterialTheme.shapes.medium)
-                                    .background(MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp))
-                                    .padding(12.dp),
-                            ) {
-                                Column(
-                                    modifier = Modifier.fillMaxWidth(),
+
+                        state.userContributions.comments.forEach { comment ->
+                            item {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    modifier = Modifier
+                                        .animateItem()
+                                        .clip(MaterialTheme.shapes.medium)
+                                        .background(
+                                            MaterialTheme.colorScheme.surfaceColorAtElevation(
+                                                8.dp,
+                                            ),
+                                        )
+                                        .padding(12.dp),
                                 ) {
-                                    Row(
+                                    Column(
                                         modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                                     ) {
-                                        if (userPicture != null) {
-                                            Image(
-                                                bitmap = userPicture,
-                                                contentDescription = null,
-                                                contentScale = ContentScale.Crop,
-                                                modifier = Modifier
-                                                    .size(40.dp)
-                                                    .clip(CircleShape),
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        ) {
+                                            if (userPicture != null) {
+                                                Image(
+                                                    bitmap = userPicture,
+                                                    contentDescription = null,
+                                                    contentScale = ContentScale.Crop,
+                                                    modifier = Modifier
+                                                        .size(40.dp)
+                                                        .clip(CircleShape),
+                                                )
+                                            } else {
+                                                Icon(
+                                                    imageVector = Icons.Outlined.Person,
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(40.dp),
+                                                )
+                                            }
+                                            Text(
+                                                text = userName,
+                                                fontSize = 14.sp,
+                                                fontWeight = FontWeight.Bold,
                                             )
-                                        } else {
-                                            Icon(
-                                                imageVector = Icons.Outlined.Person,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(40.dp),
+                                            Text(
+                                                text = comment.postDate.removeTime()?.formatDate()
+                                                    ?: "",
+                                                fontSize = 12.sp,
+                                                fontWeight = FontWeight.Normal,
+                                                color = MaterialTheme.colorScheme.onSurface.copy(
+                                                    alpha = 0.55f,
+                                                ),
+                                                modifier = Modifier.weight(1f),
+                                            )
+                                            Spacer(modifier = Modifier.weight(1f))
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(14.dp)
+                                                    .clip(CircleShape)
+                                                    .background(
+                                                        color = comment.accessibilityRate
+                                                            .toFloat()
+                                                            .toColor(),
+                                                    ),
                                             )
                                         }
                                         Text(
-                                            text = userName,
+                                            text = comment.body,
                                             fontSize = 14.sp,
-                                            fontWeight = FontWeight.Bold,
-                                        )
-                                        Text(
-                                            text = comment.postDate.removeTime()?.formatDate()
-                                                ?: "",
-                                            fontSize = 12.sp,
                                             fontWeight = FontWeight.Normal,
-                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
-                                            modifier = Modifier.weight(1f),
+                                            color = MaterialTheme.colorScheme.onSurface,
                                         )
-                                        Spacer(modifier = Modifier.weight(1f))
-                                        Box(
-                                            modifier = Modifier
-                                                .size(14.dp)
-                                                .clip(CircleShape)
-                                                .background(
-                                                    color = comment.accessibilityRate
-                                                        .toFloat()
-                                                        .toColor(),
-                                                ),
-                                            )
                                     }
-                                    Text(
-                                        text = comment.body,
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                    )
                                 }
                             }
                         }
+                    } else {
+                        item {
+                            NoContributionsFoundedScreen(
+                                message = "Você ainda não adicionou nenhum comentário",
+                            )
+                        }
                     }
+                    loadingProgressIndicator(condition = !state.allCommentsContributionsLoaded)
                 }
+
                 ContributionType.IMAGE -> {
                     if (state.userContributions.images.isNotEmpty()) {
                         item {
@@ -381,62 +417,58 @@ fun ContributionsScreen(
                                 color = MaterialTheme.colorScheme.primary,
                             )
                         }
-                    }
-                    state.userContributions.images.forEach { image ->
-                        item {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .animateItem()
-                                    .clip(MaterialTheme.shapes.medium)
-                                    .background(MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp))
-                                    .padding(vertical = 8.dp, horizontal = 12.dp),
-                            ) {
-                                Column {
-                                    Text(
-                                        text = image.place.title,
-                                        overflow = TextOverflow.Ellipsis,
-                                        maxLines = 1,
-                                        modifier = Modifier.fillMaxWidth(0.6f),
-                                    )
-                                    Text(
-                                        text = "Postada em: " + image.place.time.removeTime()
-                                            ?.formatDate(),
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                        state.userContributions.images.forEach { image ->
+                            item {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .animateItem()
+                                        .clip(MaterialTheme.shapes.medium)
+                                        .background(
+                                            MaterialTheme.colorScheme.surfaceColorAtElevation(
+                                                8.dp,
+                                            ),
+                                        )
+                                        .padding(vertical = 8.dp, horizontal = 12.dp),
+                                ) {
+                                    Column {
+                                        Text(
+                                            text = image.place.title,
+                                            overflow = TextOverflow.Ellipsis,
+                                            maxLines = 1,
+                                            modifier = Modifier.fillMaxWidth(0.6f),
+                                        )
+                                        Text(
+                                            text = "Postada em: " + image.place.time.removeTime()
+                                                ?.formatDate(),
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.Normal,
+                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.weight(1f))
+                                    Image(
+                                        bitmap = image.placeImage.image,
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .height(100.dp)
+                                            .aspectRatio(image.placeImage.image.width / image.placeImage.image.height.toFloat())
+                                            .clip(RoundedCornerShape(8.dp)),
                                     )
                                 }
-                                Spacer(modifier = Modifier.weight(1f))
-                                Image(
-                                    bitmap = image.placeImage.image,
-                                    contentDescription = null,
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier
-                                        .height(100.dp)
-                                        .aspectRatio(image.placeImage.image.width / image.placeImage.image.height.toFloat())
-                                        .clip(RoundedCornerShape(8.dp)),
-                                )
                             }
                         }
-                    }
-                    if (!state.allContributionsLoaded) {
+                    } else {
                         item {
-                            Row(
-                                horizontalArrangement = Arrangement.Center,
-                                verticalAlignment = Alignment.Top,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .animateItem(),
-                            ) {
-                                CircularProgressIndicator(
-                                    strokeCap = StrokeCap.Round,
-                                )
-                            }
+                            NoContributionsFoundedScreen(
+                                message = "Você ainda não adicionou nenhuma imagem",
+                            )
                         }
                     }
+                    loadingProgressIndicator(condition = !state.allImagesContributionsLoaded)
                 }
             }
         }
@@ -453,12 +485,12 @@ fun NoContributionsFoundedScreen(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = message,//"Nenhuma contribuição encontrada",
+            text = message,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
@@ -472,9 +504,30 @@ fun NoContributionsFoundedScreen(
     }
 }
 
+fun LazyListScope.loadingProgressIndicator(
+    condition: Boolean,
+) {
+    if (condition) {
+        item {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.Top,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 6.dp)
+                    .animateItem(),
+            ) {
+                CircularProgressIndicator(
+                    strokeCap = StrokeCap.Round,
+                )
+            }
+        }
+    }
+}
 
 data class ContributionItem(
     val icon: ImageVector,
     val name: String,
-    val type: ContributionType
+    val type: ContributionType,
+    val quantity: Int,
 )
