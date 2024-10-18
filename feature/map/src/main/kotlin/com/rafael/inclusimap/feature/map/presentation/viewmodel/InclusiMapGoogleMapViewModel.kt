@@ -360,51 +360,62 @@ class InclusiMapGoogleMapViewModel(
         }
     }
 
+    private val inProgressFileIds = mutableSetOf<String>()
+
     private fun loadImageContributions(
         userEmail: String,
         contributions: List<Contribution>,
     ) {
         _state.update { it.copy(allImagesContributionsLoaded = false) }
         viewModelScope.launch(Dispatchers.IO) {
-            val options = BitmapFactory.Options()
-            options.inSampleSize = 3
-            contributions.map { contribution ->
-                async {
-                    val placeID = driveService.getFileMetadata(
-                        contribution.fileId,
-                    )?.name?.extractPlaceID()
-                    driveService.getFileContent(contribution.fileId)
-                        ?.let { content ->
-                            BitmapFactory.decodeByteArray(
-                                content,
-                                0,
-                                content.size,
-                                options,
-                            )?.asImageBitmap()?.let { img ->
-                                if (img in state.value.userContributions.images.map { it.placeImage.image }) return@async
-                                _state.update {
-                                    it.copy(
-                                        userContributions = it.userContributions.copy(
-                                            images = it.userContributions.images + PlaceImageWithPlace(
-                                                placeImage = PlaceImage(
-                                                    image = img,
-                                                    userEmail = userEmail,
-                                                    placeID = placeID ?: return@async,
-                                                    name = "",
-                                                ),
-                                                place = loadPlaceById(placeID) ?: return@async,
-                                            ),
-                                        ),
-                                    )
-                                }
-                            }
+            val options = BitmapFactory.Options().apply { inSampleSize = 3 }
+            val batchSize = 5
+            contributions.chunked(batchSize).forEach { batch ->
+                val deferreds = batch.map { contribution ->
+                    async {
+                        if (contribution.fileId in inProgressFileIds || contribution.fileId in state.value.userContributions.images.map { it.placeImage.name }) {
+                            println("Skipping already loaded image: ${contribution.fileId}")
+                            return@async
                         }
+
+                        inProgressFileIds.add(contribution.fileId)
+                        try {
+                            val placeID =
+                                driveService.getFileMetadata(contribution.fileId)?.name?.extractPlaceID()
+
+                            driveService.getFileContent(contribution.fileId)?.let { content ->
+                                BitmapFactory.decodeByteArray(content, 0, content.size, options)
+                                    ?.asImageBitmap()?.let { img ->
+                                        _state.update {
+                                            it.copy(
+                                                userContributions = it.userContributions.copy(
+                                                    images = it.userContributions.images + PlaceImageWithPlace(
+                                                        placeImage = PlaceImage(
+                                                            image = img,
+                                                            userEmail = userEmail,
+                                                            placeID = placeID ?: return@async,
+                                                            name = contribution.fileId,
+                                                        ),
+                                                        place = loadPlaceById(placeID)
+                                                            ?: return@async,
+                                                    ),
+                                                ),
+                                            )
+                                        }
+                                    }
+                            }
+                        } finally {
+                            inProgressFileIds.remove(contribution.fileId)
+                        }
+                    }
                 }
-            }.awaitAll()
+                deferreds.awaitAll()
+            }
         }.invokeOnCompletion {
             _state.update { it.copy(allImagesContributionsLoaded = true) }
         }
     }
+
 
     private fun loadCommentContributions(
         contributions: List<Contribution>,
