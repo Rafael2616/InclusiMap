@@ -30,7 +30,7 @@ import androidx.compose.material.icons.outlined.ArrowOutward
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Place
-import androidx.compose.material.icons.outlined.SentimentVeryDissatisfied
+import androidx.compose.material.icons.outlined.SentimentDissatisfied
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -301,11 +301,10 @@ fun ContributionsScreen(
                             }
                         }
                     } else {
-                        item {
-                            NoContributionsFoundedScreen(
-                                message = "Você ainda não adicionou nenhum local",
-                            )
-                        }
+                        noContributionsFoundedScreen(
+                            message = "Você ainda não adicionou nenhum local",
+                            condition = !state.allPlacesContributionsLoaded,
+                        )
                     }
                     loadingProgressIndicator(condition = !state.allPlacesContributionsLoaded)
                 }
@@ -398,11 +397,10 @@ fun ContributionsScreen(
                             }
                         }
                     } else {
-                        item {
-                            NoContributionsFoundedScreen(
-                                message = "Você ainda não adicionou nenhum comentário",
-                            )
-                        }
+                        noContributionsFoundedScreen(
+                            message = "Você ainda não adicionou nenhum comentário",
+                            condition = !state.allCommentsContributionsLoaded,
+                        )
                     }
                     loadingProgressIndicator(condition = !state.allCommentsContributionsLoaded)
                 }
@@ -462,11 +460,10 @@ fun ContributionsScreen(
                             }
                         }
                     } else {
-                        item {
-                            NoContributionsFoundedScreen(
-                                message = "Você ainda não adicionou nenhuma imagem",
-                            )
-                        }
+                        noContributionsFoundedScreen(
+                            message = "Você ainda não adicionou nenhuma imagem",
+                            condition = !state.allImagesContributionsLoaded,
+                        )
                     }
                     loadingProgressIndicator(condition = !state.allImagesContributionsLoaded)
                 }
@@ -479,28 +476,32 @@ fun ContributionsScreen(
     }
 }
 
-@Composable
-fun NoContributionsFoundedScreen(
+fun LazyListScope.noContributionsFoundedScreen(
     message: String,
+    condition: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(
-            text = message,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
-        )
-        Icon(
-            imageVector = Icons.Outlined.SentimentVeryDissatisfied,
-            contentDescription = null,
-            modifier = Modifier.size(60.dp),
-            tint = MaterialTheme.colorScheme.primary,
-        )
+    if (condition) {
+        item {
+            Column(
+                modifier = modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    text = message,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                Icon(
+                    imageVector = Icons.Outlined.SentimentDissatisfied,
+                    contentDescription = null,
+                    modifier = Modifier.size(60.dp),
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+            }
+        }
     }
 }
 
