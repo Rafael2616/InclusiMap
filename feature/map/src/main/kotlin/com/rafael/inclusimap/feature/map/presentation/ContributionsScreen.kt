@@ -303,7 +303,7 @@ fun ContributionsScreen(
                     } else {
                         noContributionsFoundedScreen(
                             message = "Você ainda não adicionou nenhum local",
-                            condition = !state.allPlacesContributionsLoaded,
+                            condition = state.allPlacesContributionsLoaded,
                         )
                     }
                     loadingProgressIndicator(condition = !state.allPlacesContributionsLoaded)
@@ -399,7 +399,7 @@ fun ContributionsScreen(
                     } else {
                         noContributionsFoundedScreen(
                             message = "Você ainda não adicionou nenhum comentário",
-                            condition = !state.allCommentsContributionsLoaded,
+                            condition = state.allCommentsContributionsLoaded,
                         )
                     }
                     loadingProgressIndicator(condition = !state.allCommentsContributionsLoaded)
@@ -462,7 +462,7 @@ fun ContributionsScreen(
                     } else {
                         noContributionsFoundedScreen(
                             message = "Você ainda não adicionou nenhuma imagem",
-                            condition = !state.allImagesContributionsLoaded,
+                            condition = state.allImagesContributionsLoaded,
                         )
                     }
                     loadingProgressIndicator(condition = !state.allImagesContributionsLoaded)
