@@ -412,6 +412,7 @@ fun ContributionsScreen(
                                             Spacer(Modifier.weight(1f))
                                             IconButton(
                                                 onClick = {
+                                                    navController.popBackStack()
                                                     navController.navigate(
                                                         Destination.MapScreen(
                                                             comment.place.position.first,
@@ -419,7 +420,6 @@ fun ContributionsScreen(
                                                             comment.place.id ?: return@IconButton,
                                                         ),
                                                     )
-                                                    navController.popBackStack()
                                                 },
                                                 modifier = Modifier
                                                     .size(35.dp),
@@ -497,6 +497,7 @@ fun ContributionsScreen(
                                         )
                                         IconButton(
                                             onClick = {
+                                                navController.popBackStack()
                                                 navController.navigate(
                                                     Destination.MapScreen(
                                                         image.place.position.first,
@@ -504,7 +505,6 @@ fun ContributionsScreen(
                                                         image.place.id ?: return@IconButton,
                                                     ),
                                                 )
-                                                navController.popBackStack()
                                             },
                                             modifier = Modifier
                                                 .size(35.dp),

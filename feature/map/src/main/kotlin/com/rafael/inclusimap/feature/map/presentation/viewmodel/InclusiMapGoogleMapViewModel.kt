@@ -361,7 +361,6 @@ class InclusiMapGoogleMapViewModel(
                     val placeID = driveService.getFileMetadata(
                         contribution.fileId,
                     )?.name?.extractPlaceID()
-                    val place = loadPlaceById(placeID ?: "")
                     driveService.getFileContent(contribution.fileId)
                         ?.let { content ->
                             BitmapFactory.decodeByteArray(
@@ -381,7 +380,7 @@ class InclusiMapGoogleMapViewModel(
                                                     placeID = placeID ?: return@async,
                                                     name = "",
                                                 ),
-                                                place = place ?: return@async,
+                                                place = loadPlaceById(placeID) ?: return@async,
                                             ),
                                         ),
                                     )
