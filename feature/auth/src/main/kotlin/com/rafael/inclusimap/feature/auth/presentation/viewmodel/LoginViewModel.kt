@@ -157,12 +157,13 @@ class LoginViewModel(
                 prettyPrint = true
             }
             async {
-                driveService.uploadFile(
+                val userPathId = driveService.uploadFile(
                     json.encodeToString(user).byteInputStream(),
                     "${newUser.email}.json",
                     _state.value.userPathID
                         ?: throw IllegalStateException("Folder not found: Maybe an issue has occurred while creating the folder"),
                 )
+                _state.update { it.copy(userPathID = userPathId) }
             }.await()
             async {
                 driveService.createFile(
@@ -182,6 +183,8 @@ class LoginViewModel(
                     loginData.userEmail = user.email
                     loginData.userPassword = user.password
                     loginData.isLoggedIn = true
+                    loginData.showProfilePictureOptedIn = true
+                    loginData.userPathID = _state.value.userPathID
 
                     repository.updateLoginInfo(loginData)
 
