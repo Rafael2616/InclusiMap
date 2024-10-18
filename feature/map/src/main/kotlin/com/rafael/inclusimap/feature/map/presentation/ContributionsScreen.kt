@@ -338,7 +338,7 @@ fun ContributionsScreen(
                                         modifier = Modifier.fillMaxWidth(),
                                     ) {
                                         Row(
-                                            modifier = Modifier.padding(bottom = 4.dp)
+                                            modifier = Modifier.padding(bottom = 4.dp),
                                         ) {
                                             Text(
                                                 text = "Em: ",
@@ -377,7 +377,8 @@ fun ContributionsScreen(
                                                 fontWeight = FontWeight.Bold,
                                             )
                                             Text(
-                                                text = comment.comment.postDate.removeTime()?.formatDate()
+                                                text = comment.comment.postDate.removeTime()
+                                                    ?.formatDate()
                                                     ?: "",
                                                 fontSize = 12.sp,
                                                 fontWeight = FontWeight.Normal,
@@ -406,7 +407,7 @@ fun ContributionsScreen(
                                                 fontSize = 14.sp,
                                                 fontWeight = FontWeight.Normal,
                                                 color = MaterialTheme.colorScheme.onSurface,
-                                                modifier = Modifier.fillMaxWidth(0.8f)
+                                                modifier = Modifier.fillMaxWidth(0.8f),
                                             )
                                             Spacer(Modifier.weight(1f))
                                             IconButton(
@@ -416,12 +417,12 @@ fun ContributionsScreen(
                                                             comment.place.position.first,
                                                             comment.place.position.second,
                                                             comment.place.id ?: return@IconButton,
-                                                        )
+                                                        ),
                                                     )
                                                     navController.popBackStack()
                                                 },
                                                 modifier = Modifier
-                                                    .size(35.dp)
+                                                    .size(35.dp),
                                             ) {
                                                 Icon(
                                                     imageVector = Icons.Outlined.ArrowOutward,
@@ -472,7 +473,7 @@ fun ContributionsScreen(
                                 ) {
                                     Column {
                                         Row(
-                                            modifier = Modifier.padding(bottom = 4.dp)
+                                            modifier = Modifier.padding(bottom = 4.dp),
                                         ) {
                                             Text(
                                                 text = "Em: ",
@@ -484,7 +485,7 @@ fun ContributionsScreen(
                                                 fontSize = 16.sp,
                                                 overflow = TextOverflow.Ellipsis,
                                                 maxLines = 1,
-                                                modifier = Modifier.fillMaxWidth(0.5f),
+                                                modifier = Modifier.fillMaxWidth(0.6f),
                                             )
                                         }
                                         Text(
@@ -494,6 +495,27 @@ fun ContributionsScreen(
                                             fontWeight = FontWeight.Normal,
                                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                                         )
+                                        IconButton(
+                                            onClick = {
+                                                navController.navigate(
+                                                    Destination.MapScreen(
+                                                        image.place.position.first,
+                                                        image.place.position.second,
+                                                        image.place.id ?: return@IconButton,
+                                                    ),
+                                                )
+                                                navController.popBackStack()
+                                            },
+                                            modifier = Modifier
+                                                .size(35.dp),
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Outlined.ArrowOutward,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(30.dp),
+                                                tint = MaterialTheme.colorScheme.primary,
+                                            )
+                                        }
                                     }
                                     Spacer(modifier = Modifier.weight(1f))
                                     Image(
@@ -505,27 +527,6 @@ fun ContributionsScreen(
                                             .aspectRatio(image.placeImage.image.width / image.placeImage.image.height.toFloat())
                                             .clip(RoundedCornerShape(8.dp)),
                                     )
-                                    IconButton(
-                                        onClick = {
-                                            navController.navigate(
-                                                Destination.MapScreen(
-                                                    image.place.position.first,
-                                                    image.place.position.second,
-                                                    image.place.id ?: return@IconButton,
-                                                )
-                                            )
-                                            navController.popBackStack()
-                                        },
-                                        modifier = Modifier
-                                            .size(35.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Outlined.ArrowOutward,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(30.dp),
-                                            tint = MaterialTheme.colorScheme.primary,
-                                        )
-                                    }
                                 }
                             }
                         }

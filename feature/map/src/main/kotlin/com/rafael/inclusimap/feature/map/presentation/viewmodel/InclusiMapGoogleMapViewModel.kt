@@ -361,6 +361,7 @@ class InclusiMapGoogleMapViewModel(
                     val placeID = driveService.getFileMetadata(
                         contribution.fileId,
                     )?.name?.extractPlaceID()
+                    val place = loadPlaceById(placeID ?: "")
                     driveService.getFileContent(contribution.fileId)
                         ?.let { content ->
                             BitmapFactory.decodeByteArray(
@@ -380,8 +381,7 @@ class InclusiMapGoogleMapViewModel(
                                                     placeID = placeID ?: return@async,
                                                     name = "",
                                                 ),
-                                                place = loadPlaceById(placeID)
-                                                    ?: return@async,
+                                                place = place ?: return@async,
                                             ),
                                         ),
                                     )
@@ -410,7 +410,7 @@ class InclusiMapGoogleMapViewModel(
                             _state.update {
                                 it.copy(
                                     userContributions = it.userContributions.copy(
-                                        comments = it.userContributions.comments + place.comments.filterNot { it in state.value.userContributions.comments.map { it.comment } }.map {
+                                        comments = it.userContributions.comments + filteredComments.map {
                                             CommentWithPlace(
                                                 comment = it,
                                                 place = place,
