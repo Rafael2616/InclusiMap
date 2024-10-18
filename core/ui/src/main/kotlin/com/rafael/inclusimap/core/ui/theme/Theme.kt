@@ -7,8 +7,10 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.platform.LocalContext
@@ -35,9 +37,9 @@ fun InclusiMapTheme(
                 dynamicLightColorScheme(context)
             }
         } else if (isSystemInDarkTheme) {
-            DarkColors
+            darkColorScheme()
         } else {
-            LightColors
+            lightColorScheme()
         }
     } else {
         if (isAndroidS && isDynamicColorsOn) {
