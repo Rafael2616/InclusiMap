@@ -221,7 +221,7 @@ fun ContributionsScreen(
                                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                                             modifier = Modifier
                                                 .padding(vertical = 6.dp)
-                                                .padding(end = if (index % 2 == 0 && (index != 0 && state.userContributions.places.size != 1)) 8.dp else 0.dp)
+                                                .padding(end = if (index % 2 == 0 && state.userContributions.places.size != 1) 8.dp else 0.dp)
                                                 .height(120.dp)
                                                 .clip(MaterialTheme.shapes.medium)
                                                 .background(
@@ -483,7 +483,7 @@ fun ContributionsScreen(
                                             Text(
                                                 text = image.place.title,
                                                 fontSize = 16.sp,
-                                                overflow = TextOverflow.Ellipsis,
+                                                overflow = TextOverflow.MiddleEllipsis,
                                                 maxLines = 1,
                                                 modifier = Modifier.fillMaxWidth(0.6f),
                                             )
@@ -563,7 +563,9 @@ fun LazyListScope.noContributionsFoundedScreen(
                     text = message,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.fillMaxWidth()
                 )
                 Icon(
                     imageVector = Icons.Outlined.SentimentDissatisfied,
