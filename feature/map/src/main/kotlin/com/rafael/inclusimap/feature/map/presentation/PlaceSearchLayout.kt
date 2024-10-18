@@ -57,7 +57,7 @@ fun PlaceSearchLayout(
             .fillMaxWidth()
             .statusBarsPadding()
             .displayCutoutPadding()
-            .padding(horizontal = 12.dp)
+            .padding(horizontal = 8.dp)
             .clip(RoundedCornerShape(24.dp))
             .semantics { traversalIndex = -1f },
         inputField = {
@@ -140,13 +140,17 @@ fun PlaceSearchLayout(
                         }
                     }
                 },
+                colors = SearchBarDefaults.inputFieldColors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                ),
             )
         },
         expanded = searchState.expanded,
         onExpandedChange = { onSearchEvent(SearchEvent.SetExpanded(it)) },
         colors = SearchBarDefaults.colors(
             containerColor = MaterialTheme.colorScheme.surface,
-            dividerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
+            dividerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
         ),
     ) {
         PlaceSearchScreen(
