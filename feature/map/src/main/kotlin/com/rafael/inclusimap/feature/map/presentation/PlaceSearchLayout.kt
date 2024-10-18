@@ -2,7 +2,9 @@ package com.rafael.inclusimap.feature.map.presentation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.displayCutoutPadding
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -22,6 +24,7 @@ import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
@@ -52,116 +55,123 @@ fun PlaceSearchLayout(
 ) {
     val focusRequester = remember { FocusRequester() }
 
-    SearchBar(
-        modifier = modifier
+    Box(
+        modifier = Modifier
             .fillMaxWidth()
-            .statusBarsPadding()
-            .displayCutoutPadding()
-            .padding(horizontal = 8.dp)
-            .clip(RoundedCornerShape(24.dp))
-            .semantics { traversalIndex = -1f },
-        inputField = {
-            SearchBarDefaults.InputField(
-                modifier = Modifier.focusRequester(focusRequester),
-                query = searchState.searchQuery,
-                onQueryChange = {
-                    onSearchEvent(SearchEvent.OnSearch(it, state.allMappedPlaces))
-                },
-                onSearch = {
-                    onSearchEvent(SearchEvent.SetExpanded(false))
-                },
-                expanded = searchState.expanded,
-                onExpandedChange = {
-                    onSearchEvent(SearchEvent.SetExpanded(it))
-                },
-                placeholder = { Text("Pesquise um local aqui") },
-                leadingIcon = {
-                    if (searchState.expanded) {
-                        IconButton(
-                            onClick = {
-                                onSearchEvent(SearchEvent.SetExpanded(false))
-                                onSearchEvent(SearchEvent.OnSearch("", emptyList()))
-                            },
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = null,
-                            )
-                        }
-                    } else {
-                        Image(
-                            modifier = Modifier
-                                .size(45.dp)
-                                .clip(CircleShape),
-                            painter = painterResource(id = R.drawable.ic_splash),
-                            contentDescription = null,
-                        )
-                    }
-                },
-                trailingIcon = {
-                    if (searchState.searchQuery.isNotEmpty()) {
-                        IconButton(
-                            onClick = {
-                                onSearchEvent(SearchEvent.OnSearch("", emptyList()))
-                            },
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Close,
-                                contentDescription = null,
-                            )
-                        }
-                    }
-                    if (!searchState.expanded) {
-                        if (settingsState.profilePicture != null) {
-                            Image(
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .clip(CircleShape)
-                                    .clickable {
-                                        onNavigateToSettings()
-                                    },
-                                bitmap = settingsState.profilePicture!!,
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                            )
-                        } else {
+            .fillMaxHeight(0.7f),
+        contentAlignment = Alignment.TopCenter,
+    ) {
+        SearchBar(
+            modifier = modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .displayCutoutPadding()
+                .padding(horizontal = 8.dp)
+                .clip(RoundedCornerShape(24.dp))
+                .semantics { traversalIndex = -1f },
+            inputField = {
+                SearchBarDefaults.InputField(
+                    modifier = Modifier.focusRequester(focusRequester),
+                    query = searchState.searchQuery,
+                    onQueryChange = {
+                        onSearchEvent(SearchEvent.OnSearch(it, state.allMappedPlaces))
+                    },
+                    onSearch = {
+                        onSearchEvent(SearchEvent.SetExpanded(false))
+                    },
+                    expanded = searchState.expanded,
+                    onExpandedChange = {
+                        onSearchEvent(SearchEvent.SetExpanded(it))
+                    },
+                    placeholder = { Text("Pesquise um local aqui") },
+                    leadingIcon = {
+                        if (searchState.expanded) {
                             IconButton(
                                 onClick = {
-                                    onNavigateToSettings()
+                                    onSearchEvent(SearchEvent.SetExpanded(false))
+                                    onSearchEvent(SearchEvent.OnSearch("", emptyList()))
                                 },
                             ) {
                                 Icon(
-                                    imageVector = Icons.TwoTone.ManageAccounts,
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                     contentDescription = null,
-                                    modifier = Modifier
-                                        .size(35.dp),
+                                )
+                            }
+                        } else {
+                            Image(
+                                modifier = Modifier
+                                    .size(45.dp)
+                                    .clip(CircleShape),
+                                painter = painterResource(id = R.drawable.ic_splash),
+                                contentDescription = null,
+                            )
+                        }
+                    },
+                    trailingIcon = {
+                        if (searchState.searchQuery.isNotEmpty()) {
+                            IconButton(
+                                onClick = {
+                                    onSearchEvent(SearchEvent.OnSearch("", emptyList()))
+                                },
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Close,
+                                    contentDescription = null,
                                 )
                             }
                         }
-                    }
-                },
-                colors = SearchBarDefaults.inputFieldColors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surface,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                ),
-            )
-        },
-        expanded = searchState.expanded,
-        onExpandedChange = { onSearchEvent(SearchEvent.SetExpanded(it)) },
-        colors = SearchBarDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            dividerColor = MaterialTheme.colorScheme.surface,
-        ),
-    ) {
-        PlaceSearchScreen(
-            matchingPlaces = searchState.matchingPlaces,
-            query = searchState.searchQuery,
-            onPlaceClick = {
-                onSearchEvent(SearchEvent.SetExpanded(false))
-                onSearchEvent(SearchEvent.OnSearch("", emptyList()))
-                onTravelToPlace(it)
+                        if (!searchState.expanded) {
+                            if (settingsState.profilePicture != null) {
+                                Image(
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(CircleShape)
+                                        .clickable {
+                                            onNavigateToSettings()
+                                        },
+                                    bitmap = settingsState.profilePicture!!,
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                )
+                            } else {
+                                IconButton(
+                                    onClick = {
+                                        onNavigateToSettings()
+                                    },
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.TwoTone.ManageAccounts,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(35.dp),
+                                    )
+                                }
+                            }
+                        }
+                    },
+                    colors = SearchBarDefaults.inputFieldColors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    ),
+                )
             },
-        )
+            expanded = searchState.expanded,
+            onExpandedChange = { onSearchEvent(SearchEvent.SetExpanded(it)) },
+            colors = SearchBarDefaults.colors(
+                containerColor = MaterialTheme.colorScheme.surface,
+                dividerColor = MaterialTheme.colorScheme.surface,
+            ),
+        ) {
+            PlaceSearchScreen(
+                matchingPlaces = searchState.matchingPlaces,
+                query = searchState.searchQuery,
+                onPlaceClick = {
+                    onSearchEvent(SearchEvent.SetExpanded(false))
+                    onSearchEvent(SearchEvent.OnSearch("", emptyList()))
+                    onTravelToPlace(it)
+                },
+            )
+        }
     }
     if (searchState.expanded) {
         focusRequester.requestFocus()
