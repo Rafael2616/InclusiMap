@@ -319,7 +319,6 @@ fun ContributionsScreen(
                                 color = MaterialTheme.colorScheme.primary,
                             )
                         }
-
                         state.userContributions.comments.forEach { comment ->
                             item {
                                 Row(
@@ -339,6 +338,19 @@ fun ContributionsScreen(
                                         modifier = Modifier.fillMaxWidth(),
                                     ) {
                                         Row(
+                                            modifier = Modifier.padding(bottom = 4.dp)
+                                        ) {
+                                            Text(
+                                                text = "Em: ",
+                                                fontSize = 14.sp,
+                                                fontWeight = FontWeight.SemiBold,
+                                            )
+                                            Text(
+                                                text = comment.place.title,
+                                                fontSize = 14.sp,
+                                            )
+                                        }
+                                        Row(
                                             modifier = Modifier.fillMaxWidth(),
                                             verticalAlignment = Alignment.CenterVertically,
                                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -349,14 +361,14 @@ fun ContributionsScreen(
                                                     contentDescription = null,
                                                     contentScale = ContentScale.Crop,
                                                     modifier = Modifier
-                                                        .size(40.dp)
+                                                        .size(35.dp)
                                                         .clip(CircleShape),
                                                 )
                                             } else {
                                                 Icon(
                                                     imageVector = Icons.Outlined.Person,
                                                     contentDescription = null,
-                                                    modifier = Modifier.size(40.dp),
+                                                    modifier = Modifier.size(35.dp),
                                                 )
                                             }
                                             Text(
@@ -365,7 +377,7 @@ fun ContributionsScreen(
                                                 fontWeight = FontWeight.Bold,
                                             )
                                             Text(
-                                                text = comment.postDate.removeTime()?.formatDate()
+                                                text = comment.comment.postDate.removeTime()?.formatDate()
                                                     ?: "",
                                                 fontSize = 12.sp,
                                                 fontWeight = FontWeight.Normal,
@@ -380,18 +392,45 @@ fun ContributionsScreen(
                                                     .size(14.dp)
                                                     .clip(CircleShape)
                                                     .background(
-                                                        color = comment.accessibilityRate
+                                                        color = comment.comment.accessibilityRate
                                                             .toFloat()
                                                             .toColor(),
                                                     ),
                                             )
                                         }
-                                        Text(
-                                            text = comment.body,
-                                            fontSize = 14.sp,
-                                            fontWeight = FontWeight.Normal,
-                                            color = MaterialTheme.colorScheme.onSurface,
-                                        )
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                        ) {
+                                            Text(
+                                                text = comment.comment.body,
+                                                fontSize = 14.sp,
+                                                fontWeight = FontWeight.Normal,
+                                                color = MaterialTheme.colorScheme.onSurface,
+                                                modifier = Modifier.fillMaxWidth(0.8f)
+                                            )
+                                            Spacer(Modifier.weight(1f))
+                                            IconButton(
+                                                onClick = {
+                                                    navController.navigate(
+                                                        Destination.MapScreen(
+                                                            comment.place.position.first,
+                                                            comment.place.position.second,
+                                                            comment.place.id ?: return@IconButton,
+                                                        )
+                                                    )
+                                                    navController.popBackStack()
+                                                },
+                                                modifier = Modifier
+                                                    .size(35.dp)
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Outlined.ArrowOutward,
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(30.dp),
+                                                    tint = MaterialTheme.colorScheme.primary,
+                                                )
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -432,12 +471,22 @@ fun ContributionsScreen(
                                         .padding(vertical = 8.dp, horizontal = 12.dp),
                                 ) {
                                     Column {
-                                        Text(
-                                            text = image.place.title,
-                                            overflow = TextOverflow.Ellipsis,
-                                            maxLines = 1,
-                                            modifier = Modifier.fillMaxWidth(0.6f),
-                                        )
+                                        Row(
+                                            modifier = Modifier.padding(bottom = 4.dp)
+                                        ) {
+                                            Text(
+                                                text = "Em: ",
+                                                fontSize = 16.sp,
+                                                fontWeight = FontWeight.SemiBold,
+                                            )
+                                            Text(
+                                                text = image.place.title,
+                                                fontSize = 16.sp,
+                                                overflow = TextOverflow.Ellipsis,
+                                                maxLines = 1,
+                                                modifier = Modifier.fillMaxWidth(0.5f),
+                                            )
+                                        }
                                         Text(
                                             text = "Postada em: " + image.place.time.removeTime()
                                                 ?.formatDate(),
@@ -456,6 +505,27 @@ fun ContributionsScreen(
                                             .aspectRatio(image.placeImage.image.width / image.placeImage.image.height.toFloat())
                                             .clip(RoundedCornerShape(8.dp)),
                                     )
+                                    IconButton(
+                                        onClick = {
+                                            navController.navigate(
+                                                Destination.MapScreen(
+                                                    image.place.position.first,
+                                                    image.place.position.second,
+                                                    image.place.id ?: return@IconButton,
+                                                )
+                                            )
+                                            navController.popBackStack()
+                                        },
+                                        modifier = Modifier
+                                            .size(35.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.ArrowOutward,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(30.dp),
+                                            tint = MaterialTheme.colorScheme.primary,
+                                        )
+                                    }
                                 }
                             }
                         }

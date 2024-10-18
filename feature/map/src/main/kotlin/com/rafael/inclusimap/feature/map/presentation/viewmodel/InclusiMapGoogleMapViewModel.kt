@@ -15,6 +15,7 @@ import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_PARAGOMINAS_P
 import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
 import com.rafael.inclusimap.feature.map.domain.AccessibleLocalsEntity
+import com.rafael.inclusimap.feature.map.domain.CommentWithPlace
 import com.rafael.inclusimap.feature.map.domain.Contribution
 import com.rafael.inclusimap.feature.map.domain.ContributionType
 import com.rafael.inclusimap.feature.map.domain.InclusiMapEntity
@@ -405,11 +406,16 @@ class InclusiMapGoogleMapViewModel(
                         ?.also { content ->
                             val place =
                                 json.decodeFromString<AccessibleLocalMarker>(content.decodeToString())
-
+                            val filteredComments = place.comments.filterNot { it in state.value.userContributions.comments.map { it.comment } }
                             _state.update {
                                 it.copy(
                                     userContributions = it.userContributions.copy(
-                                        comments = it.userContributions.comments + place.comments.filterNot { it in state.value.userContributions.comments },
+                                        comments = it.userContributions.comments + place.comments.filterNot { it in state.value.userContributions.comments.map { it.comment } }.map {
+                                            CommentWithPlace(
+                                                comment = it,
+                                                place = place,
+                                            )
+                                        }
                                     ),
                                 )
                             }

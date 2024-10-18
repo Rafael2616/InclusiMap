@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 
 data class Contributions(
     val images: List<PlaceImageWithPlace> = emptyList(),
-    val comments: List<Comment> = emptyList(),
+    val comments: List<CommentWithPlace> = emptyList(),
     val places: List<AccessibleLocalMarker> = emptyList(),
 )
 
@@ -25,5 +25,10 @@ enum class ContributionType {
 
 data class PlaceImageWithPlace(
     val placeImage: PlaceImage,
+    val place: AccessibleLocalMarker,
+)
+
+data class CommentWithPlace(
+    val comment: Comment,
     val place: AccessibleLocalMarker,
 )
