@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -455,81 +457,101 @@ fun ContributionsScreen(
                                 color = MaterialTheme.colorScheme.primary,
                             )
                         }
-                        state.userContributions.images.forEach { image ->
-                            item {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .animateItem()
-                                        .clip(MaterialTheme.shapes.medium)
-                                        .background(
-                                            MaterialTheme.colorScheme.surfaceColorAtElevation(
-                                                8.dp,
-                                            ),
-                                        )
-                                        .padding(vertical = 8.dp, horizontal = 12.dp),
-                                ) {
-                                    Column {
-                                        Row(
-                                            modifier = Modifier.padding(bottom = 4.dp),
-                                        ) {
-                                            Text(
-                                                text = "Em: ",
-                                                fontSize = 16.sp,
-                                                fontWeight = FontWeight.SemiBold,
+                        state.userContributions.images.groupBy { it.place.id }
+                            .forEach { (_, place) ->
+                                item {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .animateItem()
+                                            .clip(MaterialTheme.shapes.medium)
+                                            .background(
+                                                MaterialTheme.colorScheme.surfaceColorAtElevation(
+                                                    8.dp,
+                                                ),
                                             )
-                                            Text(
-                                                text = image.place.title,
-                                                fontSize = 16.sp,
-                                                overflow = TextOverflow.MiddleEllipsis,
-                                                maxLines = 1,
-                                                modifier = Modifier.fillMaxWidth(0.6f),
-                                            )
-                                        }
-                                        Text(
-                                            text = "Postada em: " + image.place.time.removeTime()
-                                                ?.formatDate(),
-                                            fontSize = 14.sp,
-                                            fontWeight = FontWeight.Normal,
-                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                                        )
-                                        IconButton(
-                                            onClick = {
-                                                navController.popBackStack()
-                                                navController.navigate(
-                                                    Destination.MapScreen(
-                                                        image.place.position.first,
-                                                        image.place.position.second,
-                                                        image.place.id ?: return@IconButton,
+                                            .padding(vertical = 8.dp, horizontal = 12.dp),
+                                    ) {
+                                        Column {
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                            ) {
+                                                Text(
+                                                    text = "Em: ",
+                                                    fontSize = 16.sp,
+                                                    fontWeight = FontWeight.SemiBold,
+                                                )
+                                                Text(
+                                                    text = place.first().place.title,
+                                                    fontSize = 16.sp,
+                                                    overflow = TextOverflow.MiddleEllipsis,
+                                                    maxLines = 1,
+                                                    modifier = Modifier.fillMaxWidth(0.8f),
+                                                )
+                                                Spacer(modifier = Modifier.weight(1f))
+                                                IconButton(
+                                                    onClick = {
+                                                        navController.popBackStack()
+                                                        navController.navigate(
+                                                            Destination.MapScreen(
+                                                                place.first().place.position.first,
+                                                                place.first().place.position.second,
+                                                                place.first().place.id
+                                                                    ?: return@IconButton,
+                                                            ),
+                                                        )
+                                                    },
+                                                    modifier = Modifier
+                                                        .size(35.dp),
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Outlined.ArrowOutward,
+                                                        contentDescription = null,
+                                                        modifier = Modifier.size(30.dp),
+                                                        tint = MaterialTheme.colorScheme.primary,
+                                                    )
+                                                }
+                                            }
+                                            place.groupBy { it.date }.forEach { (_, date) ->
+                                                Text(
+                                                    text = "Postada(s) em: " + date.first().date,
+                                                    fontSize = 14.sp,
+                                                    fontWeight = FontWeight.Normal,
+                                                    color = MaterialTheme.colorScheme.onSurface.copy(
+                                                        alpha = 0.8f,
                                                     ),
                                                 )
-                                            },
-                                            modifier = Modifier
-                                                .size(35.dp),
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Outlined.ArrowOutward,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(30.dp),
-                                                tint = MaterialTheme.colorScheme.primary,
-                                            )
+                                                LazyHorizontalGrid(
+                                                    rows = GridCells.Adaptive(120.dp),
+                                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .height(150.dp)
+                                                        .animateItem(),
+                                                    contentPadding = PaddingValues(horizontal = 6.dp),
+                                                ) {
+                                                    date.forEach { image ->
+                                                        item {
+                                                            Image(
+                                                                bitmap = image.placeImage.image,
+                                                                contentDescription = null,
+                                                                contentScale = ContentScale.Crop,
+                                                                modifier = Modifier
+                                                                    .height(110.dp)
+                                                                    .aspectRatio(image.placeImage.image.width / image.placeImage.image.height.toFloat())
+                                                                    .clip(RoundedCornerShape(8.dp)),
+                                                            )
+                                                        }
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
-                                    Spacer(modifier = Modifier.weight(1f))
-                                    Image(
-                                        bitmap = image.placeImage.image,
-                                        contentDescription = null,
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier
-                                            .height(100.dp)
-                                            .aspectRatio(image.placeImage.image.width / image.placeImage.image.height.toFloat())
-                                            .clip(RoundedCornerShape(8.dp)),
-                                    )
                                 }
                             }
-                        }
                     } else {
                         noContributionsFoundedScreen(
                             message = "Você ainda não adicionou nenhuma imagem",
@@ -565,7 +587,7 @@ fun LazyListScope.noContributionsFoundedScreen(
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
                 Icon(
                     imageVector = Icons.Outlined.SentimentDissatisfied,

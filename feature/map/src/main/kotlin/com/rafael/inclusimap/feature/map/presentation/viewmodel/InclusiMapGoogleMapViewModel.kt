@@ -9,6 +9,8 @@ import com.google.android.gms.maps.model.LatLng
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.PlaceImage
 import com.rafael.inclusimap.core.domain.model.util.extractPlaceID
+import com.rafael.inclusimap.core.domain.model.util.formatDate
+import com.rafael.inclusimap.core.domain.model.util.removeTime
 import com.rafael.inclusimap.core.domain.network.onError
 import com.rafael.inclusimap.core.domain.network.onSuccess
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID
@@ -389,8 +391,8 @@ class InclusiMapGoogleMapViewModel(
 
                         inProgressFileIds.add(contribution.fileId)
                         try {
-                            val placeID =
-                                driveService.getFileMetadata(contribution.fileId)?.name?.extractPlaceID()
+                            val placeMetadata = driveService.getFileMetadata(contribution.fileId)
+                            val placeID = placeMetadata?.name?.extractPlaceID()
 
                             driveService.getFileContent(contribution.fileId)?.let { content ->
                                 BitmapFactory.decodeByteArray(content, 0, content.size, options)
@@ -405,6 +407,8 @@ class InclusiMapGoogleMapViewModel(
                                                             placeID = placeID ?: return@async,
                                                             name = contribution.fileId,
                                                         ),
+                                                        date = placeMetadata.name.removeTime()
+                                                            ?.formatDate(),
                                                         place = loadPlaceById(placeID)
                                                             ?: return@async,
                                                     ),

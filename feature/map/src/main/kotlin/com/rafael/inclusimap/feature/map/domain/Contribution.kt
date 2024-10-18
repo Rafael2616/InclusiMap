@@ -26,6 +26,7 @@ enum class ContributionType {
 data class PlaceImageWithPlace(
     val placeImage: PlaceImage,
     val place: AccessibleLocalMarker,
+    val date: String?,
 )
 
 data class CommentWithPlace(
