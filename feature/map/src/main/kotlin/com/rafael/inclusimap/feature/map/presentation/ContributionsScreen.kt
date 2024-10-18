@@ -94,19 +94,19 @@ fun ContributionsScreen(
             icon = Icons.Outlined.Place,
             name = "Perfil",
             type = ContributionType.PLACE,
-            quantity = state.userContributions.places.size,
+            quantity = state.contributionsSize.places,
         ),
         ContributionItem(
             icon = Icons.AutoMirrored.Outlined.Comment,
             name = "Comentários",
             type = ContributionType.COMMENT,
-            quantity = state.userContributions.comments.size,
+            quantity = state.contributionsSize.comments,
         ),
         ContributionItem(
             icon = Icons.Outlined.Image,
             name = "Locais",
             type = ContributionType.IMAGE,
-            quantity = state.userContributions.images.size,
+            quantity = state.contributionsSize.images,
         ),
     )
 

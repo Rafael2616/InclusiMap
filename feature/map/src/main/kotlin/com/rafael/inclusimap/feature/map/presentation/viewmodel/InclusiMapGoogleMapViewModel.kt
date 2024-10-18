@@ -18,6 +18,7 @@ import com.rafael.inclusimap.feature.map.domain.AccessibleLocalsEntity
 import com.rafael.inclusimap.feature.map.domain.CommentWithPlace
 import com.rafael.inclusimap.feature.map.domain.Contribution
 import com.rafael.inclusimap.feature.map.domain.ContributionType
+import com.rafael.inclusimap.feature.map.domain.ContributionsSize
 import com.rafael.inclusimap.feature.map.domain.InclusiMapEntity
 import com.rafael.inclusimap.feature.map.domain.InclusiMapEvent
 import com.rafael.inclusimap.feature.map.domain.InclusiMapState
@@ -325,6 +326,16 @@ class InclusiMapGoogleMapViewModel(
 
                         val commentsContributions =
                             userContributions.filter { it.type == ContributionType.COMMENT }
+                        val placesContributions =
+                            userContributions.filter { it.type == ContributionType.PLACE }
+                        val imageContributions =
+                            userContributions.filter { it.type == ContributionType.IMAGE }
+
+                        _state.update { it.copy(contributionsSize = ContributionsSize(
+                            comments = commentsContributions.size,
+                            places = placesContributions.size,
+                            images = imageContributions.size,
+                        )) }
                         if (!_state.value.allCommentsContributionsLoaded || state.value.userContributions.comments.size != commentsContributions.size) {
                             if (commentsContributions.isEmpty()) {
                                 _state.update { it.copy(allCommentsContributionsLoaded = true) }
@@ -333,8 +344,7 @@ class InclusiMapGoogleMapViewModel(
                             }
                         }
 
-                        val placesContributions =
-                            userContributions.filter { it.type == ContributionType.PLACE }
+
                         if (!_state.value.allPlacesContributionsLoaded || state.value.userContributions.places.size != placesContributions.size) {
                             if (placesContributions.isEmpty()) {
                                 _state.update { it.copy(allPlacesContributionsLoaded = true) }
@@ -343,8 +353,7 @@ class InclusiMapGoogleMapViewModel(
                             }
                         }
 
-                        val imageContributions =
-                            userContributions.filter { it.type == ContributionType.IMAGE }
+
                         if (!_state.value.allImagesContributionsLoaded || state.value.userContributions.images.size != imageContributions.size) {
                             if (imageContributions.isEmpty()) {
                                 _state.update { it.copy(allImagesContributionsLoaded = true) }
