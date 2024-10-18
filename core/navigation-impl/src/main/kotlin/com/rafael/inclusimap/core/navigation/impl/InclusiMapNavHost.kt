@@ -18,6 +18,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.maps.android.compose.rememberCameraPositionState
 import com.rafael.inclusimap.core.navigation.Destination
 import com.rafael.inclusimap.core.settings.domain.model.SettingsEvent
 import com.rafael.inclusimap.core.ui.theme.InclusiMapTheme
@@ -72,6 +73,7 @@ fun InclusiMapNavHost(
         val ossLibraries by libraryViewModel.ossLibraries.collectAsStateWithLifecycle()
         val reportViewModel = koinViewModel<ReportViewModel>()
         val reportState by reportViewModel.state.collectAsStateWithLifecycle()
+        val cameraPositionState = rememberCameraPositionState()
 
         InclusiMapTheme(state = settingsState) {
             Scaffold(
@@ -150,6 +152,7 @@ fun InclusiMapNavHost(
                             reportState = reportState,
                             allowedShowUserProfilePicture = loginViewModel::allowedShowUserProfilePicture,
                             downloadUserProfilePicture = loginViewModel::downloadUserProfilePicture,
+                            cameraPositionState = cameraPositionState,
                             lat = args.lat,
                             lng = args.lng,
                             placeID = args.id,

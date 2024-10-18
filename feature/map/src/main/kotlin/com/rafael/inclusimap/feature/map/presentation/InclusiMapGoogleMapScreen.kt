@@ -27,6 +27,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.ComposeMapColorScheme
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
@@ -34,7 +35,6 @@ import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
-import com.google.maps.android.compose.rememberCameraPositionState
 import com.rafael.inclusimap.core.domain.model.toCategoryName
 import com.rafael.inclusimap.core.domain.model.util.toHUE
 import com.rafael.inclusimap.core.domain.network.InternetConnectionState
@@ -53,6 +53,7 @@ import com.rafael.inclusimap.feature.map.presentation.dialog.ServerUnavailableDi
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchEvent
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchState
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Suppress("ktlint:compose:modifier-not-used-at-root")
@@ -81,10 +82,10 @@ fun InclusiMapGoogleMapScreen(
     placeID: String?,
     allowedShowUserProfilePicture: suspend (String) -> Boolean,
     downloadUserProfilePicture: suspend (String) -> ImageBitmap?,
+    cameraPositionState: CameraPositionState,
     modifier: Modifier = Modifier,
 ) {
     val onPlaceTravelScope = rememberCoroutineScope()
-    val cameraPositionState = rememberCameraPositionState()
     val bottomSheetScaffoldState = rememberModalBottomSheetState()
     val bottomSheetScope = rememberCoroutineScope()
     val addPlaceBottomSheetScaffoldState = rememberModalBottomSheetState()
@@ -359,6 +360,7 @@ fun InclusiMapGoogleMapScreen(
         latestOnEvent(InclusiMapEvent.SetIsContributionsScreen(false))
         if (lat != null && lng != null) {
             latestOnEvent(InclusiMapEvent.SetCurrentPlaceById(placeID!!))
+            delay(300)
             onPlaceTravelScope.launch {
                 async {
                     cameraPositionState.animate(
