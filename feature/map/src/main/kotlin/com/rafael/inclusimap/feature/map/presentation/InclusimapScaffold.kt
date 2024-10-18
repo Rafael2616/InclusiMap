@@ -12,7 +12,9 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.MapType
@@ -39,6 +41,7 @@ fun InclusiMapScaffold(
     isFullScreenMode: Boolean = false,
     content: @Composable () -> Unit,
 ) {
+    val focusRequester = remember { FocusRequester() }
     val items = listOf(
         NavigationBarItem(
             selected = !searchState.expanded && !state.isContributionsScreen,
@@ -61,6 +64,8 @@ fun InclusiMapScaffold(
         NavigationBarItem(
             selected = state.isContributionsScreen,
             onClick = {
+                focusRequester.freeFocus()
+                searchEvent(SearchEvent.SetExpanded(false))
                 onEvent(InclusiMapEvent.SetIsContributionsScreen(true))
                 onNavigateToContributions()
             },
@@ -91,6 +96,7 @@ fun InclusiMapScaffold(
                     settingsState = settingsState,
                     onNavigateToSettings = onNavigateToSettings,
                     onTravelToPlace = onTravelToPlace,
+                    focusRequester = focusRequester,
                 )
             }
         },
