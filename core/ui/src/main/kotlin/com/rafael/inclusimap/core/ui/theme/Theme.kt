@@ -50,9 +50,9 @@ fun InclusiMapTheme(
             }
         } else {
             if (isDarkThemeOn) {
-                DarkColors
+                darkColorScheme()
             } else {
-                LightColors
+                lightColorScheme()
             }
         }
     }
