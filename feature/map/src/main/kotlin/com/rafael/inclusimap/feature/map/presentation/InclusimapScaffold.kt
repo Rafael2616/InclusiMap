@@ -83,7 +83,7 @@ fun InclusiMapScaffold(
             }
         },
         topBar = {
-            if (!isFullScreenMode && state.isMapLoaded) {
+            if (!isFullScreenMode) {
                 PlaceSearchLayout(
                     state = state,
                     searchState = searchState,
