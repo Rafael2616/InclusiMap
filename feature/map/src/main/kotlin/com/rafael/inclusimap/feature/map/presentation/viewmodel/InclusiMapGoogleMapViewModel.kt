@@ -326,22 +326,34 @@ class InclusiMapGoogleMapViewModel(
                         if (!_state.value.allCommentsContributionsLoaded) {
                             val commentsContributions =
                                 userContributions.filter { it.type == ContributionType.COMMENT }
-                            loadCommentContributions(commentsContributions)
+                            if (commentsContributions.isEmpty()) {
+                                _state.update { it.copy(allCommentsContributionsLoaded = true) }
+                            } else {
+                                loadCommentContributions(commentsContributions)
+                            }
                         }
 
                         if (!_state.value.allPlacesContributionsLoaded) {
                             val placesContributions =
                                 userContributions.filter { it.type == ContributionType.PLACE }
-                            loadPlaceContributions(placesContributions)
+                            if (placesContributions.isEmpty()) {
+                                _state.update { it.copy(allPlacesContributionsLoaded = true) }
+                            } else {
+                                loadPlaceContributions(placesContributions)
+                            }
                         }
 
                         if (!_state.value.allImagesContributionsLoaded) {
                             val imageContributions =
                                 userContributions.filter { it.type == ContributionType.IMAGE }
-                            loadImageContributions(
-                                userEmail,
-                                imageContributions,
-                            )
+                            if (imageContributions.isEmpty()) {
+                                _state.update { it.copy(allImagesContributionsLoaded = true) }
+                            } else {
+                                loadImageContributions(
+                                    userEmail,
+                                    imageContributions,
+                                )
+                            }
                         }
                     }
             }
