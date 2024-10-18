@@ -323,9 +323,9 @@ class InclusiMapGoogleMapViewModel(
                             userContributionsString ?: return@launch,
                         )
 
-                        if (!_state.value.allCommentsContributionsLoaded) {
-                            val commentsContributions =
-                                userContributions.filter { it.type == ContributionType.COMMENT }
+                        val commentsContributions =
+                            userContributions.filter { it.type == ContributionType.COMMENT }
+                        if (!_state.value.allCommentsContributionsLoaded || state.value.userContributions.comments.size != commentsContributions.size) {
                             if (commentsContributions.isEmpty()) {
                                 _state.update { it.copy(allCommentsContributionsLoaded = true) }
                             } else {
@@ -333,9 +333,9 @@ class InclusiMapGoogleMapViewModel(
                             }
                         }
 
-                        if (!_state.value.allPlacesContributionsLoaded) {
-                            val placesContributions =
-                                userContributions.filter { it.type == ContributionType.PLACE }
+                        val placesContributions =
+                            userContributions.filter { it.type == ContributionType.PLACE }
+                        if (!_state.value.allPlacesContributionsLoaded || state.value.userContributions.places.size != placesContributions.size) {
                             if (placesContributions.isEmpty()) {
                                 _state.update { it.copy(allPlacesContributionsLoaded = true) }
                             } else {
@@ -343,9 +343,9 @@ class InclusiMapGoogleMapViewModel(
                             }
                         }
 
-                        if (!_state.value.allImagesContributionsLoaded) {
-                            val imageContributions =
-                                userContributions.filter { it.type == ContributionType.IMAGE }
+                        val imageContributions =
+                            userContributions.filter { it.type == ContributionType.IMAGE }
+                        if (!_state.value.allImagesContributionsLoaded || state.value.userContributions.images.size != imageContributions.size) {
                             if (imageContributions.isEmpty()) {
                                 _state.update { it.copy(allImagesContributionsLoaded = true) }
                             } else {
@@ -417,7 +417,8 @@ class InclusiMapGoogleMapViewModel(
                         ?.also { content ->
                             val place =
                                 json.decodeFromString<AccessibleLocalMarker>(content.decodeToString())
-                            val filteredComments = place.comments.filterNot { it in state.value.userContributions.comments.map { it.comment } }
+                            val filteredComments =
+                                place.comments.filterNot { it in state.value.userContributions.comments.map { it.comment } }
                             _state.update {
                                 it.copy(
                                     userContributions = it.userContributions.copy(
@@ -426,7 +427,7 @@ class InclusiMapGoogleMapViewModel(
                                                 comment = it,
                                                 place = place,
                                             )
-                                        }
+                                        },
                                     ),
                                 )
                             }

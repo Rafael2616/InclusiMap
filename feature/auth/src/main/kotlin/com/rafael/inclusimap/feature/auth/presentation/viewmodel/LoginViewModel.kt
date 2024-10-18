@@ -282,7 +282,7 @@ class LoginViewModel(
                                 loginData.userName = userObj.name
                                 loginData.userEmail = userObj.email
                                 loginData.userPassword = userObj.password
-                                loginData.userPathID = userLoginFile.id
+                                loginData.userPathID = user.id
                                 loginData.isLoggedIn = true
                                 loginData.showProfilePictureOptedIn =
                                     userObj.showProfilePictureOptedIn
