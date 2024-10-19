@@ -93,10 +93,10 @@ fun MapNavHost(
         },
         onNavigateToExplore = { fromContributionScreen ->
             if (fromContributionScreen) {
-                onSearchEvent(SearchEvent.OnSearch("", emptyList()))
                 onMapEvent(InclusiMapEvent.SetIsContributionsScreen(false))
                 navController.popBackStack()
             }
+            onSearchEvent(SearchEvent.OnSearch("", emptyList()))
         },
         onTravelToPlace = {
             onPlaceTravelScope.launch {
