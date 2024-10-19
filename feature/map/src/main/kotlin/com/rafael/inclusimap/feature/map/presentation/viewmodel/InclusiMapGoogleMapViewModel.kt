@@ -334,38 +334,28 @@ class InclusiMapGoogleMapViewModel(
                         val imageContributions =
                             userContributions.filter { it.type == ContributionType.IMAGE }
 
-                        _state.update { it.copy(contributionsSize = ContributionsSize(
-                            comments = commentsContributions.size,
-                            places = placesContributions.size,
-                            images = imageContributions.size,
-                        )) }
-                        if (!_state.value.allCommentsContributionsLoaded || state.value.userContributions.comments.size != commentsContributions.size) {
-                            if (commentsContributions.isEmpty()) {
-                                _state.update { it.copy(allCommentsContributionsLoaded = true) }
-                            } else {
-                                loadCommentContributions(commentsContributions)
-                            }
+                        _state.update {
+                            it.copy(
+                                contributionsSize = ContributionsSize(
+                                    comments = commentsContributions.size,
+                                    places = placesContributions.size,
+                                    images = imageContributions.size,
+                                ),
+                            )
                         }
-
+                        if (!_state.value.allCommentsContributionsLoaded || state.value.userContributions.comments.size != commentsContributions.size) {
+                            loadCommentContributions(commentsContributions)
+                        }
 
                         if (!_state.value.allPlacesContributionsLoaded || state.value.userContributions.places.size != placesContributions.size) {
-                            if (placesContributions.isEmpty()) {
-                                _state.update { it.copy(allPlacesContributionsLoaded = true) }
-                            } else {
-                                loadPlaceContributions(placesContributions)
-                            }
+                            loadPlaceContributions(placesContributions)
                         }
 
-
                         if (!_state.value.allImagesContributionsLoaded || state.value.userContributions.images.size != imageContributions.size) {
-                            if (imageContributions.isEmpty()) {
-                                _state.update { it.copy(allImagesContributionsLoaded = true) }
-                            } else {
-                                loadImageContributions(
-                                    userEmail,
-                                    imageContributions,
-                                )
-                            }
+                            loadImageContributions(
+                                userEmail,
+                                imageContributions,
+                            )
                         }
                     }
             }
@@ -451,6 +441,7 @@ class InclusiMapGoogleMapViewModel(
                                             CommentWithPlace(
                                                 comment = it,
                                                 place = place,
+                                                fileId = contribution.fileId,
                                             )
                                         },
                                     ),
@@ -460,7 +451,16 @@ class InclusiMapGoogleMapViewModel(
                 }
             }.awaitAll()
         }.invokeOnCompletion {
-            _state.update { it.copy(allCommentsContributionsLoaded = true) }
+            _state.update {
+                it.copy(
+                    allCommentsContributionsLoaded = true,
+                    userContributions = it.userContributions.copy(
+                        comments = it.userContributions.comments.filter { commentsWithFileId ->
+                            commentsWithFileId.fileId in contributions.map { it.fileId }
+                        },
+                    ),
+                )
+            }
         }
     }
 
@@ -482,22 +482,26 @@ class InclusiMapGoogleMapViewModel(
                                 it.copy(
                                     userContributions = it.userContributions.copy(
                                         places = it.userContributions.places + AccessibleLocalMarkerWithFileId(
-                                           place = place,
-                                           fileId = contribution.fileId,
+                                            place = place,
+                                            fileId = contribution.fileId,
                                         ),
                                     ),
                                 )
                             }
                         }
                 }
-            }
+            }.awaitAll()
         }.invokeOnCompletion {
-            _state.update { it.copy(
-                allPlacesContributionsLoaded = true,
-                userContributions = it.userContributions.copy(
-                    places = it.userContributions.places.filter { it.fileId in contributions.map { it.fileId } }
+            _state.update {
+                it.copy(
+                    allPlacesContributionsLoaded = true,
+                    userContributions = it.userContributions.copy(
+                        places = it.userContributions.places.filter { placeWithFileId ->
+                            placeWithFileId.fileId in contributions.map { it.fileId }
+                        },
+                    ),
                 )
-            ) }
+            }
         }
     }
 

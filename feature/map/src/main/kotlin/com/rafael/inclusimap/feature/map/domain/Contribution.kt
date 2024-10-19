@@ -32,6 +32,7 @@ data class PlaceImageWithPlace(
 data class CommentWithPlace(
     val comment: Comment,
     val place: AccessibleLocalMarker,
+    val fileId: String,
 )
 
 data class AccessibleLocalMarkerWithFileId(
