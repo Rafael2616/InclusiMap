@@ -555,7 +555,7 @@ fun ContributionsScreen(
                                                                 .animateItem(),
                                                         ) {
                                                             date.forEach { image ->
-                                                                item {
+                                                                item(key = image.placeImage.placeID) {
                                                                     Box(
                                                                         modifier = Modifier
                                                                             .padding(3.dp),
