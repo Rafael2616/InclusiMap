@@ -131,40 +131,9 @@ fun PlaceDetailsBottomSheet(
 ) {
     val latestEvent by rememberUpdatedState(onEvent)
     val latestUpdateMappedPlace by rememberUpdatedState(onUpdateMappedPlace)
-    val latestAllowedShowUserProfilePicture by rememberUpdatedState(allowedShowUserProfilePicture)
-    val latestDownloadUserProfilePicture by rememberUpdatedState(downloadUserProfilePicture)
-    val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    val focusRequester = remember { FocusRequester() }
     var showPlaceInfo by remember { mutableStateOf(false) }
-    val launcher =
-        rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) { uris ->
-            uris.takeIf { it.isNotEmpty() }?.let {
-                if (uris.size + state.currentPlace.images.size > MAX_IMAGE_NUMBER) {
-                    Toast.makeText(
-                        context,
-                        "Não foi possível adicionar todas as imagens selecionadas, o limite de imagens por local é $MAX_IMAGE_NUMBER",
-                        Toast.LENGTH_SHORT,
-                    ).show()
-                    return@rememberLauncherForActivityResult
-                }
-                latestEvent(
-                    PlaceDetailsEvent.OnUploadPlaceImages(
-                        it,
-                        context,
-                        state.currentPlace.imageFolderId,
-                        inclusiMapState.selectedMappedPlace?.id!!,
-                    ),
-                )
-                if (uris.size <= 1) {
-                    Toast.makeText(context, "Imagem adicionada!", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(context, "${uris.size} imagens adicionadas!", Toast.LENGTH_SHORT)
-                        .show()
-                }
-            }
-        }
-    val currentPlace = inclusiMapState.selectedMappedPlace!!
+    val currentPlace by remember { mutableStateOf(inclusiMapState.selectedMappedPlace!!) }
     val accessibilityAverage by remember(
         state.trySendComment,
         state.currentPlace.comments,
@@ -179,14 +148,11 @@ fun PlaceDetailsBottomSheet(
         accessibilityAverage.toColor(),
         label = "",
     )
-    val gridHeight by remember { mutableStateOf(260.dp) }
-    val imageWidth by remember { mutableStateOf(185.dp) }
     var showFullScreenImageViewer by remember { mutableStateOf(false) }
-    var selectedImageIndex by remember { mutableIntStateOf(0) }
+    val selectedImageIndex by remember { mutableIntStateOf(0) }
     val internetState = remember { InternetConnectionState(context) }
     val isInternetAvailable by internetState.state.collectAsStateWithLifecycle()
     var showToast by remember { mutableStateOf(false) }
-    val maxCommentLength by remember { mutableIntStateOf(300) }
     var showUnsavedCommentDialog by remember { mutableStateOf(false) }
 
     DisposableEffect(Unit) {
@@ -214,7 +180,7 @@ fun PlaceDetailsBottomSheet(
             modifier = modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -275,562 +241,24 @@ fun PlaceDetailsBottomSheet(
                     )
                 }
             }
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                item {
-                    Text(
-                        text = "Imagens de ${state.currentPlace.title}",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .padding(bottom = 8.dp),
-                    )
-                    LazyHorizontalStaggeredGrid(
-                        rows = StaggeredGridCells.Fixed(1),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(gridHeight),
-                        verticalArrangement = Arrangement.spacedBy(
-                            8.dp,
-                            Alignment.CenterVertically,
-                        ),
-                        horizontalItemSpacing = 8.dp,
-                    ) {
-                        state.currentPlace.images.forEachIndexed { index, image ->
-                            image?.let {
-                                item {
-                                    Image(
-                                        bitmap = it.image,
-                                        contentDescription = null,
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier
-                                            .width(185.dp)
-                                            .height(250.dp)
-                                            .clip(RoundedCornerShape(20.dp))
-                                            .clickable(
-                                                onClick = {
-                                                    selectedImageIndex = index
-                                                    showFullScreenImageViewer = true
-                                                },
-                                            ),
-                                    )
-                                    if (image.userEmail == userEmail) {
-                                        Box(
-                                            modifier = Modifier
-                                                .width(185.dp)
-                                                .height(250.dp)
-                                                .padding(12.dp),
-                                        ) {
-                                            IconButton(
-                                                onClick = {
-                                                    latestEvent(
-                                                        PlaceDetailsEvent.OnDeletePlaceImage(
-                                                            image,
-                                                        ),
-                                                    )
-                                                    Toast.makeText(
-                                                        context,
-                                                        "Imagem removida!",
-                                                        Toast.LENGTH_SHORT,
-                                                    ).show()
-                                                },
-                                                modifier = Modifier
-                                                    .align(Alignment.TopEnd)
-                                                    .size(35.dp)
-                                                    .clip(RoundedCornerShape(16.dp))
-                                                    .background(
-                                                        MaterialTheme.colorScheme.surface.copy(
-                                                            alpha = 0.5f,
-                                                        ),
-                                                    ),
-                                                enabled = isInternetAvailable,
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.TwoTone.Delete,
-                                                    contentDescription = null,
-                                                    tint = if (isInternetAvailable) MaterialTheme.colorScheme.primary else Color.Gray,
-                                                    modifier = Modifier.size(30.dp),
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        item {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(260.dp),
-                                horizontalArrangement = Arrangement.Center,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                if (state.currentPlace.images.isEmpty() && state.allImagesLoaded) {
-                                    Text(
-                                        text = "Nenhuma imagem disponível desse local",
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        textAlign = TextAlign.Center,
-                                        style = TextStyle(
-                                            lineHeight = 16.sp,
-                                        ),
-                                        modifier = Modifier
-                                            .width(imageWidth)
-                                            .padding(horizontal = 12.dp),
-                                    )
-                                }
-                                if (!state.allImagesLoaded) {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxHeight()
-                                            .width(imageWidth)
-                                            .clip(RoundedCornerShape(24.dp)),
-                                        contentAlignment = Alignment.Center,
-                                    ) {
-                                        CircularProgressIndicator(
-                                            modifier = Modifier
-                                                .size(50.dp),
-                                            strokeCap = StrokeCap.Round,
-                                            color = MaterialTheme.colorScheme.primary,
-                                            strokeWidth = 5.dp,
-                                        )
-                                    }
-                                }
-                                if (state.currentPlace.images.size < MAX_IMAGE_NUMBER) {
-                                    Card(
-                                        modifier = Modifier
-                                            .fillMaxHeight()
-                                            .width(imageWidth)
-                                            .clip(RoundedCornerShape(24.dp))
-                                            .clickable {
-                                                if (!isInternetAvailable) {
-                                                    Toast
-                                                        .makeText(
-                                                            context,
-                                                            "Sem conexão com a internet",
-                                                            Toast.LENGTH_SHORT,
-                                                        )
-                                                        .show()
-                                                    return@clickable
-                                                }
-                                                showToast = true
-                                                launcher.launch(
-                                                    PickVisualMediaRequest(
-                                                        ActivityResultContracts.PickVisualMedia.ImageOnly,
-                                                    ),
-                                                )
-                                            },
-                                    ) {
-                                        Column(
-                                            modifier = Modifier
-                                                .fillMaxSize(),
-                                            horizontalAlignment = Alignment.CenterHorizontally,
-                                            verticalArrangement = Arrangement.Center,
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.AddAPhoto,
-                                                contentDescription = null,
-                                                modifier = Modifier
-                                                    .size(40.dp),
-                                            )
-                                            Text(
-                                                text = "Adicionar imagem",
-                                                fontSize = 14.sp,
-                                                fontWeight = FontWeight.Normal,
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    // Comments UI
-                    Spacer(Modifier.height(6.dp))
-                    Text(
-                        text = "Comentários" + " (${state.currentPlace.comments.size})",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .padding(vertical = 4.dp),
-                    )
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(24.dp))
-                            .background(MaterialTheme.colorScheme.surfaceColorAtElevation(15.dp))
-                            .border(
-                                1.25.dp,
-                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-                                RoundedCornerShape(24.dp),
-                            ),
-                    ) {
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(4.dp),
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .fillMaxWidth(),
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth(),
-                            ) {
-                                if (state.isUserCommented) {
-                                    Text(
-                                        text = "Sua avaliação:",
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        fontFamily = FontFamily.SansSerif,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.weight(1f),
-                                    )
-                                } else {
-                                    Text(
-                                        text = "Qual o nível de acessibilidade do local?",
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        modifier = Modifier.weight(1f),
-                                    )
-                                }
-                                val userAccessibilityColor by animateColorAsState(
-                                    state.userAccessibilityRate.toFloat().coerceAtLeast(1f)
-                                        .toColor(),
-                                    label = "",
-                                )
-                                (1..3).forEach {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(20.dp)
-                                            .padding(1.5.dp)
-                                            .clip(CircleShape)
-                                            .then(
-                                                if (state.userAccessibilityRate != 0 && state.userAccessibilityRate >= it) {
-                                                    Modifier.background(
-                                                        userAccessibilityColor
-                                                            .copy(
-                                                                alpha = if (state.isUserCommented || !isInternetAvailable) 0.4f else 1f,
-                                                            ),
-                                                    )
-                                                } else {
-                                                    Modifier
-                                                },
-                                            )
-                                            .border(
-                                                1.25.dp,
-                                                MaterialTheme.colorScheme.primary.copy(alpha = if (state.isUserCommented) 0.4f else 0.8f),
-                                                CircleShape,
-                                            )
-                                            .clickable {
-                                                latestEvent(
-                                                    PlaceDetailsEvent.SetUserAccessibilityRate(it),
-                                                )
-                                            },
-                                    )
-                                }
-                            }
-                            if (!state.isUserCommented) {
-                                TextField(
-                                    value = state.userComment,
-                                    onValueChange = {
-                                        if (it.length <= maxCommentLength) {
-                                            latestEvent(PlaceDetailsEvent.SetUserComment(it))
-                                        }
-                                    },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .focusRequester(focusRequester),
-                                    placeholder = {
-                                        Text(text = "Adicione um comentário sobre a acessibilidade desse local")
-                                    },
-                                    maxLines = 3,
-                                    shape = RoundedCornerShape(16.dp),
-                                    trailingIcon = {
-                                        Column {
-                                            Row {
-                                                Text(
-                                                    text = state.userComment.length.toString(),
-                                                    fontSize = 12.sp,
-                                                    color = if (state.userComment.length < 3 && state.userComment.isNotEmpty()) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
-                                                )
-                                                Text(
-                                                    text = "/$maxCommentLength",
-                                                    fontSize = 12.sp,
-                                                    color = MaterialTheme.colorScheme.onSurface,
-                                                )
-                                            }
-                                            IconButton(
-                                                onClick = {
-                                                    latestEvent(PlaceDetailsEvent.OnSendComment)
-                                                    if (state.userComment.isEmpty()) {
-                                                        Toast.makeText(
-                                                            context,
-                                                            "O comentário está vazio!",
-                                                            Toast.LENGTH_SHORT,
-                                                        ).show()
-                                                        return@IconButton
-                                                    }
-                                                    if (state.userComment.length < 3) {
-                                                        Toast.makeText(
-                                                            context,
-                                                            "O comentário é muito curto!",
-                                                            Toast.LENGTH_SHORT,
-                                                        ).show()
-                                                        return@IconButton
-                                                    }
-                                                    if (state.userAccessibilityRate == 0) {
-                                                        Toast.makeText(
-                                                            context,
-                                                            "Selecione uma avaliação!",
-                                                            Toast.LENGTH_SHORT,
-                                                        ).show()
-                                                    }
-                                                    Toast.makeText(
-                                                        context,
-                                                        "Comentário adicionado!",
-                                                        Toast.LENGTH_SHORT,
-                                                    ).show()
-                                                },
-                                                enabled = isInternetAvailable,
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.AutoMirrored.Filled.Send,
-                                                    contentDescription = null,
-                                                )
-                                            }
-                                        }
-                                    },
-                                    keyboardOptions = KeyboardOptions(
-                                        keyboardType = KeyboardType.Text,
-                                        capitalization = KeyboardCapitalization.Sentences,
-                                        autoCorrectEnabled = true,
-                                        imeAction = ImeAction.Send,
-                                    ),
-                                    keyboardActions = KeyboardActions(
-                                        onSend = {
-                                            latestEvent(PlaceDetailsEvent.OnSendComment)
-                                        },
-                                    ),
-                                    enabled = isInternetAvailable,
-                                    isError =
-                                    (state.userAccessibilityRate == 0 || state.userComment.isEmpty()) && state.trySendComment,
-                                )
-                            } else {
-                                Row {
-                                    if (userPicture != null) {
-                                        Image(
-                                            bitmap = userPicture,
-                                            contentDescription = null,
-                                            modifier = Modifier
-                                                .size(30.dp)
-                                                .clip(CircleShape),
-                                            contentScale = ContentScale.Crop,
-                                        )
-                                    } else {
-                                        Icon(
-                                            imageVector = Icons.Outlined.Person,
-                                            contentDescription = null,
-                                            modifier = Modifier
-                                                .size(30.dp),
-                                        )
-                                    }
-                                    Spacer(Modifier.width(6.dp))
-                                    Text(
-                                        text = userName,
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.Bold,
-                                    )
-                                    Spacer(Modifier.width(6.dp))
-                                    Text(
-                                        text = state.userCommentDate.removeTime()?.formatDate()
-                                            ?: "",
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
-                                    )
-                                }
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                ) {
-                                    Text(
-                                        text = state.userComment,
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        modifier = Modifier.weight(1f),
-                                    )
-                                    IconButton(
-                                        onClick = {
-                                            latestEvent(
-                                                PlaceDetailsEvent.SetIsUserCommented(
-                                                    false,
-                                                ),
-                                            )
-                                            scope.launch {
-                                                async { bottomSheetScaffoldState.expand() }.await()
-                                                focusRequester.requestFocus()
-                                            }
-                                        },
-                                        modifier = Modifier
-                                            .size(35.dp)
-                                            .clip(CircleShape),
-                                        enabled = isInternetAvailable,
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Filled.Edit,
-                                            contentDescription = "Edit",
-                                        )
-                                    }
-                                    IconButton(
-                                        onClick = {
-                                            latestEvent(PlaceDetailsEvent.OnDeleteComment)
-                                            Toast.makeText(
-                                                context,
-                                                "Comentário removido!",
-                                                Toast.LENGTH_SHORT,
-                                            ).show()
-                                        },
-                                        modifier = Modifier
-                                            .size(35.dp)
-                                            .clip(CircleShape),
-                                        enabled = isInternetAvailable,
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.TwoTone.Delete,
-                                            contentDescription = null,
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    Spacer(Modifier.height(10.dp))
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(24.dp))
-                            .background(MaterialTheme.colorScheme.surfaceColorAtElevation(15.dp)),
-                    ) {
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(4.dp),
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .fillMaxWidth(),
-                        ) {
-                            state.currentPlace.comments.filter { comment -> comment.email != userEmail }
-                                .forEachIndexed { index, comment ->
-                                    var userProfilePicture by remember { mutableStateOf<ImageBitmap?>(null) }
-                                    var allowedShowUserPicture by remember {
-                                        mutableStateOf<Boolean?>(null)
-                                    }
-                                    LaunchedEffect(Unit) {
-                                        allowedShowUserPicture =
-                                            latestAllowedShowUserProfilePicture(comment.email)
-                                    }
-                                    LaunchedEffect(allowedShowUserPicture == true) {
-                                        userProfilePicture = latestDownloadUserProfilePicture(comment.email)
-                                    }
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.Top,
-                                    ) {
-                                        if (allowedShowUserPicture == true && userProfilePicture != null) {
-                                            Image(
-                                                bitmap = userProfilePicture!!,
-                                                contentDescription = null,
-                                                modifier = Modifier
-                                                    .size(30.dp)
-                                                    .clip(CircleShape),
-                                                contentScale = ContentScale.Crop,
-                                            )
-                                        } else {
-                                            Icon(
-                                                imageVector = Icons.Outlined.Person,
-                                                contentDescription = null,
-                                                modifier = Modifier
-                                                    .size(30.dp),
-                                            )
-                                        }
-                                        Spacer(Modifier.width(6.dp))
-                                        Text(
-                                            text = comment.name,
-                                            fontSize = 16.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            overflow = TextOverflow.Ellipsis,
-                                        )
-                                        Spacer(Modifier.width(6.dp))
-                                        Text(
-                                            text = comment.postDate.removeTime()?.formatDate()
-                                                ?: "",
-                                            fontSize = 12.sp,
-                                            maxLines = 1,
-                                            fontWeight = FontWeight.Normal,
-                                            overflow = TextOverflow.Ellipsis,
-                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
-                                            modifier = Modifier.weight(1f),
-                                        )
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .weight(1f),
-                                            contentAlignment = Alignment.CenterEnd,
-                                        ) {
-                                            for (i in 1..comment.accessibilityRate) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .size(15.dp)
-                                                        .padding(1.5.dp)
-                                                        .clip(CircleShape)
-                                                        .background(
-                                                            comment.accessibilityRate
-                                                                .toFloat()
-                                                                .toColor(),
-                                                        )
-                                                        .border(
-                                                            1.dp,
-                                                            MaterialTheme.colorScheme.primary.copy(
-                                                                alpha = 0.8f,
-                                                            ),
-                                                            CircleShape,
-                                                        ),
-                                                )
-                                            }
-                                        }
-                                    }
-                                    Text(
-                                        text = comment.body,
-                                        fontSize = 14.sp,
-                                        lineHeight = 18.sp,
-                                        fontWeight = FontWeight.Normal,
-                                    )
-                                    if (index != (state.currentPlace.comments.filter { it.email != userEmail }.size - 1)) {
-                                        HorizontalDivider(
-                                            thickness = 2.dp,
-                                        )
-                                    }
-                                }
-                            if (state.currentPlace.comments.isEmpty()) {
-                                Text(
-                                    text = "Nenhum comentário adicionado até agora",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Normal,
-                                )
-                            }
-                            if (state.currentPlace.comments.size == 1 && state.currentPlace.comments.first().email == userEmail) {
-                                Text(
-                                    text = "Somente você comentou até agora",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Normal,
-                                )
-                            }
-                        }
-                    }
-                }
-            }
+            ImageSection(
+                state = state,
+                inclusiMapState = inclusiMapState,
+                isInternetAvailable = isInternetAvailable,
+                onEvent = onEvent,
+                userEmail = userEmail,
+            )
+            CommentSection(
+                state = state,
+                isInternetAvailable = isInternetAvailable,
+                onEvent = onEvent,
+                userPicture = userPicture,
+                userName = userName,
+                userEmail = userEmail,
+                bottomSheetScaffoldState = bottomSheetScaffoldState,
+                allowedShowUserProfilePicture = allowedShowUserProfilePicture,
+                downloadUserProfilePicture = downloadUserProfilePicture,
+            )
         }
     }
     AnimatedVisibility(showPlaceInfo) {
@@ -877,5 +305,632 @@ fun PlaceDetailsBottomSheet(
                 showUnsavedCommentDialog = false
             },
         )
+    }
+}
+
+@Composable
+fun ImageSection(
+    state: PlaceDetailsState,
+    inclusiMapState: InclusiMapState,
+    isInternetAvailable: Boolean,
+    onEvent: (PlaceDetailsEvent) -> Unit,
+    userEmail: String,
+    modifier: Modifier = Modifier,
+) {
+    val context = LocalContext.current
+    val gridHeight by remember { mutableStateOf(260.dp) }
+    val imageWidth by remember { mutableStateOf(185.dp) }
+    var showFullScreenImageViewer by remember { mutableStateOf(false) }
+    var selectedImageIndex by remember { mutableIntStateOf(0) }
+    var showToast by remember { mutableStateOf(false) }
+    val launcher =
+        rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) { uris ->
+            uris.takeIf { it.isNotEmpty() }?.let {
+                if (uris.size + state.currentPlace.images.size > MAX_IMAGE_NUMBER) {
+                    Toast.makeText(
+                        context,
+                        "Não foi possível adicionar todas as imagens selecionadas, o limite de imagens por local é $MAX_IMAGE_NUMBER",
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                    return@rememberLauncherForActivityResult
+                }
+                onEvent(
+                    PlaceDetailsEvent.OnUploadPlaceImages(
+                        it,
+                        context,
+                        state.currentPlace.imageFolderId,
+                        inclusiMapState.selectedMappedPlace?.id!!,
+                    ),
+                )
+                if (uris.size <= 1) {
+                    Toast.makeText(context, "Imagem adicionada!", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "${uris.size} imagens adicionadas!", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+        }
+
+    LazyColumn(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        item {
+            Text(
+                text = "Imagens de ${state.currentPlace.title}",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .padding(bottom = 8.dp),
+            )
+            LazyHorizontalStaggeredGrid(
+                rows = StaggeredGridCells.Fixed(1),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(gridHeight),
+                verticalArrangement = Arrangement.spacedBy(
+                    8.dp,
+                    Alignment.CenterVertically,
+                ),
+                horizontalItemSpacing = 8.dp,
+            ) {
+                state.currentPlace.images.forEachIndexed { index, image ->
+                    image?.let {
+                        item {
+                            Image(
+                                bitmap = it.image,
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .width(185.dp)
+                                    .height(250.dp)
+                                    .clip(RoundedCornerShape(20.dp))
+                                    .clickable(
+                                        onClick = {
+                                            selectedImageIndex = index
+                                            showFullScreenImageViewer = true
+                                        },
+                                    ),
+                            )
+                            if (image.userEmail == userEmail) {
+                                Box(
+                                    modifier = Modifier
+                                        .width(185.dp)
+                                        .height(250.dp)
+                                        .padding(12.dp),
+                                ) {
+                                    IconButton(
+                                        onClick = {
+                                            onEvent(
+                                                PlaceDetailsEvent.OnDeletePlaceImage(
+                                                    image,
+                                                ),
+                                            )
+                                            Toast.makeText(
+                                                context,
+                                                "Imagem removida!",
+                                                Toast.LENGTH_SHORT,
+                                            ).show()
+                                        },
+                                        modifier = Modifier
+                                            .align(Alignment.TopEnd)
+                                            .size(35.dp)
+                                            .clip(RoundedCornerShape(16.dp))
+                                            .background(
+                                                MaterialTheme.colorScheme.surface.copy(
+                                                    alpha = 0.5f,
+                                                ),
+                                            ),
+                                        enabled = isInternetAvailable,
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.TwoTone.Delete,
+                                            contentDescription = null,
+                                            tint = if (isInternetAvailable) MaterialTheme.colorScheme.primary else Color.Gray,
+                                            modifier = Modifier.size(30.dp),
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(260.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        if (state.currentPlace.images.isEmpty() && state.allImagesLoaded) {
+                            Text(
+                                text = "Nenhuma imagem disponível desse local",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                textAlign = TextAlign.Center,
+                                style = TextStyle(
+                                    lineHeight = 16.sp,
+                                ),
+                                modifier = Modifier
+                                    .width(imageWidth)
+                                    .padding(horizontal = 12.dp),
+                            )
+                        }
+                        if (!state.allImagesLoaded) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .width(imageWidth)
+                                    .clip(RoundedCornerShape(24.dp)),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier
+                                        .size(50.dp),
+                                    strokeCap = StrokeCap.Round,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    strokeWidth = 5.dp,
+                                )
+                            }
+                        }
+                        if (state.currentPlace.images.size < MAX_IMAGE_NUMBER) {
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .width(imageWidth)
+                                    .clip(RoundedCornerShape(24.dp))
+                                    .clickable {
+                                        if (!isInternetAvailable) {
+                                            Toast
+                                                .makeText(
+                                                    context,
+                                                    "Sem conexão com a internet",
+                                                    Toast.LENGTH_SHORT,
+                                                )
+                                                .show()
+                                            return@clickable
+                                        }
+                                        showToast = true
+                                        launcher.launch(
+                                            PickVisualMediaRequest(
+                                                ActivityResultContracts.PickVisualMedia.ImageOnly,
+                                            ),
+                                        )
+                                    },
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize(),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center,
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.AddAPhoto,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(40.dp),
+                                    )
+                                    Text(
+                                        text = "Adicionar imagem",
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Normal,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CommentSection(
+    state: PlaceDetailsState,
+    isInternetAvailable: Boolean,
+    onEvent: (PlaceDetailsEvent) -> Unit,
+    userPicture: ImageBitmap?,
+    userName: String,
+    userEmail: String,
+    bottomSheetScaffoldState: SheetState,
+    allowedShowUserProfilePicture: suspend (String) -> Boolean,
+    downloadUserProfilePicture: suspend (String) -> ImageBitmap?,
+    modifier: Modifier = Modifier,
+) {
+    val maxCommentLength by remember { mutableIntStateOf(300) }
+    val latestEvent by rememberUpdatedState(onEvent)
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val focusRequester = remember { FocusRequester() }
+    val latestAllowedShowUserProfilePicture by rememberUpdatedState(allowedShowUserProfilePicture)
+    val latestDownloadUserProfilePicture by rememberUpdatedState(downloadUserProfilePicture)
+
+    Column(
+        modifier = modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = "Comentários" + " (${state.currentPlace.comments.size})",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier
+                .padding(vertical = 4.dp),
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(24.dp))
+                .background(MaterialTheme.colorScheme.surfaceColorAtElevation(15.dp))
+                .border(
+                    1.25.dp,
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                    RoundedCornerShape(24.dp),
+                ),
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(),
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    if (state.isUserCommented) {
+                        Text(
+                            text = "Sua avaliação:",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            fontFamily = FontFamily.SansSerif,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.weight(1f),
+                        )
+                    } else {
+                        Text(
+                            text = "Qual o nível de acessibilidade do local?",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                    val userAccessibilityColor by animateColorAsState(
+                        state.userAccessibilityRate.toFloat().coerceAtLeast(1f)
+                            .toColor(),
+                        label = "",
+                    )
+                    (1..3).forEach {
+                        Box(
+                            modifier = Modifier
+                                .size(20.dp)
+                                .padding(1.5.dp)
+                                .clip(CircleShape)
+                                .then(
+                                    if (state.userAccessibilityRate != 0 && state.userAccessibilityRate >= it) {
+                                        Modifier.background(
+                                            userAccessibilityColor
+                                                .copy(
+                                                    alpha = if (state.isUserCommented || !isInternetAvailable) 0.4f else 1f,
+                                                ),
+                                        )
+                                    } else {
+                                        Modifier
+                                    },
+                                )
+                                .border(
+                                    1.25.dp,
+                                    MaterialTheme.colorScheme.primary.copy(alpha = if (state.isUserCommented) 0.4f else 0.8f),
+                                    CircleShape,
+                                )
+                                .clickable {
+                                    latestEvent(
+                                        PlaceDetailsEvent.SetUserAccessibilityRate(it),
+                                    )
+                                },
+                        )
+                    }
+                }
+                if (!state.isUserCommented) {
+                    TextField(
+                        value = state.userComment,
+                        onValueChange = {
+                            if (it.length <= maxCommentLength) {
+                                latestEvent(PlaceDetailsEvent.SetUserComment(it))
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(focusRequester),
+                        placeholder = {
+                            Text(text = "Adicione um comentário sobre a acessibilidade desse local")
+                        },
+                        maxLines = 3,
+                        shape = RoundedCornerShape(16.dp),
+                        trailingIcon = {
+                            Column {
+                                Row {
+                                    Text(
+                                        text = state.userComment.length.toString(),
+                                        fontSize = 12.sp,
+                                        color = if (state.userComment.length < 3 && state.userComment.isNotEmpty()) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                                    )
+                                    Text(
+                                        text = "/$maxCommentLength",
+                                        fontSize = 12.sp,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                    )
+                                }
+                                IconButton(
+                                    onClick = {
+                                        latestEvent(PlaceDetailsEvent.OnSendComment)
+                                        if (state.userComment.isEmpty()) {
+                                            Toast.makeText(
+                                                context,
+                                                "O comentário está vazio!",
+                                                Toast.LENGTH_SHORT,
+                                            ).show()
+                                            return@IconButton
+                                        }
+                                        if (state.userComment.length < 3) {
+                                            Toast.makeText(
+                                                context,
+                                                "O comentário é muito curto!",
+                                                Toast.LENGTH_SHORT,
+                                            ).show()
+                                            return@IconButton
+                                        }
+                                        if (state.userAccessibilityRate == 0) {
+                                            Toast.makeText(
+                                                context,
+                                                "Selecione uma avaliação!",
+                                                Toast.LENGTH_SHORT,
+                                            ).show()
+                                        }
+                                        Toast.makeText(
+                                            context,
+                                            "Comentário adicionado!",
+                                            Toast.LENGTH_SHORT,
+                                        ).show()
+                                    },
+                                    enabled = isInternetAvailable,
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.Send,
+                                        contentDescription = null,
+                                    )
+                                }
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            capitalization = KeyboardCapitalization.Sentences,
+                            autoCorrectEnabled = true,
+                            imeAction = ImeAction.Send,
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onSend = {
+                                latestEvent(PlaceDetailsEvent.OnSendComment)
+                            },
+                        ),
+                        enabled = isInternetAvailable,
+                        isError =
+                        (state.userAccessibilityRate == 0 || state.userComment.isEmpty()) && state.trySendComment,
+                    )
+                } else {
+                    Row {
+                        if (userPicture != null) {
+                            Image(
+                                bitmap = userPicture,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(30.dp)
+                                    .clip(CircleShape),
+                                contentScale = ContentScale.Crop,
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Outlined.Person,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(30.dp),
+                            )
+                        }
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            text = userName,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            text = state.userCommentDate.removeTime()?.formatDate()
+                                ?: "",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
+                        )
+                    }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Text(
+                            text = state.userComment,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Normal,
+                            modifier = Modifier.weight(1f),
+                        )
+                        IconButton(
+                            onClick = {
+                                latestEvent(
+                                    PlaceDetailsEvent.SetIsUserCommented(
+                                        false,
+                                    ),
+                                )
+                                scope.launch {
+                                    async { bottomSheetScaffoldState.expand() }.await()
+                                    focusRequester.requestFocus()
+                                }
+                            },
+                            modifier = Modifier
+                                .size(35.dp)
+                                .clip(CircleShape),
+                            enabled = isInternetAvailable,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Edit,
+                                contentDescription = "Edit",
+                            )
+                        }
+                        IconButton(
+                            onClick = {
+                                latestEvent(PlaceDetailsEvent.OnDeleteComment)
+                                Toast.makeText(
+                                    context,
+                                    "Comentário removido!",
+                                    Toast.LENGTH_SHORT,
+                                ).show()
+                            },
+                            modifier = Modifier
+                                .size(35.dp)
+                                .clip(CircleShape),
+                            enabled = isInternetAvailable,
+                        ) {
+                            Icon(
+                                imageVector = Icons.TwoTone.Delete,
+                                contentDescription = null,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.height(10.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(24.dp))
+                .background(MaterialTheme.colorScheme.surfaceColorAtElevation(15.dp)),
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(),
+            ) {
+                state.currentPlace.comments.filter { comment -> comment.email != userEmail }
+                    .forEachIndexed { index, comment ->
+                        var userProfilePicture by remember { mutableStateOf<ImageBitmap?>(null) }
+                        var allowedShowUserPicture by remember {
+                            mutableStateOf<Boolean?>(null)
+                        }
+                        LaunchedEffect(Unit) {
+                            allowedShowUserPicture =
+                                latestAllowedShowUserProfilePicture(comment.email)
+                        }
+                        LaunchedEffect(allowedShowUserPicture == true) {
+                            userProfilePicture = latestDownloadUserProfilePicture(comment.email)
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.Top,
+                        ) {
+                            if (allowedShowUserPicture == true && userProfilePicture != null) {
+                                Image(
+                                    bitmap = userProfilePicture!!,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(30.dp)
+                                        .clip(CircleShape),
+                                    contentScale = ContentScale.Crop,
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Outlined.Person,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(30.dp),
+                                )
+                            }
+                            Spacer(Modifier.width(6.dp))
+                            Text(
+                                text = comment.name,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                            Spacer(Modifier.width(6.dp))
+                            Text(
+                                text = comment.postDate.removeTime()?.formatDate()
+                                    ?: "",
+                                fontSize = 12.sp,
+                                maxLines = 1,
+                                fontWeight = FontWeight.Normal,
+                                overflow = TextOverflow.Ellipsis,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
+                                modifier = Modifier.weight(1f),
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f),
+                                contentAlignment = Alignment.CenterEnd,
+                            ) {
+                                for (i in 1..comment.accessibilityRate) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(15.dp)
+                                            .padding(1.5.dp)
+                                            .clip(CircleShape)
+                                            .background(
+                                                comment.accessibilityRate
+                                                    .toFloat()
+                                                    .toColor(),
+                                            )
+                                            .border(
+                                                1.dp,
+                                                MaterialTheme.colorScheme.primary.copy(
+                                                    alpha = 0.8f,
+                                                ),
+                                                CircleShape,
+                                            ),
+                                    )
+                                }
+                            }
+                        }
+                        Text(
+                            text = comment.body,
+                            fontSize = 14.sp,
+                            lineHeight = 18.sp,
+                            fontWeight = FontWeight.Normal,
+                        )
+                        if (index != (state.currentPlace.comments.filter { it.email != userEmail }.size - 1)) {
+                            HorizontalDivider(
+                                thickness = 2.dp,
+                            )
+                        }
+                    }
+                if (state.currentPlace.comments.isEmpty()) {
+                    Text(
+                        text = "Nenhum comentário adicionado até agora",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                    )
+                }
+                if (state.currentPlace.comments.size == 1 && state.currentPlace.comments.first().email == userEmail) {
+                    Text(
+                        text = "Somente você comentou até agora",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                    )
+                }
+            }
+        }
     }
 }
