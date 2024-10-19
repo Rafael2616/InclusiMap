@@ -121,24 +121,12 @@ fun ContributionsScreen(
     ) {
         CenterAlignedTopAppBar(
             title = {
-                Row(
-                    verticalAlignment = Alignment.Top,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    modifier = Modifier.height(40.dp),
-                ) {
-                    Text(
-                        text = "Contribuições",
-                        fontSize = 28.sp,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxHeight(),
-                    )
-                    Text(
-                        text = "BETA",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                }
+                Text(
+                    text = "Contribuições",
+                    fontSize = 28.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxHeight(),
+                )
             },
             expandedHeight = 60.dp,
         )
@@ -273,7 +261,8 @@ fun ContributionsScreen(
                                                                 Destination.MapScreen(
                                                                     place.place.position.first,
                                                                     place.place.position.second,
-                                                                    place.place.id ?: return@IconButton,
+                                                                    place.place.id
+                                                                        ?: return@IconButton,
                                                                 ),
                                                             )
                                                         },
@@ -536,7 +525,7 @@ fun ContributionsScreen(
                                                         item {
                                                             Box(
                                                                 modifier = Modifier
-                                                                    .padding(3.dp)
+                                                                    .padding(3.dp),
                                                             ) {
                                                                 Image(
                                                                     bitmap = image.placeImage.image,
