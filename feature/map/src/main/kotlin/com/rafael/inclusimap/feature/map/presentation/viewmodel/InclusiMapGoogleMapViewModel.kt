@@ -316,6 +316,7 @@ class InclusiMapGoogleMapViewModel(
 
     private fun loadUserContributions(userEmail: String) {
         viewModelScope.launch(Dispatchers.IO) {
+            _state.update { it.copy(isLoadingContributions = true) }
             val userPathId = loginRepository.getLoginInfo(1)?.userPathID ?: return@launch
             driveService.listFiles(userPathId).onSuccess { userFiles ->
                 userFiles.find { it.name == "contributions.json" }
@@ -358,6 +359,13 @@ class InclusiMapGoogleMapViewModel(
                             )
                         }
                     }
+            }
+        }.invokeOnCompletion {
+            _state.update {
+                it.copy(
+                    isLoadingContributions = false,
+                    shouldRefresh = false,
+                )
             }
         }
     }
@@ -417,14 +425,16 @@ class InclusiMapGoogleMapViewModel(
                 deferreds.awaitAll()
             }
         }.invokeOnCompletion {
-            _state.update { it.copy(
-                allImagesContributionsLoaded = true,
-                userContributions = it.userContributions.copy(
-                    images = it.userContributions.images.filter { imagesWithFileId ->
-                        imagesWithFileId.fileId in contributions.map { it.fileId }
-                    },
-                ),
-            ) }
+            _state.update {
+                it.copy(
+                    allImagesContributionsLoaded = true,
+                    userContributions = it.userContributions.copy(
+                        images = it.userContributions.images.filter { imagesWithFileId ->
+                            imagesWithFileId.fileId in contributions.map { it.fileId }
+                        },
+                    ),
+                )
+            }
         }
     }
 
