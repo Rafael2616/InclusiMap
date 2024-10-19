@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -125,7 +124,7 @@ fun ContributionsScreen(
                     text = "Contribuições",
                     fontSize = 28.sp,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxHeight(),
+                    modifier = Modifier.height(40.dp),
                 )
             },
             expandedHeight = 60.dp,
