@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
@@ -46,101 +47,105 @@ fun PlaceSearchScreen(
 ) {
     val focusManager = LocalFocusManager.current
 
-    Column(
+    LazyColumn(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.Start,
     ) {
-        if (matchingPlaces.isNotEmpty()) {
-            Text(
-                text = "Resultados da pesquisa:",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(horizontal = 12.dp),
-            )
-            Spacer(modifier = Modifier.height(4.dp))
+        item {
+            if (matchingPlaces.isNotEmpty()) {
+                Text(
+                    text = "Resultados da pesquisa:",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(horizontal = 12.dp),
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+            }
         }
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 2.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.surfaceColorAtElevation(6.dp))
-                .pointerInput(Unit) {
-                    detectVerticalDragGestures(
-                        onVerticalDrag = { _, _ ->
-                            focusManager.clearFocus()
-                        },
-                    )
-                    detectTapGestures(
-                        onTap = { focusManager.clearFocus() },
-                    )
-                }
-                .animateContentSize(),
-        ) {
-            if (matchingPlaces.isEmpty() && query.isNotEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(100.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(
-                            4.dp,
-                            Alignment.CenterVertically,
-                        ),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Info,
-                            contentDescription = null,
-                            modifier = Modifier.size(35.dp),
+        item {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 2.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.surfaceColorAtElevation(6.dp))
+                    .pointerInput(Unit) {
+                        detectVerticalDragGestures(
+                            onVerticalDrag = { _, _ ->
+                                focusManager.clearFocus()
+                            },
                         )
-                        Text(
-                            text = "Nenhum local encontrado para a pesquisa: $query",
-                            maxLines = 2,
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        detectTapGestures(
+                            onTap = { focusManager.clearFocus() },
                         )
                     }
-                }
-            } else {
-                matchingPlaces.forEachIndexed { index, place ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Start,
+                    .animateContentSize(),
+            ) {
+                if (matchingPlaces.isEmpty() && query.isNotEmpty()) {
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(58.dp)
-                            .clickable {
-                                onPlaceClick(
-                                    LatLng(
-                                        place.position.first,
-                                        place.position.second,
-                                    ),
-                                )
-                            }
-                            .padding(horizontal = 6.dp, vertical = 8.dp),
+                            .height(100.dp),
+                        contentAlignment = Alignment.Center,
                     ) {
-                        Text(
-                            text = place.title,
-                            fontSize = 14.sp,
-                            modifier = Modifier.weight(1f),
-                        )
-                        GoogleMapsPin(
-                            pinColor = place.comments.map { it.accessibilityRate }.average()
-                                .toFloat()
-                                .toColor(),
-                            pinSize = 46.dp,
-                        )
-                    }
-                    if (index < matchingPlaces.size - 1) {
-                        HorizontalDivider(
-                            thickness = 3.dp,
-                            color = MaterialTheme.colorScheme.surface,
+                        Column(
                             modifier = Modifier.fillMaxWidth(),
-                        )
+                            verticalArrangement = Arrangement.spacedBy(
+                                4.dp,
+                                Alignment.CenterVertically,
+                            ),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Info,
+                                contentDescription = null,
+                                modifier = Modifier.size(35.dp),
+                            )
+                            Text(
+                                text = "Nenhum local encontrado para a pesquisa: $query",
+                                maxLines = 2,
+                                textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                } else {
+                    matchingPlaces.forEachIndexed { index, place ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Start,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(58.dp)
+                                .clickable {
+                                    onPlaceClick(
+                                        LatLng(
+                                            place.position.first,
+                                            place.position.second,
+                                        ),
+                                    )
+                                }
+                                .padding(horizontal = 6.dp, vertical = 8.dp),
+                        ) {
+                            Text(
+                                text = place.title,
+                                fontSize = 14.sp,
+                                modifier = Modifier.weight(1f),
+                            )
+                            GoogleMapsPin(
+                                pinColor = place.comments.map { it.accessibilityRate }.average()
+                                    .toFloat()
+                                    .toColor(),
+                                pinSize = 46.dp,
+                            )
+                        }
+                        if (index < matchingPlaces.size - 1) {
+                            HorizontalDivider(
+                                thickness = 3.dp,
+                                color = MaterialTheme.colorScheme.surface,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
                     }
                 }
             }
