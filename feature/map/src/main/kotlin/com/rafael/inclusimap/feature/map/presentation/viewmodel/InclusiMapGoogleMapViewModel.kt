@@ -420,7 +420,6 @@ class InclusiMapGoogleMapViewModel(
         }
     }
 
-
     private fun loadCommentContributions(
         contributions: List<Contribution>,
     ) {

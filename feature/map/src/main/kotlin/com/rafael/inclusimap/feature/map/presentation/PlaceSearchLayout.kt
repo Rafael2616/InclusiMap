@@ -55,13 +55,13 @@ fun PlaceSearchLayout(
     modifier: Modifier = Modifier,
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .fillMaxHeight(0.6f),
         contentAlignment = Alignment.TopCenter,
     ) {
         SearchBar(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .statusBarsPadding()
                 .displayCutoutPadding()

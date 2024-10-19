@@ -169,7 +169,7 @@ class LoginViewModel(
                 driveService.createFile(
                     "contributions.json",
                     "[]",
-                    state.value.userPathID
+                    state.value.userPathID,
                 )
             }.await()
             // Artificial Delay

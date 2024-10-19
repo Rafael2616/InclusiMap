@@ -49,6 +49,7 @@ fun MapNavHost(
     setShowAppIntro: (Boolean) -> Unit,
     allowedShowUserProfilePicture: suspend (String) -> Boolean,
     downloadUserProfilePicture: suspend (String) -> ImageBitmap?,
+    modifier: Modifier = Modifier,
 ) {
     val navController = rememberNavController()
     var isFullScreenMode by remember { mutableStateOf(false) }
@@ -106,6 +107,7 @@ fun MapNavHost(
         onNavigateToContributions = {
             navController.navigate(Destination.ContributionsScreen)
         },
+        modifier = modifier,
     ) { paddingValues ->
         NavHost(
             navController = navController,
@@ -150,7 +152,7 @@ fun MapNavHost(
                     userName = loginState.user?.name ?: "",
                     userPicture = settingsState.profilePicture,
                     navController = navController,
-                    modifier = Modifier.padding(PaddingValues(bottom = paddingValues.calculateBottomPadding()))
+                    modifier = Modifier.padding(PaddingValues(bottom = paddingValues.calculateBottomPadding())),
                 )
             }
         }
