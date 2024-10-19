@@ -57,7 +57,7 @@ fun PlaceSearchLayout(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight(0.7f),
+            .fillMaxHeight(0.6f),
         contentAlignment = Alignment.TopCenter,
     ) {
         SearchBar(
