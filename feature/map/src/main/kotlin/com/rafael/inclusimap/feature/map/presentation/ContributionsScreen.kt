@@ -499,7 +499,7 @@ fun ContributionsScreen(
                                             }
                                             place.groupBy { it.date }.forEach { (_, date) ->
                                                 Text(
-                                                    text = date.size.toString() + " imagem(ns)",
+                                                    text = date.size.toString() + if (date.size == 1) " imagem" else " imagens",
                                                     fontSize = 14.sp,
                                                     fontWeight = FontWeight.Normal,
                                                     color = MaterialTheme.colorScheme.primary,
