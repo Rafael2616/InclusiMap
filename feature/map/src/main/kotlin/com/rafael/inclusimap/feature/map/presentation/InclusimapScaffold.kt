@@ -65,7 +65,6 @@ fun InclusiMapScaffold(
             selected = state.isContributionsScreen,
             onClick = {
                 searchEvent(SearchEvent.SetExpanded(false))
-                onEvent(InclusiMapEvent.SetIsContributionsScreen(true))
                 onNavigateToContributions()
             },
             icon = Icons.Default.AddLocationAlt,

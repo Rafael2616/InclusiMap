@@ -111,8 +111,10 @@ fun MapNavHost(
         },
         onNavigateToContributions = {
             onSearchEvent(SearchEvent.OnSearch("", emptyList()))
-            onMapEvent(InclusiMapEvent.SetIsContributionsScreen(true))
-            navController.navigate(Destination.ContributionsScreen)
+            if (!mapState.isContributionsScreen) {
+                navController.navigate(Destination.ContributionsScreen)
+                onMapEvent(InclusiMapEvent.SetIsContributionsScreen(true))
+            }
         },
         modifier = modifier,
     ) { paddingValues ->
