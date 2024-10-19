@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
@@ -73,7 +72,6 @@ fun InclusiMapGoogleMapScreen(
     allowedShowUserProfilePicture: suspend (String) -> Boolean,
     downloadUserProfilePicture: suspend (String) -> ImageBitmap?,
     cameraPositionState: CameraPositionState,
-    navController: NavController,
     modifier: Modifier = Modifier,
 ) {
     val onPlaceTravelScope = rememberCoroutineScope()

@@ -34,6 +34,7 @@ import com.rafael.inclusimap.feature.map.presentation.InclusiMapScaffold
 import com.rafael.inclusimap.feature.map.presentation.viewmodel.InclusiMapGoogleMapViewModel
 import com.rafael.inclusimap.feature.map.presentation.viewmodel.PlaceDetailsViewModel
 import com.rafael.inclusimap.feature.map.presentation.viewmodel.ReportViewModel
+import com.rafael.inclusimap.feature.map.search.domain.model.SearchEvent
 import com.rafael.inclusimap.feature.map.search.presentation.viewmodel.SearchViewModel
 import kotlin.reflect.typeOf
 import kotlinx.coroutines.launch
@@ -92,6 +93,7 @@ fun MapNavHost(
         },
         onNavigateToExplore = { fromContributionScreen ->
             if (fromContributionScreen) {
+                onSearchEvent(SearchEvent.OnSearch("", emptyList()))
                 onMapEvent(InclusiMapEvent.SetIsContributionsScreen(false))
                 navController.popBackStack()
             }
@@ -108,6 +110,7 @@ fun MapNavHost(
             }
         },
         onNavigateToContributions = {
+            onSearchEvent(SearchEvent.OnSearch("", emptyList()))
             onMapEvent(InclusiMapEvent.SetIsContributionsScreen(true))
             navController.navigate(Destination.ContributionsScreen)
         },
@@ -146,7 +149,6 @@ fun MapNavHost(
                     downloadUserProfilePicture = downloadUserProfilePicture,
                     cameraPositionState = cameraPositionState,
                     location = args.location,
-                    navController = navController,
                 )
             }
             composable<Destination.ContributionsScreen> {
