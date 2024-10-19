@@ -35,6 +35,7 @@ fun InclusiMapScaffold(
     onMapTypeChange: (MapType) -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToContributions: () -> Unit,
+    onNavigateToExplore: (fromContributionScreen: Boolean) -> Unit,
     onTravelToPlace: (LatLng) -> Unit,
     onFullScreenModeChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -46,8 +47,8 @@ fun InclusiMapScaffold(
         NavigationBarItem(
             selected = !searchState.expanded && !state.isContributionsScreen,
             onClick = {
+                onNavigateToExplore(state.isContributionsScreen)
                 searchEvent(SearchEvent.SetExpanded(false))
-                onEvent(InclusiMapEvent.SetIsContributionsScreen(false))
             },
             icon = Icons.Default.Explore,
             name = "Explorar",
@@ -55,8 +56,8 @@ fun InclusiMapScaffold(
         NavigationBarItem(
             selected = searchState.expanded && !state.isContributionsScreen,
             onClick = {
+                onNavigateToExplore(state.isContributionsScreen)
                 searchEvent(SearchEvent.SetExpanded(true))
-                onEvent(InclusiMapEvent.SetIsContributionsScreen(false))
             },
             icon = Icons.Default.Search,
             name = "Pesquisar",
@@ -64,7 +65,6 @@ fun InclusiMapScaffold(
         NavigationBarItem(
             selected = state.isContributionsScreen,
             onClick = {
-                focusRequester.freeFocus()
                 searchEvent(SearchEvent.SetExpanded(false))
                 onEvent(InclusiMapEvent.SetIsContributionsScreen(true))
                 onNavigateToContributions()
@@ -78,7 +78,7 @@ fun InclusiMapScaffold(
         modifier = modifier
             .fillMaxSize(),
         floatingActionButton = {
-            if (state.isMapLoaded) {
+            if (state.isMapLoaded && !state.isContributionsScreen) {
                 MapTypeToggleButton(
                     settingsState.mapType,
                     onMapTypeChange = { onMapTypeChange(it) },
@@ -88,7 +88,7 @@ fun InclusiMapScaffold(
             }
         },
         topBar = {
-            if (!isFullScreenMode) {
+            if (!isFullScreenMode && !state.isContributionsScreen) {
                 PlaceSearchLayout(
                     state = state,
                     searchState = searchState,

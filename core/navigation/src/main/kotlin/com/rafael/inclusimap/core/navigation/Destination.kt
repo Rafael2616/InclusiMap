@@ -8,6 +8,9 @@ sealed interface Destination {
     data class MapScreen(val lat: Double? = null, val lng: Double? = null, val id: String? = null) : Destination
 
     @Serializable
+    data object MapHost : Destination
+
+    @Serializable
     data class LoginScreen(val isEditPasswordMode: Boolean = false) : Destination
 
     @Serializable

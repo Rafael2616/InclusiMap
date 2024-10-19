@@ -18,7 +18,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.maps.android.compose.rememberCameraPositionState
 import com.rafael.inclusimap.core.navigation.Destination
 import com.rafael.inclusimap.core.settings.domain.model.SettingsEvent
 import com.rafael.inclusimap.core.ui.theme.InclusiMapTheme
@@ -31,13 +30,6 @@ import com.rafael.inclusimap.feature.intro.presentation.viewmodel.AppIntroViewMo
 import com.rafael.inclusimap.feature.libraryinfo.presentation.LibraryScreen
 import com.rafael.inclusimap.feature.libraryinfo.presentation.viewmodel.LibraryViewModel
 import com.rafael.inclusimap.feature.map.di.mapModule
-import com.rafael.inclusimap.feature.map.domain.InclusiMapEvent
-import com.rafael.inclusimap.feature.map.presentation.ContributionsScreen
-import com.rafael.inclusimap.feature.map.presentation.InclusiMapGoogleMapScreen
-import com.rafael.inclusimap.feature.map.presentation.viewmodel.InclusiMapGoogleMapViewModel
-import com.rafael.inclusimap.feature.map.presentation.viewmodel.PlaceDetailsViewModel
-import com.rafael.inclusimap.feature.map.presentation.viewmodel.ReportViewModel
-import com.rafael.inclusimap.feature.map.search.presentation.viewmodel.SearchViewModel
 import com.rafael.inclusimap.feature.settings.presentation.SettingsScreen
 import com.rafael.inclusimap.feature.settings.presentation.viewmodel.SettingsViewModel
 import org.koin.compose.KoinContext
@@ -59,21 +51,12 @@ fun InclusiMapNavHost(
     KoinContext {
         val appIntroViewModel = koinViewModel<AppIntroViewModel>()
         val appIntroState by appIntroViewModel.state.collectAsStateWithLifecycle()
-        val mapViewModel = koinViewModel<InclusiMapGoogleMapViewModel>()
-        val mapState by mapViewModel.state.collectAsStateWithLifecycle()
-        val placeDetailsViewModel = koinViewModel<PlaceDetailsViewModel>()
-        val placeDetailsState by placeDetailsViewModel.state.collectAsStateWithLifecycle()
         val loginViewModel = koinViewModel<LoginViewModel>()
         val loginState by loginViewModel.state.collectAsStateWithLifecycle()
-        val searchViewModel = koinViewModel<SearchViewModel>()
-        val searchState by searchViewModel.state.collectAsStateWithLifecycle()
         val settingsViewModel = koinViewModel<SettingsViewModel>()
         val settingsState by settingsViewModel.state.collectAsStateWithLifecycle()
         val libraryViewModel = koinViewModel<LibraryViewModel>()
         val ossLibraries by libraryViewModel.ossLibraries.collectAsStateWithLifecycle()
-        val reportViewModel = koinViewModel<ReportViewModel>()
-        val reportState by reportViewModel.state.collectAsStateWithLifecycle()
-        val cameraPositionState = rememberCameraPositionState()
 
         InclusiMapTheme(state = settingsState) {
             Scaffold(
@@ -82,7 +65,7 @@ fun InclusiMapNavHost(
             ) { innerPadding ->
                 NavHost(
                     navController = navController,
-                    startDestination = if (!loginState.isLoggedIn) Destination.LoginScreen(false) else Destination.MapScreen(),
+                    startDestination = if (!loginState.isLoggedIn) Destination.LoginScreen(false) else Destination.MapHost,
                     enterTransition = { materialSharedAxisXIn(!isRtl, slideDistance) },
                     exitTransition = { materialSharedAxisXOut(!isRtl, slideDistance) },
                     popEnterTransition = { materialSharedAxisXIn(isRtl, slideDistance) },
@@ -121,41 +104,16 @@ fun InclusiMapNavHost(
                             isEditPasswordMode = it.toRoute<Destination.LoginScreen>().isEditPasswordMode,
                         )
                     }
-                    composable<Destination.MapScreen> {
-                        val args = it.toRoute<Destination.MapScreen>()
-                        InclusiMapGoogleMapScreen(
-                            mapState,
-                            mapViewModel::onEvent,
-                            placeDetailsState,
-                            placeDetailsViewModel::onEvent,
-                            appIntroState,
-                            onDismissAppIntro = {
-                                appIntroViewModel.setShowAppIntro(it)
-                                mapViewModel.onEvent(InclusiMapEvent.ShouldAnimateMap(it))
-                            },
-                            searchState,
-                            searchViewModel::onEvent,
-                            settingsState,
-                            fusedLocationProviderClient,
-                            onMapTypeChange = {
-                                settingsViewModel.onEvent(
-                                    SettingsEvent.SetMapType(it),
-                                )
-                            },
-                            onNavigateToSettings = { navController.navigate(Destination.SettingsScreen) },
-                            onNavigateToContributions = { navController.navigate(Destination.ContributionsScreen) },
-                            userName = loginState.user?.name ?: "",
-                            userEmail = loginState.user?.email ?: "",
-                            onReport = {
-                                reportViewModel.onReport(it)
-                            },
-                            reportState = reportState,
+                    composable<Destination.MapHost> {
+                        MapNavHost(
+                            parentNavController = navController,
+                            settingsState = settingsState,
+                            onSettingsEvent = settingsViewModel::onEvent,
+                            appIntroState = appIntroState,
+                            setShowAppIntro = appIntroViewModel::setShowAppIntro,
                             allowedShowUserProfilePicture = loginViewModel::allowedShowUserProfilePicture,
                             downloadUserProfilePicture = loginViewModel::downloadUserProfilePicture,
-                            cameraPositionState = cameraPositionState,
-                            lat = args.lat,
-                            lng = args.lng,
-                            placeID = args.id,
+                            loginState = loginState,
                         )
                     }
                     composable<Destination.SettingsScreen> {
@@ -228,7 +186,7 @@ fun InclusiMapNavHost(
                                         false,
                                     ),
                                 )
-                                navController.clearBackStack(Destination.MapScreen())
+                                navController.clearBackStack(Destination.MapHost)
                             }
                         }
                     }
@@ -247,20 +205,6 @@ fun InclusiMapNavHost(
                             },
                         )
                     }
-                    composable<Destination.ContributionsScreen> {
-                        ContributionsScreen(
-                            state = mapState,
-                            onEvent = mapViewModel::onEvent,
-                            userEmail = loginState.user?.email ?: "",
-                            userName = loginState.user?.name ?: "",
-                            userPicture = settingsState.profilePicture,
-                            onPopBackStack = {
-                                navController.popBackStack()
-                                mapViewModel.onEvent(InclusiMapEvent.SetIsContributionsScreen(false))
-                            },
-                            navController = navController,
-                        )
-                    }
                 }
             }
         }
@@ -269,7 +213,7 @@ fun InclusiMapNavHost(
 
         LaunchedEffect(loginState.isLoggedIn, appIntroState.showAppIntro) {
             if (loginState.isLoggedIn && appIntroState.showAppIntro) {
-                navController.navigate(Destination.MapScreen())
+                navController.navigate(Destination.MapHost)
             }
         }
 
