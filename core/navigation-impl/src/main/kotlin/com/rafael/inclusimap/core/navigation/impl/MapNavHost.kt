@@ -21,6 +21,8 @@ import androidx.navigation.toRoute
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.rafael.inclusimap.core.navigation.Destination
+import com.rafael.inclusimap.core.navigation.Location
+import com.rafael.inclusimap.core.navigation.impl.types.locationType
 import com.rafael.inclusimap.core.settings.domain.model.SettingsEvent
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 import com.rafael.inclusimap.feature.auth.domain.model.LoginState
@@ -33,6 +35,7 @@ import com.rafael.inclusimap.feature.map.presentation.viewmodel.InclusiMapGoogle
 import com.rafael.inclusimap.feature.map.presentation.viewmodel.PlaceDetailsViewModel
 import com.rafael.inclusimap.feature.map.presentation.viewmodel.ReportViewModel
 import com.rafael.inclusimap.feature.map.search.presentation.viewmodel.SearchViewModel
+import kotlin.reflect.typeOf
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import soup.compose.material.motion.animation.materialSharedAxisXIn
@@ -89,9 +92,9 @@ fun MapNavHost(
         },
         onNavigateToExplore = { fromContributionScreen ->
             if (fromContributionScreen) {
+                onMapEvent(InclusiMapEvent.SetIsContributionsScreen(false))
                 navController.popBackStack()
             }
-            onMapEvent(InclusiMapEvent.SetIsContributionsScreen(false))
         },
         onTravelToPlace = {
             onPlaceTravelScope.launch {
@@ -105,6 +108,7 @@ fun MapNavHost(
             }
         },
         onNavigateToContributions = {
+            onMapEvent(InclusiMapEvent.SetIsContributionsScreen(true))
             navController.navigate(Destination.ContributionsScreen)
         },
         modifier = modifier,
@@ -117,7 +121,9 @@ fun MapNavHost(
             popEnterTransition = { materialSharedAxisXIn(isRtl, slideDistance) },
             popExitTransition = { materialSharedAxisXOut(isRtl, slideDistance) },
         ) {
-            composable<Destination.MapScreen> {
+            composable<Destination.MapScreen>(
+                typeMap = mapOf(typeOf<Location?>() to locationType)
+            ) {
                 val args = it.toRoute<Destination.MapScreen>()
                 InclusiMapGoogleMapScreen(
                     mapState,
@@ -139,9 +145,8 @@ fun MapNavHost(
                     allowedShowUserProfilePicture = allowedShowUserProfilePicture,
                     downloadUserProfilePicture = downloadUserProfilePicture,
                     cameraPositionState = cameraPositionState,
-                    lat = args.lat,
-                    lng = args.lng,
-                    placeID = args.id,
+                    location = args.location,
+                    navController = navController,
                 )
             }
             composable<Destination.ContributionsScreen> {

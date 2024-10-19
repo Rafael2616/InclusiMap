@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
@@ -36,6 +37,7 @@ import com.google.maps.android.compose.MarkerState
 import com.rafael.inclusimap.core.domain.model.toCategoryName
 import com.rafael.inclusimap.core.domain.model.util.toHUE
 import com.rafael.inclusimap.core.domain.network.InternetConnectionState
+import com.rafael.inclusimap.core.navigation.Location
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 import com.rafael.inclusimap.feature.intro.domain.model.AppIntroState
 import com.rafael.inclusimap.feature.intro.presentation.dialogs.AppIntroDialog
@@ -67,12 +69,11 @@ fun InclusiMapGoogleMapScreen(
     userEmail: String,
     onReport: (Report) -> Unit,
     reportState: ReportState,
-    lat: Double?,
-    lng: Double?,
-    placeID: String?,
+    location: Location?,
     allowedShowUserProfilePicture: suspend (String) -> Boolean,
     downloadUserProfilePicture: suspend (String) -> ImageBitmap?,
     cameraPositionState: CameraPositionState,
+    navController: NavController,
     modifier: Modifier = Modifier,
 ) {
     val onPlaceTravelScope = rememberCoroutineScope()
@@ -313,19 +314,23 @@ fun InclusiMapGoogleMapScreen(
         onDispose { }
     }
 
-    LaunchedEffect(lat) {
+    LaunchedEffect(location) {
+        if (location != null && state.isContributionsScreen) {
         latestOnEvent(InclusiMapEvent.SetIsContributionsScreen(false))
-        if (lat != null && lng != null) {
-            latestOnEvent(InclusiMapEvent.SetCurrentPlaceById(placeID!!))
+            latestOnEvent(
+                InclusiMapEvent.SetCurrentPlaceById(
+                    location.placeId,
+                ),
+            )
             delay(300)
             onPlaceTravelScope.launch {
                 async {
                     cameraPositionState.animate(
                         CameraUpdateFactory.newLatLngZoom(
-                            LatLng(lat, lng),
+                            LatLng(location.lat, location.lng),
                             18f,
                         ),
-                        3500,
+                        3000,
                     )
                 }.await()
                 bottomSheetScaffoldState.show()

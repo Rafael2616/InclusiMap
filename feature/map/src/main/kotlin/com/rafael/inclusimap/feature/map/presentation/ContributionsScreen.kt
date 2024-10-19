@@ -68,6 +68,7 @@ import com.rafael.inclusimap.core.domain.model.util.formatDate
 import com.rafael.inclusimap.core.domain.model.util.removeTime
 import com.rafael.inclusimap.core.domain.model.util.toColor
 import com.rafael.inclusimap.core.navigation.Destination
+import com.rafael.inclusimap.core.navigation.Location
 import com.rafael.inclusimap.feature.map.domain.ContributionType
 import com.rafael.inclusimap.feature.map.domain.InclusiMapEvent
 import com.rafael.inclusimap.feature.map.domain.InclusiMapState
@@ -282,10 +283,12 @@ fun ContributionsScreen(
                                                                     navController.popBackStack()
                                                                     navController.navigate(
                                                                         Destination.MapScreen(
-                                                                            place.place.position.first,
-                                                                            place.place.position.second,
-                                                                            place.place.id
-                                                                                ?: return@IconButton,
+                                                                            Location(
+                                                                                place.place.position.first,
+                                                                                place.place.position.second,
+                                                                                place.place.id
+                                                                                    ?: return@IconButton,
+                                                                            ),
                                                                         ),
                                                                     )
                                                                 },
@@ -421,10 +424,12 @@ fun ContributionsScreen(
                                                             navController.popBackStack()
                                                             navController.navigate(
                                                                 Destination.MapScreen(
-                                                                    comment.place.position.first,
-                                                                    comment.place.position.second,
-                                                                    comment.place.id
-                                                                        ?: return@IconButton,
+                                                                    Location(
+                                                                        comment.place.position.first,
+                                                                        comment.place.position.second,
+                                                                        comment.place.id
+                                                                            ?: return@IconButton,
+                                                                    ),
                                                                 ),
                                                             )
                                                         },
@@ -504,10 +509,12 @@ fun ContributionsScreen(
                                                                 navController.popBackStack()
                                                                 navController.navigate(
                                                                     Destination.MapScreen(
-                                                                        place.first().place.position.first,
-                                                                        place.first().place.position.second,
-                                                                        place.first().place.id
-                                                                            ?: return@IconButton,
+                                                                        Location(
+                                                                            place.first().place.position.first,
+                                                                            place.first().place.position.second,
+                                                                            place.first().place.id
+                                                                                ?: return@IconButton,
+                                                                        ),
                                                                     ),
                                                                 )
                                                             },
