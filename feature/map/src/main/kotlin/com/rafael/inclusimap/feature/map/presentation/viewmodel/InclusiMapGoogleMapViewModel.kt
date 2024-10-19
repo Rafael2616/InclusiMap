@@ -16,6 +16,7 @@ import com.rafael.inclusimap.core.domain.network.onSuccess
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID
 import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
+import com.rafael.inclusimap.feature.map.domain.AccessibleLocalMarkerWithFileId
 import com.rafael.inclusimap.feature.map.domain.AccessibleLocalsEntity
 import com.rafael.inclusimap.feature.map.domain.CommentWithPlace
 import com.rafael.inclusimap.feature.map.domain.Contribution
@@ -476,11 +477,14 @@ class InclusiMapGoogleMapViewModel(
                                 json.decodeFromString<AccessibleLocalMarker>(
                                     content.decodeToString(),
                                 )
-                            if (place.id in state.value.userContributions.places.map { it.id }) return@async
+                            if (place.id in state.value.userContributions.places.map { it.place.id }) return@async
                             _state.update {
                                 it.copy(
                                     userContributions = it.userContributions.copy(
-                                        places = it.userContributions.places + place,
+                                        places = it.userContributions.places + AccessibleLocalMarkerWithFileId(
+                                           place = place,
+                                           fileId = contribution.fileId,
+                                        ),
                                     ),
                                 )
                             }
@@ -488,7 +492,12 @@ class InclusiMapGoogleMapViewModel(
                 }
             }
         }.invokeOnCompletion {
-            _state.update { it.copy(allPlacesContributionsLoaded = true) }
+            _state.update { it.copy(
+                allPlacesContributionsLoaded = true,
+                userContributions = it.userContributions.copy(
+                    places = it.userContributions.places.filter { it.fileId in contributions.map { it.fileId } }
+                )
+            ) }
         }
     }
 

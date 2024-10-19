@@ -206,7 +206,9 @@ fun ContributionsScreen(
                                 horizontalArrangement = Arrangement.Center,
                                 userScrollEnabled = false,
                             ) {
-                                state.userContributions.places.forEachIndexed { index, place ->
+                                state.userContributions.places.sortedBy {
+                                    it.place.time.removeTime()?.formatDate()
+                                }.forEachIndexed { index, place ->
                                     item {
                                         Row(
                                             verticalAlignment = Alignment.CenterVertically,
@@ -229,14 +231,14 @@ fun ContributionsScreen(
                                                 modifier = Modifier.fillMaxSize(),
                                             ) {
                                                 Text(
-                                                    text = place.title,
+                                                    text = place.place.title,
                                                     fontSize = 16.sp,
                                                     fontWeight = FontWeight.SemiBold,
                                                     maxLines = 1,
                                                     overflow = TextOverflow.Ellipsis,
                                                 )
                                                 Text(
-                                                    text = place.category?.toCategoryName()
+                                                    text = place.place.category?.toCategoryName()
                                                         ?.uppercase()
                                                         ?: "",
                                                     fontSize = 14.sp,
@@ -253,7 +255,7 @@ fun ContributionsScreen(
                                                 ) {
                                                     Text(
                                                         text = "Adicionado em:\n${
-                                                            place.time.removeTime()
+                                                            place.place.time.removeTime()
                                                                 ?.formatDate() ?: "Unknown"
                                                         }",
                                                         fontSize = 12.sp,
@@ -269,9 +271,9 @@ fun ContributionsScreen(
                                                             navController.popBackStack()
                                                             navController.navigate(
                                                                 Destination.MapScreen(
-                                                                    place.position.first,
-                                                                    place.position.second,
-                                                                    place.id ?: return@IconButton,
+                                                                    place.place.position.first,
+                                                                    place.place.position.second,
+                                                                    place.place.id ?: return@IconButton,
                                                                 ),
                                                             )
                                                         },

@@ -172,7 +172,7 @@ fun PlaceSearchLayout(
             )
         }
     }
-    DisposableEffect(Unit) {
+    DisposableEffect(searchState.expanded) {
         if (searchState.expanded) {
             focusRequester.requestFocus()
         }

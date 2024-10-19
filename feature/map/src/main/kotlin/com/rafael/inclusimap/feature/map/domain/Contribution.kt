@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 data class Contributions(
     val images: List<PlaceImageWithPlace> = emptyList(),
     val comments: List<CommentWithPlace> = emptyList(),
-    val places: List<AccessibleLocalMarker> = emptyList(),
+    val places: List<AccessibleLocalMarkerWithFileId> = emptyList(),
 )
 
 @Serializable
@@ -32,4 +32,9 @@ data class PlaceImageWithPlace(
 data class CommentWithPlace(
     val comment: Comment,
     val place: AccessibleLocalMarker,
+)
+
+data class AccessibleLocalMarkerWithFileId(
+    val place: AccessibleLocalMarker,
+    val fileId: String,
 )
