@@ -29,12 +29,10 @@ import com.rafael.inclusimap.feature.auth.presentation.viewmodel.LoginViewModel
 import com.rafael.inclusimap.feature.intro.presentation.viewmodel.AppIntroViewModel
 import com.rafael.inclusimap.feature.libraryinfo.presentation.LibraryScreen
 import com.rafael.inclusimap.feature.libraryinfo.presentation.viewmodel.LibraryViewModel
-import com.rafael.inclusimap.feature.map.di.mapModule
 import com.rafael.inclusimap.feature.settings.presentation.SettingsScreen
 import com.rafael.inclusimap.feature.settings.presentation.viewmodel.SettingsViewModel
 import org.koin.compose.KoinContext
 import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.context.unloadKoinModules
 import soup.compose.material.motion.animation.materialSharedAxisXIn
 import soup.compose.material.motion.animation.materialSharedAxisXOut
 import soup.compose.material.motion.animation.rememberSlideDistance
@@ -136,7 +134,6 @@ fun InclusiMapNavHost(
                                 loginViewModel.onEvent(
                                     LoginEvent.OnLogout,
                                 )
-                                unloadKoinModules(mapModule)
                             },
                             onDeleteAccount = { keepContributions ->
                                 loginViewModel.onEvent(

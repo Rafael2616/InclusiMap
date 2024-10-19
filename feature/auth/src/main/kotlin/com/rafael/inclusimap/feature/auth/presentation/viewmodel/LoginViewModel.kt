@@ -274,7 +274,7 @@ class LoginViewModel(
                                 async {
                                     downloadUserProfilePicture(userObj.email)?.asAndroidBitmap()
                                         ?.compress(
-                                            Bitmap.CompressFormat.PNG,
+                                            Bitmap.CompressFormat.JPEG,
                                             100,
                                             userImageByteArray,
                                         )
