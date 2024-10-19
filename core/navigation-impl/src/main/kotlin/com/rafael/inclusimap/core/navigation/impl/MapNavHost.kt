@@ -149,10 +149,6 @@ fun MapNavHost(
                     userEmail = loginState.user?.email ?: "",
                     userName = loginState.user?.name ?: "",
                     userPicture = settingsState.profilePicture,
-                    onPopBackStack = {
-                        navController.popBackStack()
-                        onMapEvent(InclusiMapEvent.SetIsContributionsScreen(false))
-                    },
                     navController = navController,
                     modifier = Modifier.padding(PaddingValues(bottom = paddingValues.calculateBottomPadding()))
                 )

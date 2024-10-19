@@ -1,13 +1,11 @@
 package com.rafael.inclusimap.feature.map.presentation
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -18,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -26,7 +25,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.Comment
 import androidx.compose.material.icons.outlined.ArrowOutward
 import androidx.compose.material.icons.outlined.Image
@@ -40,6 +38,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.surfaceColorAtElevation
@@ -77,7 +76,6 @@ import com.rafael.inclusimap.feature.map.domain.InclusiMapState
 fun ContributionsScreen(
     state: InclusiMapState,
     onEvent: (InclusiMapEvent) -> Unit,
-    onPopBackStack: () -> Unit,
     userEmail: String,
     userName: String,
     userPicture: ImageBitmap?,
@@ -116,6 +114,7 @@ fun ContributionsScreen(
         modifier = modifier
             .fillMaxSize()
             .statusBarsPadding()
+            .padding(top = 12.dp, bottom = 8.dp)
             .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Top),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -129,7 +128,7 @@ fun ContributionsScreen(
                 ) {
                     Text(
                         text = "Contribuições",
-                        fontSize = 26.sp,
+                        fontSize = 28.sp,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxHeight(),
                     )
@@ -142,28 +141,23 @@ fun ContributionsScreen(
                 }
             },
             expandedHeight = 60.dp,
-            navigationIcon = {
-                IconButton(
-                    onClick = onPopBackStack,
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = null,
-                    )
-                }
-            },
         )
         SingleChoiceSegmentedButtonRow(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
+                .width(255.dp)
+                .height(45.dp),
         ) {
-            buttons.forEach { button ->
+            buttons.forEachIndexed { index, button ->
                 SegmentedButton(
+                    shape = SegmentedButtonDefaults.itemShape(
+                        index = index,
+                        count = buttons.size,
+                    ),
                     onClick = {
                         selectedButton = button.type
                     },
                     selected = button.type == selectedButton,
+                    icon = { },
                     label = {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -172,19 +166,15 @@ fun ContributionsScreen(
                             Icon(
                                 imageVector = button.icon,
                                 contentDescription = null,
-                                modifier = Modifier.size(30.dp),
+                                modifier = Modifier.size(25.dp),
                             )
                             Text(
                                 text = "(${button.quantity})",
-                                fontSize = 16.sp,
+                                fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
                             )
                         }
                     },
-                    shape = MaterialTheme.shapes.medium,
-                    modifier = Modifier
-                        .padding(horizontal = 6.dp)
-                        .weight(1f),
                 )
             }
         }
@@ -472,9 +462,11 @@ fun ContributionsScreen(
                                                     8.dp,
                                                 ),
                                             )
-                                            .padding(vertical = 8.dp, horizontal = 12.dp),
+                                            .padding(12.dp),
                                     ) {
-                                        Column {
+                                        Column(
+                                            verticalArrangement = Arrangement.spacedBy(2.dp),
+                                        ) {
                                             Row(
                                                 modifier = Modifier.fillMaxWidth(),
                                                 verticalAlignment = Alignment.CenterVertically,
@@ -517,6 +509,12 @@ fun ContributionsScreen(
                                             }
                                             place.groupBy { it.date }.forEach { (_, date) ->
                                                 Text(
+                                                    text = date.size.toString() + " imagem(ns)",
+                                                    fontSize = 14.sp,
+                                                    fontWeight = FontWeight.Normal,
+                                                    color = MaterialTheme.colorScheme.primary,
+                                                )
+                                                Text(
                                                     text = "Postada(s) em: " + date.first().date,
                                                     fontSize = 14.sp,
                                                     fontWeight = FontWeight.Normal,
@@ -529,21 +527,25 @@ fun ContributionsScreen(
                                                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                                                     modifier = Modifier
                                                         .fillMaxWidth()
-                                                        .height(150.dp)
+                                                        .height(140.dp)
                                                         .animateItem(),
-                                                    contentPadding = PaddingValues(horizontal = 6.dp),
                                                 ) {
                                                     date.forEach { image ->
                                                         item {
-                                                            Image(
-                                                                bitmap = image.placeImage.image,
-                                                                contentDescription = null,
-                                                                contentScale = ContentScale.Crop,
+                                                            Box(
                                                                 modifier = Modifier
-                                                                    .height(110.dp)
-                                                                    .aspectRatio(image.placeImage.image.width / image.placeImage.image.height.toFloat())
-                                                                    .clip(RoundedCornerShape(8.dp)),
-                                                            )
+                                                                    .padding(3.dp)
+                                                            ) {
+                                                                Image(
+                                                                    bitmap = image.placeImage.image,
+                                                                    contentDescription = null,
+                                                                    contentScale = ContentScale.Crop,
+                                                                    modifier = Modifier
+                                                                        .height(130.dp)
+                                                                        .aspectRatio(image.placeImage.image.width / image.placeImage.image.height.toFloat())
+                                                                        .clip(RoundedCornerShape(8.dp)),
+                                                                )
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -562,10 +564,6 @@ fun ContributionsScreen(
                 }
             }
         }
-    }
-
-    BackHandler {
-        onPopBackStack()
     }
 }
 
