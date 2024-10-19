@@ -47,41 +47,39 @@ fun PlaceSearchScreen(
 ) {
     val focusManager = LocalFocusManager.current
 
-    LazyColumn(
+    Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.Start,
     ) {
-        item {
-            if (matchingPlaces.isNotEmpty()) {
-                Text(
-                    text = "Resultados da pesquisa:",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(horizontal = 12.dp),
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-            }
+        if (matchingPlaces.isNotEmpty()) {
+            Text(
+                text = "Resultados da pesquisa:",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.padding(horizontal = 12.dp),
+            )
+            Spacer(modifier = Modifier.height(4.dp))
         }
-        item {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 2.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.surfaceColorAtElevation(6.dp))
-                    .pointerInput(Unit) {
-                        detectVerticalDragGestures(
-                            onVerticalDrag = { _, _ ->
-                                focusManager.clearFocus()
-                            },
-                        )
-                        detectTapGestures(
-                            onTap = { focusManager.clearFocus() },
-                        )
-                    }
-                    .animateContentSize(),
-            ) {
-                if (matchingPlaces.isEmpty() && query.isNotEmpty()) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 2.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.surfaceColorAtElevation(6.dp))
+                .pointerInput(Unit) {
+                    detectVerticalDragGestures(
+                        onVerticalDrag = { _, _ ->
+                            focusManager.clearFocus()
+                        },
+                    )
+                    detectTapGestures(
+                        onTap = { focusManager.clearFocus() },
+                    )
+                }
+                .animateContentSize(),
+        ) {
+            if (matchingPlaces.isEmpty() && query.isNotEmpty()) {
+                item {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -109,8 +107,10 @@ fun PlaceSearchScreen(
                             )
                         }
                     }
-                } else {
-                    matchingPlaces.forEachIndexed { index, place ->
+                }
+            } else {
+                matchingPlaces.forEachIndexed { index, place ->
+                    item {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Start,
