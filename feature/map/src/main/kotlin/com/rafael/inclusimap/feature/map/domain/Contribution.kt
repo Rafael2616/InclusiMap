@@ -27,6 +27,7 @@ data class PlaceImageWithPlace(
     val placeImage: PlaceImage,
     val place: AccessibleLocalMarker,
     val date: String?,
+    val fileId: String,
 )
 
 data class CommentWithPlace(

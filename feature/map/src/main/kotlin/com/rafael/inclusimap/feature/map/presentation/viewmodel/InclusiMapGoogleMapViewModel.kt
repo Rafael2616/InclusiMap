@@ -402,6 +402,7 @@ class InclusiMapGoogleMapViewModel(
                                                             ?.formatDate(),
                                                         place = loadPlaceById(placeID)
                                                             ?: return@async,
+                                                        fileId = contribution.fileId,
                                                     ),
                                                 ),
                                             )
@@ -416,7 +417,14 @@ class InclusiMapGoogleMapViewModel(
                 deferreds.awaitAll()
             }
         }.invokeOnCompletion {
-            _state.update { it.copy(allImagesContributionsLoaded = true) }
+            _state.update { it.copy(
+                allImagesContributionsLoaded = true,
+                userContributions = it.userContributions.copy(
+                    images = it.userContributions.images.filter { imagesWithFileId ->
+                        imagesWithFileId.fileId in contributions.map { it.fileId }
+                    },
+                ),
+            ) }
         }
     }
 
