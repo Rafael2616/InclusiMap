@@ -1,6 +1,6 @@
 package com.rafael.inclusimap.feature.map.presentation
 
-import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddLocationAlt
@@ -24,7 +24,6 @@ import com.rafael.inclusimap.feature.map.domain.InclusiMapState
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchEvent
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchState
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun InclusiMapScaffold(
     state: InclusiMapState,
@@ -40,7 +39,7 @@ fun InclusiMapScaffold(
     onFullScreenModeChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     isFullScreenMode: Boolean = false,
-    content: @Composable () -> Unit,
+    content: @Composable (PaddingValues) -> Unit,
 ) {
     val focusRequester = remember { FocusRequester() }
     val items = listOf(
@@ -123,8 +122,8 @@ fun InclusiMapScaffold(
                 }
             }
         },
-    ) {
-        content()
+    ) { innerPadding ->
+        content(innerPadding)
     }
 }
 

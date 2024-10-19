@@ -114,9 +114,9 @@ fun ContributionsScreen(
 
     Column(
         modifier = modifier
-            .statusBarsPadding()
             .fillMaxSize()
-            .padding(16.dp),
+            .statusBarsPadding()
+            .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Top),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {

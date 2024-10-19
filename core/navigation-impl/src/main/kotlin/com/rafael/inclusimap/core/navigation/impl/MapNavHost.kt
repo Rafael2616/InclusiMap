@@ -1,11 +1,14 @@
 package com.rafael.inclusimap.core.navigation.impl
 
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
@@ -103,7 +106,7 @@ fun MapNavHost(
         onNavigateToContributions = {
             navController.navigate(Destination.ContributionsScreen)
         },
-    ) {
+    ) { paddingValues ->
         NavHost(
             navController = navController,
             startDestination = Destination.MapScreen(),
@@ -151,6 +154,7 @@ fun MapNavHost(
                         onMapEvent(InclusiMapEvent.SetIsContributionsScreen(false))
                     },
                     navController = navController,
+                    modifier = Modifier.padding(PaddingValues(bottom = paddingValues.calculateBottomPadding()))
                 )
             }
         }
