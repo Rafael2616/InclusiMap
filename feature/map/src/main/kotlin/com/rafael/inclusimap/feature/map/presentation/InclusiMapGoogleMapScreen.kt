@@ -335,4 +335,24 @@ fun InclusiMapGoogleMapScreen(
             }
         }
     }
+    LaunchedEffect(state.shouldTravel) {
+        if (state.shouldTravel) {
+            onPlaceTravelScope.launch {
+                async {
+                    cameraPositionState.animate(
+                        CameraUpdateFactory.newLatLngZoom(
+                            LatLng(
+                                state.selectedMappedPlace!!.position.first,
+                                state.selectedMappedPlace.position.second
+                            ),
+                            18f,
+                        ),
+                        2500,
+                    )
+                }.await()
+                bottomSheetScaffoldState.show()
+                latestOnEvent(InclusiMapEvent.SetShouldTravel(false))
+            }
+        }
+    }
 }

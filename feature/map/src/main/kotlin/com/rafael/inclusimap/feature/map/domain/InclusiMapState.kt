@@ -26,5 +26,7 @@ data class InclusiMapState(
     val isContributionsScreen: Boolean = false,
     val isLoadingContributions: Boolean = false,
     val shouldRefresh: Boolean = false,
+    val shouldTravel: Boolean = false,
+    var isTraveling: Boolean = false,
     val contributionsSize: ContributionsSize = ContributionsSize(),
 )

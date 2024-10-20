@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
@@ -18,7 +17,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.rafael.inclusimap.core.navigation.Destination
 import com.rafael.inclusimap.core.navigation.Location
@@ -37,7 +35,6 @@ import com.rafael.inclusimap.feature.map.presentation.viewmodel.ReportViewModel
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchEvent
 import com.rafael.inclusimap.feature.map.search.presentation.viewmodel.SearchViewModel
 import kotlin.reflect.typeOf
-import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import soup.compose.material.motion.animation.materialSharedAxisXIn
 import soup.compose.material.motion.animation.materialSharedAxisXOut
@@ -57,7 +54,6 @@ fun MapNavHost(
 ) {
     val navController = rememberNavController()
     var isFullScreenMode by remember { mutableStateOf(false) }
-    val onPlaceTravelScope = rememberCoroutineScope()
     val cameraPositionState = rememberCameraPositionState()
     val placeDetailsViewModel = koinViewModel<PlaceDetailsViewModel>()
     val placeDetailsState by placeDetailsViewModel.state.collectAsStateWithLifecycle()
@@ -78,7 +74,6 @@ fun MapNavHost(
         settingsState = settingsState,
         searchEvent = onSearchEvent,
         state = mapState,
-        onEvent = onMapEvent,
         onMapTypeChange = {
             onSettingsEvent(
                 SettingsEvent.SetMapType(it),
@@ -99,15 +94,7 @@ fun MapNavHost(
             onSearchEvent(SearchEvent.OnSearch("", emptyList()))
         },
         onTravelToPlace = {
-            onPlaceTravelScope.launch {
-                cameraPositionState.animate(
-                    CameraUpdateFactory.newLatLngZoom(
-                        it,
-                        20f,
-                    ),
-                    2500,
-                )
-            }
+            onMapEvent(InclusiMapEvent.OnTravelToPlace(it))
         },
         onNavigateToContributions = {
             onSearchEvent(SearchEvent.OnSearch("", emptyList()))
@@ -127,7 +114,7 @@ fun MapNavHost(
             popExitTransition = { materialSharedAxisXOut(isRtl, slideDistance) },
         ) {
             composable<Destination.MapScreen>(
-                typeMap = mapOf(typeOf<Location?>() to locationType)
+                typeMap = mapOf(typeOf<Location?>() to locationType),
             ) {
                 val args = it.toRoute<Destination.MapScreen>()
                 InclusiMapGoogleMapScreen(

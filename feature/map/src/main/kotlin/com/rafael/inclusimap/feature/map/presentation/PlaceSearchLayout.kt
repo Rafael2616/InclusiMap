@@ -34,7 +34,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
-import com.google.android.gms.maps.model.LatLng
 import com.rafael.inclusimap.core.resources.R
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 import com.rafael.inclusimap.feature.map.domain.InclusiMapState
@@ -50,7 +49,7 @@ fun PlaceSearchLayout(
     settingsState: SettingsState,
     onSearchEvent: (SearchEvent) -> Unit,
     onNavigateToSettings: () -> Unit,
-    onTravelToPlace: (LatLng) -> Unit,
+    onTravelToPlace: (String) -> Unit,
     focusRequester: FocusRequester,
     modifier: Modifier = Modifier,
 ) {

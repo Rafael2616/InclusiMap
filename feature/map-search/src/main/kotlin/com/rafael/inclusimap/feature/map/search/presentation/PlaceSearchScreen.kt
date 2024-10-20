@@ -33,7 +33,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.android.gms.maps.model.LatLng
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.util.toColor
 import com.rafael.inclusimap.core.resources.icons.GoogleMapsPin
@@ -42,7 +41,7 @@ import com.rafael.inclusimap.core.resources.icons.GoogleMapsPin
 fun PlaceSearchScreen(
     matchingPlaces: List<AccessibleLocalMarker>,
     query: String,
-    onPlaceClick: (LatLng) -> Unit,
+    onPlaceClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val focusManager = LocalFocusManager.current
@@ -118,12 +117,7 @@ fun PlaceSearchScreen(
                                 .fillMaxWidth()
                                 .height(58.dp)
                                 .clickable {
-                                    onPlaceClick(
-                                        LatLng(
-                                            place.position.first,
-                                            place.position.second,
-                                        ),
-                                    )
+                                    onPlaceClick(place.id!!)
                                 }
                                 .padding(horizontal = 6.dp, vertical = 8.dp),
                         ) {

@@ -16,10 +16,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.MapType
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
-import com.rafael.inclusimap.feature.map.domain.InclusiMapEvent
 import com.rafael.inclusimap.feature.map.domain.InclusiMapState
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchEvent
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchState
@@ -29,13 +27,12 @@ fun InclusiMapScaffold(
     state: InclusiMapState,
     searchState: SearchState,
     settingsState: SettingsState,
-    onEvent: (InclusiMapEvent) -> Unit,
     searchEvent: (SearchEvent) -> Unit,
     onMapTypeChange: (MapType) -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToContributions: () -> Unit,
     onNavigateToExplore: (fromContributionScreen: Boolean) -> Unit,
-    onTravelToPlace: (LatLng) -> Unit,
+    onTravelToPlace: (String) -> Unit,
     onFullScreenModeChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     isFullScreenMode: Boolean = false,

@@ -90,7 +90,16 @@ class InclusiMapGoogleMapViewModel(
             }
 
             is InclusiMapEvent.SetCurrentPlaceById -> setPlaceById(event.placeId)
+            is InclusiMapEvent.OnTravelToPlace -> onTravelToPlace(event.placeId)
+            is InclusiMapEvent.SetShouldTravel -> _state.update {
+                it.copy(shouldTravel = event.shouldTravel)
+            }
         }
+    }
+
+    private fun onTravelToPlace(placeId: String) {
+        setPlaceById(placeId)
+        _state.update { it.copy(shouldTravel = true) }
     }
 
     private fun updateMapCameraPosition(latLng: LatLng, isMyLocationFounded: Boolean) {
