@@ -469,25 +469,17 @@ class PlaceDetailsViewModel(
                     val imageId =
                         result.data.find { it.name.extractUserEmail() == image.userEmail }?.id.orEmpty()
                     driveService.deleteFile(imageId)
+                    removeContribution(
+                        Contribution(
+                            fileId = imageId,
+                            type = ContributionType.IMAGE,
+                        ),
+                    )
                 }
 
                 is Result.Error -> {
                 }
             }
-        }
-        viewModelScope.launch(Dispatchers.IO) {
-            driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
-                .onSuccess { places ->
-                    places.find { it.name.extractPlaceID() == _state.value.currentPlace.id }
-                        .also { place ->
-                            removeContribution(
-                                Contribution(
-                                    fileId = place?.id ?: return@launch,
-                                    type = ContributionType.IMAGE,
-                                ),
-                            )
-                        }
-                }
         }
     }
 
