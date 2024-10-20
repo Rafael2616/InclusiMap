@@ -33,7 +33,9 @@ fun ImagesUploadProgressDialog(
     modifier: Modifier = Modifier,
 ) {
     Dialog(
-        onDismissRequest = { },
+        onDismissRequest = {
+            onDismiss()
+        },
         properties = DialogProperties(
             dismissOnBackPress = true,
             dismissOnClickOutside = false,
