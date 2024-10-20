@@ -331,7 +331,7 @@ class PlaceDetailsViewModel(
                 imagesToUploadSize = null,
                 imagesUploadedSize = 0,
                 isUploadingImages = true,
-                isErrorUploadingImages = false
+                isErrorUploadingImages = false,
             )
         }
         // Add the image to the list of images tobe showed in the app UI
@@ -419,7 +419,7 @@ class PlaceDetailsViewModel(
                                         place
                                     }
                                 },
-                                isErrorUploadingImages = true
+                                isErrorUploadingImages = true,
                             )
                         }
                         return@async
@@ -531,9 +531,25 @@ class PlaceDetailsViewModel(
                 .onSuccess { places ->
                     places.find { it.name.extractPlaceID() == _state.value.currentPlace.id }
                         .also { place ->
+                            val placeJson = driveService.getFileContent(place?.id ?: return@launch)
+                            val json = Json {
+                                ignoreUnknownKeys = true
+                                prettyPrint = true
+                            }
+                            val placeString = json.decodeFromString<AccessibleLocalMarker>(
+                                placeJson?.decodeToString() ?: return@launch,
+                            )
+                            val updatedPlace = placeString.apply { comments + userComment }.let {
+                                json.encodeToString(it)
+                            }
+                            driveService.updateFile(
+                                place.id ?: return@launch,
+                                _state.value.currentPlace.id + "_" + userEmail + ".json",
+                                updatedPlace.byteInputStream(),
+                            )
                             addNewContribution(
                                 Contribution(
-                                    fileId = place?.id ?: return@launch,
+                                    fileId = place.id ?: return@launch,
                                     type = ContributionType.COMMENT,
                                 ),
                             )
@@ -566,9 +582,28 @@ class PlaceDetailsViewModel(
                 .onSuccess { places ->
                     places.find { it.name.extractPlaceID() == _state.value.currentPlace.id }
                         .also { place ->
+                            val placeJson = driveService.getFileContent(place?.id ?: return@launch)
+                            val json = Json {
+                                ignoreUnknownKeys = true
+                                prettyPrint = true
+                            }
+                            val placeString = json.decodeFromString<AccessibleLocalMarker>(
+                                placeJson?.decodeToString() ?: return@launch,
+                            )
+
+                            val updatedPlace = placeString.comments.filterNot {
+                                it.email == userEmail
+                            }.let { json.encodeToString(it) }
+
+                            driveService.updateFile(
+                                place.id ?: return@launch,
+                                _state.value.currentPlace.id + "_" + placeString.authorEmail + ".json",
+                                updatedPlace.byteInputStream(),
+                            )
+
                             removeContribution(
                                 Contribution(
-                                    fileId = place?.id ?: return@launch,
+                                    fileId = place.id ?: return@launch,
                                     type = ContributionType.COMMENT,
                                 ),
                             )

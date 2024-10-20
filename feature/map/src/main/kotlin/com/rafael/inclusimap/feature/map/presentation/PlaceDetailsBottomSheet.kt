@@ -162,8 +162,8 @@ fun PlaceDetailsBottomSheet(
         onDispose {}
     }
 
-    LaunchedEffect(state.currentPlace, state.userComment) {
-        if (state.currentPlace.toAccessibleLocalMarker() != currentPlace || state.userComment == "") {
+    LaunchedEffect(state.currentPlace) {
+        if (state.currentPlace.toAccessibleLocalMarker() != currentPlace) {
             latestUpdateMappedPlace(state.currentPlace.toAccessibleLocalMarker())
         }
     }

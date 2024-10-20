@@ -327,7 +327,7 @@ class InclusiMapGoogleMapViewModel(
                         val contributions = images.map { contribution ->
                             Contribution(
                                 fileId = contribution.id,
-                                type = ContributionType.IMAGE
+                                type = ContributionType.IMAGE,
                             )
                         }
                         removeContributions(contributions)
@@ -491,10 +491,10 @@ class InclusiMapGoogleMapViewModel(
                                 it.copy(
                                     userContributions = it.userContributions.copy(
                                         comments = it.userContributions.comments + CommentWithPlace(
-                                                comment = userComment ?: return@async,
-                                                place = place,
-                                                fileId = contribution.fileId,
-                                            )
+                                            comment = userComment ?: return@async,
+                                            place = place,
+                                            fileId = contribution.fileId,
+                                        ),
                                     ),
                                 )
                             }
@@ -557,7 +557,7 @@ class InclusiMapGoogleMapViewModel(
         }
     }
 
-    private fun removeInexistentPlacesAndCommentsContributions(contributions : List<Contribution>) {
+    private fun removeInexistentPlacesAndCommentsContributions(contributions: List<Contribution>) {
         viewModelScope.launch(Dispatchers.IO) {
             contributions.forEach {
                 val placeExists = driveService.getFileMetadata(it.fileId)
@@ -566,7 +566,7 @@ class InclusiMapGoogleMapViewModel(
                     Contribution(
                         fileId = it.fileId,
                         type = ContributionType.PLACE,
-                    )
+                    ),
                 )
             }
         }
@@ -581,7 +581,7 @@ class InclusiMapGoogleMapViewModel(
                     Contribution(
                         fileId = it.fileId,
                         type = ContributionType.IMAGE,
-                    )
+                    ),
                 )
             }
         }
@@ -674,6 +674,7 @@ class InclusiMapGoogleMapViewModel(
             }
         }
     }
+
     private fun removeContributions(contributions: List<Contribution>) {
         viewModelScope.launch(Dispatchers.IO) {
             val userPathId =
