@@ -483,18 +483,18 @@ class InclusiMapGoogleMapViewModel(
                         ?.also { content ->
                             val place =
                                 json.decodeFromString<AccessibleLocalMarker>(content.decodeToString())
-                            val filteredComments =
+                            val userComment =
                                 place.comments.filterNot { it in state.value.userContributions.comments.map { it.comment } }
+                                    .find { it.email == userEmail.value }
+
                             _state.update {
                                 it.copy(
                                     userContributions = it.userContributions.copy(
-                                        comments = it.userContributions.comments + filteredComments.map {
-                                            CommentWithPlace(
-                                                comment = it,
+                                        comments = it.userContributions.comments + CommentWithPlace(
+                                                comment = userComment ?: return@async,
                                                 place = place,
                                                 fileId = contribution.fileId,
                                             )
-                                        },
                                     ),
                                 )
                             }
