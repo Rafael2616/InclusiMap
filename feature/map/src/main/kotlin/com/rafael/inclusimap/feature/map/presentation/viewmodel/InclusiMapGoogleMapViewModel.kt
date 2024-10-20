@@ -468,6 +468,7 @@ class InclusiMapGoogleMapViewModel(
                     ),
                 )
             }
+            removeInexistentImageContributions()
         }
     }
 
@@ -555,7 +556,7 @@ class InclusiMapGoogleMapViewModel(
             removeInexistentPlacesAndCommentsContributions()
         }
     }
-    
+
     private fun removeInexistentPlacesAndCommentsContributions() {
         viewModelScope.launch(Dispatchers.IO) {
             state.value.userContributions.places.forEach {
@@ -565,6 +566,21 @@ class InclusiMapGoogleMapViewModel(
                     Contribution(
                         fileId = it.fileId,
                         type = ContributionType.PLACE,
+                    )
+                )
+            }
+        }
+    }
+
+    private fun removeInexistentImageContributions() {
+        viewModelScope.launch(Dispatchers.IO) {
+            state.value.userContributions.places.forEach {
+                val imageExists = driveService.getFileMetadata(it.fileId)
+                if (imageExists != null) return@forEach
+                removeContribution(
+                    Contribution(
+                        fileId = it.fileId,
+                        type = ContributionType.IMAGE,
                     )
                 )
             }
