@@ -90,14 +90,15 @@ fun InclusiMapGoogleMapScreen(
     val context = LocalContext.current
     val internetState = remember { InternetConnectionState(context) }
     val isInternetAvailable by internetState.state.collectAsStateWithLifecycle()
-    var firstTimeAnimation by remember { mutableStateOf(false) }
+    var firstTimeAnimation by remember { mutableStateOf<Boolean?>(null) }
 
     LaunchedEffect(Unit) {
         latestOnEvent(InclusiMapEvent.GetCurrentState)
+        if (!appIntroState.showAppIntro) firstTimeAnimation = false
     }
 
     LaunchedEffect(state.shouldAnimateMap, firstTimeAnimation, state.currentLocation) {
-        if (firstTimeAnimation) {
+        if (firstTimeAnimation == true) {
             async {
                 cameraPositionState.animate(
                     update = CameraUpdateFactory.newLatLngZoom(
@@ -110,7 +111,7 @@ fun InclusiMapGoogleMapScreen(
             locationPermission.launchPermissionRequest()
             firstTimeAnimation = false
         }
-        if (state.shouldAnimateMap) {
+        if (state.shouldAnimateMap && firstTimeAnimation == false) {
             cameraPositionState.position = CameraPosition(
                 state.currentLocation?.target ?: state.defaultLocationLatLng,
                 state.currentLocation?.zoom ?: 15f,
@@ -128,6 +129,7 @@ fun InclusiMapGoogleMapScreen(
             latestOnEvent(InclusiMapEvent.UpdateMapState(cameraPositionState.position))
         }
     }
+
     GoogleMap(
         modifier = modifier
             .fillMaxSize(),
