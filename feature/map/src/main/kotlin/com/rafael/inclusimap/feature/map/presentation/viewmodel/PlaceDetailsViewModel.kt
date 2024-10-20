@@ -369,7 +369,7 @@ class PlaceDetailsViewModel(
                         place
                     }
                 },
-                imagesToUploadSize = uris.size
+                imagesToUploadSize = uris.size,
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -389,7 +389,7 @@ class PlaceDetailsViewModel(
                 }
             }.await()
 
-                var imagesFileIds = emptyList<String?>()
+            var imagesFileIds = emptyList<String?>()
             uris.mapIndexed { index, uri ->
                 val bitmap =
                     BitmapFactory.decodeStream(context.contentResolver.openInputStream(uri))
@@ -406,8 +406,24 @@ class PlaceDetailsViewModel(
                         _state.value.currentPlace.imageFolderId
                             ?: throw IllegalStateException("Folder not found: Maybe an issue has occurred while creating the folder"),
                     )
-                    imagesFileIds = imagesFileIds + imageId
                     _state.update { it.copy(imagesUploadedSize = index + 1) }
+                    if (imageId == null) {
+                        println("Error uploading image $index")
+                        _state.update {
+                            it.copy(
+                                currentPlace = it.currentPlace.copy(images = it.currentPlace.images - newImages[index]),
+                                loadedPlaces = it.loadedPlaces.map { place ->
+                                    if (place.id == it.currentPlace.id) {
+                                        place.copy(images = it.currentPlace.images - newImages[index])
+                                    } else {
+                                        place
+                                    }
+                                },
+                            )
+                        }
+                        imagesFileIds = imagesFileIds + imageId
+                        return@async
+                    }
                     if (index == uris.size - 1) {
                         println("All images uploaded successfully for $placeId")
                         println(state.value.loadedPlaces.find { it.id == placeId }?.images?.size)

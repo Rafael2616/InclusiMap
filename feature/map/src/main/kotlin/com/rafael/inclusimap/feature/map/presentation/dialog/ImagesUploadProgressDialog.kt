@@ -1,5 +1,6 @@
 package com.rafael.inclusimap.feature.map.presentation.dialog
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -26,13 +28,14 @@ import androidx.compose.ui.window.DialogProperties
 fun ImagesUploadProgressDialog(
     imagesSize: Int?,
     currentUploadedImageSize: Int?,
+    isUploadingImages: Boolean,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Dialog(
         onDismissRequest = { },
         properties = DialogProperties(
-            dismissOnBackPress = false,
+            dismissOnBackPress = true,
             dismissOnClickOutside = false,
         ),
     ) {
@@ -68,7 +71,15 @@ fun ImagesUploadProgressDialog(
             }
         }
     }
-    if (currentUploadedImageSize == imagesSize) {
+    if (currentUploadedImageSize == imagesSize && isUploadingImages) {
         onDismiss()
+    }
+    if (currentUploadedImageSize != imagesSize && !isUploadingImages) {
+        val context = LocalContext.current
+        Toast.makeText(
+            context,
+            "Algumas imagens não foram adicionadas",
+            Toast.LENGTH_SHORT,
+        ).show()
     }
 }

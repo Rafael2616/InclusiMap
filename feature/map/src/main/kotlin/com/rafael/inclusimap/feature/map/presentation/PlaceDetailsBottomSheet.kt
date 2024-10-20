@@ -329,6 +329,7 @@ fun PlaceDetailsBottomSheet(
         ImagesUploadProgressDialog(
             imagesSize = state.imagesToUploadSize,
             currentUploadedImageSize = state.imagesUploadedSize,
+            isUploadingImages = state.isUploadingImages,
             onDismiss = {
                 showUploadImagesProgressDialog = false
             },
