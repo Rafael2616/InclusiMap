@@ -328,7 +328,7 @@ class InclusiMapGoogleMapViewModel(
             _state.update { it.copy(isLoadingContributions = true) }
             val userPathId = loginRepository.getLoginInfo(1)?.userPathID ?: return@launch
             driveService.listFiles(userPathId).onSuccess { userFiles ->
-                userFiles.find { it.name == "contributions.json" }
+               val userContributionsFile = userFiles.find { it.name == "contributions.json" }
                     ?.also { contributionsFile ->
                         val userContributionsString =
                             driveService.getFileContent(contributionsFile.id)
@@ -368,6 +368,14 @@ class InclusiMapGoogleMapViewModel(
                             )
                         }
                     }
+                if (userContributionsFile == null) {
+                    _state.update { it.copy(
+                        allCommentsContributionsLoaded = true,
+                        allPlacesContributionsLoaded = true,
+                        allImagesContributionsLoaded = true,
+                    ) }
+                    return@launch
+                }
             }
         }.invokeOnCompletion {
             _state.update {
