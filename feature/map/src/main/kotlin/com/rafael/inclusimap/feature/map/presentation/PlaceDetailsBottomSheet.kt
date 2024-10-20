@@ -241,24 +241,34 @@ fun PlaceDetailsBottomSheet(
                     )
                 }
             }
-            ImageSection(
-                state = state,
-                inclusiMapState = inclusiMapState,
-                isInternetAvailable = isInternetAvailable,
-                onEvent = onEvent,
-                userEmail = userEmail,
-            )
-            CommentSection(
-                state = state,
-                isInternetAvailable = isInternetAvailable,
-                onEvent = onEvent,
-                userPicture = userPicture,
-                userName = userName,
-                userEmail = userEmail,
-                bottomSheetScaffoldState = bottomSheetScaffoldState,
-                allowedShowUserProfilePicture = allowedShowUserProfilePicture,
-                downloadUserProfilePicture = downloadUserProfilePicture,
-            )
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                item {
+                    ImageSection(
+                        state = state,
+                        inclusiMapState = inclusiMapState,
+                        isInternetAvailable = isInternetAvailable,
+                        onEvent = onEvent,
+                        userEmail = userEmail,
+                    )
+
+                }
+                item {
+                    CommentSection(
+                        state = state,
+                        isInternetAvailable = isInternetAvailable,
+                        onEvent = onEvent,
+                        userPicture = userPicture,
+                        userName = userName,
+                        userEmail = userEmail,
+                        bottomSheetScaffoldState = bottomSheetScaffoldState,
+                        allowedShowUserProfilePicture = allowedShowUserProfilePicture,
+                        downloadUserProfilePicture = downloadUserProfilePicture,
+                    )
+                }
+            }
         }
     }
     AnimatedVisibility(showPlaceInfo) {
@@ -351,173 +361,170 @@ fun ImageSection(
             }
         }
 
-    LazyColumn(
+    Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        item {
-            Text(
-                text = "Imagens de ${state.currentPlace.title}",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .padding(bottom = 8.dp),
-            )
-            LazyHorizontalStaggeredGrid(
-                rows = StaggeredGridCells.Fixed(1),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(gridHeight),
-                verticalArrangement = Arrangement.spacedBy(
-                    8.dp,
-                    Alignment.CenterVertically,
-                ),
-                horizontalItemSpacing = 8.dp,
-            ) {
-                state.currentPlace.images.forEachIndexed { index, image ->
-                    image?.let {
-                        item {
-                            Image(
-                                bitmap = it.image,
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
+        Text(
+            text = "Imagens de ${state.currentPlace.title}",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier,
+        )
+        LazyHorizontalStaggeredGrid(
+            rows = StaggeredGridCells.Fixed(1),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(gridHeight),
+            verticalArrangement = Arrangement.spacedBy(
+                8.dp,
+                Alignment.CenterVertically,
+            ),
+            horizontalItemSpacing = 8.dp,
+        ) {
+            state.currentPlace.images.forEachIndexed { index, image ->
+                image?.let {
+                    item {
+                        Image(
+                            bitmap = it.image,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .width(185.dp)
+                                .height(250.dp)
+                                .clip(RoundedCornerShape(20.dp))
+                                .clickable(
+                                    onClick = {
+                                        selectedImageIndex = index
+                                        showFullScreenImageViewer = true
+                                    },
+                                ),
+                        )
+                        if (image.userEmail == userEmail) {
+                            Box(
                                 modifier = Modifier
                                     .width(185.dp)
                                     .height(250.dp)
-                                    .clip(RoundedCornerShape(20.dp))
-                                    .clickable(
-                                        onClick = {
-                                            selectedImageIndex = index
-                                            showFullScreenImageViewer = true
-                                        },
-                                    ),
-                            )
-                            if (image.userEmail == userEmail) {
-                                Box(
-                                    modifier = Modifier
-                                        .width(185.dp)
-                                        .height(250.dp)
-                                        .padding(12.dp),
-                                ) {
-                                    IconButton(
-                                        onClick = {
-                                            onEvent(
-                                                PlaceDetailsEvent.OnDeletePlaceImage(
-                                                    image,
-                                                ),
-                                            )
-                                            Toast.makeText(
-                                                context,
-                                                "Imagem removida!",
-                                                Toast.LENGTH_SHORT,
-                                            ).show()
-                                        },
-                                        modifier = Modifier
-                                            .align(Alignment.TopEnd)
-                                            .size(35.dp)
-                                            .clip(RoundedCornerShape(16.dp))
-                                            .background(
-                                                MaterialTheme.colorScheme.surface.copy(
-                                                    alpha = 0.5f,
-                                                ),
+                                    .padding(12.dp),
+                            ) {
+                                IconButton(
+                                    onClick = {
+                                        onEvent(
+                                            PlaceDetailsEvent.OnDeletePlaceImage(
+                                                image,
                                             ),
-                                        enabled = isInternetAvailable,
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.TwoTone.Delete,
-                                            contentDescription = null,
-                                            tint = if (isInternetAvailable) MaterialTheme.colorScheme.primary else Color.Gray,
-                                            modifier = Modifier.size(30.dp),
                                         )
-                                    }
+                                        Toast.makeText(
+                                            context,
+                                            "Imagem removida!",
+                                            Toast.LENGTH_SHORT,
+                                        ).show()
+                                    },
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .size(35.dp)
+                                        .clip(RoundedCornerShape(16.dp))
+                                        .background(
+                                            MaterialTheme.colorScheme.surface.copy(
+                                                alpha = 0.5f,
+                                            ),
+                                        ),
+                                    enabled = isInternetAvailable,
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.TwoTone.Delete,
+                                        contentDescription = null,
+                                        tint = if (isInternetAvailable) MaterialTheme.colorScheme.primary else Color.Gray,
+                                        modifier = Modifier.size(30.dp),
+                                    )
                                 }
                             }
                         }
                     }
                 }
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(260.dp),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        if (state.currentPlace.images.isEmpty() && state.allImagesLoaded) {
-                            Text(
-                                text = "Nenhuma imagem disponível desse local",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                textAlign = TextAlign.Center,
-                                style = TextStyle(
-                                    lineHeight = 16.sp,
-                                ),
+            }
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(260.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (state.currentPlace.images.isEmpty() && state.allImagesLoaded) {
+                        Text(
+                            text = "Nenhuma imagem disponível desse local",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Center,
+                            style = TextStyle(
+                                lineHeight = 16.sp,
+                            ),
+                            modifier = Modifier
+                                .width(imageWidth)
+                                .padding(horizontal = 12.dp),
+                        )
+                    }
+                    if (!state.allImagesLoaded) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .width(imageWidth)
+                                .clip(RoundedCornerShape(24.dp)),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            CircularProgressIndicator(
                                 modifier = Modifier
-                                    .width(imageWidth)
-                                    .padding(horizontal = 12.dp),
+                                    .size(50.dp),
+                                strokeCap = StrokeCap.Round,
+                                color = MaterialTheme.colorScheme.primary,
+                                strokeWidth = 5.dp,
                             )
                         }
-                        if (!state.allImagesLoaded) {
-                            Box(
+                    }
+                    if (state.currentPlace.images.size < MAX_IMAGE_NUMBER) {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .width(imageWidth)
+                                .clip(RoundedCornerShape(24.dp))
+                                .clickable {
+                                    if (!isInternetAvailable) {
+                                        Toast
+                                            .makeText(
+                                                context,
+                                                "Sem conexão com a internet",
+                                                Toast.LENGTH_SHORT,
+                                            )
+                                            .show()
+                                        return@clickable
+                                    }
+                                    showToast = true
+                                    launcher.launch(
+                                        PickVisualMediaRequest(
+                                            ActivityResultContracts.PickVisualMedia.ImageOnly,
+                                        ),
+                                    )
+                                },
+                        ) {
+                            Column(
                                 modifier = Modifier
-                                    .fillMaxHeight()
-                                    .width(imageWidth)
-                                    .clip(RoundedCornerShape(24.dp)),
-                                contentAlignment = Alignment.Center,
+                                    .fillMaxSize(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center,
                             ) {
-                                CircularProgressIndicator(
+                                Icon(
+                                    imageVector = Icons.Default.AddAPhoto,
+                                    contentDescription = null,
                                     modifier = Modifier
-                                        .size(50.dp),
-                                    strokeCap = StrokeCap.Round,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    strokeWidth = 5.dp,
+                                        .size(40.dp),
                                 )
-                            }
-                        }
-                        if (state.currentPlace.images.size < MAX_IMAGE_NUMBER) {
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxHeight()
-                                    .width(imageWidth)
-                                    .clip(RoundedCornerShape(24.dp))
-                                    .clickable {
-                                        if (!isInternetAvailable) {
-                                            Toast
-                                                .makeText(
-                                                    context,
-                                                    "Sem conexão com a internet",
-                                                    Toast.LENGTH_SHORT,
-                                                )
-                                                .show()
-                                            return@clickable
-                                        }
-                                        showToast = true
-                                        launcher.launch(
-                                            PickVisualMediaRequest(
-                                                ActivityResultContracts.PickVisualMedia.ImageOnly,
-                                            ),
-                                        )
-                                    },
-                            ) {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxSize(),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center,
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.AddAPhoto,
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .size(40.dp),
-                                    )
-                                    Text(
-                                        text = "Adicionar imagem",
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.Normal,
-                                    )
-                                }
+                                Text(
+                                    text = "Adicionar imagem",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Normal,
+                                )
                             }
                         }
                     }
@@ -550,7 +557,7 @@ fun CommentSection(
     val latestDownloadUserProfilePicture by rememberUpdatedState(downloadUserProfilePicture)
 
     Column(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth(),
     ) {
         Text(
             text = "Comentários" + " (${state.currentPlace.comments.size})",

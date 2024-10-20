@@ -30,7 +30,7 @@ navigation = "2.8.3"
 kotlinx-serialization = "1.7.3"
 material-motion-compose = "2.0.1"
 compose-rules = "0.4.16"
-material3 = "1.4.0-alpha02"
+material3 = "1.4.0-alpha01"
 compose = "1.8.0-alpha04"
 ktor = "3.0.0"
 
