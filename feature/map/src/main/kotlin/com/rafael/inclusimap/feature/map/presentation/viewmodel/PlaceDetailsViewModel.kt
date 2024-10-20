@@ -389,6 +389,7 @@ class PlaceDetailsViewModel(
                 }
             }.await()
 
+                var imagesFileIds = emptyList<String?>()
             uris.mapIndexed { index, uri ->
                 val bitmap =
                     BitmapFactory.decodeStream(context.contentResolver.openInputStream(uri))
@@ -397,7 +398,7 @@ class PlaceDetailsViewModel(
                 val compressedImage = outputStream.toByteArray()
                 async {
                     if (imageFolderId != _state.value.currentPlace.imageFolderId) return@async
-                    driveService.uploadFile(
+                    val imageId = driveService.uploadFile(
                         ByteArrayInputStream(compressedImage),
                         "${
                             _state.value.currentPlace.id
@@ -405,6 +406,7 @@ class PlaceDetailsViewModel(
                         _state.value.currentPlace.imageFolderId
                             ?: throw IllegalStateException("Folder not found: Maybe an issue has occurred while creating the folder"),
                     )
+                    imagesFileIds = imagesFileIds + imageId
                     _state.update { it.copy(imagesUploadedSize = index + 1) }
                     if (index == uris.size - 1) {
                         println("All images uploaded successfully for $placeId")
@@ -412,24 +414,17 @@ class PlaceDetailsViewModel(
                     }
                 }
             }.awaitAll()
+            val contributions = imagesFileIds.map {
+                Contribution(
+                    fileId = it ?: "",
+                    type = ContributionType.IMAGE,
+                )
+            }
+            addNewContributions(contributions)
         }.invokeOnCompletion {
             _state.update {
                 it.copy(isUploadingImages = false)
             }
-        }
-        viewModelScope.launch(Dispatchers.IO) {
-            driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
-                .onSuccess { places ->
-                    places.find { it.name.extractPlaceID() == _state.value.currentPlace.id }
-                        .also { place ->
-                            addNewContribution(
-                                Contribution(
-                                    fileId = place?.id ?: return@launch,
-                                    type = ContributionType.IMAGE,
-                                ),
-                            )
-                        }
-                }
         }
     }
 
@@ -610,6 +605,39 @@ class PlaceDetailsViewModel(
                             updatedContributionsString.byteInputStream(),
                         )
                         println("Contribution added successfully" + contribution.fileId)
+                    }
+                if (userContributionsFile == null) {
+                    driveService.createFile(
+                        "contributions.json",
+                        "[]",
+                        userPathId,
+                    )
+                }
+            }
+        }
+    }
+
+    private fun addNewContributions(contributions: List<Contribution>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val userPathId = loginRepository.getLoginInfo(1)?.userPathID ?: return@launch
+            driveService.listFiles(userPathId).onSuccess { userFiles ->
+                val userContributionsFile = userFiles.find { it.name == "contributions.json" }
+                    ?.also { contributionsFile ->
+                        val userContributions =
+                            driveService.getFileContent(contributionsFile.id)
+                        val file = json.decodeFromString<List<Contribution>>(
+                            userContributions?.decodeToString() ?: return@launch,
+                        )
+                        if (file.any { it in contributions }) return@launch
+                        val updatedContributions = file + contributions
+                        val updatedContributionsString =
+                            json.encodeToString(updatedContributions)
+                        driveService.updateFile(
+                            contributionsFile.id,
+                            "contributions.json",
+                            updatedContributionsString.byteInputStream(),
+                        )
+                        println("Contribution added successfully$contributions")
                     }
                 if (userContributionsFile == null) {
                     driveService.createFile(
