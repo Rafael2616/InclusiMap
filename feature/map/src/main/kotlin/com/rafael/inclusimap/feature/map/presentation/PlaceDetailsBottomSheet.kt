@@ -255,7 +255,7 @@ fun PlaceDetailsBottomSheet(
                         onShowFullScreenImageViewer = {
                             showFullScreenImageViewer = true
                             selectedImageIndex = it
-                        }
+                        },
                     )
                 }
                 item {

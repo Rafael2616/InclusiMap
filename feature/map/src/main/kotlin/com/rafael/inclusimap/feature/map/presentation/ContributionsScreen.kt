@@ -211,9 +211,13 @@ fun ContributionsScreen(
                                             .animateItem()
                                             .animateContentSize()
                                             .height(
-                                                ((state.userContributions.places.size.coerceAtLeast(
-                                                    2,
-                                                ) / 2) * 130).dp,
+                                                (
+                                                    (
+                                                        state.userContributions.places.size.coerceAtLeast(
+                                                            2,
+                                                        ) / 2
+                                                        ) * 130
+                                                    ).dp,
                                             ),
                                         horizontalArrangement = Arrangement.Center,
                                         userScrollEnabled = false,

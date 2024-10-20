@@ -318,7 +318,7 @@ fun InclusiMapGoogleMapScreen(
 
     LaunchedEffect(location) {
         if (location != null && state.isContributionsScreen) {
-        latestOnEvent(InclusiMapEvent.SetIsContributionsScreen(false))
+            latestOnEvent(InclusiMapEvent.SetIsContributionsScreen(false))
             latestOnEvent(
                 InclusiMapEvent.SetCurrentPlaceById(
                     location.placeId,
@@ -349,7 +349,7 @@ fun InclusiMapGoogleMapScreen(
                         CameraUpdateFactory.newLatLngZoom(
                             LatLng(
                                 position.first,
-                                position.second
+                                position.second,
                             ),
                             18f,
                         ),
