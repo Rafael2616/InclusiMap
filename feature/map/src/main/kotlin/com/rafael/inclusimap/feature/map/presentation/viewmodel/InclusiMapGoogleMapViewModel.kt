@@ -468,7 +468,7 @@ class InclusiMapGoogleMapViewModel(
                     ),
                 )
             }
-            removeInexistentImageContributions()
+            removeInexistentImageContributions(contributions)
         }
     }
 
@@ -553,14 +553,14 @@ class InclusiMapGoogleMapViewModel(
                     ),
                 )
             }
-            removeInexistentPlacesAndCommentsContributions()
+            removeInexistentPlacesAndCommentsContributions(contributions)
         }
     }
 
-    private fun removeInexistentPlacesAndCommentsContributions() {
+    private fun removeInexistentPlacesAndCommentsContributions(contributions : List<Contribution>) {
         viewModelScope.launch(Dispatchers.IO) {
-            state.value.userContributions.places.forEach {
-                val placeExists = loadPlaceById(it.place.id ?: return@forEach)
+            contributions.forEach {
+                val placeExists = loadPlaceById(it.fileId)
                 if (placeExists != null) return@forEach
                 removeContribution(
                     Contribution(
@@ -572,9 +572,9 @@ class InclusiMapGoogleMapViewModel(
         }
     }
 
-    private fun removeInexistentImageContributions() {
+    private fun removeInexistentImageContributions(contributions: List<Contribution>) {
         viewModelScope.launch(Dispatchers.IO) {
-            state.value.userContributions.places.forEach {
+            contributions.forEach {
                 val imageExists = driveService.getFileMetadata(it.fileId)
                 if (imageExists != null) return@forEach
                 removeContribution(
