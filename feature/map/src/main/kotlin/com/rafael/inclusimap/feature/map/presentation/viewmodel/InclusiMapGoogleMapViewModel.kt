@@ -13,6 +13,7 @@ import com.rafael.inclusimap.core.domain.model.util.formatDate
 import com.rafael.inclusimap.core.domain.model.util.removeTime
 import com.rafael.inclusimap.core.domain.network.onError
 import com.rafael.inclusimap.core.domain.network.onSuccess
+import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_IMAGE_FOLDER_ID
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID
 import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
@@ -310,14 +311,29 @@ class InclusiMapGoogleMapViewModel(
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
-            driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID).onSuccess {
-                it.find { it.name.extractPlaceID() == placeID }?.also { contributionsFile ->
-                    removeContribution(
-                        Contribution(
-                            fileId = contributionsFile.id,
-                            type = ContributionType.PLACE,
-                        ),
-                    )
+            driveService.listFiles(INCLUSIMAP_IMAGE_FOLDER_ID).onSuccess {
+                it.find { it.name.extractPlaceID() == placeID }?.also { placeImageFolder ->
+                    driveService.listFiles(placeImageFolder.id).onSuccess { images ->
+                        images.forEach { image ->
+                            removeContribution(
+                                Contribution(
+                                    fileId = image.id,
+                                    type = ContributionType.IMAGE,
+                                ),
+                            )
+                            driveService.deleteFile(image.id)
+                        }
+                    }
+                }
+                driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID).onSuccess {
+                    it.find { it.name.extractPlaceID() == placeID }?.also { contributionsFile ->
+                        removeContribution(
+                            Contribution(
+                                fileId = contributionsFile.id,
+                                type = ContributionType.PLACE,
+                            ),
+                        )
+                    }
                 }
             }
         }
@@ -328,7 +344,7 @@ class InclusiMapGoogleMapViewModel(
             _state.update { it.copy(isLoadingContributions = true) }
             val userPathId = loginRepository.getLoginInfo(1)?.userPathID ?: return@launch
             driveService.listFiles(userPathId).onSuccess { userFiles ->
-               val userContributionsFile = userFiles.find { it.name == "contributions.json" }
+                val userContributionsFile = userFiles.find { it.name == "contributions.json" }
                     ?.also { contributionsFile ->
                         val userContributionsString =
                             driveService.getFileContent(contributionsFile.id)
@@ -369,11 +385,13 @@ class InclusiMapGoogleMapViewModel(
                         }
                     }
                 if (userContributionsFile == null) {
-                    _state.update { it.copy(
-                        allCommentsContributionsLoaded = true,
-                        allPlacesContributionsLoaded = true,
-                        allImagesContributionsLoaded = true,
-                    ) }
+                    _state.update {
+                        it.copy(
+                            allCommentsContributionsLoaded = true,
+                            allPlacesContributionsLoaded = true,
+                            allImagesContributionsLoaded = true,
+                        )
+                    }
                     return@launch
                 }
             }
@@ -613,7 +631,7 @@ class InclusiMapGoogleMapViewModel(
                             contributions?.decodeToString() ?: return@launch,
                         )
                         val updatedContributions =
-                            file.filter { it != contribution }
+                            file.filter { if (contribution.type == ContributionType.PLACE) it.fileId != contribution.fileId else it != contribution }
                         val updatedContributionsString =
                             json.encodeToString(updatedContributions)
                         driveService.updateFile(
