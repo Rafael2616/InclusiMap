@@ -264,7 +264,7 @@ class PlaceDetailsViewModel(
                                         println("Loading image ${file.name}")
                                     }
                                 }
-                                if (_state.value.currentPlace.images.size == _state.value.currentPlace.imageFolder!!.size) {
+                                if (_state.value.currentPlace.images.size == _state.value.currentPlace.imageFolder?.size) {
                                     _state.update {
                                         it.copy(allImagesLoaded = true)
                                     }

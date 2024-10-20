@@ -66,8 +66,7 @@ fun ImagesUploadProgressDialog(
                 )
                 LinearProgressIndicator(
                     progress = {
-                        if (imagesSize == 0) return@LinearProgressIndicator 0f
-                        (currentUploadedImageSize?.plus(1)?.toFloat()
+                        (currentUploadedImageSize?.toFloat()
                             ?.div(imagesSize?.toFloat() ?: 1f)) ?: 0f
                     },
                     modifier = Modifier.fillMaxWidth(),
@@ -76,7 +75,7 @@ fun ImagesUploadProgressDialog(
         }
     }
     if (currentUploadedImageSize == imagesSize && !isUploadingImages) {
-        if (imagesSize != null) {
+        imagesSize?.let {
             if (imagesSize <= 1) {
                 Toast.makeText(context, "Imagem adicionada!", Toast.LENGTH_SHORT).show()
             } else {

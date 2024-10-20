@@ -310,6 +310,12 @@ class InclusiMapGoogleMapViewModel(
                     locals = json.encodeToString<List<AccessibleLocalMarker>>(state.value.allMappedPlaces),
                 ),
             )
+            removeContribution(
+                Contribution(
+                    fileId = fileId ?: return@launch,
+                    type = ContributionType.PLACE,
+                ),
+            )
         }
         viewModelScope.launch(Dispatchers.IO) {
             driveService.listFiles(INCLUSIMAP_IMAGE_FOLDER_ID).onSuccess {
@@ -327,12 +333,6 @@ class InclusiMapGoogleMapViewModel(
                         removeContributions(contributions)
                     }
                 }
-                removeContribution(
-                    Contribution(
-                        fileId = fileId ?: return@onSuccess,
-                        type = ContributionType.PLACE,
-                    ),
-                )
             }
         }
     }
