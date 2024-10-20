@@ -373,12 +373,6 @@ fun ImageSection(
                     ),
                 )
                 onShowUploadImagesProgress()
-                if (uris.size <= 1) {
-                    Toast.makeText(context, "Imagem adicionada!", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(context, "${uris.size} imagens adicionadas!", Toast.LENGTH_SHORT)
-                        .show()
-                }
             }
         }
 

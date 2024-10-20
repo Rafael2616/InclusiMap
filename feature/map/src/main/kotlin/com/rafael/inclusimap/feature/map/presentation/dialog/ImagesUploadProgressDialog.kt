@@ -33,6 +33,7 @@ fun ImagesUploadProgressDialog(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
     Dialog(
         onDismissRequest = {
             onDismiss()
@@ -75,10 +76,17 @@ fun ImagesUploadProgressDialog(
         }
     }
     if (currentUploadedImageSize == imagesSize && !isUploadingImages) {
+        if (imagesSize != null) {
+            if (imagesSize <= 1) {
+                Toast.makeText(context, "Imagem adicionada!", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, "$imagesSize imagens adicionadas!", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        }
         onDismiss()
     }
     if (currentUploadedImageSize != imagesSize && !isUploadingImages && isErrorUploadingImages) {
-        val context = LocalContext.current
         Toast.makeText(
             context,
             "Algumas imagens não foram adicionadas",

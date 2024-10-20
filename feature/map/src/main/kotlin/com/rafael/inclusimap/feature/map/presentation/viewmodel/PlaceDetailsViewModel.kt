@@ -408,6 +408,7 @@ class PlaceDetailsViewModel(
                             ?: throw IllegalStateException("Folder not found: Maybe an issue has occurred while creating the folder"),
                     )
                     _state.update { it.copy(imagesUploadedSize = index + 1) }
+                    imagesFileIds = imagesFileIds + imageId
                     if (imageId == null) {
                         println("Error uploading image $index")
                         _state.update {
@@ -423,7 +424,6 @@ class PlaceDetailsViewModel(
                                 isErrorUploadingImages = true
                             )
                         }
-                        imagesFileIds = imagesFileIds + imageId
                         return@async
                     }
                     if (index == uris.size - 1) {
@@ -639,7 +639,7 @@ class PlaceDetailsViewModel(
                         val file = json.decodeFromString<List<Contribution>>(
                             userContributions?.decodeToString() ?: return@launch,
                         )
-                        val updatedContributions = file + contributions.filter { it !in file }
+                        val updatedContributions = file + contributions
                         val updatedContributionsString =
                             json.encodeToString(updatedContributions)
                         driveService.updateFile(
