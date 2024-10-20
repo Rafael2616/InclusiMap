@@ -647,7 +647,7 @@ fun LazyListScope.noContributionsFoundedScreen(
                 Text(
                     text = message,
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.fillMaxWidth(),
@@ -655,7 +655,7 @@ fun LazyListScope.noContributionsFoundedScreen(
                 Icon(
                     imageVector = Icons.Outlined.SentimentDissatisfied,
                     contentDescription = null,
-                    modifier = Modifier.size(60.dp),
+                    modifier = Modifier.size(55.dp),
                     tint = MaterialTheme.colorScheme.primary,
                 )
             }
