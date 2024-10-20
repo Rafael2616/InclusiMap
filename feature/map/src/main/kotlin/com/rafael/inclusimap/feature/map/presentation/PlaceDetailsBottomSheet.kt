@@ -149,7 +149,7 @@ fun PlaceDetailsBottomSheet(
         label = "",
     )
     var showFullScreenImageViewer by remember { mutableStateOf(false) }
-    val selectedImageIndex by remember { mutableIntStateOf(0) }
+    var selectedImageIndex by remember { mutableIntStateOf(0) }
     val internetState = remember { InternetConnectionState(context) }
     val isInternetAvailable by internetState.state.collectAsStateWithLifecycle()
     var showToast by remember { mutableStateOf(false) }
@@ -252,8 +252,11 @@ fun PlaceDetailsBottomSheet(
                         isInternetAvailable = isInternetAvailable,
                         onEvent = onEvent,
                         userEmail = userEmail,
+                        onShowFullScreenImageViewer = {
+                            showFullScreenImageViewer = true
+                            selectedImageIndex = it
+                        }
                     )
-
                 }
                 item {
                     CommentSection(
@@ -325,13 +328,12 @@ fun ImageSection(
     isInternetAvailable: Boolean,
     onEvent: (PlaceDetailsEvent) -> Unit,
     userEmail: String,
+    onShowFullScreenImageViewer: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val gridHeight by remember { mutableStateOf(260.dp) }
     val imageWidth by remember { mutableStateOf(185.dp) }
-    var showFullScreenImageViewer by remember { mutableStateOf(false) }
-    var selectedImageIndex by remember { mutableIntStateOf(0) }
     var showToast by remember { mutableStateOf(false) }
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) { uris ->
@@ -396,8 +398,7 @@ fun ImageSection(
                                 .clip(RoundedCornerShape(20.dp))
                                 .clickable(
                                     onClick = {
-                                        selectedImageIndex = index
-                                        showFullScreenImageViewer = true
+                                        onShowFullScreenImageViewer(index)
                                     },
                                 ),
                         )
