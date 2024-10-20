@@ -43,7 +43,11 @@ class GoogleDriveService {
         }
     }
 
-    fun getFileMetadata(fileId: String): File? = driveService.files().get(fileId).execute()
+    fun getFileMetadata(fileId: String): File? = try {
+        driveService.files().get(fileId).execute()
+    } catch(_: Exception) {
+        null
+    }
 
     suspend fun listFiles(folderId: String): Result<List<File>, Error> {
         val result = mutableListOf<File>()
