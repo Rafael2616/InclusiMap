@@ -552,6 +552,22 @@ class InclusiMapGoogleMapViewModel(
                     ),
                 )
             }
+            removeInexistentPlacesAndCommentsContributions()
+        }
+    }
+    
+    private fun removeInexistentPlacesAndCommentsContributions() {
+        viewModelScope.launch(Dispatchers.IO) {
+            state.value.userContributions.places.forEach {
+                val placeExists = loadPlaceById(it.place.id ?: return@forEach)
+                if (placeExists != null) return@forEach
+                removeContribution(
+                    Contribution(
+                        fileId = it.fileId,
+                        type = ContributionType.PLACE,
+                    )
+                )
+            }
         }
     }
 
