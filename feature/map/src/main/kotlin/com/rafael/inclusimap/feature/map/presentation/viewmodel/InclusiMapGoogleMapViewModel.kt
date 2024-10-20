@@ -570,7 +570,7 @@ class InclusiMapGoogleMapViewModel(
                 loginRepository.getLoginInfo(1)?.userPathID ?: return@launch
 
             driveService.listFiles(userPathId).onSuccess { userFiles ->
-                userFiles.find { it.name == "contributions.json" }
+                val userContributionsFile = userFiles.find { it.name == "contributions.json" }
                     ?.also { contributionsFile ->
                         val contributions =
                             driveService.getFileContent(contributionsFile.id)
@@ -588,6 +588,13 @@ class InclusiMapGoogleMapViewModel(
                         )
                         println("Contribution added successfully" + contribution.fileId)
                     }
+                if (userContributionsFile == null) {
+                    driveService.createFile(
+                        "contributions.json",
+                        "[]",
+                        userPathId,
+                    )
+                }
             }
         }
     }

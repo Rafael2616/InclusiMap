@@ -580,7 +580,7 @@ class PlaceDetailsViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val userPathId = loginRepository.getLoginInfo(1)?.userPathID ?: return@launch
             driveService.listFiles(userPathId).onSuccess { userFiles ->
-                userFiles.find { it.name == "contributions.json" }
+                val userContributionsFile = userFiles.find { it.name == "contributions.json" }
                     ?.also { contributionsFile ->
                         val contributions =
                             driveService.getFileContent(contributionsFile.id)
@@ -598,6 +598,13 @@ class PlaceDetailsViewModel(
                         )
                         println("Contribution added successfully" + contribution.fileId)
                     }
+                if (userContributionsFile == null) {
+                    driveService.createFile(
+                        "contributions.json",
+                        "[]",
+                        userPathId,
+                    )
+                }
             }
         }
     }

@@ -164,12 +164,10 @@ class LoginViewModel(
                         ?: throw IllegalStateException("Folder not found: Maybe an issue has occurred while creating the folder"),
                 )
                 _state.update { it.copy(userPathID = userPathId) }
-            }.await()
-            async {
                 driveService.createFile(
                     "contributions.json",
                     "[]",
-                    state.value.userPathID,
+                    userPathId,
                 )
             }.await()
             // Artificial Delay
