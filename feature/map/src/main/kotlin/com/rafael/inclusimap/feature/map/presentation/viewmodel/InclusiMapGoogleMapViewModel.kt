@@ -560,7 +560,7 @@ class InclusiMapGoogleMapViewModel(
     private fun removeInexistentPlacesAndCommentsContributions(contributions : List<Contribution>) {
         viewModelScope.launch(Dispatchers.IO) {
             contributions.forEach {
-                val placeExists = loadPlaceById(it.fileId)
+                val placeExists = driveService.getFileMetadata(it.fileId)
                 if (placeExists != null) return@forEach
                 removeContribution(
                     Contribution(
