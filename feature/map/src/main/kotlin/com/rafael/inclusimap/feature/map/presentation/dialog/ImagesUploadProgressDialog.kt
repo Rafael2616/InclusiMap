@@ -81,5 +81,6 @@ fun ImagesUploadProgressDialog(
             "Algumas imagens não foram adicionadas",
             Toast.LENGTH_SHORT,
         ).show()
+        onDismiss()
     }
 }
