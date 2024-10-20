@@ -71,7 +71,7 @@ fun ImagesUploadProgressDialog(
             }
         }
     }
-    if (currentUploadedImageSize == imagesSize && isUploadingImages) {
+    if (currentUploadedImageSize == imagesSize && !isUploadingImages) {
         onDismiss()
     }
     if (currentUploadedImageSize != imagesSize && !isUploadingImages) {
