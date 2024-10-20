@@ -522,24 +522,27 @@ class InclusiMapGoogleMapViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             contributions.map { contribution ->
                 async {
-                    driveService.getFileContent(contribution.fileId)
-                        ?.also { content ->
-                            val place =
-                                json.decodeFromString<AccessibleLocalMarker>(
-                                    content.decodeToString(),
-                                )
-                            if (place.id in state.value.userContributions.places.map { it.place.id }) return@async
-                            _state.update {
-                                it.copy(
-                                    userContributions = it.userContributions.copy(
-                                        places = it.userContributions.places + AccessibleLocalMarkerWithFileId(
-                                            place = place,
-                                            fileId = contribution.fileId,
+                    try {
+                        driveService.getFileContent(contribution.fileId)
+                            ?.also { content ->
+                                val place =
+                                    json.decodeFromString<AccessibleLocalMarker>(
+                                        content.decodeToString(),
+                                    )
+                                if (place.id in state.value.userContributions.places.map { it.place.id }) return@async
+                                _state.update {
+                                    it.copy(
+                                        userContributions = it.userContributions.copy(
+                                            places = it.userContributions.places + AccessibleLocalMarkerWithFileId(
+                                                place = place,
+                                                fileId = contribution.fileId,
+                                            ),
                                         ),
-                                    ),
-                                )
+                                    )
+                                }
                             }
-                        }
+                    } catch (_: Exception) {
+                    }
                 }
             }.awaitAll()
         }.invokeOnCompletion {
@@ -568,6 +571,7 @@ class InclusiMapGoogleMapViewModel(
                         type = ContributionType.PLACE,
                     ),
                 )
+                println("Removed inexistent place/comment contribution: ${it.fileId}")
             }
         }
     }
@@ -583,6 +587,7 @@ class InclusiMapGoogleMapViewModel(
                         type = ContributionType.IMAGE,
                     ),
                 )
+                println("Removed inexistent image contribution: ${it.fileId}")
             }
         }
     }

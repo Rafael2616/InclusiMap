@@ -539,7 +539,9 @@ class PlaceDetailsViewModel(
                             val placeString = json.decodeFromString<AccessibleLocalMarker>(
                                 placeJson?.decodeToString() ?: return@launch,
                             )
-                            val updatedPlace = placeString.apply { comments + userComment }.let {
+                            val updatedPlace = placeString.apply { comments.filterNot {
+                                it.email == userEmail } + userComment
+                            }.let {
                                 json.encodeToString(it)
                             }
                             driveService.updateFile(
