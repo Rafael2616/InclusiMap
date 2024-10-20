@@ -343,12 +343,13 @@ fun InclusiMapGoogleMapScreen(
     LaunchedEffect(state.shouldTravel) {
         if (state.shouldTravel) {
             onPlaceTravelScope.launch {
+                val position = state.selectedMappedPlace?.position ?: return@launch
                 async {
                     cameraPositionState.animate(
                         CameraUpdateFactory.newLatLngZoom(
                             LatLng(
-                                state.selectedMappedPlace!!.position.first,
-                                state.selectedMappedPlace.position.second
+                                position.first,
+                                position.second
                             ),
                             18f,
                         ),
