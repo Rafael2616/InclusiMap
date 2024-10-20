@@ -1,6 +1,7 @@
 package com.rafael.inclusimap.feature.map.presentation
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -26,6 +27,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Comment
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.ArrowOutward
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Person
@@ -74,6 +76,7 @@ import com.rafael.inclusimap.core.navigation.Location
 import com.rafael.inclusimap.feature.map.domain.ContributionType
 import com.rafael.inclusimap.feature.map.domain.InclusiMapEvent
 import com.rafael.inclusimap.feature.map.domain.InclusiMapState
+import com.rafael.inclusimap.feature.map.presentation.dialog.ContributionsHelpDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -91,6 +94,7 @@ fun ContributionsScreen(
     val isRefreshing by remember(state.isLoadingContributions) { mutableStateOf(state.isLoadingContributions) }
     var shouldRefresh by remember(state.shouldRefresh) { mutableStateOf(state.shouldRefresh) }
     val context = LocalContext.current
+    var showHelpDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         latestOnEvent(InclusiMapEvent.LoadUserContributions(userEmail))
@@ -135,6 +139,17 @@ fun ContributionsScreen(
                     textAlign = TextAlign.Center,
                     modifier = Modifier.height(40.dp),
                 )
+            },
+            actions = {
+                IconButton(
+                    onClick = { showHelpDialog = true },
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Outlined.HelpOutline,
+                        contentDescription = null,
+                        modifier = Modifier.size(30.dp),
+                    )
+                }
             },
             expandedHeight = 60.dp,
         )
@@ -608,6 +623,12 @@ fun ContributionsScreen(
                 }
             }
         }
+    }
+
+    AnimatedVisibility(showHelpDialog) {
+        ContributionsHelpDialog(
+            onDismiss = { showHelpDialog = false },
+        )
     }
 }
 
