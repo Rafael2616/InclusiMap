@@ -59,7 +59,6 @@ class PlaceDetailsViewModel(
             is PlaceDetailsEvent.OnUploadPlaceImages -> onUploadPlaceImages(
                 event.uris,
                 event.context,
-                event.imageFolderId,
                 event.placeId,
             )
 
@@ -325,7 +324,6 @@ class PlaceDetailsViewModel(
     private fun onUploadPlaceImages(
         uris: List<Uri>,
         context: Context,
-        imageFolderId: String?,
         placeId: String,
     ) {
         _state.update {
@@ -375,12 +373,13 @@ class PlaceDetailsViewModel(
         }
         viewModelScope.launch(Dispatchers.IO) {
             async {
-                if (imageFolderId.isNullOrEmpty()) {
-                    if (imageFolderId != _state.value.currentPlace.imageFolderId) return@async
+                driveService.listFiles(INCLUSIMAP_IMAGE_FOLDER_ID).onSuccess { placeImagesFolder ->
+                    val placeImageFolderExists =
+                        placeImagesFolder.find { it.name.extractPlaceID() == placeId }?.id
                     _state.update {
                         it.copy(
                             currentPlace = it.currentPlace.copy(
-                                imageFolderId = driveService.createFolder(
+                                imageFolderId = placeImageFolderExists ?: driveService.createFolder(
                                     _state.value.currentPlace.id + "_" + _state.value.currentPlace.authorEmail,
                                     INCLUSIMAP_IMAGE_FOLDER_ID,
                                 ),
@@ -398,7 +397,6 @@ class PlaceDetailsViewModel(
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
                 val compressedImage = outputStream.toByteArray()
                 async {
-                    if (imageFolderId != _state.value.currentPlace.imageFolderId) return@async
                     val imageId = driveService.uploadFile(
                         ByteArrayInputStream(compressedImage),
                         "${

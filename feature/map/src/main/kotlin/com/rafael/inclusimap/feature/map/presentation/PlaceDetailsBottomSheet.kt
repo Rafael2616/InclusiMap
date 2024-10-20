@@ -250,7 +250,6 @@ fun PlaceDetailsBottomSheet(
                 item {
                     ImageSection(
                         state = state,
-                        inclusiMapState = inclusiMapState,
                         isInternetAvailable = isInternetAvailable,
                         onEvent = onEvent,
                         userEmail = userEmail,
@@ -341,7 +340,6 @@ fun PlaceDetailsBottomSheet(
 @Composable
 fun ImageSection(
     state: PlaceDetailsState,
-    inclusiMapState: InclusiMapState,
     isInternetAvailable: Boolean,
     onEvent: (PlaceDetailsEvent) -> Unit,
     userEmail: String,
@@ -368,8 +366,7 @@ fun ImageSection(
                     PlaceDetailsEvent.OnUploadPlaceImages(
                         it,
                         context,
-                        state.currentPlace.imageFolderId,
-                        inclusiMapState.selectedMappedPlace?.id!!,
+                        state.currentPlace.id ?: return@rememberLauncherForActivityResult,
                     ),
                 )
                 onShowUploadImagesProgress()
