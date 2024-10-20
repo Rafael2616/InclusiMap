@@ -1,5 +1,6 @@
 package com.rafael.inclusimap.feature.map.presentation
 
+import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -57,6 +58,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -88,6 +90,7 @@ fun ContributionsScreen(
     val refreshState = rememberPullToRefreshState()
     val isRefreshing by remember(state.isLoadingContributions) { mutableStateOf(state.isLoadingContributions) }
     var shouldRefresh by remember(state.shouldRefresh) { mutableStateOf(state.shouldRefresh) }
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         latestOnEvent(InclusiMapEvent.LoadUserContributions(userEmail))
@@ -285,16 +288,23 @@ fun ContributionsScreen(
                                                             IconButton(
                                                                 onClick = {
                                                                     navController.popBackStack()
-                                                                    navController.navigate(
-                                                                        Destination.MapScreen(
-                                                                            Location(
-                                                                                place.place.position.first,
-                                                                                place.place.position.second,
-                                                                                place.place.id
-                                                                                    ?: return@IconButton,
+                                                                    if (place.place.id != null) {
+                                                                        navController.navigate(
+                                                                            Destination.MapScreen(
+                                                                                Location(
+                                                                                    place.place.position.first,
+                                                                                    place.place.position.second,
+                                                                                    place.place.id!!,
+                                                                                ),
                                                                             ),
-                                                                        ),
-                                                                    )
+                                                                        )
+                                                                    } else {
+                                                                        Toast.makeText(
+                                                                            context,
+                                                                            "Local não encontrado",
+                                                                            Toast.LENGTH_SHORT,
+                                                                        ).show()
+                                                                    }
                                                                 },
                                                                 modifier = Modifier
                                                                     .size(35.dp),

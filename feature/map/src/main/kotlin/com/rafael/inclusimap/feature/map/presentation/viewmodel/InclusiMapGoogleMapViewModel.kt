@@ -301,6 +301,7 @@ class InclusiMapGoogleMapViewModel(
                 allMappedPlaces = _state.value.allMappedPlaces.filter { it.id != placeID },
             )
         }
+        val fileId = driveService.getFileMetadata(placeID)?.id
         viewModelScope.launch(Dispatchers.IO) {
             accessibleLocalsRepository.deleteAccessibleLocal(placeID)
             accessibleLocalsRepository.updateAccessibleLocalStored(
@@ -315,26 +316,23 @@ class InclusiMapGoogleMapViewModel(
                 it.find { it.name.extractPlaceID() == placeID }?.also { placeImageFolder ->
                     driveService.listFiles(placeImageFolder.id).onSuccess { images ->
                         images.forEach { image ->
-                            removeContribution(
-                                Contribution(
-                                    fileId = image.id,
-                                    type = ContributionType.IMAGE,
-                                ),
-                            )
                             driveService.deleteFile(image.id)
                         }
-                    }
-                }
-                driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID).onSuccess {
-                    it.find { it.name.extractPlaceID() == placeID }?.also { contributionsFile ->
-                        removeContribution(
+                        val contributions = images.map { contribution ->
                             Contribution(
-                                fileId = contributionsFile.id,
-                                type = ContributionType.PLACE,
-                            ),
-                        )
+                                fileId = contribution.id,
+                                type = ContributionType.IMAGE
+                            )
+                        }
+                        removeContributions(contributions)
                     }
                 }
+                removeContribution(
+                    Contribution(
+                        fileId = fileId ?: return@onSuccess,
+                        type = ContributionType.PLACE,
+                    ),
+                )
             }
         }
     }
@@ -640,6 +638,32 @@ class InclusiMapGoogleMapViewModel(
                             updatedContributionsString.byteInputStream(),
                         )
                         println("Contribution removed successfully" + contribution.fileId)
+                    }
+            }
+        }
+    }
+    private fun removeContributions(contributions: List<Contribution>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val userPathId =
+                loginRepository.getLoginInfo(1)?.userPathID ?: return@launch
+
+            driveService.listFiles(userPathId).onSuccess { userFiles ->
+                userFiles.find { it.name == "contributions.json" }
+                    ?.also { contributionsFile ->
+                        val userContributions =
+                            driveService.getFileContent(contributionsFile.id)
+                        val file = json.decodeFromString<List<Contribution>>(
+                            userContributions?.decodeToString() ?: return@launch,
+                        )
+                        val updatedContributions = file.filter { it !in contributions }
+                        val updatedContributionsString =
+                            json.encodeToString(updatedContributions)
+                        driveService.updateFile(
+                            contributionsFile.id,
+                            "contributions.json",
+                            updatedContributionsString.byteInputStream(),
+                        )
+                        println("Contribution removed successfully: $contributions")
                     }
             }
         }
