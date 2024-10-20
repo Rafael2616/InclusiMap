@@ -29,6 +29,7 @@ fun ImagesUploadProgressDialog(
     imagesSize: Int?,
     currentUploadedImageSize: Int?,
     isUploadingImages: Boolean,
+    isErrorUploadingImages: Boolean,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -76,7 +77,7 @@ fun ImagesUploadProgressDialog(
     if (currentUploadedImageSize == imagesSize && !isUploadingImages) {
         onDismiss()
     }
-    if (currentUploadedImageSize != imagesSize && !isUploadingImages) {
+    if (currentUploadedImageSize != imagesSize && !isUploadingImages && isErrorUploadingImages) {
         val context = LocalContext.current
         Toast.makeText(
             context,

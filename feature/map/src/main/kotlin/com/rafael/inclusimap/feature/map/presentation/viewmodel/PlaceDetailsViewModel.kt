@@ -333,6 +333,7 @@ class PlaceDetailsViewModel(
                 imagesToUploadSize = null,
                 imagesUploadedSize = 0,
                 isUploadingImages = true,
+                isErrorUploadingImages = false
             )
         }
         // Add the image to the list of images tobe showed in the app UI
@@ -419,6 +420,7 @@ class PlaceDetailsViewModel(
                                         place
                                     }
                                 },
+                                isErrorUploadingImages = true
                             )
                         }
                         imagesFileIds = imagesFileIds + imageId
@@ -430,9 +432,10 @@ class PlaceDetailsViewModel(
                     }
                 }
             }.awaitAll()
-            val contributions = imagesFileIds.map {
+            val imageIds = imagesFileIds.filterNotNull()
+            val contributions = imageIds.map {
                 Contribution(
-                    fileId = it ?: "",
+                    fileId = it,
                     type = ContributionType.IMAGE,
                 )
             }
@@ -636,8 +639,7 @@ class PlaceDetailsViewModel(
                         val file = json.decodeFromString<List<Contribution>>(
                             userContributions?.decodeToString() ?: return@launch,
                         )
-                        if (file.any { it in contributions }) return@launch
-                        val updatedContributions = file + contributions
+                        val updatedContributions = file + contributions.filter { it !in file }
                         val updatedContributionsString =
                             json.encodeToString(updatedContributions)
                         driveService.updateFile(
@@ -645,7 +647,7 @@ class PlaceDetailsViewModel(
                             "contributions.json",
                             updatedContributionsString.byteInputStream(),
                         )
-                        println("Contribution added successfully$contributions")
+                        println("Contribution added successfully: $contributions")
                     }
                 if (userContributionsFile == null) {
                     driveService.createFile(
