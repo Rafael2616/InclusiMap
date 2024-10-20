@@ -53,7 +53,7 @@ fun ImagesUploadProgressDialog(
         ) {
             Column(
                 modifier = Modifier
-                    .padding(vertical = 16.dp)
+                    .padding(bottom = 16.dp, top = 8.dp)
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
             ) {

@@ -407,7 +407,7 @@ class PlaceDetailsViewModel(
                         _state.value.currentPlace.imageFolderId
                             ?: throw IllegalStateException("Folder not found: Maybe an issue has occurred while creating the folder"),
                     )
-                    _state.update { it.copy(imagesUploadedSize = index + 1) }
+                    _state.update { it.copy(imagesUploadedSize = it.imagesUploadedSize.plus(1)) }
                     imagesFileIds = imagesFileIds + imageId
                     if (imageId == null) {
                         println("Error uploading image $index")
