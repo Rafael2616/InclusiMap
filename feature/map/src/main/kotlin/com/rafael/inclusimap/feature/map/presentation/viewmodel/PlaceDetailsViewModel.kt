@@ -544,7 +544,7 @@ class PlaceDetailsViewModel(
                             }
                             driveService.updateFile(
                                 place.id ?: return@launch,
-                                _state.value.currentPlace.id + "_" + userEmail + ".json",
+                                _state.value.currentPlace.id + "_" + placeString.authorEmail + ".json",
                                 updatedPlace.byteInputStream(),
                             )
                             addNewContribution(
