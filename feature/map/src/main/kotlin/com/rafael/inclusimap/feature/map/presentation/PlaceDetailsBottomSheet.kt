@@ -103,6 +103,7 @@ import com.rafael.inclusimap.feature.map.domain.PlaceDetailsState
 import com.rafael.inclusimap.feature.map.domain.Report
 import com.rafael.inclusimap.feature.map.domain.ReportState
 import com.rafael.inclusimap.feature.map.presentation.dialog.FullScreenImageViewDialog
+import com.rafael.inclusimap.feature.map.presentation.dialog.ImagesUploadProgressDialog
 import com.rafael.inclusimap.feature.map.presentation.dialog.PlaceInfoDialog
 import com.rafael.inclusimap.feature.map.presentation.dialog.UnsavedCommentDialog
 import kotlinx.coroutines.async
@@ -154,6 +155,7 @@ fun PlaceDetailsBottomSheet(
     val isInternetAvailable by internetState.state.collectAsStateWithLifecycle()
     var showToast by remember { mutableStateOf(false) }
     var showUnsavedCommentDialog by remember { mutableStateOf(false) }
+    var showUploadImagesProgressDialog by remember { mutableStateOf(false) }
 
     DisposableEffect(Unit) {
         latestEvent(PlaceDetailsEvent.SetCurrentPlace(currentPlace))
@@ -256,6 +258,9 @@ fun PlaceDetailsBottomSheet(
                             showFullScreenImageViewer = true
                             selectedImageIndex = it
                         },
+                        onShowUploadImagesProgress = {
+                            showUploadImagesProgressDialog = true
+                        }
                     )
                 }
                 item {
@@ -319,6 +324,16 @@ fun PlaceDetailsBottomSheet(
             },
         )
     }
+
+    AnimatedVisibility(showUploadImagesProgressDialog) {
+        ImagesUploadProgressDialog(
+            imagesSize = state.imagesToUploadSize,
+            currentUploadedImageSize = state.imagesUploadedSize,
+            onDismiss = {
+                showUploadImagesProgressDialog = false
+            },
+        )
+    }
 }
 
 @Composable
@@ -329,6 +344,7 @@ fun ImageSection(
     onEvent: (PlaceDetailsEvent) -> Unit,
     userEmail: String,
     onShowFullScreenImageViewer: (Int) -> Unit,
+    onShowUploadImagesProgress: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -354,6 +370,7 @@ fun ImageSection(
                         inclusiMapState.selectedMappedPlace?.id!!,
                     ),
                 )
+                onShowUploadImagesProgress()
                 if (uris.size <= 1) {
                     Toast.makeText(context, "Imagem adicionada!", Toast.LENGTH_SHORT).show()
                 } else {

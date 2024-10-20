@@ -328,6 +328,13 @@ class PlaceDetailsViewModel(
         imageFolderId: String?,
         placeId: String,
     ) {
+        _state.update {
+            it.copy(
+                imagesToUploadSize = null,
+                imagesUploadedSize = 0,
+                isUploadingImages = true,
+            )
+        }
         // Add the image to the list of images tobe showed in the app UI
         val options = BitmapFactory.Options()
         options.inSampleSize = 3
@@ -362,6 +369,7 @@ class PlaceDetailsViewModel(
                         place
                     }
                 },
+                imagesToUploadSize = uris.size
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -397,12 +405,17 @@ class PlaceDetailsViewModel(
                         _state.value.currentPlace.imageFolderId
                             ?: throw IllegalStateException("Folder not found: Maybe an issue has occurred while creating the folder"),
                     )
+                    _state.update { it.copy(imagesUploadedSize = index + 1) }
                     if (index == uris.size - 1) {
                         println("All images uploaded successfully for $placeId")
                         println(state.value.loadedPlaces.find { it.id == placeId }?.images?.size)
                     }
                 }
             }.awaitAll()
+        }.invokeOnCompletion {
+            _state.update {
+                it.copy(isUploadingImages = false)
+            }
         }
         viewModelScope.launch(Dispatchers.IO) {
             driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
