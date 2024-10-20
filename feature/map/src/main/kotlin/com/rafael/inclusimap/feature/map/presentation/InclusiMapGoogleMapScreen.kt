@@ -185,9 +185,11 @@ fun InclusiMapGoogleMapScreen(
                     ),
                     title = place.title,
                     snippet = place.category!!.toCategoryName(),
-                    icon = BitmapDescriptorFactory.defaultMarker(
-                        accessibilityAverage.toHUE(),
-                    ),
+                    icon = remember(accessibilityAverage) {
+                        BitmapDescriptorFactory.defaultMarker(
+                            accessibilityAverage.toHUE(),
+                        )
+                    },
                     onClick = {
                         latestOnEvent(InclusiMapEvent.OnMappedPlaceSelected(place))
                         bottomSheetScope.launch {
@@ -335,6 +337,7 @@ fun InclusiMapGoogleMapScreen(
             }
         }
     }
+
     LaunchedEffect(state.shouldTravel) {
         if (state.shouldTravel) {
             onPlaceTravelScope.launch {
