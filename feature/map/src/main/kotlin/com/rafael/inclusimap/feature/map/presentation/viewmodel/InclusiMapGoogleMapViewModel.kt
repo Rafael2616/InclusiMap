@@ -381,6 +381,11 @@ class InclusiMapGoogleMapViewModel(
                                 imageContributions,
                             )
                         }
+                        removeInexistentContributions(
+                            imageContributions,
+                            placesContributions,
+                            commentsContributions,
+                        )
                     }
                 if (userContributionsFile == null) {
                     _state.update {
@@ -468,7 +473,6 @@ class InclusiMapGoogleMapViewModel(
                     ),
                 )
             }
-            removeInexistentImageContributions(contributions)
         }
     }
 
@@ -556,11 +560,10 @@ class InclusiMapGoogleMapViewModel(
                     ),
                 )
             }
-            removeInexistentPlacesAndCommentsContributions(contributions)
         }
     }
 
-    private fun removeInexistentPlacesAndCommentsContributions(contributions: List<Contribution>) {
+    private fun removeInexistentPlacesContributions(contributions: List<Contribution>) {
         viewModelScope.launch(Dispatchers.IO) {
             contributions.forEach {
                 val placeExists = driveService.getFileMetadata(it.fileId)
@@ -571,7 +574,23 @@ class InclusiMapGoogleMapViewModel(
                         type = ContributionType.PLACE,
                     ),
                 )
-                println("Removed inexistent place/comment contribution: ${it.fileId}")
+                println("Removed inexistent place contribution: ${it.fileId}")
+            }
+        }
+    }
+
+    private fun removeInexistentCommentsContributions(contributions: List<Contribution>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            contributions.forEach {
+                val placeExists = driveService.getFileMetadata(it.fileId)
+                if (placeExists != null) return@forEach
+                removeContribution(
+                    Contribution(
+                        fileId = it.fileId,
+                        type = ContributionType.COMMENT,
+                    ),
+                )
+                println("Removed inexistent comment contribution: ${it.fileId}")
             }
         }
     }
@@ -590,6 +609,16 @@ class InclusiMapGoogleMapViewModel(
                 println("Removed inexistent image contribution: ${it.fileId}")
             }
         }
+    }
+
+    private fun removeInexistentContributions(
+        imageContributions: List<Contribution>,
+        placesContributions: List<Contribution>,
+        commentsContributions: List<Contribution>,
+    ) {
+        removeInexistentImageContributions(imageContributions)
+        removeInexistentPlacesContributions(placesContributions)
+        removeInexistentCommentsContributions(commentsContributions)
     }
 
     private suspend fun loadPlaceById(placeID: String): AccessibleLocalMarker? {
