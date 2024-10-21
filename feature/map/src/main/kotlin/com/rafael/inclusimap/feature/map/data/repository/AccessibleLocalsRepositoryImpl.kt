@@ -79,7 +79,7 @@ class AccessibleLocalsRepositoryImpl(
             ) {
                 is Success -> {
                     val fileId =
-                        result.data.find { it.name.extractPlaceID()!!.removeSuffix(".json") == accessibleLocal.id }?.id
+                        result.data.find { it.name.extractPlaceID()?.removeSuffix(".json") == accessibleLocal.id }?.id
                             ?: return@withContext
                     driveService.updateFile(
                         fileId,
@@ -104,11 +104,8 @@ class AccessibleLocalsRepositoryImpl(
             ) {
                 is Success -> {
                     val place = result.data.find { it.name.extractPlaceID() == id }
-                        ?: throw IllegalStateException("File: $id.json not found")
 
-                    driveService.deleteFile(
-                        place.id,
-                    )
+                    driveService.deleteFile(place?.id ?: return@withContext)
                 }
 
                 is Error -> {
