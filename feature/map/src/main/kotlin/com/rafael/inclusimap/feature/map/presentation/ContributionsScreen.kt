@@ -234,7 +234,7 @@ fun ContributionsScreen(
                                                     (
                                                         state.userContributions.places.size.coerceAtLeast(
                                                             2,
-                                                        ) / 2
+                                                        ) / 2 + if (state.userContributions.places.size % 2 == 0) 0 else 1
                                                         ) * 130
                                                     ).dp,
                                             ),
