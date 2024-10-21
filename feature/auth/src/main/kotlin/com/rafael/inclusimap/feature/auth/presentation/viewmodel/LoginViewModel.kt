@@ -305,7 +305,7 @@ class LoginViewModel(
                                                 userImageByteArray.toByteArray(),
                                                 0,
                                                 userImageByteArray.toByteArray().size,
-                                            ).asImageBitmap()
+                                            )?.asImageBitmap()
                                         },
                                     )
                                 }
