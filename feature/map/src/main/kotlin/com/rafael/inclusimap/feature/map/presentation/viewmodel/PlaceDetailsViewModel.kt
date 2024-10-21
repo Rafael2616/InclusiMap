@@ -539,15 +539,13 @@ class PlaceDetailsViewModel(
                             val placeString = json.decodeFromString<AccessibleLocalMarker>(
                                 placeJson?.decodeToString() ?: return@launch,
                             )
-                            val updatedPlace = placeString.apply { comments.filterNot {
-                                it.email == userEmail } + userComment
-                            }.let {
-                                json.encodeToString(it)
-                            }
+                            val filteredComments = placeString.comments.filterNot { it.email == userEmail }
+                            val updatedPlace = placeString.copy(comments = filteredComments + userComment)
+                            val updatedPlaceString = json.encodeToString(updatedPlace)
                             driveService.updateFile(
                                 place.id ?: return@launch,
-                                _state.value.currentPlace.id + "_" + placeString.authorEmail + ".json",
-                                updatedPlace.byteInputStream(),
+                                placeString.id + "_" + placeString.authorEmail + ".json",
+                                updatedPlaceString.byteInputStream(),
                             )
                             addNewContribution(
                                 Contribution(
@@ -599,7 +597,7 @@ class PlaceDetailsViewModel(
 
                             driveService.updateFile(
                                 place.id ?: return@launch,
-                                _state.value.currentPlace.id + "_" + placeString.authorEmail + ".json",
+                                placeString.id + "_" + placeString.authorEmail + ".json",
                                 updatedPlace.byteInputStream(),
                             )
 
