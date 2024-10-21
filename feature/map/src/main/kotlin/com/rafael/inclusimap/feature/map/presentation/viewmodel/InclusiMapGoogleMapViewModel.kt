@@ -317,13 +317,12 @@ class InclusiMapGoogleMapViewModel(
                 ),
             )
         }
+        var placeImageId: String? = null
         viewModelScope.launch(Dispatchers.IO) {
             driveService.listFiles(INCLUSIMAP_IMAGE_FOLDER_ID).onSuccess {
                 it.find { it.name.extractPlaceID() == placeID }?.also { placeImageFolder ->
+                    placeImageId = placeImageFolder.id
                     driveService.listFiles(placeImageFolder.id).onSuccess { images ->
-                        images.forEach { image ->
-                            driveService.deleteFile(image.id)
-                        }
                         val contributions = images.map { contribution ->
                             Contribution(
                                 fileId = contribution.id,
@@ -334,6 +333,7 @@ class InclusiMapGoogleMapViewModel(
                     }
                 }
             }
+            driveService.deleteFile(placeImageId ?: return@launch)
         }
     }
 
