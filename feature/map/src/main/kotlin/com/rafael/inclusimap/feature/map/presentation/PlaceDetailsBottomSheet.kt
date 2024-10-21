@@ -89,6 +89,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
+import com.rafael.inclusimap.core.domain.model.icon
 import com.rafael.inclusimap.core.domain.model.toAccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.toCategoryName
 import com.rafael.inclusimap.core.domain.model.util.formatDate
@@ -195,10 +196,23 @@ fun PlaceDetailsBottomSheet(
                         text = state.currentPlace.title,
                         fontSize = 24.sp,
                     )
-                    Text(
-                        text = state.currentPlace.category?.toCategoryName() ?: "",
-                        fontSize = 16.sp,
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        Text(
+                            text = state.currentPlace.category?.toCategoryName() ?: "",
+                            fontSize = 16.sp,
+                        )
+                        state.currentPlace.category?.let { category ->
+                            Icon(
+                                imageVector = category.icon(),
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                            )
+                        }
+                    }
                 }
                 if (state.currentPlace.authorEmail == userEmail) {
                     IconButton(
@@ -210,6 +224,7 @@ fun PlaceDetailsBottomSheet(
                         Icon(
                             imageVector = Icons.Outlined.Edit,
                             contentDescription = null,
+                            modifier = Modifier.size(20.dp),
                         )
                     }
                 }
@@ -259,7 +274,7 @@ fun PlaceDetailsBottomSheet(
                         },
                         onShowUploadImagesProgress = {
                             showUploadImagesProgressDialog = true
-                        }
+                        },
                     )
                 }
                 item {
