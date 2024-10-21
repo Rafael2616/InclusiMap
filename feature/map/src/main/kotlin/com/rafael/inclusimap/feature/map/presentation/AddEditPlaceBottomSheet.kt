@@ -2,6 +2,7 @@ package com.rafael.inclusimap.feature.map.presentation
 
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,8 +18,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.twotone.Delete
 import androidx.compose.material.icons.twotone.KeyboardArrowUp
 import androidx.compose.material3.Button
@@ -41,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -160,7 +162,9 @@ fun AddEditPlaceBottomSheet(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(55.dp),
+                    .height(55.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .clickable { isCategoryExpanded = true },
                 shape = RoundedCornerShape(16.dp),
             ) {
                 Box(
@@ -170,12 +174,12 @@ fun AddEditPlaceBottomSheet(
                     Row(
                         Modifier
                             .fillMaxWidth()
-                            .padding(start = 16.dp),
+                            .padding(start = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         Icon(
-                            imageVector = if (selectedPlaceCategory == null) Icons.Default.Category else selectedPlaceCategory!!.icon(),
+                            imageVector = if (selectedPlaceCategory == null) Icons.Outlined.Category else selectedPlaceCategory!!.icon(),
                             contentDescription = null,
                         )
                         Text(
