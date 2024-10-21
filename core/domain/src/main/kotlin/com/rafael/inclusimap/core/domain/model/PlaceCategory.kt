@@ -1,5 +1,29 @@
 package com.rafael.inclusimap.core.domain.model
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.LibraryBooks
+import androidx.compose.material.icons.outlined.BakeryDining
+import androidx.compose.material.icons.outlined.BeachAccess
+import androidx.compose.material.icons.outlined.Church
+import androidx.compose.material.icons.outlined.Computer
+import androidx.compose.material.icons.outlined.Face3
+import androidx.compose.material.icons.outlined.Fastfood
+import androidx.compose.material.icons.outlined.Forest
+import androidx.compose.material.icons.outlined.Hotel
+import androidx.compose.material.icons.outlined.Icecream
+import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.LocalCafe
+import androidx.compose.material.icons.outlined.LocalHospital
+import androidx.compose.material.icons.outlined.LocalParking
+import androidx.compose.material.icons.outlined.Money
+import androidx.compose.material.icons.outlined.Park
+import androidx.compose.material.icons.outlined.Restaurant
+import androidx.compose.material.icons.outlined.School
+import androidx.compose.material.icons.outlined.ShoppingBag
+import androidx.compose.material.icons.outlined.ShoppingCart
+import androidx.compose.material.icons.outlined.SportsGymnastics
+import androidx.compose.material.icons.outlined.WineBar
+
 enum class PlaceCategory {
     SHOPPING,
     MARKET,
@@ -77,4 +101,30 @@ fun String.toPlaceCategory() = when (this) {
     "Biblioteca" -> PlaceCategory.LIBRARY
     "Outro" -> PlaceCategory.OTHER
     else -> PlaceCategory.OTHER
+}
+
+fun PlaceCategory.icon() = when (this) {
+    PlaceCategory.SHOPPING -> Icons.Outlined.ShoppingBag
+    PlaceCategory.MARKET -> Icons.Outlined.ShoppingCart
+    PlaceCategory.SQUARE -> Icons.Outlined.Park
+    PlaceCategory.CLOTHING_STORE -> Icons.Outlined.Face3
+    PlaceCategory.ELECTRONICS_STORE -> Icons.Outlined.Computer
+    PlaceCategory.HOSPITAL -> Icons.Outlined.LocalHospital
+    PlaceCategory.RESTAURANT -> Icons.Outlined.Restaurant
+    PlaceCategory.BURGER -> Icons.Outlined.Fastfood
+    PlaceCategory.SCHOOL -> Icons.Outlined.School
+    PlaceCategory.UNIVERSITY -> Icons.Outlined.School
+    PlaceCategory.BANK -> Icons.Outlined.Money
+    PlaceCategory.HOTEL -> Icons.Outlined.Hotel
+    PlaceCategory.CAFE -> Icons.Outlined.LocalCafe
+    PlaceCategory.PARK -> Icons.Outlined.Forest
+    PlaceCategory.BAKERY -> Icons.Outlined.BakeryDining
+    PlaceCategory.PARKING -> Icons.Outlined.LocalParking
+    PlaceCategory.ICE_CREAM_PARLOR -> Icons.Outlined.Icecream
+    PlaceCategory.GYM -> Icons.Outlined.SportsGymnastics
+    PlaceCategory.CHURCH -> Icons.Outlined.Church
+    PlaceCategory.BAR -> Icons.Outlined.WineBar
+    PlaceCategory.LEISURE -> Icons.Outlined.BeachAccess
+    PlaceCategory.LIBRARY -> Icons.AutoMirrored.Outlined.LibraryBooks
+    PlaceCategory.OTHER -> Icons.Outlined.Image
 }

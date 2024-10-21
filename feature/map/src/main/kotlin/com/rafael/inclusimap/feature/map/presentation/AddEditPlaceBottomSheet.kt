@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import com.google.android.gms.maps.model.LatLng
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.PlaceCategory
+import com.rafael.inclusimap.core.domain.model.icon
 import com.rafael.inclusimap.core.domain.model.toAccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.toCategoryName
 import com.rafael.inclusimap.core.domain.model.toPlaceCategory
@@ -174,7 +175,7 @@ fun AddEditPlaceBottomSheet(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Category,
+                            imageVector = if (selectedPlaceCategory == null) Icons.Default.Category else selectedPlaceCategory!!.icon(),
                             contentDescription = null,
                         )
                         Text(
@@ -213,6 +214,12 @@ fun AddEditPlaceBottomSheet(
                         it.toCategoryName()
                     }.map { it.toCategoryName().toPlaceCategory() }.forEach { placeCategory ->
                         DropdownMenuItem(
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = placeCategory.icon(),
+                                    contentDescription = null,
+                                )
+                            },
                             text = {
                                 Text(
                                     text = placeCategory.toCategoryName(),
