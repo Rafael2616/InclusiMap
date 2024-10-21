@@ -15,6 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
@@ -76,9 +77,7 @@ fun InclusiMapGoogleMapScreen(
     modifier: Modifier = Modifier,
 ) {
     val onPlaceTravelScope = rememberCoroutineScope()
-    val bottomSheetScaffoldState = rememberModalBottomSheetState()
-    val bottomSheetScope = rememberCoroutineScope()
-    val addPlaceBottomSheetScaffoldState = rememberModalBottomSheetState()
+    val addPlaceBottomSheetState = rememberModalBottomSheetState()
     val addPlaceBottomSheetScope = rememberCoroutineScope()
     val locationPermission = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
     val showMarkers by remember(
@@ -92,6 +91,7 @@ fun InclusiMapGoogleMapScreen(
     val internetState = remember { InternetConnectionState(context) }
     val isInternetAvailable by internetState.state.collectAsStateWithLifecycle()
     var firstTimeAnimation by remember { mutableStateOf<Boolean?>(null) }
+    var openPlaceDetailsBottomSheet by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         latestOnEvent(InclusiMapEvent.GetCurrentState)
@@ -170,7 +170,7 @@ fun InclusiMapGoogleMapScreen(
             latestOnEvent(InclusiMapEvent.OnUnmappedPlaceSelected(it))
             if (isInternetAvailable) {
                 addPlaceBottomSheetScope.launch {
-                    addPlaceBottomSheetScaffoldState.show()
+                    addPlaceBottomSheetState.show()
                 }
             } else {
                 Toast.makeText(
@@ -204,9 +204,7 @@ fun InclusiMapGoogleMapScreen(
                     },
                     onClick = {
                         latestOnEvent(InclusiMapEvent.OnMappedPlaceSelected(place))
-                        bottomSheetScope.launch {
-                            bottomSheetScaffoldState.show()
-                        }
+                        openPlaceDetailsBottomSheet = true
                         false
                     },
                     visible = showMarkers,
@@ -226,19 +224,16 @@ fun InclusiMapGoogleMapScreen(
         )
     }
 
-    AnimatedVisibility(bottomSheetScaffoldState.isVisible) {
+    AnimatedVisibility(openPlaceDetailsBottomSheet) {
         PlaceDetailsBottomSheet(
             state = placeDetailsState,
             inclusiMapState = state,
             onEvent = latestOnPlaceDetailsEvent,
             userName = userName,
             userEmail = userEmail,
-            bottomSheetScaffoldState = bottomSheetScaffoldState,
             onDismiss = {
                 latestOnPlaceDetailsEvent(PlaceDetailsEvent.OnDestroyPlaceDetails)
-                bottomSheetScope.launch {
-                    bottomSheetScaffoldState.hide()
-                }
+                openPlaceDetailsBottomSheet = false
             },
             onUpdateMappedPlace = { placeUpdated ->
                 latestOnEvent(InclusiMapEvent.OnUpdateMappedPlace(placeUpdated))
@@ -251,15 +246,15 @@ fun InclusiMapGoogleMapScreen(
         )
     }
 
-    AnimatedVisibility(addPlaceBottomSheetScaffoldState.isVisible || placeDetailsState.isEditingPlace) {
+    AnimatedVisibility(addPlaceBottomSheetState.isVisible || placeDetailsState.isEditingPlace) {
         AddEditPlaceBottomSheet(
             latlng = state.selectedUnmappedPlaceLatLng ?: LatLng(0.0, 0.0),
             placeDetailsState = placeDetailsState,
             userEmail = userEmail,
-            bottomSheetScaffoldState = addPlaceBottomSheetScaffoldState,
+            bottomSheetScaffoldState = addPlaceBottomSheetState,
             onDismiss = {
                 addPlaceBottomSheetScope.launch {
-                    addPlaceBottomSheetScaffoldState.hide()
+                    addPlaceBottomSheetState.hide()
                 }
                 latestOnPlaceDetailsEvent(PlaceDetailsEvent.SetIsEditingPlace(false))
             },
@@ -274,11 +269,9 @@ fun InclusiMapGoogleMapScreen(
             onDeletePlace = {
                 latestOnEvent(InclusiMapEvent.OnDeleteMappedPlace(it))
                 latestOnPlaceDetailsEvent(PlaceDetailsEvent.SetIsEditingPlace(false))
-                bottomSheetScope.launch {
-                    bottomSheetScaffoldState.hide()
-                }
+                openPlaceDetailsBottomSheet = false
                 addPlaceBottomSheetScope.launch {
-                    addPlaceBottomSheetScaffoldState.hide()
+                    addPlaceBottomSheetState.hide()
                 }
             },
         )
@@ -312,7 +305,7 @@ fun InclusiMapGoogleMapScreen(
 
     LaunchedEffect(!isInternetAvailable) {
         addPlaceBottomSheetScope.launch {
-            addPlaceBottomSheetScaffoldState.hide()
+            addPlaceBottomSheetState.hide()
         }
     }
 
@@ -346,7 +339,7 @@ fun InclusiMapGoogleMapScreen(
                     )
                 }.await()
                 if (location.placeId in state.allMappedPlaces.map { it.id }) {
-                    bottomSheetScaffoldState.show()
+                    openPlaceDetailsBottomSheet = true
                 } else {
                     Toast.makeText(
                         context,
@@ -376,7 +369,7 @@ fun InclusiMapGoogleMapScreen(
                     )
                 }.await()
                 latestOnEvent(InclusiMapEvent.SetShouldTravel(false))
-                bottomSheetScaffoldState.show()
+                openPlaceDetailsBottomSheet = true
             }
         }
     }

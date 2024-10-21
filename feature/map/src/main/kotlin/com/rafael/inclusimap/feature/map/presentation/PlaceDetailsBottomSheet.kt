@@ -55,6 +55,7 @@ import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -116,7 +117,6 @@ import kotlinx.coroutines.launch
 )
 @Composable
 fun PlaceDetailsBottomSheet(
-    bottomSheetScaffoldState: SheetState,
     userEmail: String,
     userName: String,
     userPicture: ImageBitmap?,
@@ -131,6 +131,8 @@ fun PlaceDetailsBottomSheet(
     downloadUserProfilePicture: suspend (String) -> ImageBitmap?,
     modifier: Modifier = Modifier,
 ) {
+    val placeDetailsBottomSheetScope = rememberCoroutineScope()
+    val placeDetailsBottomSheetState = rememberModalBottomSheetState()
     val latestEvent by rememberUpdatedState(onEvent)
     val latestUpdateMappedPlace by rememberUpdatedState(onUpdateMappedPlace)
     val context = LocalContext.current
@@ -170,9 +172,15 @@ fun PlaceDetailsBottomSheet(
     }
 
     ModalBottomSheet(
-        sheetState = bottomSheetScaffoldState,
+        sheetState = placeDetailsBottomSheetState,
         onDismissRequest = {
-            onDismiss()
+            placeDetailsBottomSheetScope.launch {
+                placeDetailsBottomSheetState.hide()
+            }.invokeOnCompletion {
+                if (!placeDetailsBottomSheetState.isVisible) {
+                    onDismiss()
+                }
+            }
         },
         properties = ModalBottomSheetProperties(
             shouldDismissOnBackPress = true,
@@ -285,7 +293,7 @@ fun PlaceDetailsBottomSheet(
                         userPicture = userPicture,
                         userName = userName,
                         userEmail = userEmail,
-                        bottomSheetScaffoldState = bottomSheetScaffoldState,
+                        bottomSheetState = placeDetailsBottomSheetState,
                         allowedShowUserProfilePicture = allowedShowUserProfilePicture,
                         downloadUserProfilePicture = downloadUserProfilePicture,
                     )
@@ -569,7 +577,7 @@ fun CommentSection(
     userPicture: ImageBitmap?,
     userName: String,
     userEmail: String,
-    bottomSheetScaffoldState: SheetState,
+    bottomSheetState: SheetState,
     allowedShowUserProfilePicture: suspend (String) -> Boolean,
     downloadUserProfilePicture: suspend (String) -> ImageBitmap?,
     modifier: Modifier = Modifier,
@@ -806,7 +814,7 @@ fun CommentSection(
                                     ),
                                 )
                                 scope.launch {
-                                    async { bottomSheetScaffoldState.expand() }.await()
+                                    async { bottomSheetState.expand() }.await()
                                     focusRequester.requestFocus()
                                 }
                             },
