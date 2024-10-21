@@ -66,8 +66,10 @@ fun ImagesUploadProgressDialog(
                 )
                 LinearProgressIndicator(
                     progress = {
-                        (currentUploadedImageSize?.toFloat()
-                            ?.div(imagesSize?.toFloat() ?: 1f)) ?: 0f
+                        (
+                            currentUploadedImageSize?.toFloat()
+                                ?.div(imagesSize?.toFloat() ?: 1f)
+                            ) ?: 0f
                     },
                     modifier = Modifier.fillMaxWidth(),
                 )

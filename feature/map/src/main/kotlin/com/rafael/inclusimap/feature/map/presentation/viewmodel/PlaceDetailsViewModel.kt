@@ -592,7 +592,7 @@ class PlaceDetailsViewModel(
                             )
 
                             val updatedPlace = placeString.copy(
-                                comments = placeString.comments.filterNot { it.email == userEmail }
+                                comments = placeString.comments.filterNot { it.email == userEmail },
                             )
                             val updatedPlaceString = json.encodeToString(updatedPlace)
 

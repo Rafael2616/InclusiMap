@@ -18,5 +18,5 @@ data class PlaceDetailsState(
     val imagesToUploadSize: Int? = null,
     val imagesUploadedSize: Int = 0,
     val isErrorUploadingImages: Boolean = false,
-    val isUploadingImages: Boolean = false
+    val isUploadingImages: Boolean = false,
 )

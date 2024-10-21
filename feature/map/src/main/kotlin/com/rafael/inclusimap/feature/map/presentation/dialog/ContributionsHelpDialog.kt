@@ -73,7 +73,7 @@ fun ContributionsHelpDialog(
                         colors = ButtonDefaults.outlinedButtonColors(
                             contentColor = MaterialTheme.colorScheme.primary,
                             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp),
-                        )
+                        ),
                     ) {
                         Text(text = "Entendi")
                     }

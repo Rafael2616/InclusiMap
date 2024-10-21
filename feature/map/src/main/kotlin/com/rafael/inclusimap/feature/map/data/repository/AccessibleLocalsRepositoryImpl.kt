@@ -56,16 +56,14 @@ class AccessibleLocalsRepositoryImpl(
         }
     }
 
-    override suspend fun saveAccessibleLocal(accessibleLocal: AccessibleLocalMarker): String? {
-        return withContext(Dispatchers.IO) {
-            val updatedPlace = json.encodeToString(accessibleLocal)
-             driveService.createFile(
-                accessibleLocal.id + "_" + accessibleLocal.authorEmail + ".json",
-                updatedPlace,
-                INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID,
-            ).also {
-                 println("File uploaded successfully with new place: $accessibleLocal")
-             }
+    override suspend fun saveAccessibleLocal(accessibleLocal: AccessibleLocalMarker): String? = withContext(Dispatchers.IO) {
+        val updatedPlace = json.encodeToString(accessibleLocal)
+        driveService.createFile(
+            accessibleLocal.id + "_" + accessibleLocal.authorEmail + ".json",
+            updatedPlace,
+            INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID,
+        ).also {
+            println("File uploaded successfully with new place: $accessibleLocal")
         }
     }
 

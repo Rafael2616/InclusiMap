@@ -45,7 +45,7 @@ class GoogleDriveService {
 
     fun getFileMetadata(fileId: String): File? = try {
         driveService.files().get(fileId).execute()
-    } catch(_: Exception) {
+    } catch (_: Exception) {
         null
     }
 

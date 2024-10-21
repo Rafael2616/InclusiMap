@@ -137,6 +137,13 @@ fun PlaceDetailsBottomSheet(
     val latestUpdateMappedPlace by rememberUpdatedState(onUpdateMappedPlace)
     val context = LocalContext.current
     var showPlaceInfo by remember { mutableStateOf(false) }
+    var showFullScreenImageViewer by remember { mutableStateOf(false) }
+    var selectedImageIndex by remember { mutableIntStateOf(0) }
+    val internetState = remember { InternetConnectionState(context) }
+    val isInternetAvailable by internetState.state.collectAsStateWithLifecycle()
+    var showToast by remember { mutableStateOf(false) }
+    var showUnsavedCommentDialog by remember { mutableStateOf(false) }
+    var showUploadImagesProgressDialog by remember { mutableStateOf(false) }
     val currentPlace by remember { mutableStateOf(inclusiMapState.selectedMappedPlace!!) }
     val accessibilityAverage by remember(
         state.trySendComment,
@@ -148,17 +155,7 @@ fun PlaceDetailsBottomSheet(
                 .toFloat(),
         )
     }
-    val accessibilityColor by animateColorAsState(
-        accessibilityAverage.toColor(),
-        label = "",
-    )
-    var showFullScreenImageViewer by remember { mutableStateOf(false) }
-    var selectedImageIndex by remember { mutableIntStateOf(0) }
-    val internetState = remember { InternetConnectionState(context) }
-    val isInternetAvailable by internetState.state.collectAsStateWithLifecycle()
-    var showToast by remember { mutableStateOf(false) }
-    var showUnsavedCommentDialog by remember { mutableStateOf(false) }
-    var showUploadImagesProgressDialog by remember { mutableStateOf(false) }
+    val accessibilityColor by animateColorAsState(accessibilityAverage.toColor(), label = "")
 
     DisposableEffect(Unit) {
         latestEvent(PlaceDetailsEvent.SetCurrentPlace(currentPlace))
@@ -412,10 +409,7 @@ fun ImageSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(gridHeight),
-            verticalArrangement = Arrangement.spacedBy(
-                8.dp,
-                Alignment.CenterVertically,
-            ),
+            verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
             horizontalItemSpacing = 8.dp,
         ) {
             state.currentPlace.images.forEachIndexed { index, image ->
@@ -444,11 +438,7 @@ fun ImageSection(
                             ) {
                                 IconButton(
                                     onClick = {
-                                        onEvent(
-                                            PlaceDetailsEvent.OnDeletePlaceImage(
-                                                image,
-                                            ),
-                                        )
+                                        onEvent(PlaceDetailsEvent.OnDeletePlaceImage(image))
                                         Toast.makeText(
                                             context,
                                             "Imagem removida!",
@@ -460,9 +450,7 @@ fun ImageSection(
                                         .size(35.dp)
                                         .clip(RoundedCornerShape(16.dp))
                                         .background(
-                                            MaterialTheme.colorScheme.surface.copy(
-                                                alpha = 0.5f,
-                                            ),
+                                            MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
                                         ),
                                     enabled = isInternetAvailable,
                                 ) {
@@ -640,7 +628,9 @@ fun CommentSection(
                         )
                     }
                     val userAccessibilityColor by animateColorAsState(
-                        state.userAccessibilityRate.toFloat().coerceAtLeast(1f)
+                        state.userAccessibilityRate
+                            .toFloat()
+                            .coerceAtLeast(1f)
                             .toColor(),
                         label = "",
                     )
@@ -653,10 +643,9 @@ fun CommentSection(
                                 .then(
                                     if (state.userAccessibilityRate != 0 && state.userAccessibilityRate >= it) {
                                         Modifier.background(
-                                            userAccessibilityColor
-                                                .copy(
-                                                    alpha = if (state.isUserCommented || !isInternetAvailable) 0.4f else 1f,
-                                                ),
+                                            userAccessibilityColor.copy(
+                                                alpha = if (state.isUserCommented || !isInternetAvailable) 0.4f else 1f,
+                                            ),
                                         )
                                     } else {
                                         Modifier
@@ -664,13 +653,13 @@ fun CommentSection(
                                 )
                                 .border(
                                     1.25.dp,
-                                    MaterialTheme.colorScheme.primary.copy(alpha = if (state.isUserCommented) 0.4f else 0.8f),
+                                    MaterialTheme.colorScheme.primary.copy(
+                                        alpha = if (state.isUserCommented) 0.4f else 0.8f,
+                                    ),
                                     CircleShape,
                                 )
                                 .clickable {
-                                    latestEvent(
-                                        PlaceDetailsEvent.SetUserAccessibilityRate(it),
-                                    )
+                                    latestEvent(PlaceDetailsEvent.SetUserAccessibilityRate(it))
                                 },
                         )
                     }
@@ -697,7 +686,11 @@ fun CommentSection(
                                     Text(
                                         text = state.userComment.length.toString(),
                                         fontSize = 12.sp,
-                                        color = if (state.userComment.length < 3 && state.userComment.isNotEmpty()) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                                        color = if (state.userComment.length < 3 && state.userComment.isNotEmpty()) {
+                                            MaterialTheme.colorScheme.error
+                                        } else {
+                                            MaterialTheme.colorScheme.onSurface
+                                        },
                                     )
                                     Text(
                                         text = "/$maxCommentLength",
@@ -758,8 +751,8 @@ fun CommentSection(
                             },
                         ),
                         enabled = isInternetAvailable,
-                        isError =
-                        (state.userAccessibilityRate == 0 || state.userComment.isEmpty()) && state.trySendComment,
+                        isError = (state.userAccessibilityRate == 0 || state.userComment.isEmpty()) &&
+                            state.trySendComment,
                     )
                 } else {
                     Row {
@@ -788,8 +781,7 @@ fun CommentSection(
                         )
                         Spacer(Modifier.width(6.dp))
                         Text(
-                            text = state.userCommentDate.removeTime()?.formatDate()
-                                ?: "",
+                            text = state.userCommentDate.removeTime()?.formatDate() ?: "",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Normal,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
@@ -808,11 +800,7 @@ fun CommentSection(
                         )
                         IconButton(
                             onClick = {
-                                latestEvent(
-                                    PlaceDetailsEvent.SetIsUserCommented(
-                                        false,
-                                    ),
-                                )
+                                latestEvent(PlaceDetailsEvent.SetIsUserCommented(false))
                                 scope.launch {
                                     async { bottomSheetState.expand() }.await()
                                     focusRequester.requestFocus()
@@ -867,7 +855,9 @@ fun CommentSection(
             ) {
                 state.currentPlace.comments.filter { comment -> comment.email != userEmail }
                     .forEachIndexed { index, comment ->
-                        var userProfilePicture by remember { mutableStateOf<ImageBitmap?>(null) }
+                        var userProfilePicture by remember {
+                            mutableStateOf<ImageBitmap?>(null)
+                        }
                         var allowedShowUserPicture by remember {
                             mutableStateOf<Boolean?>(null)
                         }
@@ -908,8 +898,7 @@ fun CommentSection(
                             )
                             Spacer(Modifier.width(6.dp))
                             Text(
-                                text = comment.postDate.removeTime()?.formatDate()
-                                    ?: "",
+                                text = comment.postDate.removeTime()?.formatDate() ?: "",
                                 fontSize = 12.sp,
                                 maxLines = 1,
                                 fontWeight = FontWeight.Normal,
@@ -936,9 +925,7 @@ fun CommentSection(
                                             )
                                             .border(
                                                 1.dp,
-                                                MaterialTheme.colorScheme.primary.copy(
-                                                    alpha = 0.8f,
-                                                ),
+                                                MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
                                                 CircleShape,
                                             ),
                                     )
@@ -951,10 +938,13 @@ fun CommentSection(
                             lineHeight = 18.sp,
                             fontWeight = FontWeight.Normal,
                         )
-                        if (index != (state.currentPlace.comments.filter { it.email != userEmail }.size - 1)) {
-                            HorizontalDivider(
-                                thickness = 2.dp,
-                            )
+                        if (index != (
+                                state.currentPlace.comments.filter {
+                                    it.email != userEmail
+                                }.size - 1
+                                )
+                        ) {
+                            HorizontalDivider(thickness = 2.dp)
                         }
                     }
                 if (state.currentPlace.comments.isEmpty()) {
