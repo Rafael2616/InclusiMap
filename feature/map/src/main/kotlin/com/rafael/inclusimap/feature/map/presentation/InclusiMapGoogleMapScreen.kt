@@ -134,18 +134,22 @@ fun InclusiMapGoogleMapScreen(
     GoogleMap(
         modifier = modifier
             .fillMaxSize(),
-        properties = MapProperties(
-            isBuildingEnabled = true,
-            mapType = settingsState.mapType,
-            isMyLocationEnabled = state.isLocationPermissionGranted && state.isMyLocationFound,
-        ),
-        uiSettings = MapUiSettings(
-            zoomGesturesEnabled = true,
-            compassEnabled = false,
-            rotationGesturesEnabled = true,
-            zoomControlsEnabled = false,
-            mapToolbarEnabled = false,
-        ),
+        properties = remember(settingsState.mapType, state.isLocationPermissionGranted, state.isMyLocationFound) {
+            MapProperties(
+                isBuildingEnabled = true,
+                mapType = settingsState.mapType,
+                isMyLocationEnabled = state.isLocationPermissionGranted && state.isMyLocationFound,
+            )
+        },
+        uiSettings = remember {
+            MapUiSettings(
+                zoomGesturesEnabled = true,
+                compassEnabled = false,
+                rotationGesturesEnabled = true,
+                zoomControlsEnabled = false,
+                mapToolbarEnabled = false,
+            )
+        },
         cameraPositionState = cameraPositionState,
         onMapClick = {
             println("latitude ${it.latitude}" + "," + it.longitude)
