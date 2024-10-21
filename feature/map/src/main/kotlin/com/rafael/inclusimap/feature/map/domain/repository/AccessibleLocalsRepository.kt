@@ -5,7 +5,7 @@ import com.rafael.inclusimap.feature.map.domain.AccessibleLocalsEntity
 
 interface AccessibleLocalsRepository {
     suspend fun getAccessibleLocals(): List<AccessibleLocalMarker>?
-    suspend fun saveAccessibleLocal(accessibleLocal: AccessibleLocalMarker)
+    suspend fun saveAccessibleLocal(accessibleLocal: AccessibleLocalMarker): String?
     suspend fun updateAccessibleLocal(accessibleLocal: AccessibleLocalMarker)
     suspend fun deleteAccessibleLocal(id: String)
 

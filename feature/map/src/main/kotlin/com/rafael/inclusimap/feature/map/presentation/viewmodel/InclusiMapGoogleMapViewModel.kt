@@ -11,7 +11,6 @@ import com.rafael.inclusimap.core.domain.model.PlaceImage
 import com.rafael.inclusimap.core.domain.model.util.extractPlaceID
 import com.rafael.inclusimap.core.domain.model.util.formatDate
 import com.rafael.inclusimap.core.domain.model.util.removeTime
-import com.rafael.inclusimap.core.domain.network.onError
 import com.rafael.inclusimap.core.domain.network.onSuccess
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_IMAGE_FOLDER_ID
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID
@@ -239,29 +238,19 @@ class InclusiMapGoogleMapViewModel(
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
-            accessibleLocalsRepository.saveAccessibleLocal(newPlace)
+            val placeFileId = accessibleLocalsRepository.saveAccessibleLocal(newPlace)
             accessibleLocalsRepository.updateAccessibleLocalStored(
                 AccessibleLocalsEntity(
                     id = 1,
                     locals = json.encodeToString<List<AccessibleLocalMarker>>(state.value.allMappedPlaces),
                 ),
             )
-        }.invokeOnCompletion {
-            viewModelScope.launch(Dispatchers.IO) {
-                driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID).onSuccess {
-                    it.find { it.name.extractPlaceID() == newPlace.id }?.also { placeFile ->
-                        addNewContribution(
-                            Contribution(
-                                fileId = placeFile.id,
-                                type = ContributionType.PLACE,
-                            ),
-                        )
-                    }
-                    println("Founded place in server")
-                }.onError {
-                    println("Place not in server yet")
-                }
-            }
+            addNewContribution(
+                Contribution(
+                    fileId = placeFileId ?: return@launch,
+                    type = ContributionType.PLACE,
+                ),
+            )
         }
     }
 
