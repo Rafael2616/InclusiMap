@@ -345,7 +345,16 @@ fun InclusiMapGoogleMapScreen(
                         3000,
                     )
                 }.await()
-                bottomSheetScaffoldState.show()
+                if (location.placeId in state.allMappedPlaces.map { it.id }) {
+                    bottomSheetScaffoldState.show()
+                } else {
+                    Toast.makeText(
+                        context,
+                        "Não foi possivel encontrar o local selecionado!",
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                    return@launch
+                }
             }
         }
     }
@@ -366,8 +375,8 @@ fun InclusiMapGoogleMapScreen(
                         2500,
                     )
                 }.await()
-                bottomSheetScaffoldState.show()
                 latestOnEvent(InclusiMapEvent.SetShouldTravel(false))
+                bottomSheetScaffoldState.show()
             }
         }
     }
