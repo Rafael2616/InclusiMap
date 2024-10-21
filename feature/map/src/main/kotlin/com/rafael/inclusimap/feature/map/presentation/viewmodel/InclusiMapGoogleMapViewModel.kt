@@ -406,7 +406,7 @@ class InclusiMapGoogleMapViewModel(
         _state.update { it.copy(allImagesContributionsLoaded = false) }
         viewModelScope.launch(Dispatchers.IO) {
             val options = BitmapFactory.Options().apply { inSampleSize = 3 }
-            val batchSize = 5
+            val batchSize = 8
             contributions.chunked(batchSize).forEach { batch ->
                 val deferreds = batch.map { contribution ->
                     async {

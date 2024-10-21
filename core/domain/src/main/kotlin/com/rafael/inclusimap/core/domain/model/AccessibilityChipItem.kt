@@ -17,7 +17,7 @@ data class AccessibilityChipItem(
                 description = "O local possui um suporte estrutural amplo e portanto é considerado como acessível para cadeirantes",
             ),
             AccessibilityChipItem(
-                name = "Acessibilidade Média",
+                name = "Acessibilidade mediana",
                 type = AccessibilityType.MEDIUM,
                 color = Color.Yellow,
                 description = "O local possui algumas adaptações para acomodar cadeirantes, pórem faltam alguns recursos para atender aos requisitos de acessilidade completa",
@@ -26,7 +26,7 @@ data class AccessibilityChipItem(
                 name = "Sem acessibilidade",
                 type = AccessibilityType.INACCESSIBLE,
                 color = Color.Red,
-                description = "Não existem suporte estrutural suficiente ou muito pouco, tornando o local inacessível para cadeirantes",
+                description = "Não existe suporte estrutural suficiente ou muito pouco, tornando o local inacessível para cadeirantes",
             ),
             AccessibilityChipItem(
                 name = "Sem dados de acessibilidade",

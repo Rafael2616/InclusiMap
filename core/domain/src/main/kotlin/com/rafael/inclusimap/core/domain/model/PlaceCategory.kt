@@ -52,7 +52,7 @@ enum class PlaceCategory {
 
 fun PlaceCategory.toCategoryName() = when (this) {
     PlaceCategory.SHOPPING -> "Shopping"
-    PlaceCategory.MARKET -> "Supemercado"
+    PlaceCategory.MARKET -> "Supermercado"
     PlaceCategory.SQUARE -> "Praça"
     PlaceCategory.CLOTHING_STORE -> "Loja de Roupas"
     PlaceCategory.ELECTRONICS_STORE -> "Loja de Eletrônicos"
