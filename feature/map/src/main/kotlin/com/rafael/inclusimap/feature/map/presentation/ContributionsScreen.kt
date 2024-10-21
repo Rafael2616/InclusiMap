@@ -1,6 +1,7 @@
 package com.rafael.inclusimap.feature.map.presentation
 
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
@@ -629,6 +630,11 @@ fun ContributionsScreen(
         ContributionsHelpDialog(
             onDismiss = { showHelpDialog = false },
         )
+    }
+
+    BackHandler {
+        latestOnEvent(InclusiMapEvent.SetIsContributionsScreen(false))
+        navController.popBackStack()
     }
 }
 
