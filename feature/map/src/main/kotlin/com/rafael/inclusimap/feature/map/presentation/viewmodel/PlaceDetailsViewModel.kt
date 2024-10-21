@@ -591,14 +591,15 @@ class PlaceDetailsViewModel(
                                 placeJson?.decodeToString() ?: return@launch,
                             )
 
-                            val updatedPlace = placeString.comments.filterNot {
-                                it.email == userEmail
-                            }.let { json.encodeToString(it) }
+                            val updatedPlace = placeString.copy(
+                                comments = placeString.comments.filterNot { it.email == userEmail }
+                            )
+                            val updatedPlaceString = json.encodeToString(updatedPlace)
 
                             driveService.updateFile(
                                 place.id ?: return@launch,
                                 placeString.id + "_" + placeString.authorEmail + ".json",
-                                updatedPlace.byteInputStream(),
+                                updatedPlaceString.byteInputStream(),
                             )
 
                             removeContribution(
