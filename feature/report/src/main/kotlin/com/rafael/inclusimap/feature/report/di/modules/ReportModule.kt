@@ -10,7 +10,7 @@ val reportModule = module {
     viewModel {
         ReportViewModel(
             get<LoginRepositoryImpl>(),
-            get<GoogleDriveService>()
+            get<GoogleDriveService>(),
         )
     }
 }

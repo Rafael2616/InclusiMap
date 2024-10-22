@@ -314,7 +314,6 @@ class InclusiMapGoogleMapViewModel(
         }
     }
 
-
     private fun setPlaceById(placeID: String) {
         _state.update {
             it.copy(

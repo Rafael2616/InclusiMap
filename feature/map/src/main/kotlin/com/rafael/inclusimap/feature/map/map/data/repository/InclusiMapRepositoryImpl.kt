@@ -1,8 +1,8 @@
 package com.rafael.inclusimap.feature.map.map.data.repository
 
-import com.rafael.inclusimap.feature.map.data.dao.InclusiMapDao
-import com.rafael.inclusimap.feature.map.domain.InclusiMapEntity
-import com.rafael.inclusimap.feature.map.domain.repository.InclusiMapRepository
+import com.rafael.inclusimap.feature.map.map.data.dao.InclusiMapDao
+import com.rafael.inclusimap.feature.map.map.domain.InclusiMapEntity
+import com.rafael.inclusimap.feature.map.map.domain.repository.InclusiMapRepository
 
 class InclusiMapRepositoryImpl(
     private val inclusiMapDao: InclusiMapDao,

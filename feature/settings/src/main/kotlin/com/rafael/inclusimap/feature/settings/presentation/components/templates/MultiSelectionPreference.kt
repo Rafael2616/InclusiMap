@@ -26,7 +26,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.google.maps.android.compose.MapType
-import com.rafael.inclusimap.feature.map.domain.GoogleMapType
+import com.rafael.inclusimap.feature.map.map.domain.GoogleMapType
 
 @Composable
 internal fun MultiSelectionPreference(
