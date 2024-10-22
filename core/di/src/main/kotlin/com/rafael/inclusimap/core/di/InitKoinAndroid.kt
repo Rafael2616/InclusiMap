@@ -4,6 +4,7 @@ import android.content.Context
 import com.rafael.inclusimap.core.services.di.serviceModule
 import com.rafael.inclusimap.feature.auth.di.authModule
 import com.rafael.inclusimap.feature.intro.di.introModule
+import com.rafael.inclusimap.feature.libraryinfo.di.modules.contributionsModule
 import com.rafael.inclusimap.feature.libraryinfo.di.modules.libraryInfoModule
 import com.rafael.inclusimap.feature.map.di.mapModule
 import com.rafael.inclusimap.feature.map.search.di.mapSearchModule
@@ -24,6 +25,7 @@ fun initKoinAndroid(context: Context) {
             mapSearchModule,
             settingsModule,
             libraryInfoModule,
+            contributionsModule
         )
         androidLogger(Level.INFO)
     }

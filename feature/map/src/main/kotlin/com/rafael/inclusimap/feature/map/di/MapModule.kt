@@ -3,6 +3,7 @@ package com.rafael.inclusimap.feature.map.di
 import androidx.room.Room
 import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.feature.auth.data.repository.LoginRepositoryImpl
+import com.rafael.inclusimap.feature.libraryinfo.data.repository.ContributionsRepositoryImpl
 import com.rafael.inclusimap.feature.map.data.database.MapDatabase
 import com.rafael.inclusimap.feature.map.data.repository.AccessibleLocalsRepositoryImpl
 import com.rafael.inclusimap.feature.map.data.repository.InclusiMapRepositoryImpl
@@ -38,10 +39,15 @@ val mapModule = module {
             get<InclusiMapRepositoryImpl>(),
             get<GoogleDriveService>(),
             get<LoginRepositoryImpl>(),
+            get<ContributionsRepositoryImpl>(),
         )
     }
     viewModel {
-        PlaceDetailsViewModel(get(), get<LoginRepositoryImpl>())
+        PlaceDetailsViewModel(
+            get<GoogleDriveService>(),
+            get<LoginRepositoryImpl>(),
+            get<ContributionsRepositoryImpl>(),
+        )
     }
     viewModel {
         ReportViewModel(get<LoginRepositoryImpl>(), get<GoogleDriveService>())

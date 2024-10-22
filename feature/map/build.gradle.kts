@@ -37,6 +37,7 @@ dependencies {
     implementation(projects.feature.auth)
     implementation(projects.feature.mapSearch)
     implementation(projects.feature.intro)
+    implementation(projects.feature.contributions)
 }
 
 ksp {

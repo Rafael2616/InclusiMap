@@ -25,8 +25,9 @@ import com.rafael.inclusimap.core.settings.domain.model.SettingsEvent
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 import com.rafael.inclusimap.feature.auth.domain.model.LoginState
 import com.rafael.inclusimap.feature.intro.domain.model.AppIntroState
+import com.rafael.inclusimap.feature.libraryinfo.presentation.ContributionsScreen
+import com.rafael.inclusimap.feature.libraryinfo.presentation.viewmodel.ContributionsViewModel
 import com.rafael.inclusimap.feature.map.domain.InclusiMapEvent
-import com.rafael.inclusimap.feature.map.presentation.ContributionsScreen
 import com.rafael.inclusimap.feature.map.presentation.InclusiMapGoogleMapScreen
 import com.rafael.inclusimap.feature.map.presentation.InclusiMapScaffold
 import com.rafael.inclusimap.feature.map.presentation.viewmodel.InclusiMapGoogleMapViewModel
@@ -68,6 +69,9 @@ fun MapNavHost(
     val reportViewModel = koinViewModel<ReportViewModel>()
     val reportState by reportViewModel.state.collectAsStateWithLifecycle()
     val onReport = reportViewModel::onReport
+    val contributionViewModel = koinViewModel<ContributionsViewModel>()
+    val contributionState by contributionViewModel.state.collectAsStateWithLifecycle()
+    val onContributionEvent = contributionViewModel::onEvent
 
     InclusiMapScaffold(
         searchState = searchState,
@@ -142,13 +146,16 @@ fun MapNavHost(
             }
             composable<Destination.ContributionsScreen> {
                 ContributionsScreen(
-                    state = mapState,
-                    onEvent = onMapEvent,
-                    userEmail = loginState.user?.email ?: "",
+                    state = contributionState,
+                    onEvent = onContributionEvent,
                     userName = loginState.user?.name ?: "",
                     userPicture = settingsState.profilePicture,
                     navController = navController,
                     modifier = Modifier.padding(PaddingValues(bottom = paddingValues.calculateBottomPadding())),
+                    onPopBackStack = {
+                        onMapEvent(InclusiMapEvent.SetIsContributionsScreen(false))
+                        navController.popBackStack()
+                    },
                 )
             }
         }

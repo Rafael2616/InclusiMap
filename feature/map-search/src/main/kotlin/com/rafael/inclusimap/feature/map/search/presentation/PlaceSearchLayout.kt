@@ -1,4 +1,4 @@
-package com.rafael.inclusimap.feature.map.presentation
+package com.rafael.inclusimap.feature.map.search.presentation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -29,28 +29,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
+import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.resources.R
-import com.rafael.inclusimap.core.settings.domain.model.SettingsState
-import com.rafael.inclusimap.feature.map.domain.InclusiMapState
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchEvent
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchState
-import com.rafael.inclusimap.feature.map.search.presentation.PlaceSearchScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaceSearchLayout(
-    state: InclusiMapState,
     searchState: SearchState,
-    settingsState: SettingsState,
+    allMappedPlaces: List<AccessibleLocalMarker>,
     onSearchEvent: (SearchEvent) -> Unit,
     onNavigateToSettings: () -> Unit,
     onTravelToPlace: (String) -> Unit,
     focusRequester: FocusRequester,
+    profilePicture: ImageBitmap?,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -72,7 +71,7 @@ fun PlaceSearchLayout(
                     modifier = Modifier.focusRequester(focusRequester),
                     query = searchState.searchQuery,
                     onQueryChange = {
-                        onSearchEvent(SearchEvent.OnSearch(it, state.allMappedPlaces))
+                        onSearchEvent(SearchEvent.OnSearch(it, allMappedPlaces))
                     },
                     onSearch = {
                         onSearchEvent(SearchEvent.SetExpanded(false))
@@ -119,7 +118,7 @@ fun PlaceSearchLayout(
                             }
                         }
                         if (!searchState.expanded) {
-                            if (settingsState.profilePicture != null) {
+                            if (profilePicture != null) {
                                 Image(
                                     modifier = Modifier
                                         .size(40.dp)
@@ -127,7 +126,7 @@ fun PlaceSearchLayout(
                                         .clickable {
                                             onNavigateToSettings()
                                         },
-                                    bitmap = settingsState.profilePicture!!,
+                                    bitmap = profilePicture,
                                     contentDescription = null,
                                     contentScale = ContentScale.Crop,
                                 )

@@ -24,6 +24,5 @@ sealed interface InclusiMapEvent {
     data object ResetState : InclusiMapEvent
     data class OnTravelToPlace(val placeId: String) : InclusiMapEvent
     data class SetShouldTravel(val shouldTravel: Boolean) : InclusiMapEvent
-    data class LoadUserContributions(val userEmail: String) : InclusiMapEvent
     data class SetIsContributionsScreen(val isContributionsScreen: Boolean) : InclusiMapEvent
 }

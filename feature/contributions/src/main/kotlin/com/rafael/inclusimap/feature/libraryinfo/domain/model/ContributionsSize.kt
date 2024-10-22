@@ -1,4 +1,4 @@
-package com.rafael.inclusimap.feature.map.domain
+package com.rafael.inclusimap.feature.libraryinfo.domain.model
 
 data class ContributionsSize(
     val images: Int = 0,

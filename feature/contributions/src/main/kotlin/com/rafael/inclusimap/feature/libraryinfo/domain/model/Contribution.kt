@@ -1,4 +1,4 @@
-package com.rafael.inclusimap.feature.map.domain
+package com.rafael.inclusimap.feature.libraryinfo.domain.model
 
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.Comment

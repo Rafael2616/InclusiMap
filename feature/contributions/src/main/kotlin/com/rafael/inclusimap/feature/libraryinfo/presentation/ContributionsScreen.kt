@@ -1,4 +1,4 @@
-package com.rafael.inclusimap.feature.map.presentation
+package com.rafael.inclusimap.feature.libraryinfo.presentation
 
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -74,20 +74,20 @@ import com.rafael.inclusimap.core.domain.model.util.removeTime
 import com.rafael.inclusimap.core.domain.model.util.toColor
 import com.rafael.inclusimap.core.navigation.Destination
 import com.rafael.inclusimap.core.navigation.Location
-import com.rafael.inclusimap.feature.map.domain.ContributionType
-import com.rafael.inclusimap.feature.map.domain.InclusiMapEvent
-import com.rafael.inclusimap.feature.map.domain.InclusiMapState
-import com.rafael.inclusimap.feature.map.presentation.dialog.ContributionsHelpDialog
+import com.rafael.inclusimap.feature.libraryinfo.domain.ContributionsState
+import com.rafael.inclusimap.feature.libraryinfo.domain.model.ContributionType
+import com.rafael.inclusimap.feature.libraryinfo.domain.model.ContributionsEvent
+import com.rafael.inclusimap.feature.libraryinfo.presentation.dialogs.ContributionsHelpDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ContributionsScreen(
-    state: InclusiMapState,
-    onEvent: (InclusiMapEvent) -> Unit,
-    userEmail: String,
+    state: ContributionsState,
+    onEvent: (ContributionsEvent) -> Unit,
     userName: String,
     userPicture: ImageBitmap?,
     navController: NavController,
+    onPopBackStack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val latestOnEvent by rememberUpdatedState(onEvent)
@@ -98,7 +98,7 @@ fun ContributionsScreen(
     var showHelpDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        latestOnEvent(InclusiMapEvent.LoadUserContributions(userEmail))
+        latestOnEvent(ContributionsEvent.LoadUserContributions)
     }
 
     var selectedButton by remember { mutableStateOf(ContributionType.PLACE) }
@@ -159,7 +159,7 @@ fun ContributionsScreen(
             isRefreshing = isRefreshing && shouldRefresh,
             onRefresh = {
                 shouldRefresh = true
-                latestOnEvent(InclusiMapEvent.LoadUserContributions(userEmail))
+                latestOnEvent(ContributionsEvent.LoadUserContributions)
             },
             contentAlignment = Alignment.Center,
         ) {
@@ -633,8 +633,7 @@ fun ContributionsScreen(
     }
 
     BackHandler {
-        latestOnEvent(InclusiMapEvent.SetIsContributionsScreen(false))
-        navController.popBackStack()
+        onPopBackStack()
     }
 }
 

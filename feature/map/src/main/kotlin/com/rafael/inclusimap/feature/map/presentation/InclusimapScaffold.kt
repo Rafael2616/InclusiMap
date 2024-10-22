@@ -21,6 +21,7 @@ import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 import com.rafael.inclusimap.feature.map.domain.InclusiMapState
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchEvent
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchState
+import com.rafael.inclusimap.feature.map.search.presentation.PlaceSearchLayout
 
 @Composable
 fun InclusiMapScaffold(
@@ -85,13 +86,13 @@ fun InclusiMapScaffold(
         topBar = {
             if (!isFullScreenMode && !state.isContributionsScreen) {
                 PlaceSearchLayout(
-                    state = state,
                     searchState = searchState,
                     onSearchEvent = searchEvent,
-                    settingsState = settingsState,
                     onNavigateToSettings = onNavigateToSettings,
                     onTravelToPlace = onTravelToPlace,
                     focusRequester = focusRequester,
+                    allMappedPlaces = state.allMappedPlaces,
+                    profilePicture = settingsState.profilePicture,
                 )
             }
         },

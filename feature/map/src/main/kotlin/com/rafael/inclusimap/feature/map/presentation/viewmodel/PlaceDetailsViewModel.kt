@@ -22,8 +22,9 @@ import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_PARAGOMINAS_P
 import com.rafael.inclusimap.core.domain.util.Constants.MAX_IMAGE_NUMBER
 import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
-import com.rafael.inclusimap.feature.map.domain.Contribution
-import com.rafael.inclusimap.feature.map.domain.ContributionType
+import com.rafael.inclusimap.feature.libraryinfo.domain.model.Contribution
+import com.rafael.inclusimap.feature.libraryinfo.domain.model.ContributionType
+import com.rafael.inclusimap.feature.libraryinfo.domain.repository.ContributionsRepository
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsState
 import java.io.ByteArrayInputStream
@@ -43,6 +44,7 @@ import kotlinx.serialization.json.Json
 class PlaceDetailsViewModel(
     private val driveService: GoogleDriveService,
     private val loginRepository: LoginRepository,
+    private val contributionsRepository: ContributionsRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(PlaceDetailsState())
@@ -629,94 +631,7 @@ class PlaceDetailsViewModel(
         }
     }
 
-    private fun addNewContribution(contribution: Contribution) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val userPathId = loginRepository.getLoginInfo(1)?.userPathID ?: return@launch
-            driveService.listFiles(userPathId).onSuccess { userFiles ->
-                val userContributionsFile = userFiles.find { it.name == "contributions.json" }
-                    ?.also { contributionsFile ->
-                        val contributions =
-                            driveService.getFileContent(contributionsFile.id)
-                        val file = json.decodeFromString<List<Contribution>>(
-                            contributions?.decodeToString() ?: return@launch,
-                        )
-                        if (file.any { it == contribution }) return@launch
-                        val updatedContributions = file + contribution
-                        val updatedContributionsString =
-                            json.encodeToString(updatedContributions)
-                        driveService.updateFile(
-                            contributionsFile.id,
-                            "contributions.json",
-                            updatedContributionsString.byteInputStream(),
-                        )
-                        println("Contribution added successfully" + contribution.fileId)
-                    }
-                if (userContributionsFile == null) {
-                    driveService.createFile(
-                        "contributions.json",
-                        "[]",
-                        userPathId,
-                    )
-                }
-            }
-        }
-    }
-
-    private fun addNewContributions(contributions: List<Contribution>) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val userPathId = loginRepository.getLoginInfo(1)?.userPathID ?: return@launch
-            driveService.listFiles(userPathId).onSuccess { userFiles ->
-                val userContributionsFile = userFiles.find { it.name == "contributions.json" }
-                    ?.also { contributionsFile ->
-                        val userContributions =
-                            driveService.getFileContent(contributionsFile.id)
-                        val file = json.decodeFromString<List<Contribution>>(
-                            userContributions?.decodeToString() ?: return@launch,
-                        )
-                        val updatedContributions = file + contributions
-                        val updatedContributionsString =
-                            json.encodeToString(updatedContributions)
-                        driveService.updateFile(
-                            contributionsFile.id,
-                            "contributions.json",
-                            updatedContributionsString.byteInputStream(),
-                        )
-                        println("Contribution added successfully: $contributions")
-                    }
-                if (userContributionsFile == null) {
-                    driveService.createFile(
-                        "contributions.json",
-                        "[]",
-                        userPathId,
-                    )
-                }
-            }
-        }
-    }
-
-    private fun removeContribution(contribution: Contribution) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val userPathId = loginRepository.getLoginInfo(1)?.userPathID ?: return@launch
-            driveService.listFiles(userPathId).onSuccess { userFiles ->
-                userFiles.find { it.name == "contributions.json" }
-                    ?.also { contributionsFile ->
-                        val contributions =
-                            driveService.getFileContent(contributionsFile.id)
-                        val file = json.decodeFromString<List<Contribution>>(
-                            contributions?.decodeToString() ?: return@launch,
-                        )
-                        val updatedContributions =
-                            file.filter { it != contribution }
-                        val updatedContributionsString =
-                            json.encodeToString(updatedContributions)
-                        driveService.updateFile(
-                            contributionsFile.id,
-                            "contributions.json",
-                            updatedContributionsString.byteInputStream(),
-                        )
-                        println("Contribution removed successfully" + contribution.fileId)
-                    }
-            }
-        }
-    }
+    private suspend fun addNewContribution(contribution: Contribution) = contributionsRepository.addNewContribution(contribution)
+    private suspend fun addNewContributions(contributions: List<Contribution>) = contributionsRepository.addNewContributions(contributions)
+    private suspend fun removeContribution(contribution: Contribution) = contributionsRepository.removeContribution(contribution)
 }
