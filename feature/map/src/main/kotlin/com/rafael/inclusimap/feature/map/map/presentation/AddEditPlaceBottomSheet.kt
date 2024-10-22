@@ -29,6 +29,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
@@ -85,11 +86,11 @@ fun AddEditPlaceBottomSheet(
     var tryAddUpdate by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
+    val minPlaceNameLength by remember { mutableIntStateOf(3) }
     val maxPlaceNameLength by remember { mutableIntStateOf(50) }
     var selectedPlaceCategory by remember { mutableStateOf(if (isEditing) placeDetailsState.currentPlace.category else null) }
     var showConfirmationDialog by remember { mutableStateOf(false) }
     var showDeleteConfirmationDialog by remember { mutableStateOf(false) }
-
     ModalBottomSheet(
         sheetState = bottomSheetScaffoldState,
         onDismissRequest = onDismiss,
@@ -145,10 +146,21 @@ fun AddEditPlaceBottomSheet(
                     )
                 },
                 trailingIcon = {
-                    Text(
-                        text = "${placeName.length}/$maxPlaceNameLength",
-                        fontSize = 14.sp,
-                    )
+                    Row {
+                        Text(
+                            text = "${placeName.length}",
+                            fontSize = 14.sp,
+                            color = if (placeName.length < minPlaceNameLength) {
+                                MaterialTheme.colorScheme.error
+                            } else {
+                                LocalContentColor.current
+                            }
+                        )
+                        Text(
+                            text = "/$maxPlaceNameLength",
+                            fontSize = 14.sp,
+                        )
+                    }
                 },
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Next,
@@ -259,6 +271,14 @@ fun AddEditPlaceBottomSheet(
                         if (selectedPlaceCategory == null) {
                             Toast.makeText(context, "Selecione uma categoria!", Toast.LENGTH_SHORT)
                                 .show()
+                            return@Button
+                        }
+                        if (placeName.length < minPlaceNameLength) {
+                            Toast.makeText(
+                                context,
+                                "O nome do local deve ter pelo menos ${minPlaceNameLength} caracteres!",
+                                Toast.LENGTH_SHORT,
+                            ).show()
                             return@Button
                         }
                         if (isEditing) {
