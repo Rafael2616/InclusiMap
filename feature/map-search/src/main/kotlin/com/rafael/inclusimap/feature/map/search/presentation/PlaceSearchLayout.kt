@@ -186,12 +186,12 @@ fun PlaceSearchLayout(
                     state = searchState,
                     allMappedPlaces = allMappedPlaces,
                     onPlaceClick = {
-                        if (isHistoryEnabled) {
-                            onSearchEvent(SearchEvent.UpdateHistory(it))
-                        }
                         onSearchEvent(SearchEvent.SetExpanded(false))
                         onTravelToPlace(it)
                         onSearchEvent(SearchEvent.OnSearch("", emptyList()))
+                        if (isHistoryEnabled) {
+                            onSearchEvent(SearchEvent.UpdateHistory(it))
+                        }
                     },
                     onLoadHistory = {
                         onSearchEvent(SearchEvent.LoadHistory)
