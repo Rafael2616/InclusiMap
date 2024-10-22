@@ -17,13 +17,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,25 +41,43 @@ import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.toCategoryName
 import com.rafael.inclusimap.core.domain.model.util.toColor
 import com.rafael.inclusimap.core.resources.icons.GoogleMapsPin
+import com.rafael.inclusimap.feature.map.search.domain.model.SearchState
 
 @Composable
 fun PlaceSearchScreen(
-    matchingPlaces: List<AccessibleLocalMarker>,
-    query: String,
+    state: SearchState,
+    allMappedPlaces: List<AccessibleLocalMarker>,
     onPlaceClick: (String) -> Unit,
+    onLoadHistory: () -> Unit,
+    onRemoveFromHistory: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val focusManager = LocalFocusManager.current
-
+    val shouldShowHistoryUI =
+        state.matchingPlaces.isEmpty() && state.searchQuery.isEmpty() && state.placesHistory.isNotEmpty()
+    LaunchedEffect(Unit) {
+        onLoadHistory()
+    }
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.Start,
     ) {
-        if (matchingPlaces.isNotEmpty()) {
+        if (state.matchingPlaces.isNotEmpty()) {
             Text(
                 text = "Resultados da pesquisa:",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(horizontal = 12.dp),
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+        }
+        if (shouldShowHistoryUI) {
+            Text(
+                text = "Histórico de pesquisa:",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(horizontal = 12.dp),
             )
             Spacer(modifier = Modifier.height(4.dp))
@@ -78,7 +100,77 @@ fun PlaceSearchScreen(
                 }
                 .animateContentSize(),
         ) {
-            if (matchingPlaces.isEmpty() && query.isNotEmpty()) {
+            // History UI
+            if (shouldShowHistoryUI) {
+                allMappedPlaces.filter {
+                    it.id in state.placesHistory
+                }.forEachIndexed { index, placeStored ->
+                    item {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(65.dp)
+                                .clickable {
+                                    onPlaceClick(placeStored.id!!)
+                                }
+                                .padding(6.dp),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.History,
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp),
+                            )
+                            Column(
+                                modifier = Modifier
+                                    .padding(start = 4.dp)
+                                    .weight(1f),
+                                verticalArrangement = Arrangement.spacedBy(2.dp),
+                            ) {
+                                Text(
+                                    text = placeStored.title,
+                                    maxLines = 1,
+                                    fontSize = 14.sp,
+                                )
+                                Text(
+                                    text = placeStored.category?.toCategoryName()?.uppercase()
+                                        ?: "",
+                                    fontSize = 10.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                            GoogleMapsPin(
+                                pinColor = placeStored.comments.map { it.accessibilityRate }
+                                    .average()
+                                    .toFloat()
+                                    .toColor(),
+                                pinSize = 46.dp,
+                            )
+                            IconButton(
+                                onClick = {
+                                    onRemoveFromHistory(placeStored.id ?: return@IconButton)
+                                },
+                                modifier = Modifier.size(24.dp),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Close,
+                                    contentDescription = null,
+                                )
+                            }
+                        }
+                        if (index < state.placesHistory.size - 1) {
+                            HorizontalDivider(
+                                thickness = 3.dp,
+                                color = MaterialTheme.colorScheme.surface,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+                    }
+                }
+            }
+            // Search Results UI
+            if (state.matchingPlaces.isEmpty() && state.searchQuery.isNotEmpty()) {
                 item {
                     Box(
                         modifier = Modifier
@@ -100,7 +192,7 @@ fun PlaceSearchScreen(
                                 modifier = Modifier.size(35.dp),
                             )
                             Text(
-                                text = "Nenhum local encontrado para a pesquisa: $query",
+                                text = "Nenhum local encontrado para a pesquisa: ${state.searchQuery}",
                                 maxLines = 2,
                                 textAlign = TextAlign.Center,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -109,7 +201,7 @@ fun PlaceSearchScreen(
                     }
                 }
             } else {
-                matchingPlaces.forEachIndexed { index, place ->
+                state.matchingPlaces.forEachIndexed { index, place ->
                     item {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -146,7 +238,7 @@ fun PlaceSearchScreen(
                                 pinSize = 46.dp,
                             )
                         }
-                        if (index < matchingPlaces.size - 1) {
+                        if (index < state.matchingPlaces.size - 1) {
                             HorizontalDivider(
                                 thickness = 3.dp,
                                 color = MaterialTheme.colorScheme.surface,

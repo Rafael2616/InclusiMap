@@ -182,12 +182,19 @@ fun PlaceSearchLayout(
                 ),
             ) {
                 PlaceSearchScreen(
-                    matchingPlaces = searchState.matchingPlaces,
-                    query = searchState.searchQuery,
+                    state = searchState,
+                    allMappedPlaces = allMappedPlaces,
                     onPlaceClick = {
                         onSearchEvent(SearchEvent.SetExpanded(false))
                         onSearchEvent(SearchEvent.OnSearch("", emptyList()))
+                        onSearchEvent(SearchEvent.UpdateHistory(it))
                         onTravelToPlace(it)
+                    },
+                    onLoadHistory = {
+                        onSearchEvent(SearchEvent.LoadHistory)
+                    },
+                    onRemoveFromHistory = {
+                        onSearchEvent(SearchEvent.DeleteFromHistory(it))
                     },
                 )
             }

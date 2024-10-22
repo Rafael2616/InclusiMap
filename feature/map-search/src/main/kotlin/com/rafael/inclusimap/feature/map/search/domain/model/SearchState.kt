@@ -5,5 +5,6 @@ import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 data class SearchState(
     val matchingPlaces: List<AccessibleLocalMarker> = emptyList(),
     val searchQuery: String = "",
+    val placesHistory: List<String> = emptyList(),
     val expanded: Boolean = false,
 )
