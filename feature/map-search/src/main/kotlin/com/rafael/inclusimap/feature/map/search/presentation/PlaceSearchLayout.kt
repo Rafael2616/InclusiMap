@@ -57,33 +57,27 @@ fun PlaceSearchLayout(
 ) {
     Box(
         modifier = modifier
+            .fillMaxSize()
             .then(
                 if (searchState.expanded) {
-                    Modifier.fillMaxSize()
-                } else {
-                    Modifier.fillMaxWidth()
-                }
-            )
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = {
-                        onSearchEvent(SearchEvent.SetExpanded(false))
-                        onSearchEvent(SearchEvent.OnSearch("", emptyList()))
+                    Modifier.pointerInput(Unit) {
+                        detectTapGestures(
+                            onTap = {
+                                onSearchEvent(SearchEvent.SetExpanded(false))
+                                onSearchEvent(SearchEvent.OnSearch("", emptyList()))
+                            },
+                        )
                     }
-                )
-            },
+                } else {
+                    Modifier
+                },
+            ),
         contentAlignment = Alignment.TopCenter,
     ) {
         Box(
             modifier = modifier
                 .fillMaxWidth()
-                .then(
-                    if (searchState.expanded) {
-                        Modifier.fillMaxHeight(0.6f)
-                    } else {
-                        Modifier
-                    }
-                ),
+                .fillMaxHeight(0.6f),
             contentAlignment = Alignment.TopCenter,
         ) {
             SearchBar(
