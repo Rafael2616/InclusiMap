@@ -116,19 +116,22 @@ fun PlaceSearchScreen(
                             horizontalArrangement = Arrangement.Start,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(58.dp)
+                                .height(65.dp)
                                 .clickable {
                                     onPlaceClick(place.id!!)
                                 }
-                                .padding(horizontal = 6.dp, vertical = 8.dp),
+                                .padding(6.dp),
                         ) {
                             Column(
-                                modifier = Modifier.weight(1f),
+                                modifier = Modifier
+                                    .padding(start = 4.dp)
+                                    .weight(1f),
+                                verticalArrangement = Arrangement.spacedBy(2.dp),
                             ) {
                                 Text(
                                     text = place.title,
+                                    maxLines = 1,
                                     fontSize = 14.sp,
-                                    modifier = Modifier.weight(1f),
                                 )
                                 Text(
                                     text = place.category?.toCategoryName()?.uppercase() ?: "",
