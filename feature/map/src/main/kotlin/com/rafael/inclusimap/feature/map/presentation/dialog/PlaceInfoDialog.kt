@@ -43,8 +43,9 @@ import androidx.compose.ui.window.DialogProperties
 import com.google.android.gms.maps.model.LatLng
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.util.formatDate
-import com.rafael.inclusimap.feature.map.domain.Report
 import com.rafael.inclusimap.feature.map.domain.util.OpenInGoogleMapContract
+import com.rafael.inclusimap.feature.report.domain.model.Report
+import com.rafael.inclusimap.feature.report.presentation.dialogs.PlaceReportDialog
 
 @Composable
 fun PlaceInfoDialog(

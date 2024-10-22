@@ -1,4 +1,4 @@
-package com.rafael.inclusimap.feature.map.presentation.dialog
+package com.rafael.inclusimap.feature.report.presentation.dialogs
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -48,9 +48,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
-import com.rafael.inclusimap.feature.map.domain.Report
-import com.rafael.inclusimap.feature.map.domain.ReportType
-import com.rafael.inclusimap.feature.map.domain.toText
+import com.rafael.inclusimap.feature.report.domain.model.Report
+import com.rafael.inclusimap.feature.report.domain.model.ReportType
+import com.rafael.inclusimap.feature.report.domain.model.toText
 
 @Composable
 @OptIn(ExperimentalLayoutApi::class)
@@ -60,7 +60,7 @@ fun PlaceReportDialog(
     onReport: (Report) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var reportType by remember { mutableStateOf(ReportType.LOCAL) }
+    var reportType by remember { mutableStateOf(com.rafael.inclusimap.feature.report.domain.model.ReportType.LOCAL) }
     var report by remember { mutableStateOf("") }
     val maxReportLength by remember { mutableIntStateOf(250) }
     val minReportLength by remember { mutableIntStateOf(15) }

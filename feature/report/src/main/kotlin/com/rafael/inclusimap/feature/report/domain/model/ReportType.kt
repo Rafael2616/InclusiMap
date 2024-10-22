@@ -1,4 +1,4 @@
-package com.rafael.inclusimap.feature.map.domain
+package com.rafael.inclusimap.feature.report.domain.model
 
 enum class ReportType {
     LOCAL,

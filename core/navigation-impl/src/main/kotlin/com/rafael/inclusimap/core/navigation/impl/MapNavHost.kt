@@ -32,9 +32,9 @@ import com.rafael.inclusimap.feature.map.presentation.InclusiMapGoogleMapScreen
 import com.rafael.inclusimap.feature.map.presentation.InclusiMapScaffold
 import com.rafael.inclusimap.feature.map.presentation.viewmodel.InclusiMapGoogleMapViewModel
 import com.rafael.inclusimap.feature.map.presentation.viewmodel.PlaceDetailsViewModel
-import com.rafael.inclusimap.feature.map.presentation.viewmodel.ReportViewModel
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchEvent
 import com.rafael.inclusimap.feature.map.search.presentation.viewmodel.SearchViewModel
+import com.rafael.inclusimap.feature.report.presentation.viewmodel.ReportViewModel
 import kotlin.reflect.typeOf
 import org.koin.compose.viewmodel.koinViewModel
 import soup.compose.material.motion.animation.materialSharedAxisXIn

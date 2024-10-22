@@ -102,12 +102,12 @@ import com.rafael.inclusimap.core.domain.util.Constants.MAX_IMAGE_NUMBER
 import com.rafael.inclusimap.feature.map.domain.InclusiMapState
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsState
-import com.rafael.inclusimap.feature.map.domain.Report
-import com.rafael.inclusimap.feature.map.domain.ReportState
 import com.rafael.inclusimap.feature.map.presentation.dialog.FullScreenImageViewDialog
 import com.rafael.inclusimap.feature.map.presentation.dialog.ImagesUploadProgressDialog
 import com.rafael.inclusimap.feature.map.presentation.dialog.PlaceInfoDialog
 import com.rafael.inclusimap.feature.map.presentation.dialog.UnsavedCommentDialog
+import com.rafael.inclusimap.feature.report.domain.model.Report
+import com.rafael.inclusimap.feature.report.domain.model.ReportState
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 

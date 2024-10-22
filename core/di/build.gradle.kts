@@ -15,6 +15,7 @@ dependencies {
     implementation(projects.feature.intro)
     implementation(projects.feature.map)
     implementation(projects.feature.mapSearch)
+    implementation(projects.feature.report)
     implementation(projects.feature.settings)
     implementation(projects.feature.libraryInfo)
     implementation(projects.feature.contributions)

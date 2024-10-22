@@ -1,4 +1,4 @@
-package com.rafael.inclusimap.feature.map.domain
+package com.rafael.inclusimap.feature.report.domain.model
 
 data class ReportState(
     var isReported: Boolean = false,

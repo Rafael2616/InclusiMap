@@ -1,4 +1,4 @@
-package com.rafael.inclusimap.feature.map.presentation.viewmodel
+package com.rafael.inclusimap.feature.report.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -6,9 +6,9 @@ import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_REPORT_FOLDER
 import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.feature.auth.domain.model.User
 import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
-import com.rafael.inclusimap.feature.map.domain.Report
-import com.rafael.inclusimap.feature.map.domain.ReportState
-import com.rafael.inclusimap.feature.map.domain.ReportType
+import com.rafael.inclusimap.feature.report.domain.model.Report
+import com.rafael.inclusimap.feature.report.domain.model.ReportState
+import com.rafael.inclusimap.feature.report.domain.model.ReportType
 import java.util.Date
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -51,7 +51,7 @@ class ReportViewModel(
             val completedReport = report.copy(
                 user = user,
                 reportedLocal = report.reportedLocal.copy(
-                    comments = if (report.type == ReportType.COMMENT || report.type == ReportType.OTHER) report.reportedLocal.comments else emptyList(),
+                    comments = if (report.type == ReportType.COMMENT || report.type == com.rafael.inclusimap.feature.report.domain.model.ReportType.OTHER) report.reportedLocal.comments else emptyList(),
                 ),
             )
             val jsonReport = json.encodeToString<Report>(completedReport)

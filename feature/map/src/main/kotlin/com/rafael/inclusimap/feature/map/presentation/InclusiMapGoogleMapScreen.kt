@@ -46,11 +46,11 @@ import com.rafael.inclusimap.feature.map.domain.InclusiMapEvent
 import com.rafael.inclusimap.feature.map.domain.InclusiMapState
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsState
-import com.rafael.inclusimap.feature.map.domain.Report
-import com.rafael.inclusimap.feature.map.domain.ReportState
 import com.rafael.inclusimap.feature.map.presentation.dialog.PlacesNotLoadedDialog
 import com.rafael.inclusimap.feature.map.presentation.dialog.PlacesNotUpdatedDialog
 import com.rafael.inclusimap.feature.map.presentation.dialog.ServerUnavailableDialog
+import com.rafael.inclusimap.feature.report.domain.model.Report
+import com.rafael.inclusimap.feature.report.domain.model.ReportState
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

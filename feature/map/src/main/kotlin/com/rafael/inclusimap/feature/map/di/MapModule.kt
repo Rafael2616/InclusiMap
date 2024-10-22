@@ -9,7 +9,7 @@ import com.rafael.inclusimap.feature.map.data.repository.AccessibleLocalsReposit
 import com.rafael.inclusimap.feature.map.data.repository.InclusiMapRepositoryImpl
 import com.rafael.inclusimap.feature.map.presentation.viewmodel.InclusiMapGoogleMapViewModel
 import com.rafael.inclusimap.feature.map.presentation.viewmodel.PlaceDetailsViewModel
-import com.rafael.inclusimap.feature.map.presentation.viewmodel.ReportViewModel
+import com.rafael.inclusimap.feature.report.presentation.viewmodel.ReportViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -50,6 +50,9 @@ val mapModule = module {
         )
     }
     viewModel {
-        ReportViewModel(get<LoginRepositoryImpl>(), get<GoogleDriveService>())
+        ReportViewModel(
+            get<LoginRepositoryImpl>(),
+            get<GoogleDriveService>()
+        )
     }
 }
