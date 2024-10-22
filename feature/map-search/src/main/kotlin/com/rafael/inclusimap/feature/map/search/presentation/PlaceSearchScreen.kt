@@ -119,7 +119,7 @@ fun PlaceSearchScreen(
                                 .fillMaxWidth()
                                 .height(62.dp)
                                 .clickable {
-                                    onPlaceClick(placeStored.id!!)
+                                    onPlaceClick(placeStored.id ?: return@clickable)
                                 }
                                 .padding(6.dp),
                         ) {
@@ -218,7 +218,7 @@ fun PlaceSearchScreen(
                                 .fillMaxWidth()
                                 .height(62.dp)
                                 .clickable {
-                                    onPlaceClick(place.id!!)
+                                    onPlaceClick(place.id ?: return@clickable)
                                 }
                                 .padding(6.dp),
                         ) {

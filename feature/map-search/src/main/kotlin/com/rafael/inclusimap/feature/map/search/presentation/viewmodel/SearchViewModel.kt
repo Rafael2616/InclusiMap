@@ -64,18 +64,15 @@ class SearchViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val places = json.decodeFromString<List<String>>(searchRepository.getHistory()).toMutableList()
             if (placeId in places) {
-                val temp = places.indexOf(placeId)
-                places.removeAt(temp)
-                places.add(0, placeId)
-                return@launch
+                places.remove(placeId)
             }
-            if (places.size >= 3) {
+            if (places.size > 3) {
                 places.subList(0, 2)
-                places.removeAt(2)
+                places.removeAt(places.lastIndex)
             }
-            places.add(0, placeId)
-            _state.update { it.copy(placesHistory = places) }
-            searchRepository.updateHistory(json.encodeToString(places))
+            places.add(placeId)
+            _state.update { it.copy(placesHistory = places.reversed()) }
+            searchRepository.updateHistory(json.encodeToString(places.reversed()))
         }
     }
 
