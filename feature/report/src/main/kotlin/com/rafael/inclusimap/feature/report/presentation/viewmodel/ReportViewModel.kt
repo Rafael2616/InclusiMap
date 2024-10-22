@@ -51,7 +51,7 @@ class ReportViewModel(
             val completedReport = report.copy(
                 user = user,
                 reportedLocal = report.reportedLocal.copy(
-                    comments = if (report.type == ReportType.COMMENT || report.type == com.rafael.inclusimap.feature.report.domain.model.ReportType.OTHER) report.reportedLocal.comments else emptyList(),
+                    comments = if (report.type == ReportType.COMMENT || report.type == ReportType.OTHER) report.reportedLocal.comments else emptyList(),
                 ),
             )
             val jsonReport = json.encodeToString<Report>(completedReport)
