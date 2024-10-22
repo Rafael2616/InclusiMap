@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.toCategoryName
+import com.rafael.inclusimap.core.domain.util.normalizeText
+import com.rafael.inclusimap.core.domain.util.similarity
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchEvent
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchState
 import com.rafael.inclusimap.feature.map.search.domain.repository.MapSearchRepository
@@ -46,13 +48,38 @@ class SearchViewModel(
             }
             return
         }
-        allPlaces.filter {
-            it.title.contains(query, ignoreCase = true) || it.category?.toCategoryName()
-                ?.contains(query, ignoreCase = true) == true
-        }.also { places ->
-            _state.update {
-                it.copy(matchingPlaces = places)
-            }
+
+        val normalizedQuery = normalizeText(query)
+        val exactMatches = defaultSearch(normalizedQuery, allPlaces)
+        val fuzzyMatches = lavenshteinSearch(normalizedQuery, allPlaces)
+        val combinedResults = (exactMatches + fuzzyMatches).distinctBy { it.id }
+        _state.update { it.copy(matchingPlaces = combinedResults) }
+    }
+
+    private fun defaultSearch(
+        query: String,
+        allPlaces: List<AccessibleLocalMarker>,
+    ): List<AccessibleLocalMarker> {
+        return allPlaces.filter {
+            normalizeText(it.title).contains(
+                query,
+                ignoreCase = true,
+            ) || normalizeText(it.category?.toCategoryName() ?: "")
+                .contains(query, ignoreCase = true)
+        }
+    }
+
+    private fun lavenshteinSearch(
+        query: String,
+        allPlaces: List<AccessibleLocalMarker>,
+    ): List<AccessibleLocalMarker> {
+        val threshold = 0.7 // 70% of minimum similarity
+        return allPlaces.filter { place ->
+            val titleSimilarity = similarity(normalizeText(place.title), query)
+            val categorySimilarity = place.category?.let { cat ->
+                similarity(normalizeText(cat.toCategoryName()), query)
+            } ?: 0.0
+            titleSimilarity >= threshold || categorySimilarity >= threshold
         }
     }
 
