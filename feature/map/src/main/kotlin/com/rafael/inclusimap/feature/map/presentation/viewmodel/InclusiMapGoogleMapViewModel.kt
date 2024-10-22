@@ -10,9 +10,9 @@ import com.rafael.inclusimap.core.domain.network.onSuccess
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_IMAGE_FOLDER_ID
 import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
-import com.rafael.inclusimap.feature.libraryinfo.domain.model.Contribution
-import com.rafael.inclusimap.feature.libraryinfo.domain.model.ContributionType
-import com.rafael.inclusimap.feature.libraryinfo.domain.repository.ContributionsRepository
+import com.rafael.inclusimap.feature.contributions.domain.model.Contribution
+import com.rafael.inclusimap.feature.contributions.domain.model.ContributionType
+import com.rafael.inclusimap.feature.contributions.domain.repository.ContributionsRepository
 import com.rafael.inclusimap.feature.map.domain.AccessibleLocalsEntity
 import com.rafael.inclusimap.feature.map.domain.InclusiMapEntity
 import com.rafael.inclusimap.feature.map.domain.InclusiMapEvent

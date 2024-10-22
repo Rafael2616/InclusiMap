@@ -26,9 +26,9 @@ import com.rafael.inclusimap.feature.about.util.SingletonCoilImageLoader
 import com.rafael.inclusimap.feature.auth.domain.model.LoginEvent
 import com.rafael.inclusimap.feature.auth.presentation.UnifiedLoginScreen
 import com.rafael.inclusimap.feature.auth.presentation.viewmodel.LoginViewModel
+import com.rafael.inclusimap.feature.contributions.presentation.LibraryScreen
+import com.rafael.inclusimap.feature.contributions.presentation.viewmodel.LibraryViewModel
 import com.rafael.inclusimap.feature.intro.presentation.viewmodel.AppIntroViewModel
-import com.rafael.inclusimap.feature.libraryinfo.presentation.LibraryScreen
-import com.rafael.inclusimap.feature.libraryinfo.presentation.viewmodel.LibraryViewModel
 import com.rafael.inclusimap.feature.settings.presentation.SettingsScreen
 import com.rafael.inclusimap.feature.settings.presentation.viewmodel.SettingsViewModel
 import org.koin.compose.KoinContext

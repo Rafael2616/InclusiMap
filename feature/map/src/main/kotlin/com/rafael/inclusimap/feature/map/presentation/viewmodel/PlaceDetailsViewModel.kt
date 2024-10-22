@@ -22,9 +22,9 @@ import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_PARAGOMINAS_P
 import com.rafael.inclusimap.core.domain.util.Constants.MAX_IMAGE_NUMBER
 import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
-import com.rafael.inclusimap.feature.libraryinfo.domain.model.Contribution
-import com.rafael.inclusimap.feature.libraryinfo.domain.model.ContributionType
-import com.rafael.inclusimap.feature.libraryinfo.domain.repository.ContributionsRepository
+import com.rafael.inclusimap.feature.contributions.domain.model.Contribution
+import com.rafael.inclusimap.feature.contributions.domain.model.ContributionType
+import com.rafael.inclusimap.feature.contributions.domain.repository.ContributionsRepository
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsEvent
 import com.rafael.inclusimap.feature.map.domain.PlaceDetailsState
 import java.io.ByteArrayInputStream

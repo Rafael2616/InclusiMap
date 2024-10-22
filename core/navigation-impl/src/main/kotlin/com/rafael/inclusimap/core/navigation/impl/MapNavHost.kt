@@ -24,9 +24,9 @@ import com.rafael.inclusimap.core.navigation.impl.types.locationType
 import com.rafael.inclusimap.core.settings.domain.model.SettingsEvent
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 import com.rafael.inclusimap.feature.auth.domain.model.LoginState
+import com.rafael.inclusimap.feature.contributions.presentation.ContributionsScreen
+import com.rafael.inclusimap.feature.contributions.presentation.viewmodel.ContributionsViewModel
 import com.rafael.inclusimap.feature.intro.domain.model.AppIntroState
-import com.rafael.inclusimap.feature.libraryinfo.presentation.ContributionsScreen
-import com.rafael.inclusimap.feature.libraryinfo.presentation.viewmodel.ContributionsViewModel
 import com.rafael.inclusimap.feature.map.domain.InclusiMapEvent
 import com.rafael.inclusimap.feature.map.presentation.InclusiMapGoogleMapScreen
 import com.rafael.inclusimap.feature.map.presentation.InclusiMapScaffold

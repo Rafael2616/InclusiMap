@@ -3,9 +3,9 @@ package com.rafael.inclusimap.core.di
 import android.content.Context
 import com.rafael.inclusimap.core.services.di.serviceModule
 import com.rafael.inclusimap.feature.auth.di.authModule
+import com.rafael.inclusimap.feature.contributions.di.modules.contributionsModule
+import com.rafael.inclusimap.feature.contributions.di.modules.libraryInfoModule
 import com.rafael.inclusimap.feature.intro.di.introModule
-import com.rafael.inclusimap.feature.libraryinfo.di.modules.contributionsModule
-import com.rafael.inclusimap.feature.libraryinfo.di.modules.libraryInfoModule
 import com.rafael.inclusimap.feature.map.di.mapModule
 import com.rafael.inclusimap.feature.map.search.di.mapSearchModule
 import com.rafael.inclusimap.feature.settings.di.settingsModule
