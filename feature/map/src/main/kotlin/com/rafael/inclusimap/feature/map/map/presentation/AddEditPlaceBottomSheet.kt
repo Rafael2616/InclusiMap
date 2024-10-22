@@ -138,7 +138,7 @@ fun AddEditPlaceBottomSheet(
                 },
                 maxLines = 1,
                 singleLine = true,
-                isError = tryAddUpdate && placeName.isEmpty(),
+                isError = tryAddUpdate && (placeName.isEmpty() || placeName.length < minPlaceNameLength),
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.LocationOn,
@@ -150,7 +150,7 @@ fun AddEditPlaceBottomSheet(
                         Text(
                             text = "${placeName.length}",
                             fontSize = 14.sp,
-                            color = if (placeName.length < minPlaceNameLength) {
+                            color = if (placeName.length < minPlaceNameLength && placeName.isNotEmpty()) {
                                 MaterialTheme.colorScheme.error
                             } else {
                                 LocalContentColor.current
