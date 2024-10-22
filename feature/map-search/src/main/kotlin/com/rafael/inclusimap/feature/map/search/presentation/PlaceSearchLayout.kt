@@ -57,7 +57,13 @@ fun PlaceSearchLayout(
 ) {
     Box(
         modifier = modifier
-            .fillMaxSize()
+            .then(
+                if (searchState.expanded) {
+                    Modifier.fillMaxSize()
+                } else {
+                    Modifier.fillMaxWidth()
+                }
+            )
             .pointerInput(Unit) {
                 detectTapGestures(
                     onTap = {
