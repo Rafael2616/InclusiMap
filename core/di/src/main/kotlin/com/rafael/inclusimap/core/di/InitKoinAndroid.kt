@@ -7,6 +7,7 @@ import com.rafael.inclusimap.feature.contributions.di.modules.contributionsModul
 import com.rafael.inclusimap.feature.contributions.di.modules.libraryInfoModule
 import com.rafael.inclusimap.feature.intro.di.introModule
 import com.rafael.inclusimap.feature.map.di.mapModule
+import com.rafael.inclusimap.feature.map.placedetails.di.modules.placeDetailsModule
 import com.rafael.inclusimap.feature.map.search.di.mapSearchModule
 import com.rafael.inclusimap.feature.report.di.modules.reportModule
 import com.rafael.inclusimap.feature.settings.di.settingsModule
@@ -28,6 +29,7 @@ fun initKoinAndroid(context: Context) {
             libraryInfoModule,
             contributionsModule,
             reportModule,
+            placeDetailsModule,
         )
         androidLogger(Level.INFO)
     }

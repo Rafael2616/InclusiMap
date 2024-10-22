@@ -28,10 +28,10 @@ import com.rafael.inclusimap.feature.contributions.presentation.ContributionsScr
 import com.rafael.inclusimap.feature.contributions.presentation.viewmodel.ContributionsViewModel
 import com.rafael.inclusimap.feature.intro.domain.model.AppIntroState
 import com.rafael.inclusimap.feature.map.domain.InclusiMapEvent
+import com.rafael.inclusimap.feature.map.placedetails.presentation.viewmodel.PlaceDetailsViewModel
 import com.rafael.inclusimap.feature.map.presentation.InclusiMapGoogleMapScreen
 import com.rafael.inclusimap.feature.map.presentation.InclusiMapScaffold
 import com.rafael.inclusimap.feature.map.presentation.viewmodel.InclusiMapGoogleMapViewModel
-import com.rafael.inclusimap.feature.map.presentation.viewmodel.PlaceDetailsViewModel
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchEvent
 import com.rafael.inclusimap.feature.map.search.presentation.viewmodel.SearchViewModel
 import com.rafael.inclusimap.feature.report.presentation.viewmodel.ReportViewModel
