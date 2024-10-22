@@ -2,6 +2,7 @@ package com.rafael.inclusimap.feature.map.search.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
+import com.rafael.inclusimap.core.domain.model.toCategoryName
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchEvent
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,12 +33,10 @@ class SearchViewModel : ViewModel() {
             return
         }
         allPlaces.filter {
-            it.title.contains(query, ignoreCase = true)
+            it.title.contains(query, ignoreCase = true) || it.category?.toCategoryName()?.contains(query, ignoreCase = true) == true
         }.also { places ->
             _state.update {
-                it.copy(
-                    matchingPlaces = places,
-                )
+                it.copy(matchingPlaces = places)
             }
         }
     }

@@ -34,6 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
+import com.rafael.inclusimap.core.domain.model.toCategoryName
 import com.rafael.inclusimap.core.domain.model.util.toColor
 import com.rafael.inclusimap.core.resources.icons.GoogleMapsPin
 
@@ -121,11 +122,20 @@ fun PlaceSearchScreen(
                                 }
                                 .padding(horizontal = 6.dp, vertical = 8.dp),
                         ) {
-                            Text(
-                                text = place.title,
-                                fontSize = 14.sp,
+                            Column(
                                 modifier = Modifier.weight(1f),
-                            )
+                            ) {
+                                Text(
+                                    text = place.title,
+                                    fontSize = 14.sp,
+                                    modifier = Modifier.weight(1f),
+                                )
+                                Text(
+                                    text = place.category?.toCategoryName()?.uppercase() ?: "",
+                                    fontSize = 10.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
                             GoogleMapsPin(
                                 pinColor = place.comments.map { it.accessibilityRate }.average()
                                     .toFloat()
