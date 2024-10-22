@@ -16,6 +16,7 @@ import com.rafael.inclusimap.core.settings.domain.model.SettingsEvent
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 import com.rafael.inclusimap.feature.settings.presentation.components.groups.AccountPreferenceGroup
 import com.rafael.inclusimap.feature.settings.presentation.components.groups.MapPreferenceGroup
+import com.rafael.inclusimap.feature.settings.presentation.components.groups.MapSearchPreferenceGroup
 import com.rafael.inclusimap.feature.settings.presentation.components.groups.OthersPreferenceGroup
 import com.rafael.inclusimap.feature.settings.presentation.components.groups.ThemePreferenceGroup
 
@@ -48,6 +49,9 @@ internal fun Preferences(
         }
         item {
             MapPreferenceGroup(onEvent, state)
+        }
+        item {
+            MapSearchPreferenceGroup(onEvent, state)
         }
         item {
             OthersPreferenceGroup(onEvent, onAppIntroEvent, navController)
