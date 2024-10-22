@@ -24,6 +24,7 @@ class SearchViewModel(
         ignoreUnknownKeys = true
         prettyPrint = true
     }
+
     fun onEvent(event: SearchEvent) {
         when (event) {
             is SearchEvent.OnSearch -> onSearch(event.query, event.allPlaces)
@@ -46,7 +47,8 @@ class SearchViewModel(
             return
         }
         allPlaces.filter {
-            it.title.contains(query, ignoreCase = true) || it.category?.toCategoryName()?.contains(query, ignoreCase = true) == true
+            it.title.contains(query, ignoreCase = true) || it.category?.toCategoryName()
+                ?.contains(query, ignoreCase = true) == true
         }.also { places ->
             _state.update {
                 it.copy(matchingPlaces = places)
@@ -57,28 +59,30 @@ class SearchViewModel(
     private fun loadHistory() {
         viewModelScope.launch(Dispatchers.IO) {
             val places = json.decodeFromString<List<String>>(searchRepository.getHistory())
-            _state.update { it.copy(placesHistory = places) }
+            _state.update { it.copy(placesHistory = places.reversed()) }
         }
     }
+
     private fun updateHistory(placeId: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val places = json.decodeFromString<List<String>>(searchRepository.getHistory()).toMutableList()
+            val places =
+                json.decodeFromString<List<String>>(searchRepository.getHistory()).toMutableList()
             if (placeId in places) {
                 places.remove(placeId)
             }
-            if (places.size > 3) {
-                places.subList(0, 2)
-                places.removeAt(places.lastIndex)
-            }
             places.add(placeId)
+            if (places.size > 3) {
+                places.removeAt(0)
+            }
+            searchRepository.updateHistory(json.encodeToString(places))
             _state.update { it.copy(placesHistory = places.reversed()) }
-            searchRepository.updateHistory(json.encodeToString(places.reversed()))
         }
     }
 
     private fun deleteFromHistory(placeId: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            val places = json.decodeFromString<List<String>>(searchRepository.getHistory()).toMutableList()
+            val places =
+                json.decodeFromString<List<String>>(searchRepository.getHistory()).toMutableList()
             places.remove(placeId)
             _state.update { it.copy(placesHistory = places) }
             searchRepository.updateHistory(json.encodeToString(places))
@@ -87,7 +91,8 @@ class SearchViewModel(
 
     private fun clearHistory() {
         viewModelScope.launch(Dispatchers.IO) {
-            val places = json.decodeFromString<List<String>>(searchRepository.getHistory()).toMutableList()
+            val places =
+                json.decodeFromString<List<String>>(searchRepository.getHistory()).toMutableList()
             places.clear()
             _state.update { it.copy(placesHistory = places) }
             searchRepository.updateHistory(json.encodeToString(places))
