@@ -47,6 +47,7 @@ import com.rafael.inclusimap.feature.map.search.domain.model.SearchState
 @Composable
 fun PlaceSearchLayout(
     searchState: SearchState,
+    isHistoryEnabled: Boolean,
     allMappedPlaces: List<AccessibleLocalMarker>,
     onSearchEvent: (SearchEvent) -> Unit,
     onNavigateToSettings: () -> Unit,
@@ -185,16 +186,22 @@ fun PlaceSearchLayout(
                     state = searchState,
                     allMappedPlaces = allMappedPlaces,
                     onPlaceClick = {
+                        if (isHistoryEnabled) {
+                            onSearchEvent(SearchEvent.UpdateHistory(it))
+                        }
                         onSearchEvent(SearchEvent.SetExpanded(false))
-                        onSearchEvent(SearchEvent.OnSearch("", emptyList()))
-                        onSearchEvent(SearchEvent.UpdateHistory(it))
                         onTravelToPlace(it)
+                        onSearchEvent(SearchEvent.OnSearch("", emptyList()))
                     },
                     onLoadHistory = {
                         onSearchEvent(SearchEvent.LoadHistory)
                     },
                     onRemoveFromHistory = {
                         onSearchEvent(SearchEvent.DeleteFromHistory(it))
+                    },
+                    isHistoryEnabled = isHistoryEnabled,
+                    onDeleteHistory = {
+                        onSearchEvent(SearchEvent.ClearHistory)
                     },
                 )
             }

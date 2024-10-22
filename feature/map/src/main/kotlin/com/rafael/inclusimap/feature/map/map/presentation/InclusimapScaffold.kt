@@ -93,6 +93,7 @@ fun InclusiMapScaffold(
                     focusRequester = focusRequester,
                     allMappedPlaces = state.allMappedPlaces,
                     profilePicture = settingsState.profilePicture,
+                    isHistoryEnabled = settingsState.searchHistoryEnabled,
                 )
             }
         },

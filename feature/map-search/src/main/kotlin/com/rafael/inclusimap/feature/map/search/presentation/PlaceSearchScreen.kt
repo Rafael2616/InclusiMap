@@ -47,16 +47,22 @@ import com.rafael.inclusimap.feature.map.search.domain.model.SearchState
 fun PlaceSearchScreen(
     state: SearchState,
     allMappedPlaces: List<AccessibleLocalMarker>,
+    isHistoryEnabled: Boolean,
     onPlaceClick: (String) -> Unit,
     onLoadHistory: () -> Unit,
+    onDeleteHistory: () -> Unit,
     onRemoveFromHistory: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val focusManager = LocalFocusManager.current
     val shouldShowHistoryUI =
-        state.matchingPlaces.isEmpty() && state.searchQuery.isEmpty() && state.placesHistory.isNotEmpty()
+        state.matchingPlaces.isEmpty() && state.searchQuery.isEmpty() && state.placesHistory.isNotEmpty() && isHistoryEnabled
     LaunchedEffect(Unit) {
-        onLoadHistory()
+        if (isHistoryEnabled) {
+            onLoadHistory()
+        } else {
+            onDeleteHistory()
+        }
     }
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -111,7 +117,7 @@ fun PlaceSearchScreen(
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(65.dp)
+                                .height(62.dp)
                                 .clickable {
                                     onPlaceClick(placeStored.id!!)
                                 }
@@ -132,12 +138,14 @@ fun PlaceSearchScreen(
                                     text = placeStored.title,
                                     maxLines = 1,
                                     fontSize = 14.sp,
+                                    lineHeight = 16.sp,
                                 )
                                 Text(
                                     text = placeStored.category?.toCategoryName()?.uppercase()
                                         ?: "",
                                     fontSize = 10.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    lineHeight = 12.sp,
                                 )
                             }
                             GoogleMapsPin(
@@ -208,7 +216,7 @@ fun PlaceSearchScreen(
                             horizontalArrangement = Arrangement.Start,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(65.dp)
+                                .height(62.dp)
                                 .clickable {
                                     onPlaceClick(place.id!!)
                                 }
@@ -224,11 +232,13 @@ fun PlaceSearchScreen(
                                     text = place.title,
                                     maxLines = 1,
                                     fontSize = 14.sp,
+                                    lineHeight = 18.sp,
                                 )
                                 Text(
                                     text = place.category?.toCategoryName()?.uppercase() ?: "",
                                     fontSize = 10.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    lineHeight = 12.sp,
                                 )
                             }
                             GoogleMapsPin(

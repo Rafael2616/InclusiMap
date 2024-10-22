@@ -35,6 +35,7 @@ class SettingsViewModel(
                     isFollowingSystemOn = settings.isFollowingSystemOn,
                     appVersion = settings.appVersion,
                     mapType = settings.mapType.toMapType(),
+                    searchHistoryEnabled = settings.searchHistoryEnabled,
                 )
             }
         }
@@ -85,6 +86,16 @@ class SettingsViewModel(
                 viewModelScope.launch(Dispatchers.IO) {
                     val settings = repository.getAllSettingsValues(1) ?: defaultSettings
                     settings.isDarkThemeOn = state.value.isDarkThemeOn
+                    repository.setAllSettingsValues(settings)
+                }
+            }
+
+            SettingsEvent.ToggleSearchHistoryEnabled -> {
+                _state.update { it.copy(searchHistoryEnabled = !it.searchHistoryEnabled) }
+
+                viewModelScope.launch(Dispatchers.IO) {
+                    val settings = repository.getAllSettingsValues(1) ?: defaultSettings
+                    settings.searchHistoryEnabled = state.value.searchHistoryEnabled
                     repository.setAllSettingsValues(settings)
                 }
             }

@@ -12,6 +12,7 @@ data class SettingsEntity(
     var isFollowingSystemOn: Boolean,
     var mapType: Int,
     var appVersion: String,
+    var searchHistoryEnabled: Boolean,
 ) {
     companion object {
         fun getDefaultSettings(): SettingsEntity = SettingsEntity(
@@ -21,6 +22,7 @@ data class SettingsEntity(
             isFollowingSystemOn = true,
             appVersion = "0",
             mapType = 1,
+            searchHistoryEnabled = true,
         )
     }
 }

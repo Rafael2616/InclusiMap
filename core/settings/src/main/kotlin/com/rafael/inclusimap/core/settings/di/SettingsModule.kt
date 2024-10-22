@@ -1,6 +1,7 @@
 package com.rafael.inclusimap.core.settings.di
 
 import androidx.room.Room
+import com.rafael.inclusimap.core.settings.data.database.Migrations
 import com.rafael.inclusimap.core.settings.data.database.SettingsDatabase
 import com.rafael.inclusimap.core.settings.data.repository.SettingsRepositoryImpl
 import org.koin.android.ext.koin.androidApplication
@@ -14,6 +15,7 @@ val coreSettingsModule = module {
             SettingsDatabase.DATABASE_NAME,
         )
             .fallbackToDestructiveMigration(true)
+            .addMigrations(Migrations.migration1To2)
             .build()
     }
     single {

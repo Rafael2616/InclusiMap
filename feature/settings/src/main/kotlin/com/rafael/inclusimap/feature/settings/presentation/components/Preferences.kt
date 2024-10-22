@@ -47,7 +47,7 @@ internal fun Preferences(
             ThemePreferenceGroup(onEvent, state)
         }
         item {
-            MapPreferenceGroup(onEvent, state, navController)
+            MapPreferenceGroup(onEvent, state)
         }
         item {
             OthersPreferenceGroup(onEvent, onAppIntroEvent, navController)

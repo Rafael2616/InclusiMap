@@ -7,7 +7,7 @@ import com.rafael.inclusimap.core.settings.domain.model.SettingsEntity
 
 @Database(
     entities = [SettingsEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false,
 )
 abstract class SettingsDatabase : RoomDatabase() {
