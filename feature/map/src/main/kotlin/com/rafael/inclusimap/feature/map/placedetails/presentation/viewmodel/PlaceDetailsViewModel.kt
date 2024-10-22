@@ -342,37 +342,8 @@ class PlaceDetailsViewModel(
         val options2 = BitmapFactory.Options()
         options2.inSampleSize = 2
 
-        val newImages = uris.map { uri ->
-            PlaceImage(
-                userEmail = userEmail,
-                BitmapFactory.decodeStream(
-                    context.contentResolver.openInputStream(uri),
-                    null,
-                    options,
-                )?.asImageBitmap() ?: BitmapFactory.decodeStream(
-                    context.contentResolver.openInputStream(uri),
-                    null,
-                    options2,
-                )?.asImageBitmap() ?: BitmapFactory.decodeStream(
-                    context.contentResolver.openInputStream(uri),
-                ).asImageBitmap(),
-                placeId,
-                uri.lastPathSegment.toString(),
-            )
-        }
-        _state.update {
-            it.copy(
-                currentPlace = it.currentPlace.copy(images = it.currentPlace.images + newImages),
-                loadedPlaces = it.loadedPlaces.map { place ->
-                    if (place.id == it.currentPlace.id) {
-                        place.copy(images = it.currentPlace.images + newImages)
-                    } else {
-                        place
-                    }
-                },
-                imagesToUploadSize = uris.size,
-            )
-        }
+        _state.update { it.copy(imagesToUploadSize = uris.size) }
+
         viewModelScope.launch(Dispatchers.IO) {
             async {
                 driveService.listFiles(INCLUSIMAP_IMAGE_FOLDER_ID).onSuccess { placeImagesFolder ->
@@ -398,34 +369,54 @@ class PlaceDetailsViewModel(
                 val outputStream = ByteArrayOutputStream()
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
                 val compressedImage = outputStream.toByteArray()
+                val imageFileName = "${_state.value.currentPlace.id}_$userEmail-${Date().toInstant()}.jpg"
                 async {
                     val imageId = driveService.uploadFile(
-                        ByteArrayInputStream(compressedImage),
-                        "${
-                            _state.value.currentPlace.id
-                        }_$userEmail-${Date().toInstant()}.jpg",
-                        _state.value.currentPlace.imageFolderId
+                        fileContent = ByteArrayInputStream(compressedImage),
+                        fileName = imageFileName,
+                        folderId = _state.value.currentPlace.imageFolderId
                             ?: throw IllegalStateException("Folder not found: Maybe an issue has occurred while creating the folder"),
                     )
-                    _state.update { it.copy(imagesUploadedSize = it.imagesUploadedSize.plus(1)) }
-                    imagesFileIds = imagesFileIds + imageId
+
                     if (imageId == null) {
                         println("Error uploading image $index")
                         _state.update {
-                            it.copy(
-                                currentPlace = it.currentPlace.copy(images = it.currentPlace.images - newImages[index]),
-                                loadedPlaces = it.loadedPlaces.map { place ->
-                                    if (place.id == it.currentPlace.id) {
-                                        place.copy(images = it.currentPlace.images - newImages[index])
-                                    } else {
-                                        place
-                                    }
-                                },
-                                isErrorUploadingImages = true,
-                            )
+                            it.copy(isErrorUploadingImages = true)
                         }
-                        return@async
                     }
+                    val image = PlaceImage(
+                        userEmail = userEmail,
+                        image = BitmapFactory.decodeStream(
+                            context.contentResolver.openInputStream(uri),
+                            null,
+                            options,
+                        )?.asImageBitmap() ?: BitmapFactory.decodeStream(
+                            context.contentResolver.openInputStream(uri),
+                            null,
+                            options2,
+                        )?.asImageBitmap() ?: BitmapFactory.decodeStream(
+                            context.contentResolver.openInputStream(uri),
+                        ).asImageBitmap(),
+                        placeID = imageId ?: return@async,
+                        name = imageFileName,
+                    )
+
+                    _state.update {
+                        it.copy(
+                            currentPlace = it.currentPlace.copy(
+                                images = it.currentPlace.images + image,
+                            ),
+                            loadedPlaces = it.loadedPlaces.map { place ->
+                                if (place.id == _state.value.currentPlace.id) {
+                                    place.copy(images = place.images + image)
+                                } else {
+                                    place
+                                }
+                            },
+                            imagesUploadedSize = it.imagesUploadedSize.plus(1),
+                        )
+                    }
+                    imagesFileIds = imagesFileIds + imageId
                     if (index == uris.size - 1) {
                         println("All images uploaded successfully for $placeId")
                         println(state.value.loadedPlaces.find { it.id == placeId }?.images?.size)
@@ -541,8 +532,10 @@ class PlaceDetailsViewModel(
                             val placeString = json.decodeFromString<AccessibleLocalMarker>(
                                 placeJson?.decodeToString() ?: return@launch,
                             )
-                            val filteredComments = placeString.comments.filterNot { it.email == userEmail }
-                            val updatedPlace = placeString.copy(comments = filteredComments + userComment)
+                            val filteredComments =
+                                placeString.comments.filterNot { it.email == userEmail }
+                            val updatedPlace =
+                                placeString.copy(comments = filteredComments + userComment)
                             val updatedPlaceString = json.encodeToString(updatedPlace)
                             driveService.updateFile(
                                 place.id ?: return@launch,
@@ -631,7 +624,12 @@ class PlaceDetailsViewModel(
         }
     }
 
-    private suspend fun addNewContribution(contribution: Contribution) = contributionsRepository.addNewContribution(contribution)
-    private suspend fun addNewContributions(contributions: List<Contribution>) = contributionsRepository.addNewContributions(contributions)
-    private suspend fun removeContribution(contribution: Contribution) = contributionsRepository.removeContribution(contribution)
+    private suspend fun addNewContribution(contribution: Contribution) =
+        contributionsRepository.addNewContribution(contribution)
+
+    private suspend fun addNewContributions(contributions: List<Contribution>) =
+        contributionsRepository.addNewContributions(contributions)
+
+    private suspend fun removeContribution(contribution: Contribution) =
+        contributionsRepository.removeContribution(contribution)
 }
