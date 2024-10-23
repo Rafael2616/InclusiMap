@@ -87,7 +87,11 @@ fun PlaceSearchScreen(
             Spacer(modifier = Modifier.height(4.dp))
         }
         if (shouldShowHistoryUI) {
-            Row {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 Text(
                     text = "Visto recentemente:",
                     fontSize = 16.sp,
@@ -100,8 +104,7 @@ fun PlaceSearchScreen(
                         showAboutHistoryDialog = true
                     },
                     modifier = Modifier
-                        .size(24.dp)
-                        .weight(1f),
+                        .size(20.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.Info,

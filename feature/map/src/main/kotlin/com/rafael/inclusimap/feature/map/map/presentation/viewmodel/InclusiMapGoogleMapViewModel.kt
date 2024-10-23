@@ -345,7 +345,7 @@ class InclusiMapGoogleMapViewModel(
                             it.copy(
                                 isErrorDeletingPlace = true,
                                 isDeletingPlace = false,
-                                isPlaceDeleted = true,
+                                isPlaceDeleted = false,
                             )
                         }
                         return@launch

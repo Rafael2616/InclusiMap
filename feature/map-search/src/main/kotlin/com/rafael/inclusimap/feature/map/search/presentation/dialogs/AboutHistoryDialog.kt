@@ -57,7 +57,7 @@ fun AboutHistoryDialog(
                     modifier = Modifier.size(35.dp),
                 )
                 Text(
-                    text = "O histórico de pesquisa é um recurso completamente opicional, você pode ativá-lo/desativá-lo a aqulquer momento pelas configurações. Todos os dados são armazenados localmente e não saem do seu dispositivo!",
+                    text = "O histórico de pesquisa é um recurso completamente opcional, você pode ativá-lo/desativá-lo a qualquer momento pelas configurações. Todos os dados são armazenados localmente e não saem do seu dispositivo!",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Normal,
                     textAlign = TextAlign.Center,

@@ -497,11 +497,11 @@ fun AddEditPlaceBottomSheet(
     }
 
     if (!mapState.isDeletingPlace && mapState.isPlaceDeleted) {
-            Toast.makeText(
-                context,
-                "Local removido com sucesso!",
-                Toast.LENGTH_SHORT,
-            ).show()
+        Toast.makeText(
+            context,
+            "Local removido com sucesso!",
+            Toast.LENGTH_SHORT,
+        ).show()
         showDeleteConfirmationDialog = false
         onDismiss()
     }
