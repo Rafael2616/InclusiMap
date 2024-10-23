@@ -188,7 +188,7 @@ fun PlaceInfoDialog(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "Localizado em:",
+                        text = "Endereço:",
                         fontSize = 14.sp,
                         maxLines = 1,
                         fontWeight = FontWeight.SemiBold,
