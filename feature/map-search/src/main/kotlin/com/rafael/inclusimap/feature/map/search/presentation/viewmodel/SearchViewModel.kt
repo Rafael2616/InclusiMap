@@ -101,8 +101,8 @@ class SearchViewModel(
             if (places.size > 3) {
                 places.removeAt(0)
             }
-            searchRepository.updateHistory(json.encodeToString(places.reversed()))
-            _state.update { it.copy(placesHistory = places) }
+            searchRepository.updateHistory(json.encodeToString(places))
+            _state.update { it.copy(placesHistory = places.reversed()) }
         }
     }
 
