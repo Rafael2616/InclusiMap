@@ -1,5 +1,6 @@
 package com.rafael.inclusimap.feature.map.search.presentation
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,6 +29,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,6 +47,7 @@ import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.util.toColor
 import com.rafael.inclusimap.core.resources.icons.GoogleMapsPin
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchState
+import com.rafael.inclusimap.feature.map.search.presentation.dialogs.AboutHistoryDialog
 
 @Composable
 fun PlaceSearchScreen(
@@ -57,6 +63,8 @@ fun PlaceSearchScreen(
     val focusManager = LocalFocusManager.current
     val shouldShowHistoryUI =
         state.matchingPlaces.isEmpty() && state.searchQuery.isEmpty() && state.placesHistory.isNotEmpty() && isHistoryEnabled
+    var showAboutHistoryDialog by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         if (isHistoryEnabled) {
             onLoadHistory()
@@ -79,13 +87,28 @@ fun PlaceSearchScreen(
             Spacer(modifier = Modifier.height(4.dp))
         }
         if (shouldShowHistoryUI) {
-            Text(
-                text = "Visto recentemente:",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(horizontal = 12.dp),
-            )
+            Row {
+                Text(
+                    text = "Visto recentemente:",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(horizontal = 12.dp),
+                )
+                IconButton(
+                    onClick = {
+                        showAboutHistoryDialog = true
+                    },
+                    modifier = Modifier
+                        .size(24.dp)
+                        .weight(1f),
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Info,
+                        contentDescription = null,
+                    )
+                }
+            }
             Spacer(modifier = Modifier.height(4.dp))
         }
         LazyColumn(
@@ -108,8 +131,9 @@ fun PlaceSearchScreen(
         ) {
             // History UI
             if (shouldShowHistoryUI) {
-                    state.placesHistory.forEachIndexed { index, place ->
-                        val placeStored = allMappedPlaces.find { it.id == place } ?: return@forEachIndexed
+                state.placesHistory.forEachIndexed { index, place ->
+                    val placeStored =
+                        allMappedPlaces.find { it.id == place } ?: return@forEachIndexed
                     item {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -261,5 +285,11 @@ fun PlaceSearchScreen(
                 }
             }
         }
+    }
+
+    AnimatedVisibility(showAboutHistoryDialog) {
+        AboutHistoryDialog(
+            onDismiss = { showAboutHistoryDialog = false },
+        )
     }
 }

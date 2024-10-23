@@ -1,14 +1,20 @@
-package com.rafael.inclusimap.feature.map.map.presentation.dialog
+package com.rafael.inclusimap.feature.map.search.presentation.dialogs
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -21,25 +27,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DeletePlaceConfirmationDialog(
-    onDelete: () -> Unit,
+fun AboutHistoryDialog(
     onDismiss: () -> Unit,
-    isDeletingPlace: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false,
-        ),
-    ) {
+    BasicAlertDialog(onDismissRequest = onDismiss) {
         Card(
             modifier = modifier
-                .fillMaxWidth(0.85f)
+                .fillMaxWidth()
                 .clip(RoundedCornerShape(24.dp)),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp),
@@ -47,22 +45,22 @@ fun DeletePlaceConfirmationDialog(
         ) {
             Column(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text(
-                    text = "Deseja remover esse local?",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth(),
+                Icon(
+                    imageVector = Icons.Outlined.Info,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(35.dp),
                 )
                 Text(
-                    text = "Esse local ficará indisponível para todos os usuários do aplicativo!",
+                    text = "O histórico de pesquisa é um recurso completamente opicional, você pode ativá-lo/desativá-lo a aqulquer momento pelas configurações. Todos os dados são armazenados localmente e não saem do seu dispositivo!",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Normal,
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Row(
@@ -70,28 +68,14 @@ fun DeletePlaceConfirmationDialog(
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    if (!isDeletingPlace) {
-                        OutlinedButton(
-                            onClick = onDismiss,
-                        ) {
-                            Text(text = "Manter")
-                        }
-                        Button(
-                            onClick = onConfirm,
-                        ) {
-                            Text(text = "Remover")
-                        }
-                    } else {
-                        Text(
-                            text = "Removendo local \nAguarde... ",
-                            fontSize = 12.sp,
-                            lineHeight = 14.sp,
-                            color = LocalContentColor.current.copy(alpha = 0.8f),
-                        )
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(30.dp),
-                            strokeCap = StrokeCap.Round,
-                        )
+                    OutlinedButton(
+                        onClick = onDismiss,
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.primary,
+                            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp),
+                        ),
+                    ) {
+                        Text(text = "Entendi")
                     }
                 }
             }

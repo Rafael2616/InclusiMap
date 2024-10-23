@@ -438,18 +438,12 @@ fun AddEditPlaceBottomSheet(
 
     AnimatedVisibility(showDeleteConfirmationDialog) {
         DeletePlaceConfirmationDialog(
+            isDeletingPlace = mapState.isDeletingPlace,
             onDismiss = {
                 showDeleteConfirmationDialog = false
             },
             onDelete = {
-                Toast.makeText(
-                    context,
-                    "Excluindo local...",
-                    Toast.LENGTH_SHORT,
-                ).show()
-                onDeletePlace(placeDetailsState.currentPlace.id!!)
-                showDeleteConfirmationDialog = false
-                onDismiss()
+                onDeletePlace(placeDetailsState.currentPlace.id ?: "")
             },
         )
     }
@@ -495,6 +489,23 @@ fun AddEditPlaceBottomSheet(
         onDismiss()
     }
     if (!mapState.isAddingNewPlace && mapState.isErrorAddingNewPlace) {
+        Toast.makeText(
+            context,
+            "Erro ao adicionar local!",
+            Toast.LENGTH_SHORT,
+        ).show()
+    }
+
+    if (!mapState.isDeletingPlace && mapState.isPlaceDeleted) {
+            Toast.makeText(
+                context,
+                "Local removido com sucesso!",
+                Toast.LENGTH_SHORT,
+            ).show()
+        showDeleteConfirmationDialog = false
+        onDismiss()
+    }
+    if (!mapState.isDeletingPlace && mapState.isErrorDeletingPlace) {
         Toast.makeText(
             context,
             "Erro ao adicionar local!",

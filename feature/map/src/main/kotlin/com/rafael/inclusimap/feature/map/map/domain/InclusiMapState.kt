@@ -24,5 +24,8 @@ data class InclusiMapState(
     val isAddingNewPlace: Boolean = false,
     val isErrorAddingNewPlace: Boolean = false,
     val isPlaceAdded: Boolean = false,
+    val isDeletingPlace: Boolean = false,
+    val isErrorDeletingPlace: Boolean = false,
+    val isPlaceDeleted: Boolean = false,
     val isContributionsScreen: Boolean = false,
 )

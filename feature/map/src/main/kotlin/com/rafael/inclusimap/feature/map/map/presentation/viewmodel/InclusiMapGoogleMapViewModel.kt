@@ -222,7 +222,6 @@ class InclusiMapGoogleMapViewModel(
     }
 
     private fun onAddNewMappedPlace(newPlace: AccessibleLocalMarker) {
-
         _state.update {
             it.copy(
                 isErrorAddingNewPlace = false,
@@ -307,28 +306,12 @@ class InclusiMapGoogleMapViewModel(
     private fun onDeleteMappedPlace(placeID: String) {
         _state.update {
             it.copy(
-                allMappedPlaces = _state.value.allMappedPlaces.filter { it.id != placeID },
+                isErrorDeletingPlace = false,
+                isDeletingPlace = true,
+                isPlaceDeleted = false,
             )
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
-            driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID).onSuccess {
-                val fileId = it.find { it.name.extractPlaceID() == placeID }?.id
-                removeContribution(
-                    Contribution(
-                        fileId = fileId ?: return@launch,
-                        type = ContributionType.PLACE,
-                    ),
-                )
-            }
-            accessibleLocalsRepository.deleteAccessibleLocal(placeID)
-            accessibleLocalsRepository.updateAccessibleLocalStored(
-                AccessibleLocalsEntity(
-                    id = 1,
-                    locals = json.encodeToString<List<AccessibleLocalMarker>>(state.value.allMappedPlaces),
-                ),
-            )
-        }
         var placeImageId: String? = null
         viewModelScope.launch(Dispatchers.IO) {
             driveService.listFiles(INCLUSIMAP_IMAGE_FOLDER_ID).onSuccess {
@@ -346,6 +329,52 @@ class InclusiMapGoogleMapViewModel(
                 }
             }
             driveService.deleteFile(placeImageId ?: return@launch)
+        }.invokeOnCompletion {
+            viewModelScope.launch(Dispatchers.IO) {
+                driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID).onSuccess {
+                    val fileId = it.find { it.name.extractPlaceID() == placeID }?.id
+                    accessibleLocalsRepository.deleteAccessibleLocal(placeID)
+                    accessibleLocalsRepository.updateAccessibleLocalStored(
+                        AccessibleLocalsEntity(
+                            id = 1,
+                            locals = json.encodeToString<List<AccessibleLocalMarker>>(state.value.allMappedPlaces),
+                        ),
+                    )
+                    if (fileId == null) {
+                        _state.update {
+                            it.copy(
+                                isErrorDeletingPlace = true,
+                                isDeletingPlace = false,
+                                isPlaceDeleted = true,
+                            )
+                        }
+                        return@launch
+                    }
+                    removeContribution(
+                        Contribution(
+                            fileId = fileId,
+                            type = ContributionType.PLACE,
+                        ),
+                    )
+                    _state.update {
+                        it.copy(
+                            isErrorDeletingPlace = false,
+                            isDeletingPlace = false,
+                            isPlaceDeleted = true,
+                            allMappedPlaces = _state.value.allMappedPlaces.filter { it.id != placeID },
+                        )
+                    }
+                }
+                delay(1000)
+            }.invokeOnCompletion {
+                _state.update {
+                    it.copy(
+                        isErrorDeletingPlace = false,
+                        isDeletingPlace = false,
+                        isPlaceDeleted = false,
+                    )
+                }
+            }
         }
     }
 
