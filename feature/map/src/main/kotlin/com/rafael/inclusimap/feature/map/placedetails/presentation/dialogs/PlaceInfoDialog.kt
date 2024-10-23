@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -90,22 +92,30 @@ fun PlaceInfoDialog(
                         verticalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
                         Text(
-                            text = "Informações",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.SemiBold,
-                        )
-                        Text(
                             text = localMarker.title,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = MaterialTheme.colorScheme.primary,
                         )
-                        Text(
-                            text = "Esse local foi adicionado em: ${localMarker.time.split(".")[0].formatDate()}",
-                            fontSize = 16.sp,
-                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Row {
+                            Text(
+                                text = "Adicionado em: ",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                maxLines = 1,
+                                lineHeight = 18.sp,
+                            )
+                            Text(
+                                text = localMarker.time.split(".")[0].formatDate() ?: "",
+                                fontSize = 14.sp,
+                                maxLines = 2,
+                                lineHeight = 18.sp,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
                     }
                     Column(
-                        modifier = Modifier,
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         ElevatedButton(
@@ -138,12 +148,6 @@ fun PlaceInfoDialog(
                         }
                     }
                 }
-                Text(
-                    text = localMarker.address + " - ${localMarker.locatedIn}",
-                    fontSize = 16.sp,
-                    maxLines = 2,
-                    fontWeight = FontWeight.Normal,
-                )
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -153,13 +157,9 @@ fun PlaceInfoDialog(
                         fontSize = 14.sp,
                         maxLines = 1,
                         fontWeight = FontWeight.Bold,
+                        lineHeight = 16.sp,
                     )
-                    Text(
-                        text = "(${localMarker.position.first.toFloat()}, ${localMarker.position.second.toFloat()})",
-                        fontSize = 12.sp,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1,
-                    )
+
                     IconButton(
                         onClick = {
                             clipboardManager.setText(
@@ -170,13 +170,55 @@ fun PlaceInfoDialog(
                         },
                         modifier = Modifier
                             .size(24.dp)
-                            .weight(1f),
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.CopyAll,
                             contentDescription = null,
                         )
                     }
+                    Text(
+                        text = "(${localMarker.position.first.toFloat()}, ${localMarker.position.second.toFloat()})",
+                        fontSize = 12.sp,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                        lineHeight = 16.sp,
+                    )
+                }
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = "Localizado em: ",
+                        fontSize = 14.sp,
+                        maxLines = 1,
+                        fontWeight = FontWeight.SemiBold,
+                        lineHeight = 16.sp,
+                    )
+                    IconButton(
+                        onClick = {
+                            clipboardManager.setText(
+                                AnnotatedString(
+                                    localMarker.address + " - ${localMarker.locatedIn}",
+                                ),
+                            )
+                        },
+                        modifier = Modifier
+                            .size(24.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.CopyAll,
+                            contentDescription = null,
+                        )
+                    }
+                    Text(
+                        text = localMarker.address + " - ${localMarker.locatedIn}",
+                        fontSize = 14.sp,
+                        maxLines = 2,
+                        fontWeight = FontWeight.Normal,
+                        lineHeight = 16.sp,
+                        overflow = TextOverflow.Ellipsis,
+                    )
                 }
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
