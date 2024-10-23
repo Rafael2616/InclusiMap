@@ -108,9 +108,8 @@ fun PlaceSearchScreen(
         ) {
             // History UI
             if (shouldShowHistoryUI) {
-                allMappedPlaces.filter {
-                    it.id in state.placesHistory
-                }.forEachIndexed { index, placeStored ->
+                    state.placesHistory.forEachIndexed { index, place ->
+                        val placeStored = allMappedPlaces.find { it.id == place } ?: return@forEachIndexed
                     item {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,

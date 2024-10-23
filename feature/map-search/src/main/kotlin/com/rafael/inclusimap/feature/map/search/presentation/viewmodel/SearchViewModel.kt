@@ -95,14 +95,14 @@ class SearchViewModel(
             val places =
                 json.decodeFromString<List<String>>(searchRepository.getHistory()).toMutableList()
             if (placeId in places) {
-                places -= placeId
+                places.remove(placeId)
             }
             places += placeId
             if (places.size > 3) {
                 places.removeAt(0)
             }
-            searchRepository.updateHistory(json.encodeToString(places))
-            _state.update { it.copy(placesHistory = places.reversed()) }
+            searchRepository.updateHistory(json.encodeToString(places.reversed()))
+            _state.update { it.copy(placesHistory = places) }
         }
     }
 
