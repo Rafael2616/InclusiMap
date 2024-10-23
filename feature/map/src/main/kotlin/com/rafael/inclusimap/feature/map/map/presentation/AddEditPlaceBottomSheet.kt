@@ -508,7 +508,7 @@ fun AddEditPlaceBottomSheet(
     if (!mapState.isDeletingPlace && mapState.isErrorDeletingPlace) {
         Toast.makeText(
             context,
-            "Erro ao adicionar local!",
+            "Erro ao remover local!",
             Toast.LENGTH_SHORT,
         ).show()
     }
