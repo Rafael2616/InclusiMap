@@ -13,6 +13,8 @@ data class AccessibleLocalMarker(
     override var comments: List<Comment> = emptyList(),
     override var time: String = "",
     override var id: String? = null,
+    override var address: String = "",
+    override var locatedIn: String = "",
 ) : BaseLocalMarker
 
 interface BaseLocalMarker {
@@ -23,6 +25,8 @@ interface BaseLocalMarker {
     var comments: List<Comment>
     var time: String
     var id: String?
+    var address : String
+    val locatedIn : String
 }
 
 data class FullAccessibleLocalMarker(
@@ -36,6 +40,8 @@ data class FullAccessibleLocalMarker(
     val imageFolder: List<File>? = null,
     val imageFolderId: String? = null,
     override var id: String? = null,
+    override var address: String = "",
+    override val locatedIn: String = "",
 ) : BaseLocalMarker
 
 fun AccessibleLocalMarker.toFullAccessibleLocalMarker(
@@ -51,6 +57,8 @@ fun AccessibleLocalMarker.toFullAccessibleLocalMarker(
     images = images,
     time = time,
     id = id,
+    address = address,
+    locatedIn = locatedIn,
     imageFolder = imageFolder,
     imageFolderId = imageFolderId,
 )
@@ -63,4 +71,6 @@ fun FullAccessibleLocalMarker.toAccessibleLocalMarker(): AccessibleLocalMarker =
     comments = comments,
     time = time,
     id = id,
+    address = address,
+    locatedIn = locatedIn,
 )

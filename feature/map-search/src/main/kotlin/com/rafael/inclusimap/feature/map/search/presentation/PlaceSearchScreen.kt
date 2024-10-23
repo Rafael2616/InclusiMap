@@ -38,7 +38,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
-import com.rafael.inclusimap.core.domain.model.toCategoryName
 import com.rafael.inclusimap.core.domain.model.util.toColor
 import com.rafael.inclusimap.core.resources.icons.GoogleMapsPin
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchState
@@ -140,11 +139,10 @@ fun PlaceSearchScreen(
                                     lineHeight = 16.sp,
                                 )
                                 Text(
-                                    text = placeStored.category?.toCategoryName()?.uppercase()
-                                        ?: "",
-                                    fontSize = 10.sp,
+                                    text = placeStored.address + " - " + placeStored.locatedIn,
+                                    fontSize = 12.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    lineHeight = 12.sp,
+                                    lineHeight = 14.sp,
                                 )
                             }
                             GoogleMapsPin(
@@ -234,10 +232,10 @@ fun PlaceSearchScreen(
                                     lineHeight = 18.sp,
                                 )
                                 Text(
-                                    text = place.category?.toCategoryName()?.uppercase() ?: "",
-                                    fontSize = 10.sp,
+                                    text = place.address,
+                                    fontSize = 12.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    lineHeight = 12.sp,
+                                    lineHeight = 14.sp,
                                 )
                             }
                             GoogleMapsPin(

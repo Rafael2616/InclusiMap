@@ -13,13 +13,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imeNestedScroll
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.outlined.AddRoad
 import androidx.compose.material.icons.outlined.Category
+import androidx.compose.material.icons.outlined.LocationCity
 import androidx.compose.material.icons.twotone.Delete
 import androidx.compose.material.icons.twotone.KeyboardArrowUp
 import androidx.compose.material3.Button
@@ -82,15 +85,22 @@ fun AddEditPlaceBottomSheet(
     defaultRoundedShape: Shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
 ) {
     var placeName by remember { mutableStateOf(if (isEditing) placeDetailsState.currentPlace.title else "") }
+    var placeAddress by remember { mutableStateOf(if (isEditing) placeDetailsState.currentPlace.address else "") }
+    var placeLocatedIn by remember { mutableStateOf(if (isEditing) placeDetailsState.currentPlace.locatedIn else "") }
     var isCategoryExpanded by remember { mutableStateOf(false) }
     var tryAddUpdate by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
     val minPlaceNameLength by remember { mutableIntStateOf(3) }
     val maxPlaceNameLength by remember { mutableIntStateOf(50) }
+    val minPlaceAddressLength by remember { mutableIntStateOf(6) }
+    val maxPlaceAddressLength by remember { mutableIntStateOf(60) }
+    val minPlaceLocatedInLength by remember { mutableIntStateOf(6) }
+    val maxPlaceLocatedInLength by remember { mutableIntStateOf(30) }
     var selectedPlaceCategory by remember { mutableStateOf(if (isEditing) placeDetailsState.currentPlace.category else null) }
     var showConfirmationDialog by remember { mutableStateOf(false) }
     var showDeleteConfirmationDialog by remember { mutableStateOf(false) }
+
     ModalBottomSheet(
         sheetState = bottomSheetScaffoldState,
         onDismissRequest = onDismiss,
@@ -100,6 +110,7 @@ fun AddEditPlaceBottomSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .imeNestedScroll()
+                .imePadding()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
@@ -154,7 +165,7 @@ fun AddEditPlaceBottomSheet(
                                 MaterialTheme.colorScheme.error
                             } else {
                                 LocalContentColor.current
-                            }
+                            },
                         )
                         Text(
                             text = "/$maxPlaceNameLength",
@@ -169,7 +180,6 @@ fun AddEditPlaceBottomSheet(
                 modifier = Modifier
                     .fillMaxWidth(),
                 shape = defaultRoundedShape,
-                minLines = maxPlaceNameLength,
             )
             Card(
                 modifier = Modifier
@@ -217,6 +227,102 @@ fun AddEditPlaceBottomSheet(
                     }
                 }
             }
+            TextField(
+                value = placeAddress,
+                onValueChange = {
+                    if (it.length <= maxPlaceAddressLength) {
+                        placeAddress = it
+                    }
+                    tryAddUpdate = false
+                },
+                label = {
+                    Text(text = "Endereço")
+                },
+                maxLines = 1,
+                singleLine = true,
+                isError = tryAddUpdate && (placeAddress.isEmpty() || placeAddress.length < minPlaceAddressLength),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Outlined.AddRoad,
+                        contentDescription = null,
+                    )
+                },
+                trailingIcon = {
+                    Row {
+                        Text(
+                            text = "${placeAddress.length}",
+                            fontSize = 14.sp,
+                            color = if (placeAddress.length < minPlaceAddressLength && placeAddress.isNotEmpty()) {
+                                MaterialTheme.colorScheme.error
+                            } else {
+                                LocalContentColor.current
+                            },
+                        )
+                        Text(
+                            text = "/$maxPlaceAddressLength",
+                            fontSize = 14.sp,
+                        )
+                    }
+                },
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Next,
+                    capitalization = KeyboardCapitalization.Words,
+                ),
+                modifier = Modifier
+                    .fillMaxWidth(),
+                shape = defaultRoundedShape,
+                placeholder = {
+                    Text(text = "Ex: Av. Paulista, Bela Vista")
+                },
+            )
+            TextField(
+                value = placeLocatedIn,
+                onValueChange = {
+                    if (it.length <= maxPlaceLocatedInLength) {
+                        placeLocatedIn = it
+                    }
+                    tryAddUpdate = false
+                },
+                label = {
+                    Text(text = "Localizado em")
+                },
+                maxLines = 1,
+                singleLine = true,
+                isError = tryAddUpdate && (placeLocatedIn.isEmpty() || placeLocatedIn.length < minPlaceLocatedInLength),
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Outlined.LocationCity,
+                        contentDescription = null,
+                    )
+                },
+                trailingIcon = {
+                    Row {
+                        Text(
+                            text = "${placeLocatedIn.length}",
+                            fontSize = 14.sp,
+                            color = if (placeLocatedIn.length < minPlaceLocatedInLength && placeLocatedIn.isNotEmpty()) {
+                                MaterialTheme.colorScheme.error
+                            } else {
+                                LocalContentColor.current
+                            },
+                        )
+                        Text(
+                            text = "/$maxPlaceLocatedInLength",
+                            fontSize = 14.sp,
+                        )
+                    }
+                },
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done,
+                    capitalization = KeyboardCapitalization.Words,
+                ),
+                modifier = Modifier
+                    .fillMaxWidth(),
+                shape = defaultRoundedShape,
+                placeholder = {
+                    Text(text = "Ex: São Paulo, SP")
+                },
+            )
             Box(
                 modifier = Modifier.align(Alignment.End),
             ) {
@@ -259,10 +365,10 @@ fun AddEditPlaceBottomSheet(
                     onClick = {
                         tryAddUpdate = true
                         focusManager.clearFocus()
-                        if (placeName.isEmpty()) {
+                        if (placeName.isEmpty() || placeAddress.isEmpty() || placeLocatedIn.isEmpty()) {
                             Toast.makeText(
                                 context,
-                                "O nome do local não pode estar vazio!",
+                                "Preencha todos os campos!",
                                 Toast.LENGTH_SHORT,
                             )
                                 .show()
@@ -281,11 +387,26 @@ fun AddEditPlaceBottomSheet(
                             ).show()
                             return@Button
                         }
+                        if (placeAddress.length < minPlaceAddressLength) {
+                            Toast.makeText(
+                                context,
+                                "O endereço do local deve ter pelo menos ${minPlaceAddressLength} caracteres!",
+                                Toast.LENGTH_SHORT,
+                            ).show()
+                        }
+                        if (placeLocatedIn.length < minPlaceLocatedInLength) {
+                            Toast.makeText(
+                                context,
+                                "A localização deve ter pelo menos ${minPlaceLocatedInLength} caracteres!",
+                                Toast.LENGTH_SHORT,
+                            ).show()
+                        }
                         if (isEditing) {
                             onEditNewPlace(
                                 placeDetailsState.currentPlace.copy(
                                     title = placeName,
                                     category = selectedPlaceCategory,
+                                    address = placeAddress,
                                 ).toAccessibleLocalMarker(),
                             )
                             Toast.makeText(context, "Atualizando local...", Toast.LENGTH_SHORT)

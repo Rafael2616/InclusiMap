@@ -138,6 +138,12 @@ fun PlaceInfoDialog(
                         }
                     }
                 }
+                Text(
+                    text = localMarker.address + " - ${localMarker.locatedIn}",
+                    fontSize = 16.sp,
+                    maxLines = 2,
+                    fontWeight = FontWeight.Normal,
+                )
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalAlignment = Alignment.CenterVertically,
