@@ -151,7 +151,8 @@ fun AddEditPlaceBottomSheet(
                     Icon(
                         imageVector = Icons.Default.LocationOn,
                         contentDescription = null,
-                    )
+                        tint = MaterialTheme.colorScheme.primary,
+                        )
                 },
                 trailingIcon = {
                     Row {
@@ -197,7 +198,8 @@ fun AddEditPlaceBottomSheet(
                     Icon(
                         imageVector = Icons.Outlined.AddRoad,
                         contentDescription = null,
-                    )
+                        tint = MaterialTheme.colorScheme.primary,
+                        )
                 },
                 trailingIcon = {
                     Row {
@@ -245,7 +247,8 @@ fun AddEditPlaceBottomSheet(
                     Icon(
                         imageVector = Icons.Outlined.LocationCity,
                         contentDescription = null,
-                    )
+                        tint = MaterialTheme.colorScheme.primary,
+                        )
                 },
                 trailingIcon = {
                     Row {
@@ -297,7 +300,8 @@ fun AddEditPlaceBottomSheet(
                         Icon(
                             imageVector = if (selectedPlaceCategory == null) Icons.Outlined.Category else selectedPlaceCategory!!.icon(),
                             contentDescription = null,
-                        )
+                            tint = MaterialTheme.colorScheme.primary,
+                            )
                         Text(
                             text = selectedPlaceCategory?.toCategoryName()
                                 ?: "Selecione uma categoria",

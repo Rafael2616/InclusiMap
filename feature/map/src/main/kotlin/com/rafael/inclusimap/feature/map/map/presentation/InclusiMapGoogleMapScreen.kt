@@ -269,11 +269,7 @@ fun InclusiMapGoogleMapScreen(
             },
             onDeletePlace = {
                 latestOnEvent(InclusiMapEvent.OnDeleteMappedPlace(it))
-                latestOnPlaceDetailsEvent(PlaceDetailsEvent.SetIsEditingPlace(false))
                 openPlaceDetailsBottomSheet = false
-                addPlaceBottomSheetScope.launch {
-                    addPlaceBottomSheetState.hide()
-                }
             },
         )
     }

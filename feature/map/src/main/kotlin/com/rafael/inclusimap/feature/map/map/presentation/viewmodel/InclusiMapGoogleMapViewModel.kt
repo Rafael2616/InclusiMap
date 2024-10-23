@@ -311,7 +311,7 @@ class InclusiMapGoogleMapViewModel(
                 isPlaceDeleted = false,
             )
         }
-
+        println("Initializing Deleting place job: $placeID")
         var placeImageId: String? = null
         viewModelScope.launch(Dispatchers.IO) {
             driveService.listFiles(INCLUSIMAP_IMAGE_FOLDER_ID).onSuccess {
@@ -348,6 +348,7 @@ class InclusiMapGoogleMapViewModel(
                                 isPlaceDeleted = false,
                             )
                         }
+                        println("File ID is null, returning...")
                         return@launch
                     }
                     removeContribution(
@@ -364,6 +365,7 @@ class InclusiMapGoogleMapViewModel(
                             allMappedPlaces = _state.value.allMappedPlaces.filter { it.id != placeID },
                         )
                     }
+                    println("Place deleted successfully")
                     delay(1000)
                 }
             }.invokeOnCompletion {
@@ -374,6 +376,7 @@ class InclusiMapGoogleMapViewModel(
                         isPlaceDeleted = false,
                     )
                 }
+                println("Job completed")
             }
         }
     }
@@ -385,9 +388,6 @@ class InclusiMapGoogleMapViewModel(
             )
         }
     }
-
-    private fun findPlaceById(placeID: String) =
-        state.value.allMappedPlaces.find { it.id == placeID }
 
     private suspend fun addNewContribution(contribution: Contribution) =
         contributionsRepository.addNewContribution(contribution)
