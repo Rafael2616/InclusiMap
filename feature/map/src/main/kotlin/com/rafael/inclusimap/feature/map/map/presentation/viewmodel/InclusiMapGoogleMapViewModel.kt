@@ -8,6 +8,7 @@ import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.util.extractPlaceID
 import com.rafael.inclusimap.core.domain.network.onSuccess
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_IMAGE_FOLDER_ID
+import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID
 import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
 import com.rafael.inclusimap.feature.contributions.domain.model.Contribution
@@ -309,19 +310,22 @@ class InclusiMapGoogleMapViewModel(
                 allMappedPlaces = _state.value.allMappedPlaces.filter { it.id != placeID },
             )
         }
-        val fileId = driveService.getFileMetadata(placeID)?.id
+
         viewModelScope.launch(Dispatchers.IO) {
+            driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID).onSuccess {
+                val fileId = it.find { it.name.extractPlaceID() == placeID }?.id
+                removeContribution(
+                    Contribution(
+                        fileId = fileId ?: return@launch,
+                        type = ContributionType.PLACE,
+                    ),
+                )
+            }
             accessibleLocalsRepository.deleteAccessibleLocal(placeID)
             accessibleLocalsRepository.updateAccessibleLocalStored(
                 AccessibleLocalsEntity(
                     id = 1,
                     locals = json.encodeToString<List<AccessibleLocalMarker>>(state.value.allMappedPlaces),
-                ),
-            )
-            removeContribution(
-                Contribution(
-                    fileId = fileId ?: return@launch,
-                    type = ContributionType.PLACE,
                 ),
             )
         }
@@ -352,6 +356,9 @@ class InclusiMapGoogleMapViewModel(
             )
         }
     }
+
+    private fun findPlaceById(placeID: String) =
+        state.value.allMappedPlaces.find { it.id == placeID }
 
     private suspend fun addNewContribution(contribution: Contribution) =
         contributionsRepository.addNewContribution(contribution)
