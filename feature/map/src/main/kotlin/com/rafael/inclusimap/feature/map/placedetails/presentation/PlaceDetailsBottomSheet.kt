@@ -16,14 +16,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imeNestedScroll
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -111,10 +110,7 @@ import com.rafael.inclusimap.feature.report.domain.model.ReportState
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
-@OptIn(
-    ExperimentalMaterial3Api::class,
-    ExperimentalLayoutApi::class,
-)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaceDetailsBottomSheet(
     userEmail: String,
@@ -182,11 +178,11 @@ fun PlaceDetailsBottomSheet(
         properties = ModalBottomSheetProperties(
             shouldDismissOnBackPress = true,
         ),
-        modifier = Modifier.imeNestedScroll(),
     ) {
         Column(
             modifier = modifier
                 .fillMaxWidth()
+                .imePadding()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
