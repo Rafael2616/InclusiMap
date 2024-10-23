@@ -5,10 +5,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -17,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -28,12 +32,15 @@ import androidx.compose.ui.window.DialogProperties
 fun AddNewPlaceConfirmationDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
+    isAddingNewPlace: Boolean,
     modifier: Modifier = Modifier,
 ) {
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
+            dismissOnClickOutside = false,
+            dismissOnBackPress = false,
         ),
     ) {
         Card(
@@ -68,15 +75,28 @@ fun AddNewPlaceConfirmationDialog(
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    OutlinedButton(
-                        onClick = onDismiss,
-                    ) {
-                        Text(text = "Cancelar")
-                    }
-                    Button(
-                        onClick = onConfirm,
-                    ) {
-                        Text(text = "Adicionar")
+                    if (!isAddingNewPlace) {
+                        OutlinedButton(
+                            onClick = onDismiss,
+                        ) {
+                            Text(text = "Cancelar")
+                        }
+                        Button(
+                            onClick = onConfirm,
+                        ) {
+                            Text(text = "Adicionar")
+                        }
+                    } else {
+                        Text(
+                            text = "Adicionando local \nAguarde... ",
+                            fontSize = 12.sp,
+                            lineHeight = 14.sp,
+                            color = LocalContentColor.current.copy(alpha = 0.8f),
+                        )
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(30.dp),
+                            strokeCap = StrokeCap.Round,
+                        )
                     }
                 }
             }

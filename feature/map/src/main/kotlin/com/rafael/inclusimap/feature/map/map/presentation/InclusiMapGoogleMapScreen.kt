@@ -262,7 +262,7 @@ fun InclusiMapGoogleMapScreen(
             onAddNewPlace = { newPlace ->
                 latestOnEvent(InclusiMapEvent.OnAddNewMappedPlace(newPlace))
             },
-            isEditing = placeDetailsState.isEditingPlace,
+            mapState = state,
             onEditNewPlace = {
                 latestOnEvent(InclusiMapEvent.OnUpdateMappedPlace(it))
                 latestOnPlaceDetailsEvent(PlaceDetailsEvent.SetCurrentPlace(it))

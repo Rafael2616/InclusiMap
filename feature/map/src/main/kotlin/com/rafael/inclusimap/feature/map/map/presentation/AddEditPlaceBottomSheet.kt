@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -47,7 +48,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
@@ -62,6 +62,7 @@ import com.rafael.inclusimap.core.domain.model.icon
 import com.rafael.inclusimap.core.domain.model.toAccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.toCategoryName
 import com.rafael.inclusimap.core.domain.model.toPlaceCategory
+import com.rafael.inclusimap.feature.map.map.domain.InclusiMapState
 import com.rafael.inclusimap.feature.map.map.presentation.dialog.AddNewPlaceConfirmationDialog
 import com.rafael.inclusimap.feature.map.map.presentation.dialog.DeletePlaceConfirmationDialog
 import com.rafael.inclusimap.feature.map.placedetails.domain.model.PlaceDetailsState
@@ -76,17 +77,16 @@ fun AddEditPlaceBottomSheet(
     userEmail: String,
     placeDetailsState: PlaceDetailsState,
     bottomSheetScaffoldState: SheetState,
-    isEditing: Boolean,
+    mapState: InclusiMapState,
     onAddNewPlace: (AccessibleLocalMarker) -> Unit,
     onEditNewPlace: (AccessibleLocalMarker) -> Unit,
     onDeletePlace: (id: String) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
-    defaultRoundedShape: Shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
 ) {
-    var placeName by remember { mutableStateOf(if (isEditing) placeDetailsState.currentPlace.title else "") }
-    var placeAddress by remember { mutableStateOf(if (isEditing) placeDetailsState.currentPlace.address else "") }
-    var placeLocatedIn by remember { mutableStateOf(if (isEditing) placeDetailsState.currentPlace.locatedIn else "") }
+    var placeName by remember { mutableStateOf(if (placeDetailsState.isEditingPlace) placeDetailsState.currentPlace.title else "") }
+    var placeAddress by remember { mutableStateOf(if (placeDetailsState.isEditingPlace) placeDetailsState.currentPlace.address else "") }
+    var placeLocatedIn by remember { mutableStateOf(if (placeDetailsState.isEditingPlace) placeDetailsState.currentPlace.locatedIn else "") }
     var isCategoryExpanded by remember { mutableStateOf(false) }
     var tryAddUpdate by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
@@ -97,7 +97,7 @@ fun AddEditPlaceBottomSheet(
     val maxPlaceAddressLength by remember { mutableIntStateOf(60) }
     val minPlaceLocatedInLength by remember { mutableIntStateOf(6) }
     val maxPlaceLocatedInLength by remember { mutableIntStateOf(30) }
-    var selectedPlaceCategory by remember { mutableStateOf(if (isEditing) placeDetailsState.currentPlace.category else null) }
+    var selectedPlaceCategory by remember { mutableStateOf(if (placeDetailsState.isEditingPlace) placeDetailsState.currentPlace.category else null) }
     var showConfirmationDialog by remember { mutableStateOf(false) }
     var showDeleteConfirmationDialog by remember { mutableStateOf(false) }
 
@@ -112,15 +112,14 @@ fun AddEditPlaceBottomSheet(
                 .imeNestedScroll()
                 .imePadding()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Row {
                 Text(
-                    text = if (isEditing) "Editar local:" else "Adicionar um novo local:",
+                    text = if (placeDetailsState.isEditingPlace) "Editar local:" else "Adicionar um novo local:",
                     fontSize = 24.sp,
                     modifier = Modifier.weight(1f),
                 )
-                if (isEditing) {
+                if (placeDetailsState.isEditingPlace) {
                     IconButton(
                         onClick = {
                             focusManager.clearFocus()
@@ -136,6 +135,7 @@ fun AddEditPlaceBottomSheet(
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(8.dp))
             TextField(
                 value = placeName,
                 onValueChange = {
@@ -179,54 +179,9 @@ fun AddEditPlaceBottomSheet(
                 ),
                 modifier = Modifier
                     .fillMaxWidth(),
-                shape = defaultRoundedShape,
+                shape = RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp),
             )
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(55.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .clickable { isCategoryExpanded = true },
-                shape = RoundedCornerShape(16.dp),
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(start = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        Icon(
-                            imageVector = if (selectedPlaceCategory == null) Icons.Outlined.Category else selectedPlaceCategory!!.icon(),
-                            contentDescription = null,
-                        )
-                        Text(
-                            text = selectedPlaceCategory?.toCategoryName()
-                                ?: "Selecione uma categoria",
-                            modifier = Modifier
-                                .weight(1f)
-                                .align(Alignment.CenterVertically),
-                            fontWeight = if (selectedPlaceCategory == null) FontWeight.Normal else FontWeight.Bold,
-                        )
-                        IconButton(
-                            onClick = {
-                                isCategoryExpanded = true
-                            },
-                        ) {
-                            Icon(
-                                imageVector = Icons.TwoTone.KeyboardArrowUp,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(35.dp),
-                            )
-                        }
-                    }
-                }
-            }
+            Spacer(modifier = Modifier.height(8.dp))
             TextField(
                 value = placeAddress,
                 onValueChange = {
@@ -270,11 +225,11 @@ fun AddEditPlaceBottomSheet(
                 ),
                 modifier = Modifier
                     .fillMaxWidth(),
-                shape = defaultRoundedShape,
                 placeholder = {
                     Text(text = "Ex: Av. Paulista, Bela Vista")
                 },
             )
+            Spacer(modifier = Modifier.height(8.dp))
             TextField(
                 value = placeLocatedIn,
                 onValueChange = {
@@ -318,11 +273,67 @@ fun AddEditPlaceBottomSheet(
                 ),
                 modifier = Modifier
                     .fillMaxWidth(),
-                shape = defaultRoundedShape,
                 placeholder = {
                     Text(text = "Ex: São Paulo, SP")
                 },
             )
+            Spacer(modifier = Modifier.height(8.dp))
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(55.dp)
+                    .clip(RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp))
+                    .clickable { isCategoryExpanded = true },
+                shape = RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp),
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(start = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        Icon(
+                            imageVector = if (selectedPlaceCategory == null) Icons.Outlined.Category else selectedPlaceCategory!!.icon(),
+                            contentDescription = null,
+                        )
+                        Text(
+                            text = selectedPlaceCategory?.toCategoryName()
+                                ?: "Selecione uma categoria",
+                            modifier = Modifier
+                                .weight(1f)
+                                .align(Alignment.CenterVertically),
+                            fontWeight = if (selectedPlaceCategory == null) FontWeight.Normal else FontWeight.Bold,
+                            color = if (tryAddUpdate && selectedPlaceCategory == null) {
+                                MaterialTheme.colorScheme.error
+                            } else {
+                                LocalContentColor.current
+                            },
+                        )
+                        IconButton(
+                            onClick = {
+                                isCategoryExpanded = true
+                            },
+                        ) {
+                            Icon(
+                                imageVector = Icons.TwoTone.KeyboardArrowUp,
+                                contentDescription = null,
+                                tint = if (tryAddUpdate && selectedPlaceCategory == null) {
+                                    MaterialTheme.colorScheme.error
+                                } else {
+                                    LocalContentColor.current
+                                },
+                                modifier = Modifier
+                                    .size(35.dp),
+                            )
+                        }
+                    }
+                }
+            }
             Box(
                 modifier = Modifier.align(Alignment.End),
             ) {
@@ -356,9 +367,10 @@ fun AddEditPlaceBottomSheet(
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(6.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.End),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Button(
@@ -375,7 +387,11 @@ fun AddEditPlaceBottomSheet(
                             return@Button
                         }
                         if (selectedPlaceCategory == null) {
-                            Toast.makeText(context, "Selecione uma categoria!", Toast.LENGTH_SHORT)
+                            Toast.makeText(
+                                context,
+                                "Selecione uma categoria!",
+                                Toast.LENGTH_SHORT,
+                            )
                                 .show()
                             return@Button
                         }
@@ -401,23 +417,23 @@ fun AddEditPlaceBottomSheet(
                                 Toast.LENGTH_SHORT,
                             ).show()
                         }
-                        if (isEditing) {
+                        if (placeDetailsState.isEditingPlace) {
                             onEditNewPlace(
                                 placeDetailsState.currentPlace.copy(
                                     title = placeName,
                                     category = selectedPlaceCategory,
                                     address = placeAddress,
+                                    locatedIn = placeLocatedIn,
                                 ).toAccessibleLocalMarker(),
                             )
                             Toast.makeText(context, "Atualizando local...", Toast.LENGTH_SHORT)
                                 .show()
-                            onDismiss()
                         } else {
                             showConfirmationDialog = true
                         }
                     },
                 ) {
-                    Text(text = if (isEditing) "Atualizar" else "Adicionar")
+                    Text(text = if (placeDetailsState.isEditingPlace) "Atualizar" else "Adicionar")
                 }
             }
         }
@@ -443,6 +459,7 @@ fun AddEditPlaceBottomSheet(
 
     AnimatedVisibility(showConfirmationDialog) {
         AddNewPlaceConfirmationDialog(
+            isAddingNewPlace = mapState.isAddingNewPlace,
             onDismiss = {
                 showConfirmationDialog = false
             },
@@ -455,16 +472,36 @@ fun AddEditPlaceBottomSheet(
                         authorEmail = userEmail,
                         time = Date().toInstant().toString(),
                         id = Uuid.random().toString(),
+                        address = placeAddress,
+                        locatedIn = placeLocatedIn,
                     ),
                 )
-                Toast.makeText(
-                    context,
-                    "Local adicionado com sucesso!",
-                    Toast.LENGTH_SHORT,
-                ).show()
-                showConfirmationDialog = false
-                onDismiss()
             },
         )
+    }
+
+    if (!mapState.isAddingNewPlace && mapState.isPlaceAdded) {
+        if (placeDetailsState.isEditingPlace) {
+            Toast.makeText(
+                context,
+                "Local atualizado com sucesso!",
+                Toast.LENGTH_SHORT,
+            ).show()
+        } else {
+            Toast.makeText(
+                context,
+                "Local adicionado com sucesso!",
+                Toast.LENGTH_SHORT,
+            ).show()
+        }
+        showConfirmationDialog = false
+        onDismiss()
+    }
+    if (!mapState.isAddingNewPlace && mapState.isErrorAddingNewPlace) {
+        Toast.makeText(
+            context,
+            "Erro ao adicionar local!",
+            Toast.LENGTH_SHORT,
+        ).show()
     }
 }

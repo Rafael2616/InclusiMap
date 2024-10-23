@@ -21,5 +21,8 @@ data class InclusiMapState(
     var useAppWithoutInternet: Boolean = false,
     val shouldTravel: Boolean = false,
     var isTraveling: Boolean = false,
+    val isAddingNewPlace: Boolean = false,
+    val isErrorAddingNewPlace: Boolean = false,
+    val isPlaceAdded: Boolean = false,
     val isContributionsScreen: Boolean = false,
 )

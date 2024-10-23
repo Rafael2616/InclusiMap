@@ -20,6 +20,7 @@ import com.rafael.inclusimap.feature.map.map.domain.InclusiMapState
 import com.rafael.inclusimap.feature.map.map.domain.repository.AccessibleLocalsRepository
 import com.rafael.inclusimap.feature.map.map.domain.repository.InclusiMapRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -220,9 +221,12 @@ class InclusiMapGoogleMapViewModel(
     }
 
     private fun onAddNewMappedPlace(newPlace: AccessibleLocalMarker) {
+
         _state.update {
             it.copy(
-                allMappedPlaces = _state.value.allMappedPlaces + newPlace,
+                isErrorAddingNewPlace = false,
+                isAddingNewPlace = true,
+                isPlaceAdded = false,
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -233,12 +237,39 @@ class InclusiMapGoogleMapViewModel(
                     locals = json.encodeToString<List<AccessibleLocalMarker>>(state.value.allMappedPlaces),
                 ),
             )
+            if (placeFileId == null) {
+                _state.update {
+                    it.copy(
+                        isErrorAddingNewPlace = true,
+                        isAddingNewPlace = false,
+                        isPlaceAdded = false,
+                    )
+                }
+                return@launch
+            }
             addNewContribution(
                 Contribution(
-                    fileId = placeFileId ?: return@launch,
+                    fileId = placeFileId,
                     type = ContributionType.PLACE,
                 ),
             )
+            _state.update {
+                it.copy(
+                    allMappedPlaces = _state.value.allMappedPlaces + newPlace,
+                    isErrorAddingNewPlace = false,
+                    isAddingNewPlace = false,
+                    isPlaceAdded = true,
+                )
+            }
+            delay(1000)
+        }.invokeOnCompletion {
+            _state.update {
+                it.copy(
+                    isErrorAddingNewPlace = false,
+                    isAddingNewPlace = false,
+                    isPlaceAdded = false,
+                )
+            }
         }
     }
 
@@ -322,7 +353,12 @@ class InclusiMapGoogleMapViewModel(
         }
     }
 
-    private suspend fun addNewContribution(contribution: Contribution) = contributionsRepository.addNewContribution(contribution)
-    private suspend fun removeContribution(contribution: Contribution) = contributionsRepository.removeContribution(contribution)
-    private suspend fun removeContributions(contributions: List<Contribution>) = contributionsRepository.removeContributions(contributions)
+    private suspend fun addNewContribution(contribution: Contribution) =
+        contributionsRepository.addNewContribution(contribution)
+
+    private suspend fun removeContribution(contribution: Contribution) =
+        contributionsRepository.removeContribution(contribution)
+
+    private suspend fun removeContributions(contributions: List<Contribution>) =
+        contributionsRepository.removeContributions(contributions)
 }
