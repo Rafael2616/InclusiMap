@@ -288,11 +288,13 @@ fun ContributionsScreen(
                                                             verticalAlignment = Alignment.CenterVertically,
                                                             modifier = Modifier.fillMaxWidth(),
                                                         ) {
+                                                            val date by remember { mutableStateOf(place.place.time.removeTime()?.formatDate() ?: "Unknown") }
                                                             Text(
-                                                                text = "Adicionado em:\n${
-                                                                    place.place.time.removeTime()
-                                                                        ?.formatDate() ?: "Unknown"
-                                                                }",
+                                                                text = if (state.userContributions.places.size == 1) {
+                                                                    "Adicionado em:\n$date"
+                                                                } else {
+                                                                    "Adicionado em: $date"
+                                                                },
                                                                 fontSize = 12.sp,
                                                                 lineHeight = 14.sp,
                                                                 fontWeight = FontWeight.Normal,
