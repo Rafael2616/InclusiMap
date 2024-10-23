@@ -68,6 +68,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.rafael.inclusimap.core.domain.model.icon
 import com.rafael.inclusimap.core.domain.model.toCategoryName
 import com.rafael.inclusimap.core.domain.model.util.formatDate
 import com.rafael.inclusimap.core.domain.model.util.removeTime
@@ -235,7 +236,7 @@ fun ContributionsScreen(
                                                         state.userContributions.places.size.coerceAtLeast(
                                                             2,
                                                         ) / 2 + if (state.userContributions.places.size % 2 == 0) 0 else 1
-                                                        ) * 130
+                                                        ) * if (state.userContributions.places.size == 1) 155 else 170
                                                     ).dp,
                                             ),
                                         horizontalArrangement = Arrangement.Center,
@@ -251,7 +252,7 @@ fun ContributionsScreen(
                                                     modifier = Modifier
                                                         .padding(vertical = 6.dp)
                                                         .padding(end = if (index % 2 == 0 && state.userContributions.places.size != 1) 8.dp else 0.dp)
-                                                        .height(120.dp)
+                                                        .height(if (state.userContributions.places.size == 1) 140.dp else 155.dp)
                                                         .clip(MaterialTheme.shapes.medium)
                                                         .background(
                                                             MaterialTheme.colorScheme.surfaceColorAtElevation(
@@ -264,6 +265,7 @@ fun ContributionsScreen(
                                                 ) {
                                                     Column(
                                                         modifier = Modifier.fillMaxSize(),
+                                                        verticalArrangement = Arrangement.spacedBy(4.dp),
                                                     ) {
                                                         Text(
                                                             text = place.place.title,
@@ -271,14 +273,6 @@ fun ContributionsScreen(
                                                             fontWeight = FontWeight.SemiBold,
                                                             maxLines = 1,
                                                             overflow = TextOverflow.Ellipsis,
-                                                        )
-                                                        Text(
-                                                            text = place.place.category?.toCategoryName()
-                                                                ?.uppercase()
-                                                                ?: "",
-                                                            fontSize = 14.sp,
-                                                            fontWeight = FontWeight.Normal,
-                                                            color = MaterialTheme.colorScheme.onSurface,
                                                         )
                                                         Row(
                                                             horizontalArrangement = Arrangement.spacedBy(
@@ -288,12 +282,51 @@ fun ContributionsScreen(
                                                             verticalAlignment = Alignment.CenterVertically,
                                                             modifier = Modifier.fillMaxWidth(),
                                                         ) {
-                                                            val date by remember { mutableStateOf(place.place.time.removeTime()?.formatDate() ?: "Unknown") }
+                                                            Text(
+                                                                text = place.place.category?.toCategoryName()
+                                                                    ?.uppercase()
+                                                                    ?: "",
+                                                                fontSize = 12.sp,
+                                                                lineHeight = 18.sp,
+                                                                fontWeight = FontWeight.Normal,
+                                                                color = MaterialTheme.colorScheme.onSurface,
+                                                            )
+                                                            place.place.category?.let {
+                                                                Icon(
+                                                                    imageVector = it.icon(),
+                                                                    contentDescription = null,
+                                                                    modifier = Modifier.size(20.dp),
+                                                                    tint = MaterialTheme.colorScheme.primary,
+                                                                )
+                                                            }
+                                                        }
+                                                        Text(
+                                                            text = place.place.address + " - " + place.place.locatedIn,
+                                                            fontSize = 14.sp,
+                                                            fontWeight = FontWeight.Normal,
+                                                            maxLines = 2,
+                                                            lineHeight = 16.sp,
+                                                            overflow = TextOverflow.Ellipsis,
+                                                        )
+                                                        Row(
+                                                            horizontalArrangement = Arrangement.spacedBy(
+                                                                4.dp,
+                                                                Alignment.Start,
+                                                            ),
+                                                            verticalAlignment = Alignment.CenterVertically,
+                                                            modifier = Modifier.fillMaxWidth(),
+                                                        ) {
+                                                            val date by remember {
+                                                                mutableStateOf(
+                                                                    place.place.time.removeTime()
+                                                                        ?.formatDate() ?: "Unknown",
+                                                                )
+                                                            }
                                                             Text(
                                                                 text = if (state.userContributions.places.size == 1) {
-                                                                    "Adicionado em:\n$date"
-                                                                } else {
                                                                     "Adicionado em: $date"
+                                                                } else {
+                                                                    "Adicionado em:\n$date"
                                                                 },
                                                                 fontSize = 12.sp,
                                                                 lineHeight = 14.sp,
