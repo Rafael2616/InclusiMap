@@ -88,7 +88,8 @@ fun PlaceSearchScreen(
         }
         if (shouldShowHistoryUI) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
+                    .padding(horizontal = 12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -97,14 +98,13 @@ fun PlaceSearchScreen(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(horizontal = 12.dp),
                 )
                 IconButton(
                     onClick = {
                         showAboutHistoryDialog = true
                     },
                     modifier = Modifier
-                        .size(20.dp)
+                        .size(22.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.Info,

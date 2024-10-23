@@ -337,7 +337,7 @@ class InclusiMapGoogleMapViewModel(
                     accessibleLocalsRepository.updateAccessibleLocalStored(
                         AccessibleLocalsEntity(
                             id = 1,
-                            locals = json.encodeToString<List<AccessibleLocalMarker>>(state.value.allMappedPlaces),
+                            locals = json.encodeToString<List<AccessibleLocalMarker>>(state.value.allMappedPlaces.filter { it.id != placeID }),
                         ),
                     )
                     if (fileId == null) {
@@ -364,8 +364,8 @@ class InclusiMapGoogleMapViewModel(
                             allMappedPlaces = _state.value.allMappedPlaces.filter { it.id != placeID },
                         )
                     }
+                    delay(1000)
                 }
-                delay(1000)
             }.invokeOnCompletion {
                 _state.update {
                     it.copy(
