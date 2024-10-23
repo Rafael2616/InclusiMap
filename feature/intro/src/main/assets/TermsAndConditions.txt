@@ -13,7 +13,8 @@ Termos de serviço:
 3- Como garantimos sua privacidade?
 
     Ao se cadastrar, um ID de 32 caracteres é gerado e asssociado á sua conta, através dele que todas as interações no aplicativo feita por você são representadas, garantindo que seu nome de usuário e email sejam preservados.
-    Voce também pode optar a qualquer momento em tornar público sua foto de perfil, tornando-a visível ou não para os outros usuários.
+    Você também pode optar a qualquer momento em tornar público sua foto de perfil, tornando-a visível ou não para os outros usuários.
+    Várias informações não essenciais não são coletadas para nossos servidores, como: seu histórico de busca e os locais onde você visitou. Essas informações ficam armazenadas localmente somente no dispositivo.
 
 4- O que acontece quando você exclui sua conta?
 
