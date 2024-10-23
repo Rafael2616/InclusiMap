@@ -93,7 +93,7 @@ fun PlaceSearchScreen(
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp, vertical = 2.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.surfaceColorAtElevation(6.dp))
+                .background(MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp))
                 .pointerInput(Unit) {
                     detectVerticalDragGestures(
                         onVerticalDrag = { _, _ ->
