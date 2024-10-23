@@ -79,7 +79,7 @@ fun PlaceSearchScreen(
         }
         if (shouldShowHistoryUI) {
             Text(
-                text = "Histórico de pesquisa:",
+                text = "Visto recentemente:",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.primary,
