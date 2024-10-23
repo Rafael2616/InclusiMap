@@ -159,7 +159,6 @@ fun PlaceInfoDialog(
                         fontWeight = FontWeight.Bold,
                         lineHeight = 16.sp,
                     )
-
                     IconButton(
                         onClick = {
                             clipboardManager.setText(
@@ -189,7 +188,7 @@ fun PlaceInfoDialog(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "Localizado em: ",
+                        text = "Localizado em:",
                         fontSize = 14.sp,
                         maxLines = 1,
                         fontWeight = FontWeight.SemiBold,
