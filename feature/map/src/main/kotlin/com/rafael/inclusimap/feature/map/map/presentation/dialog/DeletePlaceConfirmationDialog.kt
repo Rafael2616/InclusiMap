@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -35,6 +36,7 @@ fun DeletePlaceConfirmationDialog(
     onDelete: () -> Unit,
     onDismiss: () -> Unit,
     isDeletingPlace: Boolean,
+    isInternetAvailable: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val orientation = LocalConfiguration.current.orientation
@@ -87,6 +89,16 @@ fun DeletePlaceConfirmationDialog(
                         }
                         Button(
                             onClick = onDelete,
+                            enabled = isInternetAvailable,
+                            colors = ButtonDefaults.buttonColors()
+                                .copy(
+                                    containerColor = if (isInternetAvailable) {
+                                        MaterialTheme.colorScheme.error
+                                    } else MaterialTheme.colorScheme.errorContainer,
+                                    contentColor = if (isInternetAvailable) {
+                                        MaterialTheme.colorScheme.onError
+                                    }  else MaterialTheme.colorScheme.onErrorContainer,
+                                ),
                         ) {
                             Text(text = "Remover")
                         }

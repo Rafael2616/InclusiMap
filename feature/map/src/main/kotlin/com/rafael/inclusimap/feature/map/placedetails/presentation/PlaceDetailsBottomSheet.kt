@@ -647,7 +647,7 @@ fun AccessibilityResourcesSection(
                     },
                     border = BorderStroke(
                         1.dp,
-                        MaterialTheme.colorScheme.primary,
+                       if (isInternetAvailable) MaterialTheme.colorScheme.primary else Color.Gray,
                     ),
                     enabled = isInternetAvailable,
                 )

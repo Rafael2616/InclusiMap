@@ -111,7 +111,9 @@ fun ProfileSettingsDialog(
     var editUserName by remember { mutableStateOf(false) }
 
     Dialog(
-        onDismissRequest = { },
+        onDismissRequest = {
+            onDismiss()
+        },
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
             dismissOnBackPress = true,

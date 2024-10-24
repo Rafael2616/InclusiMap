@@ -304,6 +304,7 @@ fun InclusiMapGoogleMapScreen(
         addPlaceBottomSheetScope.launch {
             addPlaceBottomSheetState.hide()
         }
+        latestOnPlaceDetailsEvent(PlaceDetailsEvent.SetIsEditingPlace(false))
     }
 
     DisposableEffect(state.allMappedPlaces.isEmpty() || state.useAppWithoutInternet && isInternetAvailable) {

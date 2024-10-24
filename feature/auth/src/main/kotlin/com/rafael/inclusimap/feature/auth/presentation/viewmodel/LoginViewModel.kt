@@ -462,7 +462,12 @@ class LoginViewModel(
                     }?.let { user ->
                         copyUserInfoToPosthumousVerification(user).invokeOnCompletion {
                             viewModelScope.launch(Dispatchers.IO) {
-                                driveService.deleteFile(user.id)
+                                driveService.listFiles(user.id).onSuccess {
+                                    it.forEach { file ->
+                                        if (file.name == "contributions.json") return@forEach
+                                        driveService.deleteFile(file.id)
+                                    }
+                                }
                             }
                         }
                     }
@@ -512,7 +517,6 @@ class LoginViewModel(
                             } else {
                                 println("Deleting place: ${place.name} - ${place.id} posted by user ${_state.value.user?.email}")
                             }
-
                             driveService.deleteFile(place.id)
                         }
                     }.awaitAll()
@@ -625,13 +629,26 @@ class LoginViewModel(
                                 return@async
                             }
                     }.invokeOnCompletion {
-                        if (!_state.value.networkError) {
-                            _state.update {
-                                it.copy(
-                                    deleteStep = DeleteProcess.ERROR,
-                                    isDeletingAccount = false,
-                                    isAccountDeleted = false,
-                                )
+                        // Delete user folder
+                        viewModelScope.launch(Dispatchers.IO) {
+                            async {
+                                driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID)
+                                    .onSuccess { result ->
+                                        result.find { userFile ->
+                                            userFile.name == _state.value.user?.email
+                                        }?.let { user ->
+                                            driveService.deleteFile(user.id)
+                                        }
+                                    }
+                            }.await()
+                            if (!_state.value.networkError) {
+                                _state.update {
+                                    it.copy(
+                                        deleteStep = DeleteProcess.ERROR,
+                                        isDeletingAccount = false,
+                                        isAccountDeleted = false,
+                                    )
+                                }
                             }
                         }
                     }
