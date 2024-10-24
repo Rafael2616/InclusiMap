@@ -1,5 +1,6 @@
 package com.rafael.inclusimap.feature.settings.presentation
 
+import android.content.res.Configuration
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -52,6 +54,8 @@ fun DeleteAccountConfirmationDialog(
 ) {
     var keepContributions by remember { mutableStateOf(true) }
     var deleteProcessStarted by remember { mutableStateOf(true) }
+    val orientation = LocalConfiguration.current.orientation
+    val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
 
     BasicAlertDialog(
         onDismissRequest = {
@@ -62,7 +66,7 @@ fun DeleteAccountConfirmationDialog(
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
         ),
-        modifier = Modifier.fillMaxWidth(0.82f),
+        modifier = Modifier.fillMaxWidth(if (isLandscape) 0.5f else 0.82f),
     ) {
         Card(
             modifier = modifier

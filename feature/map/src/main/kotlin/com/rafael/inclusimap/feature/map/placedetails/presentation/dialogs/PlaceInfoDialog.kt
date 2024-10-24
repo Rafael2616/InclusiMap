@@ -1,5 +1,6 @@
 package com.rafael.inclusimap.feature.map.placedetails.presentation.dialogs
 
+import android.content.res.Configuration
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -59,6 +62,8 @@ fun PlaceInfoDialog(
     var showReportDialog by remember { mutableStateOf(false) }
     val clipboardManager = LocalClipboardManager.current
     val launcher = rememberLauncherForActivityResult(OpenInGoogleMapContract()) { }
+    val orientation = LocalConfiguration.current.orientation
+    val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -68,7 +73,8 @@ fun PlaceInfoDialog(
     ) {
         Card(
             modifier = modifier
-                .fillMaxWidth(0.9f)
+                .navigationBarsPadding()
+                .fillMaxWidth(if (isLandscape) 0.55f else 0.9f)
                 .clip(RoundedCornerShape(24.dp)),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp),

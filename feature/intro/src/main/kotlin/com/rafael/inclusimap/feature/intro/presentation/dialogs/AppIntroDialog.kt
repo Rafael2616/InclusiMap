@@ -1,13 +1,16 @@
 package com.rafael.inclusimap.feature.intro.presentation.dialogs
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,6 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,6 +42,9 @@ fun AppIntroDialog(
     modifier: Modifier = Modifier,
     userName: String? = null,
 ) {
+    val orientation = LocalConfiguration.current.orientation
+    val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
+
     Dialog(
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
@@ -48,7 +55,9 @@ fun AppIntroDialog(
     ) {
         Card(
             modifier = modifier
-                .fillMaxWidth(0.85f)
+                .navigationBarsPadding()
+                .statusBarsPadding()
+                .fillMaxWidth(if (isLandscape) 0.5f else 0.85f)
                 .wrapContentHeight()
                 .clip(RoundedCornerShape(24.dp)),
             colors = CardDefaults.cardColors(
@@ -90,7 +99,7 @@ fun AppIntroDialog(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     horizontalAlignment = Alignment.Start,
                     modifier = Modifier
-                        .height(460.dp),
+                        .heightIn(300.dp, 460.dp),
                 ) {
                     item {
                         Text(

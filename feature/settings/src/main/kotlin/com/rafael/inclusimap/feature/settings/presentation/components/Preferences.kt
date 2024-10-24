@@ -42,7 +42,7 @@ internal fun Preferences(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
-            AccountPreferenceGroup(onEvent, state, navController)
+            AccountPreferenceGroup(onEvent, navController)
         }
         item {
             ThemePreferenceGroup(onEvent, state)

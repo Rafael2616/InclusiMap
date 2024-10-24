@@ -1,12 +1,16 @@
 package com.rafael.inclusimap.feature.intro.presentation.dialogs
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -40,6 +45,8 @@ fun TermsAndConditionsDialog(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val orientation = LocalConfiguration.current.orientation
+    val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
     val context = LocalContext.current
     val termsAndServicesFile = context.assets.open("TermsAndConditions.txt")
         .readBytes()
@@ -101,8 +108,10 @@ fun TermsAndConditionsDialog(
     ) {
         Card(
             modifier = modifier
-                .height(560.dp)
-                .fillMaxWidth(0.85f)
+                .navigationBarsPadding()
+                .statusBarsPadding()
+                .heightIn(300.dp, 560.dp)
+                .fillMaxWidth(if (isLandscape) 0.5f else 0.85f)
                 .clip(RoundedCornerShape(24.dp)),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp),

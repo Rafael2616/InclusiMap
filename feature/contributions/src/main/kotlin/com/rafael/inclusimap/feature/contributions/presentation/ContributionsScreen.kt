@@ -1,5 +1,6 @@
 package com.rafael.inclusimap.feature.contributions.presentation
 
+import android.content.res.Configuration
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -62,6 +64,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -98,6 +101,8 @@ fun ContributionsScreen(
     var shouldRefresh by remember(state.shouldRefresh) { mutableStateOf(state.shouldRefresh) }
     val context = LocalContext.current
     var showHelpDialog by remember { mutableStateOf(false) }
+    val orientation = LocalConfiguration.current.orientation
+    val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
 
     LaunchedEffect(Unit) {
         latestOnEvent(ContributionsEvent.LoadUserContributions)
@@ -135,7 +140,8 @@ fun ContributionsScreen(
         modifier = modifier
             .fillMaxSize()
             .statusBarsPadding()
-            .padding(top = 12.dp, bottom = 8.dp)
+            .navigationBarsPadding()
+            .padding(top = 8.dp, bottom = 8.dp)
             .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Top),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -146,7 +152,7 @@ fun ContributionsScreen(
                     text = "Contribuições",
                     fontSize = 28.sp,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.height(40.dp),
+                    modifier = Modifier.height(if (isLandscape) 30.dp else 40.dp),
                 )
             },
             actions = {
@@ -180,7 +186,7 @@ fun ContributionsScreen(
                 SingleChoiceSegmentedButtonRow(
                     modifier = Modifier
                         .width(320.dp)
-                        .height(45.dp),
+                        .height(if (isLandscape) 35.dp else 45.dp),
                 ) {
                     buttons.forEachIndexed { index, button ->
                         SegmentedButton(
