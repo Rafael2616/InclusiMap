@@ -50,6 +50,7 @@ import com.rafael.inclusimap.feature.map.placedetails.domain.model.PlaceDetailsS
 
 @Composable
 fun AccessibilityResourcesSelectionDialog(
+    isInternetAvailable: Boolean,
     state: PlaceDetailsState,
     onDismiss: () -> Unit,
     onUpdateAccessibilityResources: (List<Resource>) -> Unit,
@@ -209,6 +210,7 @@ fun AccessibilityResourcesSelectionDialog(
                                 onUpdateAccessibilityResources(placeAccessibilityResources)
                                 onDismiss()
                             },
+                            enabled = isInternetAvailable,
                         ) {
                             Text(text = "Atualizar")
                         }

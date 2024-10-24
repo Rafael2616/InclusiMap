@@ -287,6 +287,7 @@ fun PlaceDetailsBottomSheet(
                 }
                 item {
                     AccessibilityResourcesSection(
+                        isInternetAvailable = isInternetAvailable,
                         state = state,
                         onAddAccessibilityResource = {
                             showAccessibilityResourcesSelectionDialog = true
@@ -369,6 +370,7 @@ fun PlaceDetailsBottomSheet(
 
     AnimatedVisibility(showAccessibilityResourcesSelectionDialog) {
         AccessibilityResourcesSelectionDialog(
+            isInternetAvailable = isInternetAvailable,
             state = state,
             onDismiss = {
                 showAccessibilityResourcesSelectionDialog = false
@@ -581,6 +583,7 @@ fun ImageSection(
 
 @Composable
 fun AccessibilityResourcesSection(
+    isInternetAvailable: Boolean,
     state: PlaceDetailsState,
     onAddAccessibilityResource: () -> Unit,
     modifier: Modifier = Modifier,
@@ -646,6 +649,7 @@ fun AccessibilityResourcesSection(
                         1.dp,
                         MaterialTheme.colorScheme.primary,
                     ),
+                    enabled = isInternetAvailable,
                 )
             }
         }

@@ -1,5 +1,6 @@
 package com.rafael.inclusimap.feature.map.map.presentation.dialog
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -35,6 +37,9 @@ fun AddNewPlaceConfirmationDialog(
     isAddingNewPlace: Boolean,
     modifier: Modifier = Modifier,
 ) {
+    val orientation = LocalConfiguration.current.orientation
+    val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
+
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(
@@ -45,7 +50,7 @@ fun AddNewPlaceConfirmationDialog(
     ) {
         Card(
             modifier = modifier
-                .fillMaxWidth(0.85f)
+                .fillMaxWidth(if (isLandscape) 0.5f else 0.85f)
                 .clip(RoundedCornerShape(24.dp)),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp),

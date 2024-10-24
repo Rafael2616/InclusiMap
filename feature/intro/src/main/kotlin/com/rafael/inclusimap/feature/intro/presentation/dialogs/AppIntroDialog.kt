@@ -64,53 +64,52 @@ fun AppIntroDialog(
                 containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp),
             ),
         ) {
-            Column(
+            LazyColumn(
                 Modifier
                     .padding(16.dp)
                     .padding(top = 4.dp),
                 horizontalAlignment = Alignment.Start,
-
             ) {
                 if (userName != null) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                Brush.horizontalGradient(
-                                    listOf(
-                                        Color.Cyan,
-                                        MaterialTheme.colorScheme.primaryContainer,
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    Brush.horizontalGradient(
+                                        listOf(
+                                            Color.Cyan,
+                                            MaterialTheme.colorScheme.primaryContainer,
+                                        ),
+                                        tileMode = TileMode.Repeated,
                                     ),
-                                    tileMode = TileMode.Repeated,
+                                    RoundedCornerShape(16.dp),
                                 ),
-                                RoundedCornerShape(16.dp),
-                            ),
-                    ) {
-                        Text(
-                            text = "Bem vindo ao InclusiMap,\n${userName.split(" ")?.get(0)}",
-                            fontSize = 24.sp,
-                            color = Color.Black,
-                            fontWeight = FontWeight.Light,
-                            modifier = Modifier.padding(12.dp),
-                        )
+                        ) {
+                            Text(
+                                text = "Bem vindo ao InclusiMap,\n${userName.split(" ")?.get(0)}",
+                                fontSize = 24.sp,
+                                color = Color.Black,
+                                fontWeight = FontWeight.Light,
+                                modifier = Modifier.padding(12.dp),
+                            )
+                        }
                     }
                 }
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    horizontalAlignment = Alignment.Start,
-                    modifier = Modifier
-                        .heightIn(300.dp, 460.dp),
-                ) {
-                    item {
+                item {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalAlignment = Alignment.Start,
+                        modifier = Modifier
+                            .heightIn(300.dp, 460.dp),
+                    ) {
                         Text(
                             text = "Como funciona o sistema de acessibilidade do app?",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.padding(8.dp),
                         )
-                    }
-                    AccessibilityChipItem.get().forEach { item ->
-                        item {
+                        AccessibilityChipItem.get().forEach { item ->
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth(),
@@ -139,22 +138,24 @@ fun AppIntroDialog(
                         }
                     }
                 }
-            }
-            Row(
-                horizontalArrangement = Arrangement.End,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = 16.dp, bottom = 16.dp),
-            ) {
-                Button(
-                    onClick = {
-                        onDismiss()
-                    },
-                    modifier = Modifier,
-                ) {
-                    Text(
-                        text = "Entendi",
-                    )
+                item {
+                    Row(
+                        horizontalArrangement = Arrangement.End,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(end = 16.dp, bottom = 16.dp),
+                    ) {
+                        Button(
+                            onClick = {
+                                onDismiss()
+                            },
+                            modifier = Modifier,
+                        ) {
+                            Text(
+                                text = "Entendi",
+                            )
+                        }
+                    }
                 }
             }
         }

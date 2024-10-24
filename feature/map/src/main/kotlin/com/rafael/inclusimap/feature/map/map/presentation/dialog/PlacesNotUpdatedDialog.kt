@@ -1,5 +1,6 @@
 package com.rafael.inclusimap.feature.map.map.presentation.dialog
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -12,6 +13,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
@@ -21,6 +23,9 @@ fun PlacesNotUpdatedDialog(
     onRetry: () -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val orientation = LocalConfiguration.current.orientation
+    val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
+
     AlertDialog(
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
@@ -60,6 +65,6 @@ fun PlacesNotUpdatedDialog(
             )
         },
         containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp),
-        modifier = Modifier.fillMaxWidth(0.8f),
+        modifier = Modifier.fillMaxWidth(if (isLandscape) 0.5f else 0.8f),
     )
 }

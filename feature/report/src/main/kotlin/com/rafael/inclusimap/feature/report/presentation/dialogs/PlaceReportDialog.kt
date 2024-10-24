@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -64,7 +65,7 @@ fun PlaceReportDialog(
     onReport: (Report) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var reportType by remember { mutableStateOf(com.rafael.inclusimap.feature.report.domain.model.ReportType.LOCAL) }
+    var reportType by remember { mutableStateOf(ReportType.LOCAL) }
     var report by remember { mutableStateOf("") }
     val maxReportLength by remember { mutableIntStateOf(250) }
     val minReportLength by remember { mutableIntStateOf(15) }
@@ -83,7 +84,7 @@ fun PlaceReportDialog(
             modifier = modifier
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .fillMaxWidth(if (isLandscape) 0.65f else 0.95f)
+                .fillMaxWidth(if (isLandscape) 0.55f else 0.95f)
                 .clip(RoundedCornerShape(24.dp))
                 .imePadding()
                 .imeNestedScroll(),
@@ -103,157 +104,174 @@ fun PlaceReportDialog(
                     color = MaterialTheme.colorScheme.primary,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Row {
-                    Text(
-                        text = "Local: ",
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 18.sp,
-                    )
-                    Text(
-                        text = localMarker.title,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 18.sp,
-                    )
-                }
-                Card(
+                LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(2.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp),
-                    ),
-                    shape = RoundedCornerShape(12.dp),
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                    ) {
-                        Text(
-                            text = "O que você deseja reportar?",
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 16.sp,
-                        )
-                        Spacer(modifier = Modifier.height(10.dp))
-                        ReportType.entries.forEach { type ->
-                            Row(
-                                modifier = Modifier.height(35.dp),
-                            ) {
-                                Text(
-                                    text = type.toText(),
-                                    modifier = Modifier.weight(1f),
-                                )
-                                Checkbox(
-                                    checked = reportType == type,
-                                    onCheckedChange = {
-                                        reportType = type
-                                    },
-                                )
-                            }
-                        }
-                    }
-                }
-                TextField(
-                    value = report,
-                    onValueChange = {
-                        if (it.length <= maxReportLength) {
-                            report = it
-                        }
-                    },
-                    label = {
-                        Text(text = "Descreva o report aqui!")
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(100.dp),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(20.dp),
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
-                            20.dp,
-                        ),
-                    ),
-                    trailingIcon = {
+                    item {
                         Row {
                             Text(
-                                text = "${report.length}",
-                                fontSize = 12.sp,
-                                color = if (report.length < minReportLength && report.isNotEmpty()) MaterialTheme.colorScheme.error else LocalContentColor.current,
+                                text = "Local: ",
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 18.sp,
                             )
                             Text(
-                                text = "/$maxReportLength",
-                                fontSize = 12.sp,
+                                text = localMarker.title,
+                                fontWeight = FontWeight.Normal,
+                                fontSize = 18.sp,
                             )
                         }
-                    },
-                    keyboardOptions = KeyboardOptions(
-                        autoCorrectEnabled = true,
-                        capitalization = KeyboardCapitalization.Sentences,
-                        imeAction = ImeAction.Done,
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            focusManager.clearFocus()
-                        },
-                    ),
-                    shape = RoundedCornerShape(topEnd = 12.dp, topStart = 12.dp),
-                )
-                Text(
-                    text = "Antes de enviar, certifique-se de que o conteúdo do report está de acordo com as políticas do aplicativo!",
-                    fontSize = 10.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                    lineHeight = 12.sp,
-                )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Button(
-                        onClick = onDismiss,
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
-                    ) {
-                        Text(text = "Cancelar")
                     }
-                    IconButton(
-                        onClick = {
-                            if (report.isEmpty()) {
-                                Toast.makeText(
-                                    context,
-                                    "Report não pode estar vazio!",
-                                    Toast.LENGTH_SHORT,
-                                ).show()
-                                return@IconButton
+                    item {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(2.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp),
+                            ),
+                            shape = RoundedCornerShape(12.dp),
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp),
+                            ) {
+                                Text(
+                                    text = "O que você deseja reportar?",
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 16.sp,
+                                )
+                                Spacer(modifier = Modifier.height(10.dp))
+                                ReportType.entries.forEach { type ->
+                                    Row(
+                                        modifier = Modifier.height(35.dp),
+                                    ) {
+                                        Text(
+                                            text = type.toText(),
+                                            modifier = Modifier.weight(1f),
+                                        )
+                                        Checkbox(
+                                            checked = reportType == type,
+                                            onCheckedChange = {
+                                                reportType = type
+                                            },
+                                        )
+                                    }
+                                }
                             }
-                            if (report.length < minReportLength) {
-                                Toast.makeText(
-                                    context,
-                                    "Report deve conter pelo menos $minReportLength caracteres!",
-                                    Toast.LENGTH_SHORT,
-                                ).show()
-                                return@IconButton
-                            }
-                            Toast.makeText(
-                                context,
-                                "Enviando report...",
-                                Toast.LENGTH_SHORT,
-                            ).show()
-                            onReport(
-                                Report(
-                                    type = reportType,
-                                    content = report,
-                                    reportedLocal = localMarker,
-                                    user = null, // User will handled in the viewmodel
+                        }
+                    }
+                    item {
+                        TextField(
+                            value = report,
+                            onValueChange = {
+                                if (it.length <= maxReportLength) {
+                                    report = it
+                                }
+                            },
+                            label = {
+                                Text(text = "Descreva o report aqui!")
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(100.dp),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                                    20.dp
                                 ),
-                            )
-                            onDismiss()
-                        },
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.Send,
-                            contentDescription = "Enviar",
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                                    20.dp,
+                                ),
+                            ),
+                            trailingIcon = {
+                                Row {
+                                    Text(
+                                        text = "${report.length}",
+                                        fontSize = 12.sp,
+                                        color = if (report.length < minReportLength && report.isNotEmpty()) MaterialTheme.colorScheme.error else LocalContentColor.current,
+                                    )
+                                    Text(
+                                        text = "/$maxReportLength",
+                                        fontSize = 12.sp,
+                                    )
+                                }
+                            },
+                            keyboardOptions = KeyboardOptions(
+                                autoCorrectEnabled = true,
+                                capitalization = KeyboardCapitalization.Sentences,
+                                imeAction = ImeAction.Done,
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onDone = {
+                                    focusManager.clearFocus()
+                                },
+                            ),
+                            shape = RoundedCornerShape(topEnd = 12.dp, topStart = 12.dp),
                         )
+                    }
+                    item {
+                        Text(
+                            text = "Antes de enviar, certifique-se de que o conteúdo do report está de acordo com as políticas do aplicativo!",
+                            fontSize = 10.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                            lineHeight = 12.sp,
+                        )
+                    }
+                    item {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Button(
+                                onClick = onDismiss,
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+                            ) {
+                                Text(text = "Cancelar")
+                            }
+                            IconButton(
+                                onClick = {
+                                    if (report.isEmpty()) {
+                                        Toast.makeText(
+                                            context,
+                                            "Report não pode estar vazio!",
+                                            Toast.LENGTH_SHORT,
+                                        ).show()
+                                        return@IconButton
+                                    }
+                                    if (report.length < minReportLength) {
+                                        Toast.makeText(
+                                            context,
+                                            "Report deve conter pelo menos $minReportLength caracteres!",
+                                            Toast.LENGTH_SHORT,
+                                        ).show()
+                                        return@IconButton
+                                    }
+                                    Toast.makeText(
+                                        context,
+                                        "Enviando report...",
+                                        Toast.LENGTH_SHORT,
+                                    ).show()
+                                    onReport(
+                                        Report(
+                                            type = reportType,
+                                            content = report,
+                                            reportedLocal = localMarker,
+                                            user = null, // User will handled in the viewmodel
+                                        ),
+                                    )
+                                    onDismiss()
+                                },
+                            ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Outlined.Send,
+                                    contentDescription = "Enviar",
+                                )
+                            }
+                        }
                     }
                 }
             }

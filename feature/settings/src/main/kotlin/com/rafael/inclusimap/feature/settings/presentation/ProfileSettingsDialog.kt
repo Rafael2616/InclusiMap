@@ -11,7 +11,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,6 +20,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -114,7 +114,8 @@ fun ProfileSettingsDialog(
         onDismissRequest = { },
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
-            dismissOnBackPress = false,
+            dismissOnBackPress = true,
+            dismissOnClickOutside = false,
         ),
     ) {
         Card(
@@ -127,251 +128,267 @@ fun ProfileSettingsDialog(
                 containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp),
             ),
         ) {
-            Column(
+            LazyColumn(
                 modifier = Modifier
                     .padding(16.dp)
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text(
-                    text = "Configurações do perfil",
-                    fontSize = 22.sp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp),
-                    fontWeight = FontWeight.SemiBold,
-                    textAlign = TextAlign.Start,
-                    softWrap = true,
-
-                )
-                profilePicture?.let { image ->
-                    Image(
-                        bitmap = image,
-                        contentDescription = "Profile picture",
-                        contentScale = ContentScale.Crop,
+                item {
+                    Text(
+                        text = "Configurações do perfil",
+                        fontSize = 22.sp,
                         modifier = Modifier
-                            .size(120.dp)
-                            .clip(CircleShape)
-                            .clickable {
-                                launcher.launch(
-                                    PickVisualMediaRequest(
-                                        ActivityResultContracts.PickVisualMedia.ImageOnly,
-                                    ),
-                                )
-                            },
-                    )
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp),
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Start,
+                        softWrap = true,
+
+                        )
+                }
+                profilePicture?.let { image ->
+                    item {
+                        Image(
+                            bitmap = image,
+                            contentDescription = "Profile picture",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(120.dp)
+                                .clip(CircleShape)
+                                .clickable {
+                                    launcher.launch(
+                                        PickVisualMediaRequest(
+                                            ActivityResultContracts.PickVisualMedia.ImageOnly,
+                                        ),
+                                    )
+                                },
+                        )
+                    }
                 }
                 if (profilePicture == null) {
-                    Box(
-                        modifier = Modifier
-                            .size(120.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp))
-                            .clickable {
-                                launcher.launch(
-                                    PickVisualMediaRequest(
-                                        ActivityResultContracts.PickVisualMedia.ImageOnly,
-                                    ),
-                                )
-                            },
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.AddAPhoto,
-                            contentDescription = "No profile picture",
-                            modifier = Modifier.size(50.dp),
-                        )
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .size(120.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp))
+                                .clickable {
+                                    launcher.launch(
+                                        PickVisualMediaRequest(
+                                            ActivityResultContracts.PickVisualMedia.ImageOnly,
+                                        ),
+                                    )
+                                },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.AddAPhoto,
+                                contentDescription = "No profile picture",
+                                modifier = Modifier.size(50.dp),
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
                 }
                 if (profilePicture != null) {
-                    IconButton(
-                        onClick = {
-                            profilePicture = null
-                        },
-                        modifier = Modifier.size(40.dp),
-                        colors = IconButtonDefaults.iconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp),
-                        ),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Delete,
-                            contentDescription = "Remove",
-                            modifier = Modifier.size(30.dp),
-                            tint = MaterialTheme.colorScheme.error,
-                        )
-                    }
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp))
-                        .padding(8.dp)
-                        .padding(horizontal = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Text(
-                        text = "Permitir que outros usuários vejam sua foto de perfil?",
-                        modifier = Modifier.weight(1f),
-                        fontSize = 14.sp,
-                    )
-                    Checkbox(
-                        checked = allowOtherUsersToSeeProfilePictureOptedId,
-                        onCheckedChange = {
-                            allowOtherUsersToSeeProfilePictureOptedId = it
-                        },
-                        modifier = Modifier.size(24.dp),
-                    )
-                }
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(
-                        8.dp,
-                        Alignment.CenterHorizontally,
-                    ),
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp))
-                        .padding(8.dp)
-                        .padding(horizontal = 4.dp),
-                ) {
-                    TextField(
-                        value = newName,
-                        onValueChange = {
-                            if (it.length <= 30) {
-                                newName = it
-                            }
-                        },
-                        modifier = Modifier
-                            .focusRequester(focusRequester)
-                            .weight(1f),
-                        enabled = editUserName,
-                        keyboardOptions = KeyboardOptions(
-                            autoCorrectEnabled = true,
-                            capitalization = KeyboardCapitalization.Words,
-                        ),
-                        colors = TextFieldDefaults.colors(
-                            focusedIndicatorColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
-                                2.dp,
-                            ),
-                            unfocusedIndicatorColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
-                                2.dp,
-                            ),
-                        ),
-                        label = {
-                            Text(
-                                text = "Nome",
-                                color = MaterialTheme.colorScheme.primary,
-                                fontSize = 10.sp,
-                            )
-                        },
-                        singleLine = true,
-                        maxLines = 1,
-                        shape = RoundedCornerShape(16.dp),
-                        trailingIcon = {
-                            Row {
-                                Text(
-                                    text = newName.length.toString(),
-                                    fontSize = 10.sp,
-                                    color = if (newName.length < 3 && newName.isNotEmpty()) MaterialTheme.colorScheme.error else LocalContentColor.current,
-                                )
-                                Text(
-                                    text = "/30",
-                                    fontSize = 10.sp,
-                                )
-                            }
-                        },
-                    )
-                    IconButton(
-                        onClick = {
-                            editUserName = !editUserName
-                            if (!editUserName) {
-                                newName = userName
-                                focusRequester.freeFocus()
-                            } else {
-                                focusRequester.requestFocus()
-                            }
-                        },
-                        modifier = Modifier.size(35.dp),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Edit,
-                            contentDescription = "Edit",
-                        )
-                    }
-                }
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    if (isSuccessfulUpdatingUserInfos) {
-                        OutlinedButton(
+                    item {
+                        IconButton(
                             onClick = {
-                                onDismiss()
+                                profilePicture = null
                             },
-                            contentPadding = PaddingValues(
-                                horizontal = 16.dp,
-                                vertical = 8.dp,
+                            modifier = Modifier.size(40.dp),
+                            colors = IconButtonDefaults.iconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp),
                             ),
                         ) {
-                            Text(
-                                text = "Cancelar",
-                            )
-                        }
-                    } else {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            modifier = Modifier.height(45.dp),
-                        ) {
-                            Text(
-                                text = "Atualizando\ninformações...",
-                                maxLines = 2,
-                                lineHeight = 14.sp,
-                                fontSize = 12.sp,
-                            )
-                            CircularProgressIndicator(
+                            Icon(
+                                imageVector = Icons.Outlined.Delete,
+                                contentDescription = "Remove",
                                 modifier = Modifier.size(30.dp),
-                                color = MaterialTheme.colorScheme.primary,
-                                strokeCap = StrokeCap.Round,
+                                tint = MaterialTheme.colorScheme.error,
                             )
                         }
                     }
-                    if (profilePicture != state.profilePicture || userName != newName || allowOtherUsersToSeeProfilePicture != allowOtherUsersToSeeProfilePictureOptedId) {
-                        Button(
-                            onClick = {
-                                if (profilePicture != state.profilePicture) {
-                                    profilePicture?.let {
-                                        onAddUpdatePicture(it)
-                                    }
-                                }
-                                if (profilePicture == null) {
-                                    onRemovePicture()
-                                }
-                                if (newName != userName) {
-                                    if (newName.length < 3) {
-                                        Toast.makeText(
-                                            context,
-                                            "O nome deve ter no mínimo 3 caracteres",
-                                            Toast.LENGTH_SHORT,
-                                        ).show()
-                                    }
-                                    onEditUserName(newName)
-                                }
-                                if (allowOtherUsersToSeeProfilePictureOptedId != allowOtherUsersToSeeProfilePicture) {
-                                    onAllowPictureOptedIn(allowOtherUsersToSeeProfilePictureOptedId)
-                                }
-                                shouldDismissDialog = true
+                }
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp))
+                            .padding(8.dp)
+                            .padding(horizontal = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Text(
+                            text = "Permitir que outros usuários vejam sua foto de perfil?",
+                            modifier = Modifier.weight(1f),
+                            fontSize = 14.sp,
+                        )
+                        Checkbox(
+                            checked = allowOtherUsersToSeeProfilePictureOptedId,
+                            onCheckedChange = {
+                                allowOtherUsersToSeeProfilePictureOptedId = it
                             },
-                            enabled = isSuccessfulUpdatingUserInfos && isInternetAvailable,
+                            modifier = Modifier.size(24.dp),
+                        )
+                    }
+                }
+                item {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(
+                            8.dp,
+                            Alignment.CenterHorizontally,
+                        ),
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp))
+                            .padding(8.dp)
+                            .padding(horizontal = 4.dp),
+                    ) {
+                        TextField(
+                            value = newName,
+                            onValueChange = {
+                                if (it.length <= 30) {
+                                    newName = it
+                                }
+                            },
+                            modifier = Modifier
+                                .focusRequester(focusRequester)
+                                .weight(1f),
+                            enabled = editUserName,
+                            keyboardOptions = KeyboardOptions(
+                                autoCorrectEnabled = true,
+                                capitalization = KeyboardCapitalization.Words,
+                            ),
+                            colors = TextFieldDefaults.colors(
+                                focusedIndicatorColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                                    2.dp,
+                                ),
+                                unfocusedIndicatorColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                                    2.dp,
+                                ),
+                            ),
+                            label = {
+                                Text(
+                                    text = "Nome",
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontSize = 10.sp,
+                                )
+                            },
+                            singleLine = true,
+                            maxLines = 1,
+                            shape = RoundedCornerShape(16.dp),
+                            trailingIcon = {
+                                Row {
+                                    Text(
+                                        text = newName.length.toString(),
+                                        fontSize = 10.sp,
+                                        color = if (newName.length < 3 && newName.isNotEmpty()) MaterialTheme.colorScheme.error else LocalContentColor.current,
+                                    )
+                                    Text(
+                                        text = "/30",
+                                        fontSize = 10.sp,
+                                    )
+                                }
+                            },
+                        )
+                        IconButton(
+                            onClick = {
+                                editUserName = !editUserName
+                                if (!editUserName) {
+                                    newName = userName
+                                    focusRequester.freeFocus()
+                                } else {
+                                    focusRequester.requestFocus()
+                                }
+                            },
+                            modifier = Modifier.size(35.dp),
                         ) {
-                            Text(
-                                text = "Atualizar",
+                            Icon(
+                                imageVector = Icons.Filled.Edit,
+                                contentDescription = "Edit",
                             )
+                        }
+                    }
+                }
+                item {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        if (isSuccessfulUpdatingUserInfos) {
+                            OutlinedButton(
+                                onClick = {
+                                    onDismiss()
+                                },
+                                contentPadding = PaddingValues(
+                                    horizontal = 16.dp,
+                                    vertical = 8.dp,
+                                ),
+                            ) {
+                                Text(
+                                    text = "Cancelar",
+                                )
+                            }
+                        } else {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                modifier = Modifier.height(45.dp),
+                            ) {
+                                Text(
+                                    text = "Atualizando\ninformações...",
+                                    maxLines = 2,
+                                    lineHeight = 14.sp,
+                                    fontSize = 12.sp,
+                                )
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(30.dp),
+                                    color = MaterialTheme.colorScheme.primary,
+                                    strokeCap = StrokeCap.Round,
+                                )
+                            }
+                        }
+                        if (profilePicture != state.profilePicture || userName != newName || allowOtherUsersToSeeProfilePicture != allowOtherUsersToSeeProfilePictureOptedId) {
+                            Button(
+                                onClick = {
+                                    if (profilePicture != state.profilePicture) {
+                                        profilePicture?.let {
+                                            onAddUpdatePicture(it)
+                                        }
+                                    }
+                                    if (profilePicture == null) {
+                                        onRemovePicture()
+                                    }
+                                    if (newName != userName) {
+                                        if (newName.length < 3) {
+                                            Toast.makeText(
+                                                context,
+                                                "O nome deve ter no mínimo 3 caracteres",
+                                                Toast.LENGTH_SHORT,
+                                            ).show()
+                                        }
+                                        onEditUserName(newName)
+                                    }
+                                    if (allowOtherUsersToSeeProfilePictureOptedId != allowOtherUsersToSeeProfilePicture) {
+                                        onAllowPictureOptedIn(
+                                            allowOtherUsersToSeeProfilePictureOptedId
+                                        )
+                                    }
+                                    shouldDismissDialog = true
+                                },
+                                enabled = isSuccessfulUpdatingUserInfos && isInternetAvailable,
+                            ) {
+                                Text(
+                                    text = "Atualizar",
+                                )
+                            }
                         }
                     }
                 }
