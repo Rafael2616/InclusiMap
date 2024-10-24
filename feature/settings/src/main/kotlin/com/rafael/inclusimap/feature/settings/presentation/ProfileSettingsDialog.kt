@@ -1,5 +1,6 @@
 package com.rafael.inclusimap.feature.settings.presentation
 
+import android.content.res.Configuration
 import android.graphics.BitmapFactory
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -16,8 +17,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -54,6 +57,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -81,6 +85,8 @@ fun ProfileSettingsDialog(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val orientation = LocalConfiguration.current.orientation
+    val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
     var profilePicture by remember { mutableStateOf(state.profilePicture) }
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
@@ -113,7 +119,9 @@ fun ProfileSettingsDialog(
     ) {
         Card(
             modifier = modifier
-                .fillMaxWidth(0.8f),
+                .statusBarsPadding()
+                .navigationBarsPadding()
+                .fillMaxWidth(if (isLandscape) 0.5f else 0.8f),
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp),
@@ -218,7 +226,6 @@ fun ProfileSettingsDialog(
                         modifier = Modifier.size(24.dp),
                     )
                 }
-
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(
                         8.dp,

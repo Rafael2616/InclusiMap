@@ -1,5 +1,6 @@
 package com.rafael.inclusimap.feature.auth.presentation
 
+import android.content.res.Configuration
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -12,8 +13,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imeNestedScroll
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -30,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -55,6 +59,8 @@ fun UnifiedLoginScreen(
     isEditPasswordMode: Boolean = false,
 ) {
     var cadastreNewUser by remember { mutableStateOf(false) }
+    val orientation = LocalConfiguration.current.orientation
+    val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
 
     Box(
         modifier = modifier
@@ -71,7 +77,9 @@ fun UnifiedLoginScreen(
     ) {
         Card(
             modifier = Modifier
-                .fillMaxWidth(0.82f)
+                .navigationBarsPadding()
+                .statusBarsPadding()
+                .fillMaxWidth(if (isLandscape) 0.5f else 0.82f)
                 .imeNestedScroll()
                 .imePadding()
                 .shadow(
@@ -113,7 +121,7 @@ fun UnifiedLoginScreen(
                     color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
-                        .padding(bottom = 16.dp)
+                        .padding(bottom = 8.dp)
                         .fillMaxWidth(),
                 )
                 if (isEditPasswordMode) {

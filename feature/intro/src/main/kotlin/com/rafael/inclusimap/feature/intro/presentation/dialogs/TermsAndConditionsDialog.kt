@@ -7,22 +7,20 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,12 +32,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import my.nanihadesuka.compose.LazyColumnScrollbar
 import my.nanihadesuka.compose.ScrollbarSettings
 
 @Suppress("ktlint:compose:modifier-not-used-at-root")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TermsAndConditionsDialog(
     onDismissRequest: () -> Unit,
@@ -48,57 +46,66 @@ fun TermsAndConditionsDialog(
     val orientation = LocalConfiguration.current.orientation
     val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
     val context = LocalContext.current
-    val termsAndServicesFile = context.assets.open("TermsAndConditions.txt")
-        .readBytes()
-        .decodeToString()
+    val termsAndServicesFile = remember {
+        context.assets.open("TermsAndConditions.txt")
+            .readBytes()
+            .decodeToString()
+    }
     val state = rememberLazyListState()
-    val titles = listOf(
-        "Termos de serviço:",
-        "Condições:",
-    )
-    val keywords = listOf(
-        "1- Que informações coletamos?",
-        "2- O que é feito com seus dados?",
-        "3- Como garantimos sua privacidade?",
-        "4- O que acontece quando você exclui sua conta?",
-        "1- Ao entrar nesse serviço, você concorda que:",
-        "2- Ao entrar nesse serviço, você se compromente a:",
-    )
-    val termsAndServicesString = buildAnnotatedString {
-        val termsAndServicesFileLowercase = termsAndServicesFile.lowercase()
-        append(termsAndServicesFile)
-        titles.forEach { title ->
-            val titleLowercase = title.lowercase()
-            var index = termsAndServicesFileLowercase.indexOf(titleLowercase)
-            while (index != -1) {
-                addStyle(
-                    style = SpanStyle(
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 20.sp,
-                    ),
-                    start = index,
-                    end = index + title.length,
-                )
-                index = termsAndServicesFileLowercase.indexOf(titleLowercase, index + 1)
+    val titles = remember {
+        listOf(
+            "Termos de serviço:",
+            "Condições:",
+        )
+    }
+    val keywords = remember {
+        listOf(
+            "1- Que informações coletamos?",
+            "2- O que é feito com seus dados?",
+            "3- Como garantimos sua privacidade?",
+            "4- O que acontece quando você exclui sua conta?",
+            "1- Ao entrar nesse serviço, você concorda que:",
+            "2- Ao entrar nesse serviço, você se compromente a:",
+        )
+    }
+    val termsAndServicesString = remember {
+        buildAnnotatedString {
+            val termsAndServicesFileLowercase = termsAndServicesFile.lowercase()
+            append(termsAndServicesFile)
+            titles.forEach { title ->
+                val titleLowercase = title.lowercase()
+                var index = termsAndServicesFileLowercase.indexOf(titleLowercase)
+                while (index != -1) {
+                    addStyle(
+                        style = SpanStyle(
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 20.sp,
+                        ),
+                        start = index,
+                        end = index + title.length,
+                    )
+                    index = termsAndServicesFileLowercase.indexOf(titleLowercase, index + 1)
+                }
             }
-        }
-        keywords.forEach { keyword ->
-            val keywordLowercase = keyword.lowercase()
-            var index = termsAndServicesFileLowercase.indexOf(keywordLowercase)
-            while (index != -1) {
-                addStyle(
-                    style = SpanStyle(
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 16.sp,
-                    ),
-                    start = index,
-                    end = index + keyword.length,
-                )
-                index = termsAndServicesFileLowercase.indexOf(keywordLowercase, index + 1)
+            keywords.forEach { keyword ->
+                val keywordLowercase = keyword.lowercase()
+                var index = termsAndServicesFileLowercase.indexOf(keywordLowercase)
+                while (index != -1) {
+                    addStyle(
+                        style = SpanStyle(
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 16.sp,
+                        ),
+                        start = index,
+                        end = index + keyword.length,
+                    )
+                    index = termsAndServicesFileLowercase.indexOf(keywordLowercase, index + 1)
+                }
             }
         }
     }
-    BasicAlertDialog(
+
+    Dialog(
         onDismissRequest = {
             onDismissRequest()
         },
@@ -110,7 +117,7 @@ fun TermsAndConditionsDialog(
             modifier = modifier
                 .navigationBarsPadding()
                 .statusBarsPadding()
-                .heightIn(300.dp, 560.dp)
+                .height(560.dp)
                 .fillMaxWidth(if (isLandscape) 0.5f else 0.85f)
                 .clip(RoundedCornerShape(24.dp)),
             colors = CardDefaults.cardColors(
@@ -130,7 +137,6 @@ fun TermsAndConditionsDialog(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
                         .padding(top = 16.dp),
-
                 )
                 LazyColumnScrollbar(
                     modifier = Modifier
@@ -172,7 +178,7 @@ fun TermsAndConditionsDialog(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(end = 16.dp),
+                    .padding(end = 16.dp, bottom = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
                 verticalAlignment = Alignment.CenterVertically,
             ) {

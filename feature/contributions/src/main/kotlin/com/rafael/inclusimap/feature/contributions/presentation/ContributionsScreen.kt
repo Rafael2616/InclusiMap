@@ -139,8 +139,14 @@ fun ContributionsScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .then(
+                if (isLandscape) {
+                    Modifier.navigationBarsPadding()
+                } else {
+                    Modifier
+                }
+            )
             .statusBarsPadding()
-            .navigationBarsPadding()
             .padding(top = 8.dp, bottom = 8.dp)
             .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Top),

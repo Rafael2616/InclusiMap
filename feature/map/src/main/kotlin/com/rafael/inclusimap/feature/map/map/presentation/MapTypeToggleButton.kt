@@ -1,5 +1,6 @@
 package com.rafael.inclusimap.feature.map.map.presentation
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.google.maps.android.compose.MapType
@@ -47,10 +49,19 @@ fun MapTypeToggleButton(
 ) {
     var showMapTypes by remember { mutableStateOf(false) }
     val mapTypes = GoogleMapType.getMapTypes()
+    val orientation = LocalConfiguration.current.orientation
+    val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
+
     Column(
         modifier = modifier
             .fillMaxSize()
-            .navigationBarsPadding(),
+            .then(
+                if (isLandscape) {
+                    Modifier.navigationBarsPadding()
+                } else {
+                    Modifier
+                }
+            ),
         verticalArrangement = Arrangement.Bottom,
         horizontalAlignment = Alignment.End,
     ) {
