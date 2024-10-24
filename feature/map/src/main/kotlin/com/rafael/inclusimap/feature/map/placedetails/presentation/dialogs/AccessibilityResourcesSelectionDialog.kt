@@ -107,7 +107,7 @@ fun AccessibilityResourcesSelectionDialog(
                 (0..1).forEach {
                     val res = if (it == 0) resources else missingResources
                     Text(
-                        text = if (it == 0) "Esse lugar possui:" else "Falta nesse lugar:",
+                        text = if (it == 0) "Esse lugar possui:" else "Todos os recursos:",
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
