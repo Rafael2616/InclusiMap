@@ -2,7 +2,6 @@ package com.rafael.inclusimap.feature.map.placedetails.presentation.dialogs
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -122,7 +122,11 @@ fun AccessibilityResourcesSelectionDialog(
                             item {
                                 AssistChip(
                                     label = {
-                                        Text(text = resource.displayName)
+                                        Text(
+                                            text = resource.displayName,
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis,
+                                        )
                                     },
                                     onClick = {
                                         placeAccessibilityResources = if (it == 0) {
@@ -156,23 +160,6 @@ fun AccessibilityResourcesSelectionDialog(
                                 )
                             }
                         }
-                    }
-                }
-                if (placeAccessibilityResources != state.currentPlace.resources.map { it.resource }) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        contentAlignment = Alignment.CenterEnd,
-                    ) {
-                        val changes = state.currentPlace.resources.map { it.resource }
-                            .filter { it !in placeAccessibilityResources }.size
-                        Text(
-                            text = changes.toString() + if (changes == 1) " Alteração" else " Alterações",
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                            modifier = Modifier.fillMaxWidth(),
-                        )
                     }
                 }
                 Row(

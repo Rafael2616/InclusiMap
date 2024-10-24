@@ -596,11 +596,11 @@ fun AccessibilityResourcesSection(
                 .padding(vertical = 4.dp),
         )
         LazyHorizontalStaggeredGrid(
-            rows = StaggeredGridCells.Fixed(if (state.currentPlace.resources.isEmpty()) 1 else 2),
+            rows = StaggeredGridCells.Fixed(if (state.currentPlace.resources.size in 0..2) 1 else 2),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(if (state.currentPlace.resources.size in 0..3) 55.dp else 110.dp),
+                .height(if (state.currentPlace.resources.size in 0..2) 55.dp else 110.dp),
             horizontalItemSpacing = 6.dp,
         ) {
             if (state.currentPlace.resources.isNotEmpty()) {

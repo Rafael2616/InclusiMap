@@ -700,13 +700,13 @@ fun ContributionsScreen(
                                         ) {
                                             Column(
                                                 verticalArrangement = Arrangement.spacedBy(2.dp),
+                                                modifier = Modifier.weight(5f)
                                             ) {
                                                 Text(
                                                     text = place.first().place.title,
                                                     fontSize = 16.sp,
                                                     overflow = TextOverflow.MiddleEllipsis,
                                                     maxLines = 1,
-                                                    modifier = Modifier.fillMaxWidth(0.8f),
                                                 )
                                                 Text(
                                                     text = "Endereço: " + place.first().place.address + " - " + place.first().place.locatedIn,
@@ -732,6 +732,7 @@ fun ContributionsScreen(
                                                     )
                                                 },
                                                 modifier = Modifier
+                                                    .weight(1f)
                                                     .size(35.dp),
                                             ) {
                                                 Icon(
