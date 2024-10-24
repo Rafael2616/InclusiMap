@@ -253,6 +253,7 @@ fun InclusiMapGoogleMapScreen(
             placeDetailsState = placeDetailsState,
             userEmail = userEmail,
             bottomSheetScaffoldState = addPlaceBottomSheetState,
+            isInternetAvailable = isInternetAvailable,
             onDismiss = {
                 addPlaceBottomSheetScope.launch {
                     addPlaceBottomSheetState.hide()

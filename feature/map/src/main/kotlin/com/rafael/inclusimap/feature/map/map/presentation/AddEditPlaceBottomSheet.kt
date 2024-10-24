@@ -76,6 +76,7 @@ fun AddEditPlaceBottomSheet(
     placeDetailsState: PlaceDetailsState,
     bottomSheetScaffoldState: SheetState,
     mapState: InclusiMapState,
+    isInternetAvailable: Boolean,
     onAddNewPlace: (AccessibleLocalMarker) -> Unit,
     onEditNewPlace: (AccessibleLocalMarker) -> Unit,
     onDeletePlace: (id: String) -> Unit,
@@ -442,6 +443,7 @@ fun AddEditPlaceBottomSheet(
 
     AnimatedVisibility(showDeleteConfirmationDialog) {
         DeletePlaceConfirmationDialog(
+            isInternetAvailable = isInternetAvailable,
             isDeletingPlace = mapState.isDeletingPlace,
             onDismiss = {
                 showDeleteConfirmationDialog = false
