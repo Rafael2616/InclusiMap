@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.PlaceImage
+import com.rafael.inclusimap.core.domain.model.Resource
 
 sealed interface PlaceDetailsEvent {
     data class OnUploadPlaceImages(val uris: List<Uri>, val context: Context, val placeId: String) : PlaceDetailsEvent
@@ -16,4 +17,5 @@ sealed interface PlaceDetailsEvent {
     data class SetUserComment(val comment: String) : PlaceDetailsEvent
     data class SetIsUserCommented(val isCommented: Boolean) : PlaceDetailsEvent
     data class SetIsEditingPlace(val isEditing: Boolean) : PlaceDetailsEvent
+    data class OnUpdatePlaceAccessibilityResources(val resources: List<Resource>) : PlaceDetailsEvent
 }

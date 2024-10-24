@@ -7,10 +7,12 @@ import android.net.Uri
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rafael.inclusimap.core.domain.model.AccessibilityResource
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.Comment
 import com.rafael.inclusimap.core.domain.model.FullAccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.PlaceImage
+import com.rafael.inclusimap.core.domain.model.Resource
 import com.rafael.inclusimap.core.domain.model.toAccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.toFullAccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.util.extractPlaceID
@@ -73,6 +75,7 @@ class PlaceDetailsViewModel(
             is PlaceDetailsEvent.SetIsUserCommented -> _state.update { it.copy(isUserCommented = event.isCommented) }
             PlaceDetailsEvent.OnDeleteComment -> onDeleteComment()
             is PlaceDetailsEvent.SetIsEditingPlace -> _state.update { it.copy(isEditingPlace = event.isEditing) }
+            is PlaceDetailsEvent.OnUpdatePlaceAccessibilityResources -> onUpdatePlaceAccessibilityResources(event.resources)
         }
     }
 
@@ -369,7 +372,8 @@ class PlaceDetailsViewModel(
                 val outputStream = ByteArrayOutputStream()
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
                 val compressedImage = outputStream.toByteArray()
-                val imageFileName = "${_state.value.currentPlace.id}_$userEmail-${Date().toInstant()}.jpg"
+                val imageFileName =
+                    "${_state.value.currentPlace.id}_$userEmail-${Date().toInstant()}.jpg"
                 async {
                     val imageId = driveService.uploadFile(
                         fileContent = ByteArrayInputStream(compressedImage),
@@ -621,6 +625,46 @@ class PlaceDetailsViewModel(
                 trySendComment = false,
                 userComment = comment,
             )
+        }
+    }
+
+    private fun onUpdatePlaceAccessibilityResources(updatedResources: List<Resource>) {
+        val updatedResourcesBuilder = updatedResources.map { resource ->
+            AccessibilityResource(
+                resource = resource,
+                lastModified = Date().toInstant().toString(),
+                lastModifiedBy = userEmail,
+            )
+        }
+
+        _state.update {
+            it.copy(currentPlace = it.currentPlace.copy(resources = updatedResourcesBuilder))
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
+                .onSuccess { places ->
+                    places.find { it.name.extractPlaceID() == _state.value.currentPlace.id }
+                        .also { place ->
+                            val placeJson = driveService.getFileContent(place?.id ?: return@launch)
+                            val placeString = json.decodeFromString<AccessibleLocalMarker>(
+                                placeJson?.decodeToString() ?: return@launch,
+                            )
+                            val updatedPlace = placeString.copy(resources = updatedResourcesBuilder)
+                            val updatedPlaceString = json.encodeToString(updatedPlace)
+                            driveService.updateFile(
+                                place.id ?: return@launch,
+                                placeString.id + "_" + placeString.authorEmail + ".json",
+                                updatedPlaceString.byteInputStream(),
+                            )
+                            addNewContribution(
+                                Contribution(
+                                    fileId = place.id ?: return@launch,
+                                    type = ContributionType.ACCESSIBLE_RESOURCES,
+                                ),
+                            )
+                        }
+                }
         }
     }
 

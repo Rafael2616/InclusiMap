@@ -9,6 +9,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -42,6 +43,8 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.twotone.Delete
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -92,6 +95,7 @@ import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.icon
 import com.rafael.inclusimap.core.domain.model.toAccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.toCategoryName
+import com.rafael.inclusimap.core.domain.model.toResourceIcon
 import com.rafael.inclusimap.core.domain.model.util.formatDate
 import com.rafael.inclusimap.core.domain.model.util.removeTime
 import com.rafael.inclusimap.core.domain.model.util.toColor
@@ -101,6 +105,7 @@ import com.rafael.inclusimap.core.domain.util.Constants.MAX_IMAGE_NUMBER
 import com.rafael.inclusimap.feature.map.map.domain.InclusiMapState
 import com.rafael.inclusimap.feature.map.placedetails.domain.model.PlaceDetailsEvent
 import com.rafael.inclusimap.feature.map.placedetails.domain.model.PlaceDetailsState
+import com.rafael.inclusimap.feature.map.placedetails.presentation.dialogs.AccessibilityResourcesSelectionDialog
 import com.rafael.inclusimap.feature.map.placedetails.presentation.dialogs.FullScreenImageViewDialog
 import com.rafael.inclusimap.feature.map.placedetails.presentation.dialogs.ImagesUploadProgressDialog
 import com.rafael.inclusimap.feature.map.placedetails.presentation.dialogs.PlaceInfoDialog
@@ -140,6 +145,7 @@ fun PlaceDetailsBottomSheet(
     var showToast by remember { mutableStateOf(false) }
     var showUnsavedCommentDialog by remember { mutableStateOf(false) }
     var showUploadImagesProgressDialog by remember { mutableStateOf(false) }
+    var showAccessibilityResourcesSelectionDialog by remember { mutableStateOf(false) }
     val currentPlace by remember { mutableStateOf(inclusiMapState.selectedMappedPlace!!) }
     val accessibilityAverage by remember(
         state.trySendComment,
@@ -279,6 +285,14 @@ fun PlaceDetailsBottomSheet(
                     )
                 }
                 item {
+                    AccessibilityResourcesSection(
+                        state = state,
+                        onAddAccessibilityResource = {
+                            showAccessibilityResourcesSelectionDialog = true
+                        },
+                    )
+                }
+                item {
                     CommentSection(
                         state = state,
                         isInternetAvailable = isInternetAvailable,
@@ -348,6 +362,18 @@ fun PlaceDetailsBottomSheet(
             isErrorUploadingImages = state.isErrorUploadingImages,
             onDismiss = {
                 showUploadImagesProgressDialog = false
+            },
+        )
+    }
+
+    AnimatedVisibility(showAccessibilityResourcesSelectionDialog) {
+        AccessibilityResourcesSelectionDialog(
+            state = state,
+            onDismiss = {
+                showAccessibilityResourcesSelectionDialog = false
+            },
+            onUpdateAccessibilityResources = {
+                latestEvent(PlaceDetailsEvent.OnUpdatePlaceAccessibilityResources(it))
             },
         )
     }
@@ -547,6 +573,79 @@ fun ImageSection(
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun AccessibilityResourcesSection(
+    state: PlaceDetailsState,
+    onAddAccessibilityResource: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        Text(
+            text = "Recursos de acessibilidade",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier
+                .padding(vertical = 4.dp),
+        )
+        LazyHorizontalStaggeredGrid(
+            rows = StaggeredGridCells.Fixed(if (state.currentPlace.resources.isEmpty()) 1 else 2),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(if (state.currentPlace.resources.size in 0..3) 55.dp else 110.dp),
+            horizontalItemSpacing = 6.dp,
+        ) {
+            if (state.currentPlace.resources.isNotEmpty()) {
+                state.currentPlace.resources.forEach { resource ->
+                    item {
+                        AssistChip(
+                            label = {
+                                Text(text = resource.resource.displayName)
+                            },
+                            onClick = { },
+                            modifier = Modifier.height(45.dp),
+                            enabled = true,
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = resource.resource.displayName.toResourceIcon(),
+                                    contentDescription = null,
+                                )
+                            },
+                            colors = AssistChipDefaults.assistChipColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(5.dp),
+                            ),
+                        )
+                    }
+                }
+            }
+            item {
+                AssistChip(
+                    label = {
+                        Text(text = "Editar")
+                    },
+                    onClick = {
+                        onAddAccessibilityResource()
+                    },
+                    modifier = Modifier.height(45.dp),
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.Edit,
+                            contentDescription = null,
+                        )
+                    },
+                    border = BorderStroke(
+                        1.dp,
+                        MaterialTheme.colorScheme.primary,
+                    ),
+                )
             }
         }
     }

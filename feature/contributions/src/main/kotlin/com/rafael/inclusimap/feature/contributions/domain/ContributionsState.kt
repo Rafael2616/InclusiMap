@@ -11,4 +11,5 @@ data class ContributionsState(
     var allCommentsContributionsLoaded: Boolean = false,
     val allPlacesContributionsLoaded: Boolean = false,
     val allImagesContributionsLoaded: Boolean = false,
+    val allResourcesContributionsLoaded: Boolean = false
 )

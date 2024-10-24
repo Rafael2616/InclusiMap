@@ -9,6 +9,7 @@ data class Contributions(
     val images: List<PlaceImageWithPlace> = emptyList(),
     val comments: List<CommentWithPlace> = emptyList(),
     val places: List<AccessibleLocalMarkerWithFileId> = emptyList(),
+    val resources: List<AccessibleLocalMarkerWithFileId> = emptyList(),
 )
 
 @Serializable
@@ -21,6 +22,7 @@ enum class ContributionType {
     IMAGE,
     COMMENT,
     PLACE,
+    ACCESSIBLE_RESOURCES
 }
 
 data class PlaceImageWithPlace(

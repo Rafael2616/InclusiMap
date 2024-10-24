@@ -77,6 +77,8 @@ class ContributionsViewModel(
                             userContributions.filter { it.type == ContributionType.PLACE }
                         val imageContributions =
                             userContributions.filter { it.type == ContributionType.IMAGE }
+                        val resourcesContributions =
+                            userContributions.filter { it.type == ContributionType.ACCESSIBLE_RESOURCES }
 
                         _state.update {
                             it.copy(
@@ -84,6 +86,7 @@ class ContributionsViewModel(
                                     comments = commentsContributions.size,
                                     places = placesContributions.size,
                                     images = imageContributions.size,
+                                    resources = resourcesContributions.size,
                                 ),
                             )
                         }
@@ -101,6 +104,9 @@ class ContributionsViewModel(
                                 imageContributions,
                             )
                         }
+                        if (!_state.value.allResourcesContributionsLoaded || state.value.userContributions.resources.size != resourcesContributions.size) {
+                            loadResourcesContributions(resourcesContributions)
+                        }
                         removeInexistentContributions(
                             imageContributions,
                             placesContributions,
@@ -113,6 +119,7 @@ class ContributionsViewModel(
                             allCommentsContributionsLoaded = true,
                             allPlacesContributionsLoaded = true,
                             allImagesContributionsLoaded = true,
+                            allResourcesContributionsLoaded = true,
                         )
                     }
                     return@launch
@@ -232,6 +239,44 @@ class ContributionsViewModel(
                     userContributions = it.userContributions.copy(
                         comments = it.userContributions.comments.filter { commentsWithFileId ->
                             commentsWithFileId.fileId in contributions.map { it.fileId }
+                        },
+                    ),
+                )
+            }
+        }
+    }
+
+    private fun loadResourcesContributions(
+        contributions: List<Contribution>,
+    ) {
+        _state.update { it.copy(allResourcesContributionsLoaded = false) }
+        viewModelScope.launch(Dispatchers.IO) {
+            contributions.map { contribution ->
+                async {
+                    driveService.getFileContent(contribution.fileId)
+                        ?.also { content ->
+                            val place =
+                                json.decodeFromString<AccessibleLocalMarker>(content.decodeToString())
+                            _state.update {
+                                it.copy(
+                                    userContributions = it.userContributions.copy(
+                                        resources = it.userContributions.resources + AccessibleLocalMarkerWithFileId(
+                                            place = place,
+                                            fileId = contribution.fileId,
+                                        ),
+                                    ),
+                                )
+                            }
+                        }
+                }
+            }.awaitAll()
+        }.invokeOnCompletion {
+            _state.update {
+                it.copy(
+                    allResourcesContributionsLoaded = true,
+                    userContributions = it.userContributions.copy(
+                        resources = it.userContributions.resources.filter { resourcesWithFileId ->
+                            resourcesWithFileId.fileId in contributions.map { it.fileId }
                         },
                     ),
                 )

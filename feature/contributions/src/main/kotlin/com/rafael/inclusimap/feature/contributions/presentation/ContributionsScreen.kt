@@ -29,6 +29,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Comment
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
+import androidx.compose.material.icons.outlined.Accessibility
 import androidx.compose.material.icons.outlined.ArrowOutward
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Person
@@ -117,6 +118,12 @@ fun ContributionsScreen(
             quantity = state.contributionsSize.comments,
         ),
         ContributionItem(
+            icon = Icons.Outlined.Accessibility,
+            name = "Recursos de acessibilidade",
+            type = ContributionType.ACCESSIBLE_RESOURCES,
+            quantity = state.contributionsSize.resources,
+        ),
+        ContributionItem(
             icon = Icons.Outlined.Image,
             name = "Locais",
             type = ContributionType.IMAGE,
@@ -172,7 +179,7 @@ fun ContributionsScreen(
             ) {
                 SingleChoiceSegmentedButtonRow(
                     modifier = Modifier
-                        .width(255.dp)
+                        .width(320.dp)
                         .height(45.dp),
                 ) {
                     buttons.forEachIndexed { index, button ->
@@ -654,6 +661,96 @@ fun ContributionsScreen(
                                 )
                             }
                             loadingProgressIndicator(condition = !state.allImagesContributionsLoaded)
+                        }
+
+                        ContributionType.ACCESSIBLE_RESOURCES -> {
+                            if (state.userContributions.resources.isNotEmpty()) {
+                                item {
+                                    Text(
+                                        text = "Seus recursos",
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary,
+                                    )
+                                }
+                                item {
+                                    Text(
+                                        text = "Contribuiu alterando recursos de acessibilidade em:",
+                                        fontSize = 14.sp,
+                                        lineHeight = 16.sp,
+                                    )
+                                }
+                                val resources =
+                                    state.userContributions.resources.groupBy { it.place.id }
+                                resources.forEach { (_, place) ->
+                                    item {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .animateItem()
+                                                .clip(MaterialTheme.shapes.medium)
+                                                .background(
+                                                    MaterialTheme.colorScheme.surfaceColorAtElevation(
+                                                        8.dp,
+                                                    ),
+                                                )
+                                                .padding(12.dp),
+                                        ) {
+                                            Column(
+                                                verticalArrangement = Arrangement.spacedBy(2.dp),
+                                            ) {
+                                                Text(
+                                                    text = place.first().place.title,
+                                                    fontSize = 16.sp,
+                                                    overflow = TextOverflow.MiddleEllipsis,
+                                                    maxLines = 1,
+                                                    modifier = Modifier.fillMaxWidth(0.8f),
+                                                )
+                                                Text(
+                                                    text = "Endereço: " + place.first().place.address + " - " + place.first().place.locatedIn,
+                                                    fontSize = 14.sp,
+                                                    fontWeight = FontWeight.Normal,
+                                                    color = MaterialTheme.colorScheme.onSurface.copy(
+                                                        alpha = 0.8f,
+                                                    ),
+                                                )
+                                            }
+                                            IconButton(
+                                                onClick = {
+                                                    navController.popBackStack()
+                                                    navController.navigate(
+                                                        Destination.MapScreen(
+                                                            Location(
+                                                                place.first().place.position.first,
+                                                                place.first().place.position.second,
+                                                                place.first().place.id
+                                                                    ?: return@IconButton,
+                                                            ),
+                                                        ),
+                                                    )
+                                                },
+                                                modifier = Modifier
+                                                    .size(35.dp),
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Outlined.ArrowOutward,
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(30.dp),
+                                                    tint = MaterialTheme.colorScheme.primary,
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                noContributionsFoundedScreen(
+                                    message = "Você ainda não modificou nenhum recurso",
+                                    condition = state.allResourcesContributionsLoaded,
+                                )
+                            }
+                            loadingProgressIndicator(condition = !state.allResourcesContributionsLoaded)
                         }
                     }
                 }
