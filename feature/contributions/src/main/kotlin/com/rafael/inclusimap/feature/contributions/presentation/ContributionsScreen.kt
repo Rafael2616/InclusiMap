@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -139,13 +138,6 @@ fun ContributionsScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .then(
-                if (isLandscape) {
-                    Modifier.navigationBarsPadding()
-                } else {
-                    Modifier
-                }
-            )
             .statusBarsPadding()
             .padding(top = 8.dp, bottom = 8.dp)
             .padding(horizontal = 16.dp),
@@ -230,6 +222,7 @@ fun ContributionsScreen(
                         .fillMaxSize()
                         .animateContentSize(),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     when (selectedButton) {
                         ContributionType.PLACE -> {
@@ -272,6 +265,7 @@ fun ContributionsScreen(
                                                         .padding(vertical = 6.dp)
                                                         .padding(end = if (index % 2 == 0 && state.userContributions.places.size != 1) 8.dp else 0.dp)
                                                         .height(if (state.userContributions.places.size == 1) 140.dp else 155.dp)
+                                                        .fillMaxWidth(if (isLandscape) 0.85f else 1f)
                                                         .clip(MaterialTheme.shapes.medium)
                                                         .background(
                                                             MaterialTheme.colorScheme.surfaceColorAtElevation(
@@ -419,6 +413,7 @@ fun ContributionsScreen(
                                             horizontalArrangement = Arrangement.spacedBy(4.dp),
                                             modifier = Modifier
                                                 .animateItem()
+                                                .fillMaxWidth(if (isLandscape) 0.85f else 1f)
                                                 .clip(MaterialTheme.shapes.medium)
                                                 .background(
                                                     MaterialTheme.colorScheme.surfaceColorAtElevation(
@@ -558,7 +553,7 @@ fun ContributionsScreen(
                                                 verticalAlignment = Alignment.CenterVertically,
                                                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                                                 modifier = Modifier
-                                                    .fillMaxWidth()
+                                                    .fillMaxWidth(if (isLandscape) 0.85f else 1f)
                                                     .animateItem()
                                                     .clip(MaterialTheme.shapes.medium)
                                                     .background(
@@ -700,7 +695,7 @@ fun ContributionsScreen(
                                             verticalAlignment = Alignment.CenterVertically,
                                             horizontalArrangement = Arrangement.SpaceBetween,
                                             modifier = Modifier
-                                                .fillMaxWidth()
+                                                .fillMaxWidth(if (isLandscape) 0.85f else 1f)
                                                 .animateItem()
                                                 .clip(MaterialTheme.shapes.medium)
                                                 .background(
