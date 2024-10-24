@@ -72,3 +72,5 @@ fun String.removeTime(): String? = try {
     e.printStackTrace()
     null
 }
+
+fun Int.isEven(): Boolean = this % 2 == 1

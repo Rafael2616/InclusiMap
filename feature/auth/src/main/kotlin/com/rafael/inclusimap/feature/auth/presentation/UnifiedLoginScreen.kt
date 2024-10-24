@@ -6,7 +6,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +16,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -108,53 +108,59 @@ fun UnifiedLoginScreen(
                         .size(70.dp),
                 )
             }
-            Column(
+            LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
             ) {
-                Text(
-                    text = "InclusiMap",
-                    fontSize = 24.sp,
-                    color = MaterialTheme.colorScheme.primary,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .padding(bottom = 8.dp)
-                        .fillMaxWidth(),
-                )
-                if (isEditPasswordMode) {
-                    UpdatePasswordScreen(
-                        state = loginState,
-                        onCancel = {
-                            onCancel()
-                        },
-                        onUpdatePassword = {
-                            onUpdatePassword(it)
-                        },
-                        popBackStack = {
-                            onPopBackStack()
-                        },
+                item {
+                    Text(
+                        text = "InclusiMap",
+                        fontSize = 24.sp,
+                        color = MaterialTheme.colorScheme.primary,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .padding(bottom = 8.dp)
+                            .fillMaxWidth(),
                     )
+                }
+                if (isEditPasswordMode) {
+                    item {
+                        UpdatePasswordScreen(
+                            state = loginState,
+                            onCancel = {
+                                onCancel()
+                            },
+                            onUpdatePassword = {
+                                onUpdatePassword(it)
+                            },
+                            popBackStack = {
+                                onPopBackStack()
+                            },
+                        )
+                    }
                 } else {
-                    AnimatedContent(
-                        targetState = cadastreNewUser,
-                        modifier = Modifier.fillMaxWidth(),
-                        label = "",
-                    ) {
-                        if (it) {
-                            RegistrationScreen(
-                                state = loginState,
-                                onRegister = { registredUser -> onRegister(registredUser) },
-                                onGoToLogin = { cadastreNewUser = false },
-                            )
-                        } else {
-                            LoginScreen(
-                                state = loginState,
-                                onLogin = { user -> onLogin(user) },
-                                onGoToRegister = { cadastreNewUser = true },
-                            )
+                    item {
+                        AnimatedContent(
+                            targetState = cadastreNewUser,
+                            modifier = Modifier.fillMaxWidth(),
+                            label = "",
+                        ) {
+                            if (it) {
+                                RegistrationScreen(
+                                    state = loginState,
+                                    onRegister = { registredUser -> onRegister(registredUser) },
+                                    onGoToLogin = { cadastreNewUser = false },
+                                )
+                            } else {
+                                LoginScreen(
+                                    state = loginState,
+                                    onLogin = { user -> onLogin(user) },
+                                    onGoToRegister = { cadastreNewUser = true },
+                                )
+                            }
                         }
                     }
                 }

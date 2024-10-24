@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -46,6 +47,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.rafael.inclusimap.core.domain.model.Resource
 import com.rafael.inclusimap.core.domain.model.toResourceIcon
+import com.rafael.inclusimap.core.domain.model.util.isEven
 import com.rafael.inclusimap.feature.map.placedetails.domain.model.PlaceDetailsState
 
 @Composable
@@ -71,7 +73,7 @@ fun AccessibilityResourcesSelectionDialog(
             modifier = modifier
                 .navigationBarsPadding()
                 .statusBarsPadding()
-                .fillMaxWidth(if (isLandscape) 0.6f else 0.9f)
+                .fillMaxWidth(if (isLandscape) 0.55f else 0.9f)
                 .clip(RoundedCornerShape(24.dp)),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp),
@@ -113,106 +115,128 @@ fun AccessibilityResourcesSelectionDialog(
                             .contains(it)
                     }
 
-                (0..1).forEach {
-                    val res = if (it == 0) resources else missingResources
-                    Text(
-                        text = if (it == 0) "Esse lugar possui:" else "Todos os recursos:",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                    )
-                    if (res.isEmpty()) {
-                        Text(
-                            text = if (it == 0) {
-                                "Nenhum recurso de acessibilidade está disponível nesse local!"
-                            } else {
-                                "Todos os recursos de acessibilidade estão disponíveis nesse local!"
-                            },
-                            fontSize = 16.sp,
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 2.dp),
-                        )
-                    }
-                    LazyVerticalStaggeredGrid(
-                        columns = StaggeredGridCells.Adaptive(150.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalItemSpacing = 8.dp,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        res.forEach { resource ->
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    (0..1).forEach {
+                        val res = if (it == 0) resources else missingResources
+                        item {
+                            Text(
+                                text = if (it == 0) "Esse lugar possui:" else "Todos os recursos:",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp),
+                            )
+                        }
+                        if (res.isEmpty()) {
                             item {
-                                AssistChip(
-                                    label = {
-                                        Text(
-                                            text = resource.displayName,
-                                            maxLines = 2,
-                                            overflow = TextOverflow.Ellipsis,
-                                        )
+                                Text(
+                                    text = if (it == 0) {
+                                        "Nenhum recurso de acessibilidade está disponível nesse local!"
+                                    } else {
+                                        "Todos os recursos de acessibilidade estão disponíveis nesse local!"
                                     },
-                                    onClick = {
-                                        placeAccessibilityResources = if (it == 0) {
-                                            placeAccessibilityResources - resource
-                                        } else {
-                                            placeAccessibilityResources + resource
-                                        }
-                                    },
+                                    fontSize = 16.sp,
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f),
                                     modifier = Modifier
-                                        .height(55.dp)
-                                        .animateItem(),
-                                    enabled = true,
-                                    leadingIcon = {
-                                        Icon(
-                                            imageVector = resource.displayName.toResourceIcon(),
-                                            contentDescription = null,
-                                        )
-                                    },
-                                    trailingIcon = {
-                                        Icon(
-                                            imageVector = if (it == 0) Icons.Filled.Close else Icons.Outlined.ArrowUpward,
-                                            contentDescription = null,
-                                            tint = if (it == 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-                                        )
-                                    },
-                                    colors = AssistChipDefaults.assistChipColors(
-                                        containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
-                                            if (resource !in state.currentPlace.resources.map { it.resource }) 4.dp else 24.dp,
-                                        ),
-                                    ),
+                                        .fillMaxWidth()
+                                        .padding(vertical = 2.dp),
                                 )
                             }
                         }
+                        val size = res.size / 2 + if (res.size.isEven()) 1 else 0
+                        if (res.isNotEmpty()) {
+                            item {
+                                LazyVerticalStaggeredGrid(
+                                    columns = StaggeredGridCells.Fixed(2),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalItemSpacing = 8.dp,
+                                    modifier = Modifier
+                                        .height((size * 62).dp)
+                                        .animateItem()
+                                        .fillMaxWidth(),
+                                ) {
+                                    res.forEach { resource ->
+                                        item {
+                                            AssistChip(
+                                                label = {
+                                                    Text(
+                                                        text = resource.displayName,
+                                                        maxLines = 2,
+                                                        overflow = TextOverflow.Ellipsis,
+                                                    )
+                                                },
+                                                onClick = {
+                                                    placeAccessibilityResources = if (it == 0) {
+                                                        placeAccessibilityResources - resource
+                                                    } else {
+                                                        placeAccessibilityResources + resource
+                                                    }
+                                                },
+                                                modifier = Modifier
+                                                    .height(55.dp)
+                                                    .animateItem(),
+                                                enabled = true,
+                                                leadingIcon = {
+                                                    Icon(
+                                                        imageVector = resource.displayName.toResourceIcon(),
+                                                        contentDescription = null,
+                                                    )
+                                                },
+                                                trailingIcon = {
+                                                    Icon(
+                                                        imageVector = if (it == 0) Icons.Filled.Close else Icons.Outlined.ArrowUpward,
+                                                        contentDescription = null,
+                                                        tint = if (it == 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                                                    )
+                                                },
+                                                colors = AssistChipDefaults.assistChipColors(
+                                                    containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                                                        if (resource !in state.currentPlace.resources.map { it.resource }) 4.dp else 24.dp,
+                                                    ),
+                                                ),
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    OutlinedButton(
-                        onClick = onDismiss,
-                    ) {
-                        Text(text = "Cancelar")
-                    }
-                    if (placeAccessibilityResources != state.currentPlace.resources.map { it.resource }) {
-                        Button(
-                            onClick = {
-                                Toast.makeText(
-                                    context,
-                                    "Atualizando...",
-                                    Toast.LENGTH_SHORT,
-                                ).show()
-                                onUpdateAccessibilityResources(placeAccessibilityResources)
-                                onDismiss()
-                            },
-                            enabled = isInternetAvailable,
+                    item {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text(text = "Atualizar")
+                            OutlinedButton(
+                                onClick = onDismiss,
+                            ) {
+                                Text(text = "Cancelar")
+                            }
+                            if (placeAccessibilityResources != state.currentPlace.resources.map { it.resource }) {
+                                Button(
+                                    onClick = {
+                                        Toast.makeText(
+                                            context,
+                                            "Atualizando...",
+                                            Toast.LENGTH_SHORT,
+                                        ).show()
+                                        onUpdateAccessibilityResources(
+                                            placeAccessibilityResources,
+                                        )
+                                        onDismiss()
+                                    },
+                                    enabled = isInternetAvailable,
+                                ) {
+                                    Text(text = "Atualizar")
+                                }
+                            }
                         }
                     }
                 }

@@ -2,7 +2,7 @@ package com.rafael.inclusimap.feature.intro.presentation.dialogs
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -124,70 +124,84 @@ fun TermsAndConditionsDialog(
                 containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp),
             ),
         ) {
-            Box(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(500.dp),
-                contentAlignment = Alignment.Center,
+                    .height(560.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
                     text = "Termos e condições",
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 20.sp,
                     modifier = Modifier
-                        .align(Alignment.TopCenter)
                         .padding(top = 16.dp),
                 )
-                LazyColumnScrollbar(
+                LazyColumn(
                     modifier = Modifier
-                        .padding(top = 35.dp),
-                    state = state,
-                    settings = ScrollbarSettings(
-                        scrollbarPadding = 10.dp,
-                        thumbUnselectedColor = MaterialTheme.colorScheme.primary,
-                        thumbSelectedColor = MaterialTheme.colorScheme.primary,
-                        thumbMinLength = 0.05f,
-                        thumbMaxLength = 0.3f,
-                        thumbThickness = 6.dp,
-                    ),
+                        .fillMaxWidth()
+                        .height(530.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top),
                 ) {
-                    LazyColumn(
-                        modifier = Modifier
-                            .height(500.dp)
-                            .padding(horizontal = 24.dp)
-                            .padding(top = 24.dp, bottom = 8.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        state = state,
-                    ) {
-                        item {
-                            Text(
-                                text = termsAndServicesString,
+                    item {
+                        LazyColumnScrollbar(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(440.dp)
+                                .padding(top = 10.dp),
+                            state = state,
+                            settings = ScrollbarSettings(
+                                scrollbarPadding = 10.dp,
+                                thumbUnselectedColor = MaterialTheme.colorScheme.primary,
+                                thumbSelectedColor = MaterialTheme.colorScheme.primary,
+                                thumbMinLength = 0.05f,
+                                thumbMaxLength = 0.3f,
+                                thumbThickness = 6.dp,
+                            ),
+                        ) {
+                            LazyColumn(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .fillMaxHeight(),
-                                textAlign = TextAlign.Justify,
-                                fontSize = 14.sp,
-                                lineHeight = 14.sp,
-                                style = MaterialTheme.typography.titleLarge,
-                            )
+                                    .height(440.dp)
+                                    .padding(horizontal = 24.dp)
+                                    .padding(top = 28.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top),
+                                state = state,
+                            ) {
+                                item {
+                                    Text(
+                                        text = termsAndServicesString,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .fillMaxHeight(),
+                                        textAlign = TextAlign.Justify,
+                                        fontSize = 14.sp,
+                                        lineHeight = 14.sp,
+                                        style = MaterialTheme.typography.titleLarge,
+                                    )
+                                }
+                            }
                         }
                     }
-                }
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = 16.dp, bottom = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Button(
-                    onClick = {
-                        onDismissRequest()
-                    },
-                ) {
-                    Text(text = "Entendi")
+                    item {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(end = 16.dp, bottom = 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Button(
+                                onClick = {
+                                    onDismissRequest()
+                                },
+                            ) {
+                                Text(text = "Entendi")
+                            }
+                        }
+                    }
                 }
             }
         }
