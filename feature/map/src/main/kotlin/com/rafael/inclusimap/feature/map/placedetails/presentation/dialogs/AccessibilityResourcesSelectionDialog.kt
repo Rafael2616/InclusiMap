@@ -34,8 +34,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.rafael.inclusimap.core.domain.model.Resource
@@ -112,6 +114,21 @@ fun AccessibilityResourcesSelectionDialog(
                             .fillMaxWidth()
                             .padding(vertical = 4.dp),
                     )
+                    if (res.isEmpty()) {
+                        Text(
+                            text = if (it == 0) {
+                                "Nenhum recurso de acessibilidade está disponível nesse local!"
+                            } else {
+                                "Todos os recursos de acessibilidade estão disponíveis nesse local!"
+                            },
+                            fontSize = 16.sp,
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 2.dp),
+                        )
+                    }
                     LazyVerticalStaggeredGrid(
                         columns = StaggeredGridCells.Adaptive(150.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),

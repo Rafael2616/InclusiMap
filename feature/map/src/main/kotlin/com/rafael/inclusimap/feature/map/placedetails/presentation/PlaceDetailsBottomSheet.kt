@@ -39,6 +39,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Person
@@ -629,7 +630,7 @@ fun AccessibilityResourcesSection(
             item {
                 AssistChip(
                     label = {
-                        Text(text = "Editar")
+                        Text(text = if (state.currentPlace.resources.isEmpty()) "Adicionar" else "Editar")
                     },
                     onClick = {
                         onAddAccessibilityResource()
@@ -637,7 +638,7 @@ fun AccessibilityResourcesSection(
                     modifier = Modifier.height(45.dp),
                     leadingIcon = {
                         Icon(
-                            imageVector = Icons.Filled.Edit,
+                            imageVector = if (state.currentPlace.resources.isEmpty()) Icons.Outlined.Add else Icons.Filled.Edit,
                             contentDescription = null,
                         )
                     },
