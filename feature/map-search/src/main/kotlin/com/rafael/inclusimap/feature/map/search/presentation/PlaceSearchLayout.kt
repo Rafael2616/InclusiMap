@@ -83,7 +83,7 @@ fun PlaceSearchLayout(
         contentAlignment = Alignment.TopCenter,
     ) {
         Box(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(if (isLandscape) 0.8f else 0.6f),
             contentAlignment = Alignment.TopCenter,

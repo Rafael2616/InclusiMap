@@ -707,7 +707,7 @@ fun ContributionsScreen(
                                         ) {
                                             Column(
                                                 verticalArrangement = Arrangement.spacedBy(2.dp),
-                                                modifier = Modifier.weight(5f)
+                                                modifier = Modifier.weight(5f),
                                             ) {
                                                 Text(
                                                     text = place.first().place.title,

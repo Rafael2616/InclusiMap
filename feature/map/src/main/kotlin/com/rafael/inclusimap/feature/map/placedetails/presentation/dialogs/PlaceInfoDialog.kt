@@ -174,7 +174,7 @@ fun PlaceInfoDialog(
                             )
                         },
                         modifier = Modifier
-                            .size(24.dp)
+                            .size(24.dp),
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.CopyAll,

@@ -26,9 +26,9 @@ interface BaseLocalMarker {
     var comments: List<Comment>
     var time: String
     var id: String?
-    var address : String
-    var locatedIn : String
-    var resources :  List<AccessibilityResource>
+    var address: String
+    var locatedIn: String
+    var resources: List<AccessibilityResource>
 }
 
 data class FullAccessibleLocalMarker(

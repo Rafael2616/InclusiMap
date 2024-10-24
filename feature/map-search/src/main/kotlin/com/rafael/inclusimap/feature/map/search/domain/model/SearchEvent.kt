@@ -7,6 +7,6 @@ sealed interface SearchEvent {
     data class SetExpanded(val expanded: Boolean) : SearchEvent
     data class UpdateHistory(val placeId: String) : SearchEvent
     data class DeleteFromHistory(val placeId: String) : SearchEvent
-    data object ClearHistory: SearchEvent
+    data object ClearHistory : SearchEvent
     data object LoadHistory : SearchEvent
 }

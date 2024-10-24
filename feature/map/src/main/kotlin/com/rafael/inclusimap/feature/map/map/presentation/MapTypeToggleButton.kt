@@ -60,7 +60,7 @@ fun MapTypeToggleButton(
                     Modifier.navigationBarsPadding()
                 } else {
                     Modifier
-                }
+                },
             ),
         verticalArrangement = Arrangement.Bottom,
         horizontalAlignment = Alignment.End,

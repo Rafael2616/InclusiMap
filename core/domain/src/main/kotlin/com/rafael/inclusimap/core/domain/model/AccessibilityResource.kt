@@ -32,7 +32,7 @@ val accessibilityResources = listOf(
     "Caixa preferencial",
     "Estacionamento especial",
     "Carrinho adaptado",
-    "Assistência humana"
+    "Assistência humana",
 )
 
 enum class Resource(val displayName: String) {
@@ -46,7 +46,7 @@ enum class Resource(val displayName: String) {
     SPECIAL_PARKING("Estacionamento especial"),
     ADAPTED_CART("Carrinho adaptado"),
     HUMAN_ASSISTANCE("Assistência humana"),
-    NOT_APPLICABLE("Não aplicável");
+    NOT_APPLICABLE("Não aplicável"),
 }
 
 fun String.toResourceIcon(): ImageVector = when (this) {

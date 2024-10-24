@@ -22,7 +22,7 @@ enum class ContributionType {
     IMAGE,
     COMMENT,
     PLACE,
-    ACCESSIBLE_RESOURCES
+    ACCESSIBLE_RESOURCES,
 }
 
 data class PlaceImageWithPlace(

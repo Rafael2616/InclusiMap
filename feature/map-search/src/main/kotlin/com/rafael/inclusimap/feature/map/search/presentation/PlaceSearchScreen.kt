@@ -32,6 +32,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,12 +65,14 @@ fun PlaceSearchScreen(
     val shouldShowHistoryUI =
         state.matchingPlaces.isEmpty() && state.searchQuery.isEmpty() && state.placesHistory.isNotEmpty() && isHistoryEnabled
     var showAboutHistoryDialog by remember { mutableStateOf(false) }
+    val latestOnLoadHistory by rememberUpdatedState(onLoadHistory)
+    val latestOnDeleteHistory by rememberUpdatedState(onDeleteHistory)
 
     LaunchedEffect(Unit) {
         if (isHistoryEnabled) {
-            onLoadHistory()
+            latestOnLoadHistory()
         } else {
-            onDeleteHistory()
+            latestOnDeleteHistory()
         }
     }
     Column(
@@ -104,7 +107,7 @@ fun PlaceSearchScreen(
                         showAboutHistoryDialog = true
                     },
                     modifier = Modifier
-                        .size(22.dp)
+                        .size(22.dp),
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.Info,

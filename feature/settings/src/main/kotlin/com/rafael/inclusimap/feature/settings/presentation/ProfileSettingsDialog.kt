@@ -146,7 +146,7 @@ fun ProfileSettingsDialog(
                         textAlign = TextAlign.Start,
                         softWrap = true,
 
-                        )
+                    )
                 }
                 profilePicture?.let { image ->
                     item {
@@ -378,7 +378,7 @@ fun ProfileSettingsDialog(
                                     }
                                     if (allowOtherUsersToSeeProfilePictureOptedId != allowOtherUsersToSeeProfilePicture) {
                                         onAllowPictureOptedIn(
-                                            allowOtherUsersToSeeProfilePictureOptedId
+                                            allowOtherUsersToSeeProfilePictureOptedId,
                                         )
                                     }
                                     shouldDismissDialog = true

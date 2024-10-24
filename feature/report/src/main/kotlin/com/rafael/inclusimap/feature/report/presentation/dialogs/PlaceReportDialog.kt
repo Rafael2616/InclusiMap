@@ -106,7 +106,7 @@ fun PlaceReportDialog(
                 Spacer(modifier = Modifier.height(8.dp))
                 LazyColumn(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
                 ) {
                     item {
                         Row {
@@ -178,7 +178,7 @@ fun PlaceReportDialog(
                                 .height(100.dp),
                             colors = TextFieldDefaults.colors(
                                 focusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
-                                    20.dp
+                                    20.dp,
                                 ),
                                 unfocusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
                                     20.dp,

@@ -59,14 +59,13 @@ class SearchViewModel(
     private fun defaultSearch(
         query: String,
         allPlaces: List<AccessibleLocalMarker>,
-    ): List<AccessibleLocalMarker> {
-        return allPlaces.filter {
-            normalizeText(it.title).contains(
-                query,
-                ignoreCase = true,
-            ) || normalizeText(it.category?.toCategoryName() ?: "")
+    ): List<AccessibleLocalMarker> = allPlaces.filter {
+        normalizeText(it.title).contains(
+            query,
+            ignoreCase = true,
+        ) ||
+            normalizeText(it.category?.toCategoryName() ?: "")
                 .contains(query, ignoreCase = true)
-        }
     }
 
     private fun lavenshteinSearch(

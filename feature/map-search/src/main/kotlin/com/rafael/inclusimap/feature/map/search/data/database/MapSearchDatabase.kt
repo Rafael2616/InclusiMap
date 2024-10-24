@@ -5,7 +5,6 @@ import androidx.room.RoomDatabase
 import com.rafael.inclusimap.feature.map.search.data.dao.MapSearchDao
 import com.rafael.inclusimap.feature.map.search.domain.model.MapSearchEntity
 
-
 @Database(
     entities = [MapSearchEntity::class],
     version = 1,
@@ -18,4 +17,3 @@ abstract class MapSearchDatabase : RoomDatabase() {
         const val DATABASE_NAME = "map_search_db"
     }
 }
-

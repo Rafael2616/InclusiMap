@@ -17,5 +17,5 @@ data class SettingsState(
     val profilePicture: ImageBitmap? = null,
     val showProfilePictureSettings: Boolean = false,
     val appVersion: String = "1.0",
-    val searchHistoryEnabled: Boolean = true
+    val searchHistoryEnabled: Boolean = true,
 )

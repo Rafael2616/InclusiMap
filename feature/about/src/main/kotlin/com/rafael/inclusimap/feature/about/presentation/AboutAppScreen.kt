@@ -110,7 +110,7 @@ fun AboutAppScreen(
                     textAlign = TextAlign.Start,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
-                        .fillMaxWidth(if (isLandscape) 0.6f else 1f)
+                        .fillMaxWidth(if (isLandscape) 0.6f else 1f),
                 )
             }
             Author.authors.forEach { author ->

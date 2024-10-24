@@ -14,7 +14,7 @@ fun levenshteinDistance(a: String, b: String): Int {
             matrix[j][i] = minOf(
                 matrix[j - 1][i] + 1,
                 matrix[j][i - 1] + 1,
-                matrix[j - 1][i - 1] + cost
+                matrix[j - 1][i - 1] + cost,
             )
         }
     }
@@ -28,7 +28,5 @@ fun similarity(a: String, b: String): Double {
     return 1.0 - (distance.toDouble() / maxLength)
 }
 
-fun normalizeText(text: String): String {
-    return Normalizer.normalize(text, Normalizer.Form.NFD)
-        .replace(Regex("\\p{InCombiningDiacriticalMarks}+"), "")
-}
+fun normalizeText(text: String): String = Normalizer.normalize(text, Normalizer.Form.NFD)
+    .replace(Regex("\\p{InCombiningDiacriticalMarks}+"), "")

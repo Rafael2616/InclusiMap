@@ -152,7 +152,7 @@ fun AddEditPlaceBottomSheet(
                         imageVector = Icons.Default.LocationOn,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
-                        )
+                    )
                 },
                 trailingIcon = {
                     Row {
@@ -199,7 +199,7 @@ fun AddEditPlaceBottomSheet(
                         imageVector = Icons.Outlined.AddRoad,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
-                        )
+                    )
                 },
                 trailingIcon = {
                     Row {
@@ -248,7 +248,7 @@ fun AddEditPlaceBottomSheet(
                         imageVector = Icons.Outlined.LocationCity,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
-                        )
+                    )
                 },
                 trailingIcon = {
                     Row {
@@ -301,7 +301,7 @@ fun AddEditPlaceBottomSheet(
                             imageVector = if (selectedPlaceCategory == null) Icons.Outlined.Category else selectedPlaceCategory!!.icon(),
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
-                            )
+                        )
                         Text(
                             text = selectedPlaceCategory?.toCategoryName()
                                 ?: "Selecione uma categoria",
@@ -399,7 +399,7 @@ fun AddEditPlaceBottomSheet(
                         if (placeName.length < minPlaceNameLength) {
                             Toast.makeText(
                                 context,
-                                "O nome do local deve ter pelo menos ${minPlaceNameLength} caracteres!",
+                                "O nome do local deve ter pelo menos $minPlaceNameLength caracteres!",
                                 Toast.LENGTH_SHORT,
                             ).show()
                             return@Button
@@ -407,14 +407,14 @@ fun AddEditPlaceBottomSheet(
                         if (placeAddress.length < minPlaceAddressLength) {
                             Toast.makeText(
                                 context,
-                                "O endereço do local deve ter pelo menos ${minPlaceAddressLength} caracteres!",
+                                "O endereço do local deve ter pelo menos $minPlaceAddressLength caracteres!",
                                 Toast.LENGTH_SHORT,
                             ).show()
                         }
                         if (placeLocatedIn.length < minPlaceLocatedInLength) {
                             Toast.makeText(
                                 context,
-                                "A localização deve ter pelo menos ${minPlaceLocatedInLength} caracteres!",
+                                "A localização deve ter pelo menos $minPlaceLocatedInLength caracteres!",
                                 Toast.LENGTH_SHORT,
                             ).show()
                         }
