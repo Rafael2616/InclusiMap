@@ -1,5 +1,6 @@
 package com.rafael.inclusimap.feature.settings.presentation.components.templates
 
+import android.content.res.Configuration
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,6 +26,9 @@ fun PreferenceGroup(
     modifier: Modifier = Modifier,
     preferences: @Composable () -> Unit,
 ) {
+    val orientation = LocalConfiguration.current.orientation
+    val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
+
     Column(
         modifier = modifier
             .fillMaxWidth(),
@@ -36,7 +41,7 @@ fun PreferenceGroup(
             textAlign = TextAlign.Start,
             modifier = Modifier
                 .padding(bottom = 6.dp)
-                .fillMaxWidth(0.95f), // isInLandscape
+                .fillMaxWidth(if (isLandscape) 0.9f else 0.95f),
         )
         Card(
             shape = MaterialTheme.shapes.medium,
@@ -45,7 +50,7 @@ fun PreferenceGroup(
             ),
             modifier = Modifier
                 .animateContentSize()
-                .fillMaxWidth(0.93f) // isInLandscape
+                .fillMaxWidth(if (isLandscape) 0.88f else 0.93f)
                 .clip(RoundedCornerShape(26.dp)),
         ) {
             Column(

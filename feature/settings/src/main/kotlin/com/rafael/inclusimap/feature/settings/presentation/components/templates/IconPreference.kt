@@ -98,9 +98,7 @@ internal fun IconPreference(
         Column(
             modifier = Modifier
                 .width(
-                    if ("a" == "b") { // iInLandscape
-                        350.dp
-                    } else if (description != null) {
+                    if (description != null) {
                         250.dp
                     } else {
                         270.dp
