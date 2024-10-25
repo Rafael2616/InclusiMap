@@ -751,7 +751,7 @@ fun CommentSection(
                                     if (state.userAccessibilityRate != 0 && state.userAccessibilityRate >= it) {
                                         Modifier.background(
                                             userAccessibilityColor.copy(
-                                                alpha = if (state.isUserCommented || !isInternetAvailable) 0.4f else 1f,
+                                                alpha = if (state.isUserCommented && !state.isEditingComment || !isInternetAvailable) 0.4f else 1f,
                                             ),
                                         )
                                     } else {

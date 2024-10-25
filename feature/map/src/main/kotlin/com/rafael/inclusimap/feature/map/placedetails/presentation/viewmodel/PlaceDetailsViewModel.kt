@@ -615,7 +615,7 @@ class PlaceDetailsViewModel(
     }
 
     private fun setUserAccessibilityRate(rate: Int) {
-        if (_state.value.isUserCommented) return
+        if (_state.value.isUserCommented && !_state.value.isEditingComment) return
         _state.update {
             it.copy(userAccessibilityRate = rate)
         }
