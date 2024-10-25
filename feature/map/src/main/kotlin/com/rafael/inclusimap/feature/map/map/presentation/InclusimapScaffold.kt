@@ -3,9 +3,9 @@ package com.rafael.inclusimap.feature.map.map.presentation
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddLocationAlt
-import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.AddLocationAlt
+import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -47,7 +47,7 @@ fun InclusiMapScaffold(
                 onNavigateToExplore(state.isContributionsScreen)
                 searchEvent(SearchEvent.SetExpanded(false))
             },
-            icon = Icons.Default.Explore,
+            icon = Icons.Outlined.Explore,
             name = "Explorar",
         ),
         NavigationBarItem(
@@ -65,7 +65,7 @@ fun InclusiMapScaffold(
                 searchEvent(SearchEvent.SetExpanded(false))
                 onNavigateToContributions()
             },
-            icon = Icons.Default.AddLocationAlt,
+            icon = Icons.Outlined.AddLocationAlt,
             name = "Contribuições",
         ),
     )

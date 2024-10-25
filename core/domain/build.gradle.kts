@@ -11,4 +11,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.maps.compose)
     implementation(libs.google.api.services.drive)
+
+    // Projects
+    implementation(projects.core.resources)
 }

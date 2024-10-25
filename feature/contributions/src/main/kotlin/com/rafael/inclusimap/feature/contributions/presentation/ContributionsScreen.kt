@@ -720,7 +720,7 @@ fun ContributionsScreen(
                                         ) {
                                             Column(
                                                 verticalArrangement = Arrangement.spacedBy(2.dp),
-                                                modifier = Modifier.weight(5f),
+                                                modifier = Modifier.fillMaxWidth(0.85f),
                                             ) {
                                                 Text(
                                                     text = place.first().place.title,
@@ -737,6 +737,7 @@ fun ContributionsScreen(
                                                     ),
                                                 )
                                             }
+                                            Spacer(modifier = Modifier.weight(1f))
                                             IconButton(
                                                 onClick = {
                                                     navController.popBackStack()
@@ -752,7 +753,6 @@ fun ContributionsScreen(
                                                     )
                                                 },
                                                 modifier = Modifier
-                                                    .weight(1f)
                                                     .size(35.dp),
                                             ) {
                                                 Icon(

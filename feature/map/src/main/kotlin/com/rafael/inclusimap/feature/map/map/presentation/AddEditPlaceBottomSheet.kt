@@ -18,10 +18,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.outlined.AddRoad
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.LocationCity
+import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.twotone.Delete
 import androidx.compose.material.icons.twotone.KeyboardArrowUp
 import androidx.compose.material3.Button
@@ -150,7 +150,7 @@ fun AddEditPlaceBottomSheet(
                 isError = tryAddUpdate && (placeName.isEmpty() || placeName.length < minPlaceNameLength),
                 leadingIcon = {
                     Icon(
-                        imageVector = Icons.Default.LocationOn,
+                        imageVector = Icons.Outlined.LocationOn,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
                     )

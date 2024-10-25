@@ -1,4 +1,4 @@
-package com.rafael.inclusimap.core.resources.icons
+package com.rafael.inclusimap.core.resources.draws
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size

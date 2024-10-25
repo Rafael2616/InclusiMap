@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.rafael.inclusimap.core.domain.model.AccessibilityChipItem
-import com.rafael.inclusimap.core.resources.icons.GoogleMapsPin
+import com.rafael.inclusimap.core.resources.draws.GoogleMapsPin
 
 @Composable
 fun AppIntroDialog(
