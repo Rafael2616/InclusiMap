@@ -41,6 +41,7 @@ import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Person
@@ -786,11 +787,19 @@ fun CommentSection(
                         maxLines = 3,
                         shape = RoundedCornerShape(16.dp),
                         trailingIcon = {
-                            Column {
-                                Row {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(2.dp),
+                                horizontalAlignment = Alignment.End,
+                                modifier = Modifier.padding(end = 6.dp)
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.End,
+                                    modifier = Modifier.padding(end = 2.dp)
+                                ) {
                                     Text(
                                         text = state.userComment.length.toString(),
-                                        fontSize = 12.sp,
+                                        fontSize = 10.sp,
                                         color = if (state.userComment.length < 3 && state.userComment.isNotEmpty()) {
                                             MaterialTheme.colorScheme.error
                                         } else {
@@ -799,48 +808,66 @@ fun CommentSection(
                                     )
                                     Text(
                                         text = "/$maxCommentLength",
-                                        fontSize = 12.sp,
+                                        fontSize = 10.sp,
                                         color = MaterialTheme.colorScheme.onSurface,
                                     )
                                 }
-                                IconButton(
-                                    onClick = {
-                                        latestEvent(PlaceDetailsEvent.OnSendComment)
-                                        if (state.userComment.isEmpty()) {
-                                            Toast.makeText(
-                                                context,
-                                                "O comentário está vazio!",
-                                                Toast.LENGTH_SHORT,
-                                            ).show()
-                                            return@IconButton
-                                        }
-                                        if (state.userComment.length < 3) {
-                                            Toast.makeText(
-                                                context,
-                                                "O comentário é muito curto!",
-                                                Toast.LENGTH_SHORT,
-                                            ).show()
-                                            return@IconButton
-                                        }
-                                        if (state.userAccessibilityRate == 0) {
-                                            Toast.makeText(
-                                                context,
-                                                "Selecione uma avaliação!",
-                                                Toast.LENGTH_SHORT,
-                                            ).show()
-                                        }
-                                        Toast.makeText(
-                                            context,
-                                            "Comentário adicionado!",
-                                            Toast.LENGTH_SHORT,
-                                        ).show()
-                                    },
-                                    enabled = isInternetAvailable,
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.Send,
-                                        contentDescription = null,
-                                    )
+                                    IconButton(
+                                        modifier = Modifier
+                                            .size(30.dp),
+                                        onClick = {
+                                            latestEvent(PlaceDetailsEvent.SetIsUserCommented(true))
+                                        },
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Close,
+                                            contentDescription = null,
+                                        )
+                                    }
+                                    IconButton(
+                                        modifier = Modifier
+                                            .size(30.dp),
+                                        onClick = {
+                                            latestEvent(PlaceDetailsEvent.OnSendComment)
+                                            if (state.userComment.isEmpty()) {
+                                                Toast.makeText(
+                                                    context,
+                                                    "O comentário está vazio!",
+                                                    Toast.LENGTH_SHORT,
+                                                ).show()
+                                                return@IconButton
+                                            }
+                                            if (state.userComment.length < 3) {
+                                                Toast.makeText(
+                                                    context,
+                                                    "O comentário é muito curto!",
+                                                    Toast.LENGTH_SHORT,
+                                                ).show()
+                                                return@IconButton
+                                            }
+                                            if (state.userAccessibilityRate == 0) {
+                                                Toast.makeText(
+                                                    context,
+                                                    "Selecione uma avaliação!",
+                                                    Toast.LENGTH_SHORT,
+                                                ).show()
+                                            }
+                                            Toast.makeText(
+                                                context,
+                                                "Comentário adicionado!",
+                                                Toast.LENGTH_SHORT,
+                                            ).show()
+                                        },
+                                        enabled = isInternetAvailable,
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Filled.Send,
+                                            contentDescription = null,
+                                        )
+                                    }
                                 }
                             }
                         },
@@ -939,6 +966,7 @@ fun CommentSection(
                                     scope.launch {
                                         async { bottomSheetState.expand() }.await()
                                         focusRequester.requestFocus()
+                                        showUserCommentOptions = false
                                     }
                                 },
                                 leadingIcon = {
@@ -959,6 +987,7 @@ fun CommentSection(
                                         "Comentário removido!",
                                         Toast.LENGTH_SHORT,
                                     ).show()
+                                    showUserCommentOptions = false
                                 },
                                 leadingIcon = {
                                     Icon(
