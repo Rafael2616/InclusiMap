@@ -76,6 +76,7 @@ class PlaceDetailsViewModel(
             PlaceDetailsEvent.OnDeleteComment -> onDeleteComment()
             is PlaceDetailsEvent.SetIsEditingPlace -> _state.update { it.copy(isEditingPlace = event.isEditing) }
             is PlaceDetailsEvent.OnUpdatePlaceAccessibilityResources -> onUpdatePlaceAccessibilityResources(event.resources)
+            is PlaceDetailsEvent.SetIsEditingComment -> _state.update { it.copy(isEditingComment = event.isEditing) }
         }
     }
 
@@ -512,6 +513,7 @@ class PlaceDetailsViewModel(
                     comments = it.currentPlace.comments + userComment,
                 ),
                 trySendComment = false,
+                isEditingComment = false,
                 isUserCommented = true,
                 loadedPlaces = it.loadedPlaces.map { place ->
                     if (place.id == _state.value.currentPlace.id) {

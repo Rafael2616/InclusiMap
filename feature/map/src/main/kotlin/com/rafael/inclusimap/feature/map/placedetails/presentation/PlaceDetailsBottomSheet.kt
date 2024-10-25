@@ -770,7 +770,7 @@ fun CommentSection(
                         )
                     }
                 }
-                if (!state.isUserCommented) {
+                if (!state.isUserCommented || state.isEditingComment) {
                     TextField(
                         value = state.userComment,
                         onValueChange = {
@@ -790,12 +790,12 @@ fun CommentSection(
                             Column(
                                 verticalArrangement = Arrangement.spacedBy(2.dp),
                                 horizontalAlignment = Alignment.End,
-                                modifier = Modifier.padding(end = 6.dp)
+                                modifier = Modifier.padding(end = 6.dp, bottom = 6.dp),
                             ) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.End,
-                                    modifier = Modifier.padding(end = 2.dp)
+                                    modifier = Modifier.padding(end = 2.dp),
                                 ) {
                                     Text(
                                         text = state.userComment.length.toString(),
@@ -815,17 +815,23 @@ fun CommentSection(
                                 Row(
                                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                                 ) {
-                                    IconButton(
-                                        modifier = Modifier
-                                            .size(30.dp),
-                                        onClick = {
-                                            latestEvent(PlaceDetailsEvent.SetIsUserCommented(true))
-                                        },
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Outlined.Close,
-                                            contentDescription = null,
-                                        )
+                                    if (state.isEditingComment) {
+                                        IconButton(
+                                            modifier = Modifier
+                                                .size(30.dp),
+                                            onClick = {
+                                                latestEvent(
+                                                    PlaceDetailsEvent.SetIsEditingComment(
+                                                        false,
+                                                    ),
+                                                )
+                                            },
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Outlined.Close,
+                                                contentDescription = null,
+                                            )
+                                        }
                                     }
                                     IconButton(
                                         modifier = Modifier
@@ -962,7 +968,7 @@ fun CommentSection(
                                     Text(text = "Editar")
                                 },
                                 onClick = {
-                                    latestEvent(PlaceDetailsEvent.SetIsUserCommented(false))
+                                    latestEvent(PlaceDetailsEvent.SetIsEditingComment(true))
                                     scope.launch {
                                         async { bottomSheetState.expand() }.await()
                                         focusRequester.requestFocus()
