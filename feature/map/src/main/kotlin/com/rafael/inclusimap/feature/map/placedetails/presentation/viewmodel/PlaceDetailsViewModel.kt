@@ -518,7 +518,7 @@ class PlaceDetailsViewModel(
                 isUserCommented = true,
                 loadedPlaces = it.loadedPlaces.map { place ->
                     if (place.id == _state.value.currentPlace.id) {
-                        place.copy(comments = place.comments + userComment)
+                        place.copy(comments = place.comments.filter { comment -> comment.email != userEmail } + userComment)
                     } else {
                         place
                     }
