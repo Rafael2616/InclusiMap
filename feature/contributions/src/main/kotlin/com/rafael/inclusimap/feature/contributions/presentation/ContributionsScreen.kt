@@ -393,7 +393,7 @@ fun ContributionsScreen(
                                     condition = state.allPlacesContributionsLoaded,
                                 )
                             }
-                            loadingProgressIndicator(condition = !state.allPlacesContributionsLoaded)
+                            loadingProgressIndicator(condition = !state.allPlacesContributionsLoaded && !state.errorWhileConnectingToServer)
                         }
 
                         ContributionType.COMMENT -> {
@@ -533,7 +533,7 @@ fun ContributionsScreen(
                                     condition = state.allCommentsContributionsLoaded,
                                 )
                             }
-                            loadingProgressIndicator(condition = !state.allCommentsContributionsLoaded)
+                            loadingProgressIndicator(condition = !state.allCommentsContributionsLoaded && !state.errorWhileConnectingToServer)
                         }
 
                         ContributionType.IMAGE -> {
@@ -667,7 +667,7 @@ fun ContributionsScreen(
                                     condition = state.allImagesContributionsLoaded,
                                 )
                             }
-                            loadingProgressIndicator(condition = !state.allImagesContributionsLoaded)
+                            loadingProgressIndicator(condition = !state.allImagesContributionsLoaded && !state.errorWhileConnectingToServer)
                         }
 
                         ContributionType.ACCESSIBLE_RESOURCES -> {
@@ -758,9 +758,13 @@ fun ContributionsScreen(
                                     condition = state.allResourcesContributionsLoaded,
                                 )
                             }
-                            loadingProgressIndicator(condition = !state.allResourcesContributionsLoaded)
+                            loadingProgressIndicator(condition = !state.allResourcesContributionsLoaded  && !state.errorWhileConnectingToServer)
                         }
                     }
+                    connectionErrorScreen(
+                        message = "Verifique sua conexão com a internet e tente novamente!",
+                        condition = state.errorWhileConnectingToServer,
+                    )
                 }
             }
         }
@@ -823,6 +827,32 @@ fun LazyListScope.loadingProgressIndicator(
             ) {
                 CircularProgressIndicator(
                     strokeCap = StrokeCap.Round,
+                )
+            }
+        }
+    }
+}
+
+fun LazyListScope.connectionErrorScreen(
+    message: String,
+    condition: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    if (condition) {
+        item {
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
+                    .padding(top = 12.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    text = message,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Normal,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         }

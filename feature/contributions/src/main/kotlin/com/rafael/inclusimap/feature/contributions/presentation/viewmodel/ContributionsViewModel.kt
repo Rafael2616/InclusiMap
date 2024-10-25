@@ -9,6 +9,7 @@ import com.rafael.inclusimap.core.domain.model.PlaceImage
 import com.rafael.inclusimap.core.domain.model.util.extractPlaceID
 import com.rafael.inclusimap.core.domain.model.util.formatDate
 import com.rafael.inclusimap.core.domain.model.util.removeTime
+import com.rafael.inclusimap.core.domain.network.onError
 import com.rafael.inclusimap.core.domain.network.onSuccess
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID
 import com.rafael.inclusimap.core.services.GoogleDriveService
@@ -59,7 +60,12 @@ class ContributionsViewModel(
 
     private fun loadUserContributions() {
         viewModelScope.launch(Dispatchers.IO) {
-            _state.update { it.copy(isLoadingContributions = true) }
+            _state.update {
+                it.copy(
+                    isLoadingContributions = true,
+                    errorWhileConnectingToServer = false,
+                )
+            }
             val userPathId = loginRepository.getLoginInfo(1)?.userPathID ?: return@launch
             driveService.listFiles(userPathId).onSuccess { userFiles ->
                 val userContributionsFile = userFiles.find { it.name == "contributions.json" }
@@ -123,6 +129,10 @@ class ContributionsViewModel(
                         )
                     }
                     return@launch
+                }
+            }.onError {
+                _state.update {
+                    it.copy(errorWhileConnectingToServer = true)
                 }
             }
         }.invokeOnCompletion {
@@ -403,5 +413,6 @@ class ContributionsViewModel(
         }
     }
 
-    private suspend fun removeContribution(contribution: Contribution) = contributionsRepository.removeContribution(contribution)
+    private suspend fun removeContribution(contribution: Contribution) =
+        contributionsRepository.removeContribution(contribution)
 }

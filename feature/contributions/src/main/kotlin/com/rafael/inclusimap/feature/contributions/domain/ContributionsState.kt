@@ -12,4 +12,5 @@ data class ContributionsState(
     val allPlacesContributionsLoaded: Boolean = false,
     val allImagesContributionsLoaded: Boolean = false,
     val allResourcesContributionsLoaded: Boolean = false,
+    val errorWhileConnectingToServer: Boolean = false,
 )
