@@ -777,7 +777,7 @@ fun CommentSection(
                         onValueChange = {
                             if (it.length <= maxCommentLength) {
                                 userComment = it
-                                latestEvent(PlaceDetailsEvent.SetIsTrySendComment(true))
+                                latestEvent(PlaceDetailsEvent.SetIsTrySendComment(false))
                             }
                         },
                         modifier = Modifier
