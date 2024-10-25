@@ -8,6 +8,7 @@ import androidx.compose.material.icons.outlined.Elevator
 import androidx.compose.material.icons.outlined.EmojiPeople
 import androidx.compose.material.icons.outlined.LocalOffer
 import androidx.compose.material.icons.outlined.LocalParking
+import androidx.compose.material.icons.outlined.SensorDoor
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material.icons.outlined.SpaceBar
 import androidx.compose.material.icons.outlined.TextRotationAngleup
@@ -22,19 +23,6 @@ data class AccessibilityResource(
     val lastModifiedBy: String = "",
 )
 
-val accessibilityResources = listOf(
-    "Cadeira de rodas",
-    "Rampa acessível",
-    "Elevador adaptado",
-    "Corredores espaçosos",
-    "Poucas elevações",
-    "Banheiro adaptado",
-    "Caixa preferencial",
-    "Estacionamento especial",
-    "Carrinho adaptado",
-    "Assistência humana",
-)
-
 enum class Resource(val displayName: String) {
     WHEELCHAIR("Cadeira de rodas"),
     RAMP("Rampa acessível"),
@@ -46,6 +34,7 @@ enum class Resource(val displayName: String) {
     SPECIAL_PARKING("Estacionamento especial"),
     ADAPTED_CART("Carrinho adaptado"),
     HUMAN_ASSISTANCE("Assistência humana"),
+    AUTOMATIC_DOOR("Porta automática ou de fácil manuseio"),
     NOT_APPLICABLE("Não aplicável"),
 }
 
@@ -60,5 +49,6 @@ fun String.toResourceIcon(): ImageVector = when (this) {
     "Estacionamento especial" -> Icons.Outlined.LocalParking
     "Carrinho adaptado" -> Icons.Outlined.ShoppingCart
     "Assistência humana" -> Icons.Outlined.EmojiPeople
+    "Porta automática ou de fácil manuseio" -> Icons.Outlined.SensorDoor
     else -> Icons.Outlined.Attachment
 }
