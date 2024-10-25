@@ -166,7 +166,7 @@ fun PlaceDetailsBottomSheet(
     var showToast by remember { mutableStateOf(false) }
     var showUploadImagesProgressDialog by remember { mutableStateOf(false) }
     var showAccessibilityResourcesSelectionDialog by remember { mutableStateOf(false) }
-    val currentPlace by remember { mutableStateOf(inclusiMapState.selectedMappedPlace!!) }
+    val currentPlace by remember { mutableStateOf(inclusiMapState.selectedMappedPlace) }
     val accessibilityAverage by remember(
         state.trySendComment,
         state.currentPlace.comments,
@@ -180,7 +180,9 @@ fun PlaceDetailsBottomSheet(
     val accessibilityColor by animateColorAsState(accessibilityAverage.toColor(), label = "")
 
     DisposableEffect(Unit) {
-        latestEvent(PlaceDetailsEvent.SetCurrentPlace(currentPlace))
+        currentPlace?.let { place ->
+            latestEvent(PlaceDetailsEvent.SetCurrentPlace(place))
+        }
         onDispose {}
     }
 
