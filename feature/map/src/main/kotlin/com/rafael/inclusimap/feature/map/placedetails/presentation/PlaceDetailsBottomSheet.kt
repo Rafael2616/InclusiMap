@@ -39,6 +39,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Info
@@ -48,6 +49,8 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -89,6 +92,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -647,7 +651,7 @@ fun AccessibilityResourcesSection(
                     },
                     border = BorderStroke(
                         1.dp,
-                       if (isInternetAvailable) MaterialTheme.colorScheme.primary else Color.Gray,
+                        if (isInternetAvailable) MaterialTheme.colorScheme.primary else Color.Gray,
                     ),
                     enabled = isInternetAvailable,
                 )
@@ -677,6 +681,7 @@ fun CommentSection(
     val focusRequester = remember { FocusRequester() }
     val latestAllowedShowUserProfilePicture by rememberUpdatedState(allowedShowUserProfilePicture)
     val latestDownloadUserProfilePicture by rememberUpdatedState(downloadUserProfilePicture)
+    var showUserCommentOptions by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -890,7 +895,7 @@ fun CommentSection(
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
                     ) {
                         Text(
                             text = state.userComment,
@@ -900,11 +905,7 @@ fun CommentSection(
                         )
                         IconButton(
                             onClick = {
-                                latestEvent(PlaceDetailsEvent.SetIsUserCommented(false))
-                                scope.launch {
-                                    async { bottomSheetState.expand() }.await()
-                                    focusRequester.requestFocus()
-                                }
+                                showUserCommentOptions = true
                             },
                             modifier = Modifier
                                 .size(35.dp)
@@ -912,34 +913,65 @@ fun CommentSection(
                             enabled = isInternetAvailable,
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Edit,
-                                contentDescription = "Edit",
+                                imageVector = Icons.Filled.MoreVert,
+                                contentDescription = "More",
                             )
                         }
-                        IconButton(
-                            onClick = {
-                                latestEvent(PlaceDetailsEvent.OnDeleteComment)
-                                Toast.makeText(
-                                    context,
-                                    "Comentário removido!",
-                                    Toast.LENGTH_SHORT,
-                                ).show()
+                    }
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.End),
+                    ) {
+                        DropdownMenu(
+                            expanded = showUserCommentOptions,
+                            onDismissRequest = {
+                                showUserCommentOptions = false
                             },
-                            modifier = Modifier
-                                .size(35.dp)
-                                .clip(CircleShape),
-                            enabled = isInternetAvailable,
+                            offset = DpOffset(0.dp, (-40).dp),
+                            shape = RoundedCornerShape(16.dp),
                         ) {
-                            Icon(
-                                imageVector = Icons.TwoTone.Delete,
-                                contentDescription = null,
+                            DropdownMenuItem(
+                                text = {
+                                    Text(text = "Editar")
+                                },
+                                onClick = {
+                                    latestEvent(PlaceDetailsEvent.SetIsUserCommented(false))
+                                    scope.launch {
+                                        async { bottomSheetState.expand() }.await()
+                                        focusRequester.requestFocus()
+                                    }
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Filled.Edit,
+                                        contentDescription = null,
+                                    )
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = {
+                                    Text(text = "Remover")
+                                },
+                                onClick = {
+                                    latestEvent(PlaceDetailsEvent.OnDeleteComment)
+                                    Toast.makeText(
+                                        context,
+                                        "Comentário removido!",
+                                        Toast.LENGTH_SHORT,
+                                    ).show()
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.TwoTone.Delete,
+                                        contentDescription = null,
+                                    )
+                                },
                             )
                         }
                     }
                 }
             }
         }
-
         Spacer(Modifier.height(10.dp))
         Box(
             modifier = Modifier
