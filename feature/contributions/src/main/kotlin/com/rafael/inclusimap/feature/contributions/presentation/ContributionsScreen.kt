@@ -41,6 +41,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -394,6 +395,10 @@ fun ContributionsScreen(
                                 )
                             }
                             loadingProgressIndicator(condition = !state.allPlacesContributionsLoaded && !state.errorWhileConnectingToServer)
+                            connectionErrorScreen(
+                                state = state,
+                                condition = !state.allPlacesContributionsLoaded,
+                            )
                         }
 
                         ContributionType.COMMENT -> {
@@ -534,6 +539,10 @@ fun ContributionsScreen(
                                 )
                             }
                             loadingProgressIndicator(condition = !state.allCommentsContributionsLoaded && !state.errorWhileConnectingToServer)
+                            connectionErrorScreen(
+                                state = state,
+                                condition = !state.allCommentsContributionsLoaded,
+                            )
                         }
 
                         ContributionType.IMAGE -> {
@@ -668,6 +677,10 @@ fun ContributionsScreen(
                                 )
                             }
                             loadingProgressIndicator(condition = !state.allImagesContributionsLoaded && !state.errorWhileConnectingToServer)
+                            connectionErrorScreen(
+                                state = state,
+                                condition = !state.allImagesContributionsLoaded,
+                            )
                         }
 
                         ContributionType.ACCESSIBLE_RESOURCES -> {
@@ -759,12 +772,12 @@ fun ContributionsScreen(
                                 )
                             }
                             loadingProgressIndicator(condition = !state.allResourcesContributionsLoaded  && !state.errorWhileConnectingToServer)
+                            connectionErrorScreen(
+                                state = state,
+                                condition = !state.allResourcesContributionsLoaded,
+                            )
                         }
                     }
-                    connectionErrorScreen(
-                        message = "Verifique sua conexão com a internet e tente novamente!",
-                        condition = state.errorWhileConnectingToServer,
-                    )
                 }
             }
         }
@@ -834,11 +847,11 @@ fun LazyListScope.loadingProgressIndicator(
 }
 
 fun LazyListScope.connectionErrorScreen(
-    message: String,
+    state: ContributionsState,
     condition: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    if (condition) {
+    if (condition && state.errorWhileConnectingToServer) {
         item {
             Column(
                 modifier = modifier
@@ -848,10 +861,11 @@ fun LazyListScope.connectionErrorScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = message,
+                    text = "Verifique sua conexão com a internet e tente novamente!",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Normal,
                     textAlign = TextAlign.Center,
+                    color = LocalContentColor.current.copy(alpha = 0.8f),
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
