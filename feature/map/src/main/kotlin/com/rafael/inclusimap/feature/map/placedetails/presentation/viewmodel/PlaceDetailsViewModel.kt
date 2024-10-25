@@ -70,8 +70,7 @@ class PlaceDetailsViewModel(
             is PlaceDetailsEvent.SetCurrentPlace -> setCurrentPlace(event.place)
             is PlaceDetailsEvent.OnDeletePlaceImage -> onDeletePlaceImage(event.image)
             is PlaceDetailsEvent.SetUserAccessibilityRate -> setUserAccessibilityRate(event.rate)
-            PlaceDetailsEvent.OnSendComment -> onSendComment()
-            is PlaceDetailsEvent.SetUserComment -> setUserComment(event.comment)
+            is PlaceDetailsEvent.OnSendComment -> onSendComment(event.comment)
             is PlaceDetailsEvent.SetIsUserCommented -> _state.update { it.copy(isUserCommented = event.isCommented) }
             PlaceDetailsEvent.OnDeleteComment -> onDeleteComment()
             is PlaceDetailsEvent.SetIsEditingPlace -> _state.update { it.copy(isEditingPlace = event.isEditing) }
@@ -482,8 +481,8 @@ class PlaceDetailsViewModel(
         }
     }
 
-    private fun onSendComment() {
-        if (_state.value.userComment.isEmpty() || _state.value.userComment.length < 3 || _state.value.userAccessibilityRate == 0) {
+    private fun onSendComment(comment: String) {
+        if (comment.isEmpty() || comment.length < 3 || _state.value.userAccessibilityRate == 0) {
             _state.update { it.copy(trySendComment = true) }
             return
         }
@@ -503,7 +502,7 @@ class PlaceDetailsViewModel(
                     1,
                 ),
                 name = userName,
-                body = state.value.userComment,
+                body = comment,
                 email = userEmail,
                 accessibilityRate = state.value.userAccessibilityRate,
             )
@@ -512,6 +511,7 @@ class PlaceDetailsViewModel(
                 currentPlace = it.currentPlace.copy(
                     comments = it.currentPlace.comments + userComment,
                 ),
+                userComment = comment,
                 trySendComment = false,
                 isEditingComment = false,
                 isUserCommented = true,
@@ -618,15 +618,6 @@ class PlaceDetailsViewModel(
         if (_state.value.isUserCommented) return
         _state.update {
             it.copy(userAccessibilityRate = rate)
-        }
-    }
-
-    private fun setUserComment(comment: String) {
-        _state.update {
-            it.copy(
-                trySendComment = false,
-                userComment = comment,
-            )
         }
     }
 

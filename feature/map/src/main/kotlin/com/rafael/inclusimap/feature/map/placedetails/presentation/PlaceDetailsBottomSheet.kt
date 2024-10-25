@@ -683,6 +683,7 @@ fun CommentSection(
     val latestAllowedShowUserProfilePicture by rememberUpdatedState(allowedShowUserProfilePicture)
     val latestDownloadUserProfilePicture by rememberUpdatedState(downloadUserProfilePicture)
     var showUserCommentOptions by remember { mutableStateOf(false) }
+    var userComment by remember(state.isUserCommented) { mutableStateOf(state.userComment) }
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -772,10 +773,10 @@ fun CommentSection(
                 }
                 if (!state.isUserCommented || state.isEditingComment) {
                     TextField(
-                        value = state.userComment,
+                        value = userComment,
                         onValueChange = {
                             if (it.length <= maxCommentLength) {
-                                latestEvent(PlaceDetailsEvent.SetUserComment(it))
+                                userComment = it
                             }
                         },
                         modifier = Modifier
@@ -798,9 +799,9 @@ fun CommentSection(
                                     modifier = Modifier.padding(end = 2.dp),
                                 ) {
                                     Text(
-                                        text = state.userComment.length.toString(),
+                                        text = userComment.length.toString(),
                                         fontSize = 10.sp,
-                                        color = if (state.userComment.length < 3 && state.userComment.isNotEmpty()) {
+                                        color = if (userComment.length < 3 && userComment.isNotEmpty()) {
                                             MaterialTheme.colorScheme.error
                                         } else {
                                             MaterialTheme.colorScheme.onSurface
@@ -825,6 +826,7 @@ fun CommentSection(
                                                         false,
                                                     ),
                                                 )
+                                                userComment = state.userComment
                                             },
                                         ) {
                                             Icon(
@@ -837,8 +839,8 @@ fun CommentSection(
                                         modifier = Modifier
                                             .size(30.dp),
                                         onClick = {
-                                            latestEvent(PlaceDetailsEvent.OnSendComment)
-                                            if (state.userComment.isEmpty()) {
+                                            latestEvent(PlaceDetailsEvent.OnSendComment(userComment))
+                                            if (userComment.isEmpty()) {
                                                 Toast.makeText(
                                                     context,
                                                     "O comentário está vazio!",
@@ -846,7 +848,7 @@ fun CommentSection(
                                                 ).show()
                                                 return@IconButton
                                             }
-                                            if (state.userComment.length < 3) {
+                                            if (userComment.length < 3) {
                                                 Toast.makeText(
                                                     context,
                                                     "O comentário é muito curto!",
@@ -885,14 +887,15 @@ fun CommentSection(
                         ),
                         keyboardActions = KeyboardActions(
                             onSend = {
-                                latestEvent(PlaceDetailsEvent.OnSendComment)
+                                latestEvent(PlaceDetailsEvent.OnSendComment(userComment))
                             },
                         ),
                         enabled = isInternetAvailable,
-                        isError = (state.userAccessibilityRate == 0 || state.userComment.isEmpty()) &&
+                        isError = (state.userAccessibilityRate == 0 || userComment.isEmpty()) &&
                             state.trySendComment,
                     )
-                } else {
+                }
+                if (state.isUserCommented && !state.isEditingComment) {
                     Row {
                         if (userPicture != null) {
                             Image(
@@ -931,7 +934,7 @@ fun CommentSection(
                         horizontalArrangement = Arrangement.SpaceEvenly,
                     ) {
                         Text(
-                            text = state.userComment,
+                            text = userComment,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Normal,
                             modifier = Modifier.weight(1f),
@@ -988,6 +991,7 @@ fun CommentSection(
                                 },
                                 onClick = {
                                     latestEvent(PlaceDetailsEvent.OnDeleteComment)
+                                    userComment = ""
                                     Toast.makeText(
                                         context,
                                         "Comentário removido!",
