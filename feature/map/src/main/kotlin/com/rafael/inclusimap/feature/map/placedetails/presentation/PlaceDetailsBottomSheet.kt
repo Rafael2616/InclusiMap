@@ -60,6 +60,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -138,8 +139,22 @@ fun PlaceDetailsBottomSheet(
     downloadUserProfilePicture: suspend (String) -> ImageBitmap?,
     modifier: Modifier = Modifier,
 ) {
+    var isDismissing by remember { mutableStateOf(false) }
+    var showUnsavedCommentDialog by remember { mutableStateOf(false) }
     val placeDetailsBottomSheetScope = rememberCoroutineScope()
-    val placeDetailsBottomSheetState = rememberModalBottomSheetState()
+    val placeDetailsBottomSheetState = rememberModalBottomSheetState(
+        confirmValueChange = {
+            when (it) {
+                SheetValue.Hidden -> {
+                    if (showUnsavedCommentDialog) {
+                        isDismissing = true
+                    }
+                    !showUnsavedCommentDialog
+                }
+                else -> true
+            }
+        }
+    )
     val latestEvent by rememberUpdatedState(onEvent)
     val latestUpdateMappedPlace by rememberUpdatedState(onUpdateMappedPlace)
     val context = LocalContext.current
@@ -149,7 +164,6 @@ fun PlaceDetailsBottomSheet(
     val internetState = remember { InternetConnectionState(context) }
     val isInternetAvailable by internetState.state.collectAsStateWithLifecycle()
     var showToast by remember { mutableStateOf(false) }
-    var showUnsavedCommentDialog by remember { mutableStateOf(false) }
     var showUploadImagesProgressDialog by remember { mutableStateOf(false) }
     var showAccessibilityResourcesSelectionDialog by remember { mutableStateOf(false) }
     val currentPlace by remember { mutableStateOf(inclusiMapState.selectedMappedPlace!!) }
@@ -179,17 +193,20 @@ fun PlaceDetailsBottomSheet(
     ModalBottomSheet(
         sheetState = placeDetailsBottomSheetState,
         onDismissRequest = {
-            placeDetailsBottomSheetScope.launch {
-                placeDetailsBottomSheetState.hide()
-            }.invokeOnCompletion {
-                if (!placeDetailsBottomSheetState.isVisible) {
-                    onDismiss()
+            isDismissing = true
+            if (!showUnsavedCommentDialog) {
+                placeDetailsBottomSheetScope.launch {
+                    placeDetailsBottomSheetState.hide()
+                }.invokeOnCompletion {
+                    if (!placeDetailsBottomSheetState.isVisible) {
+                        onDismiss()
+                    }
                 }
             }
         },
-        properties = ModalBottomSheetProperties(
-            shouldDismissOnBackPress = true,
-        ),
+        properties = rememberModalBottomSheetProperties(
+            shouldDismissOnBackPress = true,//!showUnsavedCommentDialog
+        )
     ) {
         Column(
             modifier = modifier
@@ -309,6 +326,9 @@ fun PlaceDetailsBottomSheet(
                         bottomSheetState = placeDetailsBottomSheetState,
                         allowedShowUserProfilePicture = allowedShowUserProfilePicture,
                         downloadUserProfilePicture = downloadUserProfilePicture,
+                        onShouldShowUnsavedCommentDialog = {
+                            showUnsavedCommentDialog = it
+                        }
                     )
                 }
             }
@@ -350,13 +370,14 @@ fun PlaceDetailsBottomSheet(
             .show()
     }
 
-    AnimatedVisibility(showUnsavedCommentDialog) {
+    // Do not elable this while the issue that causes the sheet to be hide with back press even it is disable is solved
+    AnimatedVisibility(/*showUnsavedCommentDialog && isDismissing*/false) {
         UnsavedCommentDialog(
             onDismiss = {
                 onDismiss()
             },
             onContinue = {
-                showUnsavedCommentDialog = false
+                isDismissing = false
             },
         )
     }
@@ -671,6 +692,7 @@ fun CommentSection(
     userName: String,
     userEmail: String,
     bottomSheetState: SheetState,
+    onShouldShowUnsavedCommentDialog: (Boolean) -> Unit,
     allowedShowUserProfilePicture: suspend (String) -> Boolean,
     downloadUserProfilePicture: suspend (String) -> ImageBitmap?,
     modifier: Modifier = Modifier,
@@ -779,6 +801,11 @@ fun CommentSection(
                                 userComment = it
                                 latestEvent(PlaceDetailsEvent.SetIsTrySendComment(false))
                             }
+                            if (it.isNotEmpty()) {
+                                onShouldShowUnsavedCommentDialog(true)
+                            } else {
+                                onShouldShowUnsavedCommentDialog(false)
+                            }
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -828,6 +855,7 @@ fun CommentSection(
                                                     ),
                                                 )
                                                 userComment = state.userComment
+                                                onShouldShowUnsavedCommentDialog(false)
                                             },
                                         ) {
                                             Icon(
@@ -840,6 +868,7 @@ fun CommentSection(
                                         modifier = Modifier
                                             .size(30.dp),
                                         onClick = {
+                                            onShouldShowUnsavedCommentDialog(false)
                                             latestEvent(PlaceDetailsEvent.OnSendComment(userComment))
                                             if (userComment.isEmpty()) {
                                                 Toast.makeText(
@@ -973,6 +1002,7 @@ fun CommentSection(
                                     Text(text = "Editar")
                                 },
                                 onClick = {
+                                    onShouldShowUnsavedCommentDialog(true)
                                     latestEvent(PlaceDetailsEvent.SetIsEditingComment(true))
                                     scope.launch {
                                         async { bottomSheetState.expand() }.await()
@@ -1137,4 +1167,12 @@ fun CommentSection(
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun rememberModalBottomSheetProperties(shouldDismissOnBackPress : Boolean) = remember(shouldDismissOnBackPress) {
+    ModalBottomSheetProperties(
+        shouldDismissOnBackPress = shouldDismissOnBackPress,
+    )
 }
