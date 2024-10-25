@@ -197,7 +197,7 @@ fun InclusiMapGoogleMapScreen(
                         ),
                     ),
                     title = place.title,
-                    snippet = place.category!!.toCategoryName(),
+                    snippet = place.category?.toCategoryName(),
                     icon = remember(accessibilityAverage) {
                         BitmapDescriptorFactory.defaultMarker(
                             accessibilityAverage.toHUE(),
@@ -334,7 +334,7 @@ fun InclusiMapGoogleMapScreen(
                             LatLng(location.lat, location.lng),
                             18f,
                         ),
-                        3000,
+                        2800,
                     )
                 }.await()
                 if (location.placeId in state.allMappedPlaces.map { it.id }) {

@@ -813,7 +813,7 @@ fun CommentSection(
                                     )
                                 }
                                 Row(
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
                                 ) {
                                     IconButton(
                                         modifier = Modifier
