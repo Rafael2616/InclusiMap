@@ -777,6 +777,7 @@ fun CommentSection(
                         onValueChange = {
                             if (it.length <= maxCommentLength) {
                                 userComment = it
+                                latestEvent(PlaceDetailsEvent.SetIsTrySendComment(true))
                             }
                         },
                         modifier = Modifier
@@ -862,6 +863,7 @@ fun CommentSection(
                                                     "Selecione uma avaliação!",
                                                     Toast.LENGTH_SHORT,
                                                 ).show()
+                                                return@IconButton
                                             }
                                             Toast.makeText(
                                                 context,

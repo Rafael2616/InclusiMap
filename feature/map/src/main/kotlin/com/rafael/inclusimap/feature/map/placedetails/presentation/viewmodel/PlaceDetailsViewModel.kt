@@ -76,6 +76,7 @@ class PlaceDetailsViewModel(
             is PlaceDetailsEvent.SetIsEditingPlace -> _state.update { it.copy(isEditingPlace = event.isEditing) }
             is PlaceDetailsEvent.OnUpdatePlaceAccessibilityResources -> onUpdatePlaceAccessibilityResources(event.resources)
             is PlaceDetailsEvent.SetIsEditingComment -> _state.update { it.copy(isEditingComment = event.isEditing) }
+            is PlaceDetailsEvent.SetIsTrySendComment -> _state.update { it.copy(trySendComment = event.isTrying) }
         }
     }
 
