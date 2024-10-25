@@ -245,7 +245,6 @@ fun PlaceDetailsBottomSheet(
                     onClick = {
                         showPlaceInfo = true
                     },
-                    enabled = isInternetAvailable,
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.Info,
@@ -317,11 +316,12 @@ fun PlaceDetailsBottomSheet(
     }
     AnimatedVisibility(showPlaceInfo) {
         PlaceInfoDialog(
-            localMarker = state.currentPlace.toAccessibleLocalMarker(),
+            currentPlace = state.currentPlace.toAccessibleLocalMarker(),
             onDismiss = {
                 showPlaceInfo = false
             },
             onReport = onReport,
+            isInternetAvailable = isInternetAvailable,
         )
     }
 

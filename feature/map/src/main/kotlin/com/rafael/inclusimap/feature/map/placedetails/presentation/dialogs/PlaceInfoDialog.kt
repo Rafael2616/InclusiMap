@@ -54,7 +54,8 @@ import com.rafael.inclusimap.feature.report.presentation.dialogs.PlaceReportDial
 
 @Composable
 fun PlaceInfoDialog(
-    localMarker: AccessibleLocalMarker,
+    currentPlace: AccessibleLocalMarker,
+    isInternetAvailable: Boolean,
     onDismiss: () -> Unit,
     onReport: (Report) -> Unit,
     modifier: Modifier = Modifier,
@@ -98,7 +99,7 @@ fun PlaceInfoDialog(
                         verticalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
                         Text(
-                            text = localMarker.title,
+                            text = currentPlace.title,
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Normal,
                             color = MaterialTheme.colorScheme.primary,
@@ -113,7 +114,7 @@ fun PlaceInfoDialog(
                                 lineHeight = 18.sp,
                             )
                             Text(
-                                text = localMarker.time.split(".")[0].formatDate() ?: "",
+                                text = currentPlace.time.split(".")[0].formatDate() ?: "",
                                 fontSize = 14.sp,
                                 maxLines = 2,
                                 lineHeight = 18.sp,
@@ -133,6 +134,7 @@ fun PlaceInfoDialog(
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp),
                             ),
+                            enabled = isInternetAvailable,
                         ) {
                             Column(
                                 verticalArrangement = Arrangement.spacedBy(2.dp),
@@ -142,13 +144,13 @@ fun PlaceInfoDialog(
                                     imageVector = Icons.Outlined.Report,
                                     contentDescription = null,
                                     modifier = Modifier.size(30.dp),
-                                    tint = MaterialTheme.colorScheme.error,
+                                    tint = if (isInternetAvailable) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
                                 )
                                 Text(
                                     text = "Reportar",
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Normal,
-                                    color = MaterialTheme.colorScheme.error,
+                                    color = if (isInternetAvailable) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
                                 )
                             }
                         }
@@ -169,7 +171,7 @@ fun PlaceInfoDialog(
                         onClick = {
                             clipboardManager.setText(
                                 AnnotatedString(
-                                    "${localMarker.position.first.toFloat()}, ${localMarker.position.second.toFloat()}",
+                                    "${currentPlace.position.first.toFloat()}, ${currentPlace.position.second.toFloat()}",
                                 ),
                             )
                         },
@@ -182,7 +184,7 @@ fun PlaceInfoDialog(
                         )
                     }
                     Text(
-                        text = "(${localMarker.position.first.toFloat()}, ${localMarker.position.second.toFloat()})",
+                        text = "(${currentPlace.position.first.toFloat()}, ${currentPlace.position.second.toFloat()})",
                         fontSize = 12.sp,
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 1,
@@ -204,7 +206,7 @@ fun PlaceInfoDialog(
                         onClick = {
                             clipboardManager.setText(
                                 AnnotatedString(
-                                    localMarker.address + " - ${localMarker.locatedIn}",
+                                    currentPlace.address + " - ${currentPlace.locatedIn}",
                                 ),
                             )
                         },
@@ -217,7 +219,7 @@ fun PlaceInfoDialog(
                         )
                     }
                     Text(
-                        text = localMarker.address + " - ${localMarker.locatedIn}",
+                        text = currentPlace.address + " - ${currentPlace.locatedIn}",
                         fontSize = 14.sp,
                         maxLines = 2,
                         fontWeight = FontWeight.Normal,
@@ -233,8 +235,8 @@ fun PlaceInfoDialog(
                         .clickable {
                             launcher.launch(
                                 LatLng(
-                                    localMarker.position.first,
-                                    localMarker.position.second,
+                                    currentPlace.position.first,
+                                    currentPlace.position.second,
                                 ),
                             )
                         },
@@ -260,7 +262,7 @@ fun PlaceInfoDialog(
 
     AnimatedVisibility(showReportDialog) {
         PlaceReportDialog(
-            localMarker = localMarker,
+            localMarker = currentPlace,
             onDismiss = { showReportDialog = false },
             onReport = { onReport(it) },
         )
