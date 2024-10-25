@@ -74,9 +74,7 @@ class InclusiMapGoogleMapViewModel(
             InclusiMapEvent.GetCurrentState -> getCurrentState()
             InclusiMapEvent.ResetState -> onResetState()
             is InclusiMapEvent.SetIsContributionsScreen -> _state.update {
-                it.copy(
-                    isContributionsScreen = event.isContributionsScreen,
-                )
+                it.copy(isContributionsScreen = event.isContributionsScreen)
             }
 
             is InclusiMapEvent.SetCurrentPlaceById -> setPlaceById(event.placeId)
@@ -166,7 +164,6 @@ class InclusiMapGoogleMapViewModel(
                 failedToLoadPlaces = false,
                 failedToConnectToServer = false,
                 failedToGetNewPlaces = false,
-                useAppWithoutInternet = false,
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -180,7 +177,7 @@ class InclusiMapGoogleMapViewModel(
                     _state.update { it.copy(failedToLoadPlaces = true) }
                     return@launch
                 }
-                if (mappedPlaces.isEmpty()) {
+                if (mappedPlaces.isEmpty() && !_state.value.useAppWithoutInternet) {
                     _state.update { it.copy(failedToGetNewPlaces = true) }
                     return@launch
                 }
@@ -197,6 +194,7 @@ class InclusiMapGoogleMapViewModel(
                         ),
                     )
                 }
+                _state.update { it.copy(useAppWithoutInternet = false) }
             }
         }
     }
