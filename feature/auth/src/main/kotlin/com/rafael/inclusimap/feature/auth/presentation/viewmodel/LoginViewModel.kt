@@ -238,7 +238,10 @@ class LoginViewModel(
                 return@launch
             }
 
-            val json = Json { ignoreUnknownKeys = true }
+            val json = Json {
+                ignoreUnknownKeys = true
+                prettyPrint = true
+            }
             async {
                 driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { result ->
                     result.map { it }.find { userFile ->
@@ -251,19 +254,23 @@ class LoginViewModel(
 
                                 val userLoginFileContent = driveService.getFileContent(
                                     userLoginFile?.id
-                                        ?: throw IllegalStateException("User data file not found"),
+                                        ?: return@async,
                                 )?.decodeToString()
 
                                 if (userLoginFileContent == null) {
+                                    _state.update {
+                                        it.copy(
+                                            isRegistering = false,
+                                            networkError = true,
+                                        )
+                                    }
                                     println("User file content is null")
                                     return@async
                                 }
                                 val userObj = json.decodeFromString<User>(userLoginFileContent)
                                 if (userObj.password != registeredUser.password) {
                                     _state.update {
-                                        it.copy(
-                                            isPasswordCorrect = false,
-                                        )
+                                        it.copy(isPasswordCorrect = false)
                                     }
                                     println("Password is incorrect")
                                     return@async
@@ -323,7 +330,7 @@ class LoginViewModel(
                 }
             }.await()
         }.invokeOnCompletion {
-            if (_state.value.userAlreadyRegistered && _state.value.isPasswordCorrect && !_state.value.networkError) {
+            if (_state.value.userAlreadyRegistered && _state.value.isPasswordCorrect && !_state.value.networkError && _state.value.user != null) {
                 _state.update {
                     it.copy(
                         isLoggedIn = true,

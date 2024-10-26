@@ -196,7 +196,7 @@ fun PlaceDetailsBottomSheet(
         sheetState = placeDetailsBottomSheetState,
         onDismissRequest = {
             isDismissing = true
-            if (!showUnsavedCommentDialog) {
+           // if (!showUnsavedCommentDialog) {
                 placeDetailsBottomSheetScope.launch {
                     placeDetailsBottomSheetState.hide()
                 }.invokeOnCompletion {
@@ -204,7 +204,7 @@ fun PlaceDetailsBottomSheet(
                         onDismiss()
                     }
                 }
-            }
+           // }
         },
         properties = rememberModalBottomSheetProperties(
             shouldDismissOnBackPress = true,//!showUnsavedCommentDialog
