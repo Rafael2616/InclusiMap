@@ -228,7 +228,9 @@ fun PlaceDetailsBottomSheet(
                 ) {
                     Text(
                         text = state.currentPlace.title,
-                        fontSize = 24.sp,
+                        fontSize = 23.sp,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
                     )
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -456,6 +458,8 @@ fun ImageSection(
             text = "Imagens de ${state.currentPlace.title}",
             fontSize = 20.sp,
             fontWeight = FontWeight.SemiBold,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier,
         )
