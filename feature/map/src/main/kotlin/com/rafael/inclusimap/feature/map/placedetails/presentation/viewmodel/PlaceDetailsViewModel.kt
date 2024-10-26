@@ -146,6 +146,7 @@ class PlaceDetailsViewModel(
                 isCurrentPlaceLoaded = false,
                 currentPlace = FullAccessibleLocalMarker(),
                 isUserCommented = false,
+                isEditingComment = false,
                 userComment = "",
                 allImagesLoaded = false,
             )
