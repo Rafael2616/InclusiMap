@@ -97,7 +97,7 @@ class SearchViewModel(
                 places.remove(placeId)
             }
             places += placeId
-            if (places.size > 3) {
+            if (places.size > 5) {
                 places.removeAt(0)
             }
             searchRepository.updateHistory(json.encodeToString(places))
