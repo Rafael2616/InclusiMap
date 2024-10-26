@@ -33,6 +33,7 @@ compose-rules = "0.4.16"
 material3 = "1.4.0-alpha01"
 compose = "1.8.0-alpha04"
 ktor = "3.0.0"
+zoomable = "1.6.2"
 
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -87,7 +88,7 @@ koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", ver
 material-motion-compose = { module = "io.github.fornewid:material-motion-compose-core", version.ref = "material-motion-compose" }
 ktlint-compose-rules = { module = "io.nlopez.compose.rules:ktlint", version.ref = "compose-rules" }
 lazycolumn-scrollbar = { module = "com.github.nanihadesuka:LazyColumnScrollbar", version.ref = "lazycolumn-scrollbar" }
-
+zoomable-compose = { module = "net.engawapg.lib:zoomable", version.ref = "zoomable" }
 androidx-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmarkMacroJunit4" }
 androidx-profileinstaller = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "profileinstaller" }

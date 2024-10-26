@@ -27,6 +27,7 @@ dependencies {
     api(libs.koin.core)
     api(libs.koin.android)
     implementation(libs.koin.core.viewmodel)
+    implementation(libs.zoomable.compose)
 
     // Projects
     implementation(projects.core.domain)

@@ -7,9 +7,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -35,18 +35,24 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.rafael.inclusimap.core.domain.model.PlaceImage
 import com.rafael.inclusimap.core.domain.model.util.extractImageDate
+import kotlinx.coroutines.launch
+import net.engawapg.lib.zoomable.rememberZoomState
+import net.engawapg.lib.zoomable.zoomable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,6 +70,7 @@ fun FullScreenImageViewDialog(
     val width = LocalView.current.width
     var isMultiBrowserView by remember { mutableStateOf(false) }
     var currentImageIndex by remember { mutableIntStateOf(index) }
+    val scope = rememberCoroutineScope()
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -84,11 +91,11 @@ fun FullScreenImageViewDialog(
                     .statusBarsPadding()
                     .navigationBarsPadding(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top,
+                verticalArrangement = Arrangement.spacedBy(28.dp),
             ) {
                 Row(
                     modifier = Modifier
-                        .padding(top = 16.dp, start = 12.dp)
+                        .padding(8.dp)
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.Start),
                     verticalAlignment = Alignment.CenterVertically,
@@ -106,8 +113,11 @@ fun FullScreenImageViewDialog(
                         text = "Imagens de $placeName",
                         fontSize = 20.sp,
                         color = LocalContentColor.current.copy(alpha = 0.8f),
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.fillMaxWidth(0.85f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
+                    Spacer(Modifier.weight(1f))
                     IconButton(
                         onClick = { isMultiBrowserView = !isMultiBrowserView },
                         modifier = Modifier.size(45.dp),
@@ -118,10 +128,11 @@ fun FullScreenImageViewDialog(
                         )
                     }
                 }
-                Spacer(Modifier.height(6.dp))
+                val zoomState = rememberZoomState()
                 Column(
                     modifier = Modifier
-                        .fillMaxSize(),
+                        .fillMaxHeight(0.92f)
+                        .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
                 ) {
@@ -132,7 +143,6 @@ fun FullScreenImageViewDialog(
                             itemSpacing = 8.dp,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .weight(0.94f)
                                 .navigationBarsPadding(),
                             flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(state),
                         ) { index ->
@@ -161,12 +171,21 @@ fun FullScreenImageViewDialog(
                             itemSpacing = 10.dp,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .weight(0.94f)
                                 .navigationBarsPadding(),
                             flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(state),
                         ) { index ->
                             images[index]?.let { image ->
                                 currentImageIndex = index
+                                zoomState.setContentSize(
+                                    Size(
+                                        width = image.image.width.toFloat(),
+                                        height = image.image.height.toFloat(),
+                                    ),
+                                )
+                                if (state.isScrollInProgress) {
+                                    scope.launch { zoomState.reset() }
+                                }
+
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth(),
@@ -177,28 +196,28 @@ fun FullScreenImageViewDialog(
                                         contentDescription = null,
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
-                                            .aspectRatio(image.image.width / image.image.height.toFloat()),
+                                            .aspectRatio(image.image.width / image.image.height.toFloat())
+                                            .zoomable(zoomState),
                                     )
                                 }
                             }
                         }
                     }
-                    Row(
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.Top,
+                ) {
+                    Text(
+                        text = "Imagem publicada em: ${images[currentImageIndex]?.name?.extractImageDate() ?: "Sem dados"}",
+                        fontSize = 14.sp,
+                        color = LocalContentColor.current.copy(alpha = 0.7f),
+                        textAlign = TextAlign.Center,
                         modifier = Modifier
-                            .weight(0.08f)
                             .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Start,
-                        verticalAlignment = Alignment.Top,
-                    ) {
-                        Text(
-                            text = "Imagem publicada em: ${images[currentImageIndex]?.name?.extractImageDate() ?: "Sem dados"}",
-                            fontSize = 14.sp,
-                            color = LocalContentColor.current.copy(alpha = 0.7f),
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                        )
-                    }
+                    )
                 }
             }
         }
