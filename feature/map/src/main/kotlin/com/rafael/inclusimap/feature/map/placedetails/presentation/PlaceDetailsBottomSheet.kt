@@ -149,7 +149,8 @@ fun PlaceDetailsBottomSheet(
                     if (showUnsavedCommentDialog) {
                         isDismissing = true
                     }
-                    !showUnsavedCommentDialog
+                    true
+                   // !showUnsavedCommentDialog
                 }
                 else -> true
             }
@@ -372,7 +373,7 @@ fun PlaceDetailsBottomSheet(
             .show()
     }
 
-    // Do not elable this while the issue that causes the sheet to be hide with back press even it is disable is solved
+    // Do not enable this while the issue that causes the sheet to be hide with back press even it is disable is solved
     AnimatedVisibility(/*showUnsavedCommentDialog && isDismissing*/false) {
         UnsavedCommentDialog(
             onDismiss = {
