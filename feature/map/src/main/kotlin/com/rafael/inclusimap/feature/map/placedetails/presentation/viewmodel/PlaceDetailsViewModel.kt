@@ -484,11 +484,6 @@ class PlaceDetailsViewModel(
     }
 
     private fun onSendComment(comment: String) {
-        if (comment.isEmpty() || comment.length < 3 || _state.value.userAccessibilityRate == 0) {
-            _state.update { it.copy(trySendComment = true) }
-            return
-        }
-
         _state.update {
             it.copy(
                 trySendComment = true,

@@ -128,8 +128,7 @@ fun AccessibilityResourcesSelectionDialog(
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 4.dp),
+                                    .fillMaxWidth(),
                             )
                         }
                         if (res.isEmpty()) {

@@ -150,11 +150,12 @@ fun PlaceDetailsBottomSheet(
                         isDismissing = true
                     }
                     true
-                   // !showUnsavedCommentDialog
+                    // !showUnsavedCommentDialog
                 }
+
                 else -> true
             }
-        }
+        },
     )
     val latestEvent by rememberUpdatedState(onEvent)
     val latestUpdateMappedPlace by rememberUpdatedState(onUpdateMappedPlace)
@@ -197,19 +198,19 @@ fun PlaceDetailsBottomSheet(
         sheetState = placeDetailsBottomSheetState,
         onDismissRequest = {
             isDismissing = true
-           // if (!showUnsavedCommentDialog) {
-                placeDetailsBottomSheetScope.launch {
-                    placeDetailsBottomSheetState.hide()
-                }.invokeOnCompletion {
-                    if (!placeDetailsBottomSheetState.isVisible) {
-                        onDismiss()
-                    }
+            // if (!showUnsavedCommentDialog) {
+            placeDetailsBottomSheetScope.launch {
+                placeDetailsBottomSheetState.hide()
+            }.invokeOnCompletion {
+                if (!placeDetailsBottomSheetState.isVisible) {
+                    onDismiss()
                 }
-           // }
+            }
+            // }
         },
         properties = rememberModalBottomSheetProperties(
             shouldDismissOnBackPress = true,//!showUnsavedCommentDialog
-        )
+        ),
     ) {
         Column(
             modifier = modifier
@@ -331,7 +332,7 @@ fun PlaceDetailsBottomSheet(
                         downloadUserProfilePicture = downloadUserProfilePicture,
                         onShouldShowUnsavedCommentDialog = {
                             showUnsavedCommentDialog = it
-                        }
+                        },
                     )
                 }
             }
@@ -597,7 +598,7 @@ fun ImageSection(
                                         .size(40.dp),
                                 )
                                 Text(
-                                    text = "Adicionar imagem",
+                                    text = "Adicionar imagens",
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Normal,
                                 )
@@ -872,7 +873,6 @@ fun CommentSection(
                                             .size(30.dp),
                                         onClick = {
                                             onShouldShowUnsavedCommentDialog(false)
-                                            latestEvent(PlaceDetailsEvent.OnSendComment(userComment))
                                             if (userComment.isEmpty()) {
                                                 Toast.makeText(
                                                     context,
@@ -897,6 +897,7 @@ fun CommentSection(
                                                 ).show()
                                                 return@IconButton
                                             }
+                                            latestEvent(PlaceDetailsEvent.OnSendComment(userComment))
                                             Toast.makeText(
                                                 context,
                                                 "Comentário adicionado!",
@@ -1028,9 +1029,7 @@ fun CommentSection(
                                     latestEvent(PlaceDetailsEvent.OnDeleteComment)
                                     userComment = ""
                                     Toast.makeText(
-                                        context,
-                                        "Comentário removido!",
-                                        Toast.LENGTH_SHORT,
+                                        context, "Comentário removido!", Toast.LENGTH_SHORT,
                                     ).show()
                                     showUserCommentOptions = false
                                 },
@@ -1144,12 +1143,9 @@ fun CommentSection(
                             lineHeight = 18.sp,
                             fontWeight = FontWeight.Normal,
                         )
-                        if (index != (
-                                state.currentPlace.comments.filter {
-                                    it.email != userEmail
-                                }.size - 1
-                                )
-                        ) {
+                        if (index != (state.currentPlace.comments.filter {
+                                it.email != userEmail
+                            }.size - 1)) {
                             HorizontalDivider(thickness = 2.dp)
                         }
                     }
@@ -1174,8 +1170,9 @@ fun CommentSection(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun rememberModalBottomSheetProperties(shouldDismissOnBackPress : Boolean) = remember(shouldDismissOnBackPress) {
-    ModalBottomSheetProperties(
-        shouldDismissOnBackPress = shouldDismissOnBackPress,
-    )
-}
+fun rememberModalBottomSheetProperties(shouldDismissOnBackPress: Boolean) =
+    remember(shouldDismissOnBackPress) {
+        ModalBottomSheetProperties(
+            shouldDismissOnBackPress = shouldDismissOnBackPress,
+        )
+    }
