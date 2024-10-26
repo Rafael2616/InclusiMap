@@ -14,7 +14,7 @@ spotless = "7.0.0.BETA4"
 
 accompanistPermissionsVersion = "0.36.0"
 googleApiClientVersion = "2.7.0"
-googleApiServicesDriveVersion = "v3-rev20240914-2.0.0"
+googleApiServicesDriveVersion = "v3-rev20241014-2.0.0"
 coreKtx = "1.13.1"
 lifecycle = "2.8.6"
 activityCompose = "1.9.3"
