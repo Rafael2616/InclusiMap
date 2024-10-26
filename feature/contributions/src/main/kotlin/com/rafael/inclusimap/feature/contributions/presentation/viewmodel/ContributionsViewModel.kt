@@ -370,6 +370,8 @@ class ContributionsViewModel(
             contributions.forEach {
                 val imageExists = driveService.getFileMetadata(it.fileId)
                 if (imageExists != null) return@forEach
+                val reallyExists = driveService.getFileContent(it.fileId)
+                if (reallyExists != null) return@forEach
                 removeContribution(
                     Contribution(
                         fileId = it.fileId,
