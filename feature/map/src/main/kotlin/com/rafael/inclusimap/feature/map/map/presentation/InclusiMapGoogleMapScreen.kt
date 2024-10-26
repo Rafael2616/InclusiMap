@@ -66,6 +66,7 @@ fun InclusiMapGoogleMapScreen(
     onPlaceDetailsEvent: (PlaceDetailsEvent) -> Unit,
     appIntroState: AppIntroState,
     onDismissAppIntro: (Boolean) -> Unit,
+    onUpdateSearchHistory: (String) -> Unit,
     settingsState: SettingsState,
     userName: String,
     userEmail: String,
@@ -205,6 +206,7 @@ fun InclusiMapGoogleMapScreen(
                     },
                     onClick = {
                         latestOnEvent(InclusiMapEvent.OnMappedPlaceSelected(place))
+                        place.id?.let { id -> onUpdateSearchHistory(id) }
                         openPlaceDetailsBottomSheet = true
                         false
                     },

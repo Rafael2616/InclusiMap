@@ -127,21 +127,24 @@ fun MapNavHost(
                     placeDetailsState,
                     placeDetailsViewModel::onEvent,
                     appIntroState,
-                    onDismissAppIntro = {
-                        setShowAppIntro(it)
-                        onMapEvent(InclusiMapEvent.ShouldAnimateMap(it))
+                    onDismissAppIntro = { showAppIntro ->
+                        setShowAppIntro(showAppIntro)
+                        onMapEvent(InclusiMapEvent.ShouldAnimateMap(showAppIntro))
                     },
-                    settingsState,
+                    settingsState =settingsState,
                     userName = loginState.user?.name ?: "",
                     userEmail = loginState.user?.email ?: "",
-                    onReport = {
-                        onReport(it)
+                    onReport = { report ->
+                        onReport(report)
                     },
                     reportState = reportState,
                     allowedShowUserProfilePicture = allowedShowUserProfilePicture,
                     downloadUserProfilePicture = downloadUserProfilePicture,
                     cameraPositionState = cameraPositionState,
                     location = args.location,
+                    onUpdateSearchHistory = { placeId ->
+                        onSearchEvent(SearchEvent.UpdateHistory(placeId))
+                    }
                 )
             }
             composable<Destination.ContributionsScreen> {
