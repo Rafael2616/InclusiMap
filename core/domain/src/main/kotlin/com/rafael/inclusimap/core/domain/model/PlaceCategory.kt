@@ -90,7 +90,7 @@ fun PlaceCategory.toCategoryName() = when (this) {
 
 fun String.toPlaceCategory() = when (this) {
     "Shopping" -> PlaceCategory.SHOPPING
-    "Supemercado" -> PlaceCategory.MARKET
+    "Supermercado" -> PlaceCategory.MARKET
     "Praça" -> PlaceCategory.SQUARE
     "Loja de Roupas" -> PlaceCategory.CLOTHING_STORE
     "Loja de Eletrônicos" -> PlaceCategory.ELECTRONICS_STORE
