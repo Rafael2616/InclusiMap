@@ -44,13 +44,6 @@ class ContributionsViewModel(
     }
     private val _state = MutableStateFlow(ContributionsState())
     val state = _state.asStateFlow()
-    private var userEmail: MutableStateFlow<String?> = MutableStateFlow(null)
-
-    init {
-        viewModelScope.launch {
-            userEmail.value = loginRepository.getLoginInfo(1)?.userEmail
-        }
-    }
 
     fun onEvent(event: ContributionsEvent) {
         when (event) {
@@ -66,6 +59,7 @@ class ContributionsViewModel(
                     errorWhileConnectingToServer = false,
                 )
             }
+            val userEmail = loginRepository.getLoginInfo(1)?.userEmail
             val userPathId = loginRepository.getLoginInfo(1)?.userPathID ?: return@launch
             driveService.listFiles(userPathId).onSuccess { userFiles ->
                 val userContributionsFile = userFiles.find { it.name == "contributions.json" }
@@ -106,7 +100,7 @@ class ContributionsViewModel(
 
                         if (!_state.value.allImagesContributionsLoaded || state.value.userContributions.images.size != imageContributions.size) {
                             loadImageContributions(
-                                userEmail.value ?: return@launch,
+                                userEmail ?: return@launch,
                                 imageContributions,
                             )
                         }
@@ -218,6 +212,7 @@ class ContributionsViewModel(
     ) {
         _state.update { it.copy(allCommentsContributionsLoaded = false) }
         viewModelScope.launch(Dispatchers.IO) {
+            val userEmail = loginRepository.getLoginInfo(1)?.userEmail
             contributions.map { contribution ->
                 async {
                     driveService.getFileContent(contribution.fileId)
@@ -226,7 +221,7 @@ class ContributionsViewModel(
                                 json.decodeFromString<AccessibleLocalMarker>(content.decodeToString())
                             val userComment =
                                 place.comments.filterNot { it in state.value.userContributions.comments.map { it.comment } }
-                                    .find { it.email == userEmail.value }
+                                    .find { it.email == userEmail }
 
                             _state.update {
                                 it.copy(
