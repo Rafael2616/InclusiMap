@@ -267,7 +267,7 @@ class PlaceDetailsViewModel(
                                             }
                                         },
                                     ).also {
-                                        println("Loading image ${file.name}")
+                                        println("Loading image $index with name ${file.name} with id ${file.id}")
                                     }
                                 }
                                 if (_state.value.currentPlace.images.size == _state.value.currentPlace.imageFolder?.size) {
