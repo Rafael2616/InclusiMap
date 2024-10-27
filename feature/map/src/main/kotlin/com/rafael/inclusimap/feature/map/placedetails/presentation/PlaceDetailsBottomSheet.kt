@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -80,8 +79,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
@@ -140,7 +137,6 @@ fun PlaceDetailsBottomSheet(
     downloadUserProfilePicture: suspend (String) -> ImageBitmap?,
     modifier: Modifier = Modifier,
 ) {
-    var showUnsavedCommentDialog by remember { mutableStateOf(false) }
     val placeDetailsBottomSheetScope = rememberCoroutineScope()
     val placeDetailsBottomSheetState = rememberModalBottomSheetState()
     val latestEvent by rememberUpdatedState(onEvent)
@@ -196,7 +192,6 @@ fun PlaceDetailsBottomSheet(
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .imePadding()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
@@ -690,7 +685,6 @@ fun CommentSection(
     val latestEvent by rememberUpdatedState(onEvent)
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val focusRequester = remember { FocusRequester() }
     val latestAllowedShowUserProfilePicture by rememberUpdatedState(allowedShowUserProfilePicture)
     val latestDownloadUserProfilePicture by rememberUpdatedState(downloadUserProfilePicture)
     var showUserCommentOptions by remember { mutableStateOf(false) }
@@ -797,8 +791,7 @@ fun CommentSection(
                             }
                         },
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .focusRequester(focusRequester),
+                            .fillMaxWidth(),
                         placeholder = {
                             Text(text = "Adicione um comentário sobre a acessibilidade desse local")
                         },
@@ -995,7 +988,6 @@ fun CommentSection(
                                     latestEvent(PlaceDetailsEvent.SetIsEditingComment(true))
                                     scope.launch {
                                         async { bottomSheetState.expand() }.await()
-                                        focusRequester.requestFocus()
                                         showUserCommentOptions = false
                                     }
                                 },

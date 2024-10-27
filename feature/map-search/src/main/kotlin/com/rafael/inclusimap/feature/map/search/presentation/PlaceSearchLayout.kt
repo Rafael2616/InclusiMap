@@ -177,8 +177,8 @@ fun PlaceSearchLayout(
                             }
                         },
                         colors = SearchBarDefaults.inputFieldColors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surface,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                          //  focusedContainerColor = MaterialTheme.colorScheme.surface,
+                          //  unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                         ),
                     )
                 },

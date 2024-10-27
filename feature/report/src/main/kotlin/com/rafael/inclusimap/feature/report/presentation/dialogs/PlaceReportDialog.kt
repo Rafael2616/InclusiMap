@@ -31,7 +31,6 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -84,10 +83,10 @@ fun PlaceReportDialog(
             modifier = modifier
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .fillMaxWidth(if (isLandscape) 0.55f else 0.95f)
-                .clip(RoundedCornerShape(24.dp))
+                .imeNestedScroll()
                 .imePadding()
-                .imeNestedScroll(),
+                .fillMaxWidth(if (isLandscape) 0.55f else 0.95f)
+                .clip(RoundedCornerShape(24.dp)),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp),
             ),
@@ -163,6 +162,7 @@ fun PlaceReportDialog(
                         }
                     }
                     item {
+                        Spacer(modifier = Modifier.height(8.dp))
                         TextField(
                             value = report,
                             onValueChange = {
@@ -176,14 +176,6 @@ fun PlaceReportDialog(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(100.dp),
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
-                                    20.dp,
-                                ),
-                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
-                                    20.dp,
-                                ),
-                            ),
                             trailingIcon = {
                                 Row {
                                     Text(
