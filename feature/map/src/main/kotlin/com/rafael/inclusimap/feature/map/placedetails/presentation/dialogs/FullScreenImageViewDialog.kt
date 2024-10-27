@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.outlined.ViewCarousel
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -71,7 +70,6 @@ fun FullScreenImageViewDialog(
         itemCount = { images.size },
     )
     val width = LocalView.current.width
-    var isMultiBrowserView by remember { mutableStateOf(false) }
     var currentImageIndex by remember { mutableIntStateOf(index) }
     val scope = rememberCoroutineScope()
     var isImmersiveMode by remember { mutableStateOf(false) }
@@ -101,9 +99,7 @@ fun FullScreenImageViewDialog(
                         .fillMaxSize()
                         .pointerInput(Unit) {
                             detectTapGestures(
-                                onTap = {
-                                    isImmersiveMode = !isImmersiveMode
-                                },
+                                onTap = { isImmersiveMode = !isImmersiveMode },
                             )
                         },
                     contentAlignment = Alignment.TopCenter,
@@ -179,15 +175,6 @@ fun FullScreenImageViewDialog(
                                 overflow = TextOverflow.Ellipsis,
                             )
                             Spacer(Modifier.weight(1f))
-                            IconButton(
-                                onClick = { isMultiBrowserView = !isMultiBrowserView },
-                                modifier = Modifier.size(45.dp),
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.ViewCarousel,
-                                    contentDescription = null,
-                                )
-                            }
                         }
                         Box(
                             modifier = Modifier
