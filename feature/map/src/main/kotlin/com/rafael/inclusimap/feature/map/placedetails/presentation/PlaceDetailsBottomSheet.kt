@@ -29,6 +29,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.staggeredgrid.LazyHorizontalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.shape.CircleShape
@@ -442,13 +444,13 @@ fun ImageSection(
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier,
         )
-        LazyHorizontalStaggeredGrid(
-            rows = StaggeredGridCells.Fixed(1),
+        LazyHorizontalGrid(
+            rows = GridCells.Fixed(1),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(gridHeight),
             verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
-            horizontalItemSpacing = 8.dp,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             state.currentPlace.images.forEachIndexed { index, image ->
                 image?.let {
