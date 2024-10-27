@@ -1,19 +1,21 @@
 package com.rafael.inclusimap.feature.map.placedetails.presentation.dialogs
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -23,7 +25,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.carousel.CarouselDefaults
@@ -39,7 +40,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.style.TextAlign
@@ -71,6 +75,7 @@ fun FullScreenImageViewDialog(
     var isMultiBrowserView by remember { mutableStateOf(false) }
     var currentImageIndex by remember { mutableIntStateOf(index) }
     val scope = rememberCoroutineScope()
+    var isImmersiveMode by remember { mutableStateOf(false) }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -89,61 +94,27 @@ fun FullScreenImageViewDialog(
                 modifier = Modifier
                     .fillMaxSize()
                     .statusBarsPadding()
-                    .navigationBarsPadding(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(28.dp),
+                    .navigationBarsPadding()
+                    .background(MaterialTheme.colorScheme.surface),
             ) {
-                Row(
+                Box(
                     modifier = Modifier
-                        .padding(8.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.Start),
-                    verticalAlignment = Alignment.CenterVertically,
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.TopCenter,
                 ) {
-                    IconButton(
-                        onClick = onDismiss,
-                        modifier = Modifier.size(45.dp),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = null,
-                        )
-                    }
-                    Text(
-                        text = "Imagens de $placeName",
-                        fontSize = 20.sp,
-                        color = LocalContentColor.current.copy(alpha = 0.8f),
-                        modifier = Modifier.fillMaxWidth(0.85f),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Spacer(Modifier.weight(1f))
-                    IconButton(
-                        onClick = { isMultiBrowserView = !isMultiBrowserView },
-                        modifier = Modifier.size(45.dp),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.ViewCarousel,
-                            contentDescription = null,
-                        )
-                    }
-                }
-                val zoomState = rememberZoomState()
-                Column(
-                    modifier = Modifier
-                        .fillMaxHeight(0.92f)
-                        .fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                ) {
+                    val zoomState = rememberZoomState()
                     if (isMultiBrowserView) {
                         HorizontalMultiBrowseCarousel(
                             state = state,
                             preferredItemWidth = (0.85 * width).dp,
                             itemSpacing = 8.dp,
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .navigationBarsPadding(),
+                                .fillMaxSize()
+                                .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onTap = { isImmersiveMode = !isImmersiveMode },
+                                    )
+                                },
                             flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(state),
                         ) { index ->
                             images[index]?.let { image ->
@@ -170,8 +141,12 @@ fun FullScreenImageViewDialog(
                             itemWidth = (0.85 * width).dp,
                             itemSpacing = 10.dp,
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .navigationBarsPadding(),
+                                .fillMaxSize()
+                                .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onTap = { isImmersiveMode = !isImmersiveMode },
+                                    )
+                                },
                             flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(state),
                         ) { index ->
                             images[index]?.let { image ->
@@ -202,22 +177,72 @@ fun FullScreenImageViewDialog(
                                 }
                             }
                         }
+                        if (!isImmersiveMode) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp)
+                                    .align(Alignment.TopCenter)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(Color.Black.copy(alpha = 0.35f))
+                                    .padding(8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.Start),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                IconButton(
+                                    onClick = { onDismiss() },
+                                    modifier = Modifier.size(45.dp),
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Close,
+                                        contentDescription = null,
+                                    )
+                                }
+                                Text(
+                                    text = "Imagens de $placeName",
+                                    fontSize = 20.sp,
+                                    color = Color.White.copy(alpha = 0.8f),
+                                    modifier = Modifier.fillMaxWidth(0.85f),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                                Spacer(Modifier.weight(1f))
+                                IconButton(
+                                    onClick = { isMultiBrowserView = !isMultiBrowserView },
+                                    modifier = Modifier.size(45.dp),
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.ViewCarousel,
+                                        contentDescription = null,
+                                    )
+                                }
+
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .align(Alignment.BottomCenter)
+                                    .padding(bottom = 10.dp, start = 6.dp),
+                                contentAlignment = Alignment.BottomStart,
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .wrapContentSize()
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(Color.Black.copy(alpha = 0.4f))
+                                        .padding(horizontal = 6.dp, vertical = 4.dp),
+                                    horizontalArrangement = Arrangement.Center,
+                                ) {
+                                    Text(
+                                        text = "Publicada em: ${images[currentImageIndex]?.name?.extractImageDate() ?: "Sem dados"}",
+                                        fontSize = 14.sp,
+                                        color = Color.White.copy(alpha = 0.7f),
+                                        textAlign = TextAlign.Center,
+                                    )
+                                }
+                            }
+                        }
                     }
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.Top,
-                ) {
-                    Text(
-                        text = "Imagem publicada em: ${images[currentImageIndex]?.name?.extractImageDate() ?: "Sem dados"}",
-                        fontSize = 14.sp,
-                        color = LocalContentColor.current.copy(alpha = 0.7f),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                    )
                 }
             }
         }
