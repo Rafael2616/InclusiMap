@@ -28,4 +28,5 @@ data class InclusiMapState(
     val isErrorDeletingPlace: Boolean = false,
     val isPlaceDeleted: Boolean = false,
     val isContributionsScreen: Boolean = false,
+    val isStateRestored: Boolean = false,
 )

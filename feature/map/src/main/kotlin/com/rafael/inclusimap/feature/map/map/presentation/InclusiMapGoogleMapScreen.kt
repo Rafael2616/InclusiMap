@@ -114,7 +114,10 @@ fun InclusiMapGoogleMapScreen(
             locationPermission.launchPermissionRequest()
             firstTimeAnimation = false
         }
-        if (state.shouldAnimateMap && firstTimeAnimation == false) {
+    }
+
+    LaunchedEffect(state.shouldAnimateMap, state.isStateRestored, state.currentLocation) {
+        if (state.shouldAnimateMap && firstTimeAnimation == false && state.isStateRestored) {
             cameraPositionState.position = CameraPosition(
                 state.currentLocation?.target ?: state.defaultLocationLatLng,
                 state.currentLocation?.zoom ?: 15f,

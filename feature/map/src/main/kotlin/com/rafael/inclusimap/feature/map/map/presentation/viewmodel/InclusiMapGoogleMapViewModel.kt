@@ -116,6 +116,7 @@ class InclusiMapGoogleMapViewModel(
     }
 
     private fun getCurrentState() {
+        _state.update { it.copy(isStateRestored = false) }
         viewModelScope.launch(Dispatchers.IO) {
             val currentState = inclusiMapRepository.getPosition(1) ?: InclusiMapEntity.getDefault()
             _state.update {
@@ -128,6 +129,8 @@ class InclusiMapGoogleMapViewModel(
                     ),
                 )
             }
+        }.invokeOnCompletion {
+            _state.update { it.copy(isStateRestored = true) }
         }
     }
 
