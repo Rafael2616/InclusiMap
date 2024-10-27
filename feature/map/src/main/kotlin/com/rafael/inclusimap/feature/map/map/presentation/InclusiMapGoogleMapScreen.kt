@@ -35,6 +35,7 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 import com.rafael.inclusimap.core.domain.model.toCategoryName
 import com.rafael.inclusimap.core.domain.model.util.toHUE
 import com.rafael.inclusimap.core.domain.network.InternetConnectionState
@@ -95,51 +96,14 @@ fun InclusiMapGoogleMapScreen(
     var firstTimeAnimation by remember { mutableStateOf<Boolean?>(null) }
     var openPlaceDetailsBottomSheet by rememberSaveable { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        latestOnEvent(InclusiMapEvent.GetCurrentState)
-        if (!appIntroState.showAppIntro) firstTimeAnimation = false
-    }
-
-    LaunchedEffect(state.shouldAnimateMap, firstTimeAnimation, state.currentLocation) {
-        if (firstTimeAnimation == true) {
-            async {
-                cameraPositionState.animate(
-                    update = CameraUpdateFactory.newLatLngZoom(
-                        state.defaultLocationLatLng,
-                        15f,
-                    ),
-                    durationMs = 3500,
-                )
-            }.await()
-            locationPermission.launchPermissionRequest()
-            firstTimeAnimation = false
-        }
-    }
-
-    LaunchedEffect(state.shouldAnimateMap, state.isStateRestored, state.currentLocation) {
-        if (state.shouldAnimateMap && firstTimeAnimation == false && state.isStateRestored) {
-            cameraPositionState.position = CameraPosition(
-                state.currentLocation?.target ?: state.defaultLocationLatLng,
-                state.currentLocation?.zoom ?: 15f,
-                state.currentLocation?.tilt ?: 0f,
-                state.currentLocation?.bearing ?: 0f,
-            )
-            if (state.currentLocation != null) {
-                latestOnEvent(InclusiMapEvent.ShouldAnimateMap(false))
-            }
-        }
-    }
-
-    LaunchedEffect(!cameraPositionState.isMoving) {
-        if (!cameraPositionState.isMoving) {
-            latestOnEvent(InclusiMapEvent.UpdateMapState(cameraPositionState.position))
-        }
-    }
-
     GoogleMap(
         modifier = modifier
             .fillMaxSize(),
-        properties = remember(settingsState.mapType, state.isLocationPermissionGranted, state.isMyLocationFound) {
+        properties = remember(
+            settingsState.mapType,
+            state.isLocationPermissionGranted,
+            state.isMyLocationFound,
+        ) {
             MapProperties(
                 isBuildingEnabled = true,
                 mapType = settingsState.mapType,
@@ -323,6 +287,41 @@ fun InclusiMapGoogleMapScreen(
         onDispose { }
     }
 
+    LaunchedEffect(state.shouldAnimateMap, firstTimeAnimation) {
+        if (firstTimeAnimation == true) {
+            async {
+                cameraPositionState.animate(
+                    update = CameraUpdateFactory.newLatLngZoom(
+                        state.defaultLocationLatLng,
+                        15f,
+                    ),
+                    durationMs = 3500,
+                )
+            }.await()
+            locationPermission.launchPermissionRequest()
+            firstTimeAnimation = false
+        }
+    }
+
+    LaunchedEffect(
+        state.shouldAnimateMap,
+        state.isStateRestored,
+        firstTimeAnimation,
+        state.currentLocation,
+    ) {
+        if (state.shouldAnimateMap && firstTimeAnimation == false && state.isStateRestored) {
+            cameraPositionState.position = CameraPosition(
+                state.currentLocation?.target ?: state.defaultLocationLatLng,
+                state.currentLocation?.zoom ?: 15f,
+                state.currentLocation?.tilt ?: 0f,
+                state.currentLocation?.bearing ?: 0f,
+            )
+            if (state.currentLocation != null) {
+                latestOnEvent(InclusiMapEvent.ShouldAnimateMap(false))
+            }
+        }
+    }
+
     LaunchedEffect(location) {
         if (location != null && state.isContributionsScreen) {
             latestOnEvent(InclusiMapEvent.SetIsContributionsScreen(false))
@@ -376,5 +375,19 @@ fun InclusiMapGoogleMapScreen(
                 openPlaceDetailsBottomSheet = true
             }
         }
+    }
+
+    val defaultPos = rememberCameraPositionState().position
+    DisposableEffect(!cameraPositionState.isMoving) {
+        if (!cameraPositionState.isMoving && cameraPositionState.position != defaultPos) {
+            latestOnEvent(InclusiMapEvent.UpdateMapState(cameraPositionState.position))
+        }
+        onDispose { }
+    }
+
+    DisposableEffect(Unit) {
+        latestOnEvent(InclusiMapEvent.GetCurrentState)
+        if (!appIntroState.showAppIntro) firstTimeAnimation = false
+        onDispose { }
     }
 }
