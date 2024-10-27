@@ -148,7 +148,8 @@ class InclusiMapGoogleMapViewModel(
             val accessibleLocalsEntity = accessibleLocalsRepository.getAccessibleLocalsStored(1)
                 ?: AccessibleLocalsEntity.getDefault()
             val cachedPlaces = json.decodeFromString<List<AccessibleLocalMarker>>(
-                accessibleLocalsEntity.locals)
+                accessibleLocalsEntity.locals,
+            )
             _state.update { it.copy(allMappedPlaces = cachedPlaces) }
         }
     }
@@ -218,12 +219,6 @@ class InclusiMapGoogleMapViewModel(
         }
         viewModelScope.launch(Dispatchers.IO) {
             val placeFileId = accessibleLocalsRepository.saveAccessibleLocal(newPlace)
-            accessibleLocalsRepository.updateAccessibleLocalStored(
-                AccessibleLocalsEntity(
-                    id = 1,
-                    locals = json.encodeToString<List<AccessibleLocalMarker>>(state.value.allMappedPlaces),
-                ),
-            )
             if (placeFileId == null) {
                 _state.update {
                     it.copy(
@@ -240,9 +235,16 @@ class InclusiMapGoogleMapViewModel(
                     type = ContributionType.PLACE,
                 ),
             )
+            val updatedPlaces = _state.value.allMappedPlaces + newPlace
+            accessibleLocalsRepository.updateAccessibleLocalStored(
+                AccessibleLocalsEntity(
+                    id = 1,
+                    locals = json.encodeToString<List<AccessibleLocalMarker>>(updatedPlaces),
+                ),
+            )
             _state.update {
                 it.copy(
-                    allMappedPlaces = _state.value.allMappedPlaces + newPlace,
+                    allMappedPlaces = updatedPlaces,
                     isErrorAddingNewPlace = false,
                     isAddingNewPlace = false,
                     isPlaceAdded = true,
