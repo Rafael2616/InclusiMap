@@ -46,6 +46,8 @@ fun DeletePlaceConfirmationDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
+            dismissOnClickOutside = false,
+            dismissOnBackPress = false,
         ),
     ) {
         Card(
@@ -75,11 +77,14 @@ fun DeletePlaceConfirmationDialog(
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.fillMaxWidth(),
+                    lineHeight = 20.sp,
                 )
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp),
                 ) {
                     if (!isDeletingPlace) {
                         OutlinedButton(
@@ -97,7 +102,7 @@ fun DeletePlaceConfirmationDialog(
                                     } else MaterialTheme.colorScheme.errorContainer,
                                     contentColor = if (isInternetAvailable) {
                                         MaterialTheme.colorScheme.onError
-                                    }  else MaterialTheme.colorScheme.onErrorContainer,
+                                    } else MaterialTheme.colorScheme.onErrorContainer,
                                 ),
                         ) {
                             Text(text = "Remover")

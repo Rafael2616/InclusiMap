@@ -74,11 +74,14 @@ fun AddNewPlaceConfirmationDialog(
                     fontWeight = FontWeight.Normal,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(),
+                    lineHeight = 20.sp,
                 )
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp),
                 ) {
                     if (!isAddingNewPlace) {
                         OutlinedButton(
