@@ -45,7 +45,6 @@ class InclusiMapGoogleMapViewModel(
     private var userEmail: MutableStateFlow<String?> = MutableStateFlow(null)
 
     init {
-        loadCachedPlaces()
         viewModelScope.launch(Dispatchers.IO) {
             userEmail.update { loginRepository.getLoginInfo(1)?.userEmail }
         }
@@ -73,6 +72,7 @@ class InclusiMapGoogleMapViewModel(
             is InclusiMapEvent.UpdateMapState -> updateMapState(event.mapState)
             InclusiMapEvent.GetCurrentState -> getCurrentState()
             InclusiMapEvent.ResetState -> onResetState()
+            InclusiMapEvent.LoadCachedPlaces -> loadCachedPlaces()
             is InclusiMapEvent.SetIsContributionsScreen -> _state.update {
                 it.copy(isContributionsScreen = event.isContributionsScreen)
             }
@@ -100,9 +100,7 @@ class InclusiMapGoogleMapViewModel(
     }
 
     private fun updateMapState(mapState: CameraPosition) {
-        _state.update {
-            it.copy(currentLocation = mapState)
-        }
+        _state.update { it.copy(currentLocation = mapState) }
         viewModelScope.launch(Dispatchers.IO) {
             val currentState = inclusiMapRepository.getPosition(1) ?: InclusiMapEntity.getDefault()
             currentState.lat = mapState.target.latitude
@@ -149,15 +147,9 @@ class InclusiMapGoogleMapViewModel(
             // Get the cached places from local database
             val accessibleLocalsEntity = accessibleLocalsRepository.getAccessibleLocalsStored(1)
                 ?: AccessibleLocalsEntity.getDefault()
-            _state.update {
-                it.copy(
-                    allMappedPlaces = json.decodeFromString<List<AccessibleLocalMarker>>(
-                        accessibleLocalsEntity.locals,
-                    ).also {
-                        println("Loaded ${it.size} places from cache")
-                    },
-                )
-            }
+            val cachedPlaces = json.decodeFromString<List<AccessibleLocalMarker>>(
+                accessibleLocalsEntity.locals)
+            _state.update { it.copy(allMappedPlaces = cachedPlaces) }
         }
     }
 
@@ -184,6 +176,8 @@ class InclusiMapGoogleMapViewModel(
                     _state.update { it.copy(failedToGetNewPlaces = true) }
                     return@launch
                 }
+                if (mappedPlaces.isEmpty()) return@launch
+
                 _state.update { it.copy(allMappedPlaces = mappedPlaces) }
             }
         }.invokeOnCompletion {
@@ -207,19 +201,11 @@ class InclusiMapGoogleMapViewModel(
     }
 
     private fun onMappedPlaceSelected(place: AccessibleLocalMarker) {
-        _state.update {
-            it.copy(
-                selectedMappedPlace = place,
-            )
-        }
+        _state.update { it.copy(selectedMappedPlace = place) }
     }
 
     private fun onUnmappedPlaceSelected(latLng: LatLng) {
-        _state.update {
-            it.copy(
-                selectedUnmappedPlaceLatLng = latLng,
-            )
-        }
+        _state.update { it.copy(selectedUnmappedPlaceLatLng = latLng) }
     }
 
     private fun onAddNewMappedPlace(newPlace: AccessibleLocalMarker) {

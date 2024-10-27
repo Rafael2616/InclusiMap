@@ -16,6 +16,7 @@ sealed interface InclusiMapEvent {
     data class OnFailToLoadPlaces(val isFailed: Boolean) : InclusiMapEvent
     data class OnFailToConnectToServer(val isFailed: Boolean) : InclusiMapEvent
     data object OnMapLoad : InclusiMapEvent
+    data object LoadCachedPlaces : InclusiMapEvent
     data object UseAppWithoutInternet : InclusiMapEvent
     data class ShouldAnimateMap(val shouldAnimate: Boolean) : InclusiMapEvent
     data class UpdateMapState(val mapState: CameraPosition) : InclusiMapEvent

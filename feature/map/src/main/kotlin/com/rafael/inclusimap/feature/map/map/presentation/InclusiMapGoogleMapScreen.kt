@@ -86,6 +86,7 @@ fun InclusiMapGoogleMapScreen(
     val showMarkers by remember(
         !cameraPositionState.isMoving,
         state.allMappedPlaces,
+        state.isMapLoaded,
     ) { mutableStateOf(cameraPositionState.position.zoom >= 15f) }
     val latestOnEvent by rememberUpdatedState(onEvent)
     val latestOnPlaceDetailsEvent by rememberUpdatedState(onPlaceDetailsEvent)
@@ -158,12 +159,14 @@ fun InclusiMapGoogleMapScreen(
                     )
                 }
                 Marker(
-                    state = MarkerState(
-                        position = LatLng(
-                            place.position.first,
-                            place.position.second,
-                        ),
-                    ),
+                    state = remember(place.position) {
+                        MarkerState(
+                            position = LatLng(
+                                place.position.first,
+                                place.position.second,
+                            ),
+                        )
+                    },
                     title = place.title,
                     snippet = place.category?.toCategoryName(),
                     icon = remember(accessibilityAverage) {
@@ -277,6 +280,13 @@ fun InclusiMapGoogleMapScreen(
         latestOnPlaceDetailsEvent(PlaceDetailsEvent.SetIsEditingPlace(false))
     }
 
+    DisposableEffect(Unit) {
+        latestOnEvent(InclusiMapEvent.LoadCachedPlaces)
+        latestOnEvent(InclusiMapEvent.GetCurrentState)
+        if (!appIntroState.showAppIntro) firstTimeAnimation = false
+        onDispose { }
+    }
+
     DisposableEffect(state.allMappedPlaces.isEmpty() || state.useAppWithoutInternet && isInternetAvailable) {
         latestOnEvent(InclusiMapEvent.OnLoadPlaces)
         onDispose { }
@@ -382,12 +392,6 @@ fun InclusiMapGoogleMapScreen(
         if (!cameraPositionState.isMoving && cameraPositionState.position != defaultPos) {
             latestOnEvent(InclusiMapEvent.UpdateMapState(cameraPositionState.position))
         }
-        onDispose { }
-    }
-
-    DisposableEffect(Unit) {
-        latestOnEvent(InclusiMapEvent.GetCurrentState)
-        if (!appIntroState.showAppIntro) firstTimeAnimation = false
         onDispose { }
     }
 }
