@@ -80,7 +80,7 @@ fun InclusiMapGoogleMapScreen(
     modifier: Modifier = Modifier,
 ) {
     val onPlaceTravelScope = rememberCoroutineScope()
-    val addPlaceBottomSheetState = rememberModalBottomSheetState()
+    val addPlaceBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val addPlaceBottomSheetScope = rememberCoroutineScope()
     val locationPermission = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
     val showMarkers by remember(
