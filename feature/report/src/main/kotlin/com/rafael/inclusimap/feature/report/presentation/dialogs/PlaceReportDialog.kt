@@ -128,7 +128,7 @@ fun PlaceReportDialog(
                                 .fillMaxWidth()
                                 .padding(2.dp),
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp),
+                                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
                             ),
                             shape = RoundedCornerShape(12.dp),
                         ) {
@@ -201,8 +201,8 @@ fun PlaceReportDialog(
                                 },
                             ),
                             colors = TextFieldDefaults.colors(
-                                focusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp),
-                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp),
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
                             ),
                             shape = RoundedCornerShape(topEnd = 12.dp, topStart = 12.dp),
                         )
