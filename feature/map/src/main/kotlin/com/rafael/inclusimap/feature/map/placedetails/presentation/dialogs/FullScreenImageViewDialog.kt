@@ -28,7 +28,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.carousel.CarouselDefaults
-import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.HorizontalUncontainedCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
@@ -99,147 +98,118 @@ fun FullScreenImageViewDialog(
             ) {
                 Box(
                     modifier = Modifier
-                        .fillMaxSize(),
+                        .fillMaxSize()
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onTap = {
+                                    isImmersiveMode = !isImmersiveMode
+                                },
+                            )
+                        },
                     contentAlignment = Alignment.TopCenter,
                 ) {
                     val zoomState = rememberZoomState()
-                    if (isMultiBrowserView) {
-                        HorizontalMultiBrowseCarousel(
-                            state = state,
-                            preferredItemWidth = (0.85 * width).dp,
-                            itemSpacing = 8.dp,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .pointerInput(Unit) {
-                                    detectTapGestures(
-                                        onTap = { isImmersiveMode = !isImmersiveMode },
-                                    )
-                                },
-                            flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(state),
-                        ) { index ->
-                            images[index]?.let { image ->
-                                currentImageIndex = index
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth(),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    Image(
-                                        bitmap = image.image,
-                                        contentDescription = null,
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier
-                                            .aspectRatio(image.image.width / image.image.height.toFloat())
-                                            .maskClip(RoundedCornerShape(12.dp)),
-                                    )
-                                }
+                    HorizontalUncontainedCarousel(
+                        state = state,
+                        itemWidth = (0.85 * width).dp,
+                        itemSpacing = 10.dp,
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(state),
+                    ) { index ->
+                        images[index]?.let { image ->
+                            currentImageIndex = index
+                            zoomState.setContentSize(
+                                Size(
+                                    width = image.image.width.toFloat(),
+                                    height = image.image.height.toFloat(),
+                                ),
+                            )
+                            if (state.isScrollInProgress) {
+                                scope.launch { zoomState.reset() }
                             }
-                        }
-                    } else {
-                        HorizontalUncontainedCarousel(
-                            state = state,
-                            itemWidth = (0.85 * width).dp,
-                            itemSpacing = 10.dp,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .pointerInput(Unit) {
-                                    detectTapGestures(
-                                        onTap = { isImmersiveMode = !isImmersiveMode },
-                                    )
-                                },
-                            flingBehavior = CarouselDefaults.singleAdvanceFlingBehavior(state),
-                        ) { index ->
-                            images[index]?.let { image ->
-                                currentImageIndex = index
-                                zoomState.setContentSize(
-                                    Size(
-                                        width = image.image.width.toFloat(),
-                                        height = image.image.height.toFloat(),
-                                    ),
-                                )
-                                if (state.isScrollInProgress) {
-                                    scope.launch { zoomState.reset() }
-                                }
 
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth(),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    Image(
-                                        bitmap = image.image,
-                                        contentDescription = null,
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier
-                                            .aspectRatio(image.image.width / image.image.height.toFloat())
-                                            .zoomable(zoomState),
-                                    )
-                                }
-                            }
-                        }
-                        if (!isImmersiveMode) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 8.dp)
-                                    .align(Alignment.TopCenter)
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(Color.Black.copy(alpha = 0.35f))
-                                    .padding(8.dp),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.Start),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                IconButton(
-                                    onClick = { onDismiss() },
-                                    modifier = Modifier.size(45.dp),
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Close,
-                                        contentDescription = null,
-                                    )
-                                }
-                                Text(
-                                    text = placeName,
-                                    fontSize = 20.sp,
-                                    color = Color.White.copy(alpha = 0.8f),
-                                    modifier = Modifier.fillMaxWidth(0.85f),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
-                                Spacer(Modifier.weight(1f))
-                                IconButton(
-                                    onClick = { isMultiBrowserView = !isMultiBrowserView },
-                                    modifier = Modifier.size(45.dp),
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.ViewCarousel,
-                                        contentDescription = null,
-                                    )
-                                }
-
-                            }
                             Box(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .align(Alignment.BottomCenter)
-                                    .padding(bottom = 10.dp, start = 6.dp),
-                                contentAlignment = Alignment.BottomStart,
+                                    .fillMaxWidth(),
+                                contentAlignment = Alignment.Center,
                             ) {
-                                Row(
+                                Image(
+                                    bitmap = image.image,
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
                                     modifier = Modifier
-                                        .wrapContentSize()
-                                        .clip(RoundedCornerShape(6.dp))
-                                        .background(Color.Black.copy(alpha = 0.4f))
-                                        .padding(horizontal = 6.dp, vertical = 4.dp),
-                                    horizontalArrangement = Arrangement.Center,
-                                ) {
-                                    Text(
-                                        text = "Publicada em: ${images[currentImageIndex]?.name?.extractImageDate() ?: "Sem dados"}",
-                                        fontSize = 14.sp,
-                                        color = Color.White.copy(alpha = 0.7f),
-                                        textAlign = TextAlign.Center,
-                                    )
-                                }
+                                        .aspectRatio(image.image.width / image.image.height.toFloat())
+                                        .zoomable(
+                                            zoomState = zoomState,
+                                            onTap = {},
+                                        )
+                                )
+                            }
+                        }
+                    }
+                    if (!isImmersiveMode) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp)
+                                .padding(top = 4.dp)
+                                .align(Alignment.TopCenter)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(Color.Black.copy(alpha = 0.35f))
+                                .padding(horizontal = 6.dp, vertical = 4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.Start),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            IconButton(
+                                onClick = { onDismiss() },
+                                modifier = Modifier.size(45.dp),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Close,
+                                    contentDescription = null,
+                                )
+                            }
+                            Text(
+                                text = placeName,
+                                fontSize = 20.sp,
+                                color = Color.White.copy(alpha = 0.8f),
+                                modifier = Modifier.fillMaxWidth(0.85f),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                            Spacer(Modifier.weight(1f))
+                            IconButton(
+                                onClick = { isMultiBrowserView = !isMultiBrowserView },
+                                modifier = Modifier.size(45.dp),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.ViewCarousel,
+                                    contentDescription = null,
+                                )
+                            }
+                        }
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.BottomCenter)
+                                .padding(bottom = 10.dp, start = 6.dp),
+                            contentAlignment = Alignment.BottomStart,
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .wrapContentSize()
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(Color.Black.copy(alpha = 0.4f))
+                                    .padding(horizontal = 6.dp, vertical = 2.dp),
+                                horizontalArrangement = Arrangement.Center,
+                            ) {
+                                Text(
+                                    text = "Publicada em: ${images[currentImageIndex]?.name?.extractImageDate() ?: "Sem dados"}",
+                                    fontSize = 12.sp,
+                                    color = Color.White.copy(alpha = 0.7f),
+                                    textAlign = TextAlign.Center,
+                                )
                             }
                         }
                     }
