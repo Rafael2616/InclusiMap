@@ -199,7 +199,7 @@ fun FullScreenImageViewDialog(
                                     )
                                 }
                                 Text(
-                                    text = "Imagens de $placeName",
+                                    text = placeName,
                                     fontSize = 20.sp,
                                     color = Color.White.copy(alpha = 0.8f),
                                     modifier = Modifier.fillMaxWidth(0.85f),
