@@ -60,7 +60,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -139,24 +138,9 @@ fun PlaceDetailsBottomSheet(
     downloadUserProfilePicture: suspend (String) -> ImageBitmap?,
     modifier: Modifier = Modifier,
 ) {
-    var isDismissing by remember { mutableStateOf(false) }
     var showUnsavedCommentDialog by remember { mutableStateOf(false) }
     val placeDetailsBottomSheetScope = rememberCoroutineScope()
-    val placeDetailsBottomSheetState = rememberModalBottomSheetState(
-        confirmValueChange = {
-            when (it) {
-                SheetValue.Hidden -> {
-                    if (showUnsavedCommentDialog) {
-                        isDismissing = true
-                    }
-                    true
-                    // !showUnsavedCommentDialog
-                }
-
-                else -> true
-            }
-        },
-    )
+    val placeDetailsBottomSheetState = rememberModalBottomSheetState()
     val latestEvent by rememberUpdatedState(onEvent)
     val latestUpdateMappedPlace by rememberUpdatedState(onUpdateMappedPlace)
     val context = LocalContext.current
@@ -197,8 +181,6 @@ fun PlaceDetailsBottomSheet(
     ModalBottomSheet(
         sheetState = placeDetailsBottomSheetState,
         onDismissRequest = {
-            isDismissing = true
-            // if (!showUnsavedCommentDialog) {
             placeDetailsBottomSheetScope.launch {
                 placeDetailsBottomSheetState.hide()
             }.invokeOnCompletion {
@@ -206,11 +188,8 @@ fun PlaceDetailsBottomSheet(
                     onDismiss()
                 }
             }
-            // }
         },
-        properties = rememberModalBottomSheetProperties(
-            shouldDismissOnBackPress = true,//!showUnsavedCommentDialog
-        ),
+        properties = rememberModalBottomSheetProperties(shouldDismissOnBackPress = true),
     ) {
         Column(
             modifier = modifier
@@ -333,7 +312,7 @@ fun PlaceDetailsBottomSheet(
                         allowedShowUserProfilePicture = allowedShowUserProfilePicture,
                         downloadUserProfilePicture = downloadUserProfilePicture,
                         onShouldShowUnsavedCommentDialog = {
-                            showUnsavedCommentDialog = it
+                          //  showUnsavedCommentDialog = it
                         },
                     )
                 }
@@ -383,7 +362,7 @@ fun PlaceDetailsBottomSheet(
                 onDismiss()
             },
             onContinue = {
-                isDismissing = false
+                //isDismissing = false
             },
         )
     }
