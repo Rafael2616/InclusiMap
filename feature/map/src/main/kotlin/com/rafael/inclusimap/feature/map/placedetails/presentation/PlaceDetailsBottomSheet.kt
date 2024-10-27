@@ -31,8 +31,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
-import androidx.compose.foundation.lazy.staggeredgrid.LazyHorizontalStaggeredGrid
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -614,13 +612,13 @@ fun AccessibilityResourcesSection(
             modifier = Modifier
                 .padding(vertical = 4.dp),
         )
-        LazyHorizontalStaggeredGrid(
-            rows = StaggeredGridCells.Fixed(if (state.currentPlace.resources.size in 0..2) 1 else 2),
+        LazyHorizontalGrid(
+            rows = GridCells.Fixed(if (state.currentPlace.resources.size in 0..2) 1 else 2),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(if (state.currentPlace.resources.size in 0..2) 55.dp else 110.dp),
-            horizontalItemSpacing = 6.dp,
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             if (state.currentPlace.resources.isNotEmpty()) {
                 state.currentPlace.resources.forEach { resource ->
