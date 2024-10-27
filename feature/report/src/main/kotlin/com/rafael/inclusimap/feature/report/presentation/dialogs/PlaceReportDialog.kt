@@ -48,6 +48,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -103,26 +104,27 @@ fun PlaceReportDialog(
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.primary,
                 )
-                Spacer(modifier = Modifier.height(8.dp))
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth(),
                 ) {
                     item {
-                        Row {
-                            Text(
-                                text = "Local: ",
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize = 18.sp,
-                            )
-                            Text(
-                                text = localMarker.title,
-                                fontWeight = FontWeight.Normal,
-                                fontSize = 18.sp,
-                            )
-                        }
+                        Text(
+                            text = localMarker.title,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 18.sp,
+                        )
+                        Text(
+                            text = localMarker.address + " - " + localMarker.locatedIn,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
                     }
                     item {
+                        Spacer(modifier = Modifier.height(8.dp))
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -163,7 +165,7 @@ fun PlaceReportDialog(
                         }
                     }
                     item {
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(6.dp))
                         TextField(
                             value = report,
                             onValueChange = {
@@ -201,8 +203,12 @@ fun PlaceReportDialog(
                                 },
                             ),
                             colors = TextFieldDefaults.colors(
-                                focusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
-                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                                    3.dp,
+                                ),
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                                    3.dp,
+                                ),
                             ),
                             shape = RoundedCornerShape(topEnd = 12.dp, topStart = 12.dp),
                         )
