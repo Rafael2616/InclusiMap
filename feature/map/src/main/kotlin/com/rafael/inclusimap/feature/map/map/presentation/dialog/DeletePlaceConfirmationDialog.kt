@@ -61,7 +61,7 @@ fun DeletePlaceConfirmationDialog(
             Column(
                 modifier = Modifier
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+                verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
             ) {
                 Text(
                     text = "Deseja remover esse local?",
@@ -83,8 +83,7 @@ fun DeletePlaceConfirmationDialog(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp),
+                        .fillMaxWidth(),
                 ) {
                     if (!isDeletingPlace) {
                         OutlinedButton(
