@@ -468,6 +468,7 @@ class PlaceDetailsViewModel(
                                 isDeletingImage = false,
                             )
                         }
+                        println("Image not found in folder")
                         return@launch
                     }
                     driveService.deleteFile(imageId)

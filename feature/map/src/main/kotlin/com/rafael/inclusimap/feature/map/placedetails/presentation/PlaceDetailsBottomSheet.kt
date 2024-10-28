@@ -596,10 +596,10 @@ fun ImageSection(
         DeleteImageConfirmationDialog(
             onDismiss = {
                 showDeleteImageConfirmationDialog = false
+                selectedImage = null
             },
             onDelete = {
                 selectedImage?.let { onEvent(PlaceDetailsEvent.OnDeletePlaceImage(it)) }
-                selectedImage = null
             },
             isDeletingImage = state.isDeletingImage,
             isInternetAvailable = isInternetAvailable,
