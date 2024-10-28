@@ -287,9 +287,7 @@ class PlaceDetailsViewModel(
                 }
             }?.awaitAll()
         }.invokeOnCompletion {
-            _state.update {
-                it.copy(allImagesLoaded = true)
-            }
+            _state.update { it.copy(allImagesLoaded = true) }
         }
     }
 
@@ -326,9 +324,7 @@ class PlaceDetailsViewModel(
             println("Some images are not loaded yet, loading now...")
             loadImages(place)
         } else {
-            _state.update {
-                it.copy(allImagesLoaded = true)
-            }
+            _state.update { it.copy(allImagesLoaded = true) }
         }
     }
 
