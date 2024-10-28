@@ -741,7 +741,9 @@ class LoginViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             driveService.listFiles(state.value.userPathID ?: return@launch).onSuccess { userFiles ->
                 val pictureFileId = userFiles.find { it.name == "picture.jpg" }?.id
-                driveService.deleteFile(pictureFileId ?: return@launch)
+                if (pictureFileId != null) {
+                    driveService.deleteFile(pictureFileId)
+                }
             }.onError {
                 _state.update {
                     it.copy(
@@ -752,11 +754,24 @@ class LoginViewModel(
             }
             println("Old picture deleted successfully")
 
-            driveService.uploadFile(
-                ByteArrayInputStream(imageByteArrayOutputStream.toByteArray()),
+            val picture = ByteArrayInputStream(imageByteArrayOutputStream.toByteArray())
+            val pictureId = driveService.uploadFile(
+                picture,
                 "picture.jpg",
                 state.value.userPathID ?: return@launch,
             )
+            if (pictureId != null) {
+                _state.update {
+                    it.copy(userProfilePicture = image)
+                }
+                // Update in local database
+                val user = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
+                repository.updateLoginInfo(
+                    user.copy(
+                        profilePicture = imageByteArrayOutputStream.toByteArray(),
+                    ),
+                )
+            }
             println("New picture uploaded successfully")
         }.invokeOnCompletion {
             if (!state.value.isErrorUpdatingProfilePicture) {
@@ -764,15 +779,6 @@ class LoginViewModel(
                     it.copy(
                         isUpdatingProfilePicture = false,
                         isProfilePictureUpdated = true,
-                    )
-                }
-                // Update in local database
-                viewModelScope.launch(Dispatchers.IO) {
-                    val user = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
-                    repository.updateLoginInfo(
-                        user.copy(
-                            profilePicture = imageByteArrayOutputStream.toByteArray(),
-                        ),
                     )
                 }
             }
@@ -791,7 +797,16 @@ class LoginViewModel(
             driveService.listFiles(state.value.userPathID ?: return@launch)
                 .onSuccess { userFiles ->
                     val pictureFileId = userFiles.find { it.name == "picture.jpg" }?.id
-                    driveService.deleteFile(pictureFileId ?: return@launch)
+                    val isDeleted = driveService.deleteFile(pictureFileId ?: return@launch)
+                    if (isDeleted) {
+                        _state.update {
+                            it.copy(userProfilePicture = null)
+                        }
+                        val user = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
+                        repository.updateLoginInfo(
+                            user.copy(profilePicture = null),
+                        )
+                    }
                 }.onError {
                     _state.update {
                         it.copy(
@@ -800,20 +815,6 @@ class LoginViewModel(
                         )
                     }
                     println("Picture deleted successfully")
-                }.onError {
-                    _state.update {
-                        it.copy(
-                            isRemovingProfilePicture = false,
-                            isErrorRemovingProfilePicture = true,
-                        )
-                    }
-                }.onError {
-                    _state.update {
-                        it.copy(
-                            isRemovingProfilePicture = false,
-                            isErrorRemovingProfilePicture = true,
-                        )
-                    }
                 }
         }.invokeOnCompletion {
             if (!state.value.isErrorRemovingProfilePicture) {
@@ -821,12 +822,6 @@ class LoginViewModel(
                     it.copy(
                         isRemovingProfilePicture = false,
                         isProfilePictureRemoved = true,
-                    )
-                }
-                viewModelScope.launch(Dispatchers.IO) {
-                    val user = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
-                    repository.updateLoginInfo(
-                        user.copy(profilePicture = null),
                     )
                 }
             }

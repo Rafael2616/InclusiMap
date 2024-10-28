@@ -145,30 +145,16 @@ fun InclusiMapNavHost(
                             networkError = loginState.networkError,
                             userName = loginState.user?.name ?: "",
                             onEditUserName = {
-                                loginViewModel.onEvent(
-                                    LoginEvent.UpdateUserName(it),
-                                )
+                                loginViewModel.onEvent(LoginEvent.UpdateUserName(it))
                             },
                             onAddEditProfilePicture = {
-                                settingsViewModel.onEvent(
-                                    SettingsEvent.OnAddEditProfilePicture(it),
-                                )
-                                loginViewModel.onEvent(
-                                    LoginEvent.OnAddEditUserProfilePicture(it),
-                                )
+                                loginViewModel.onEvent(LoginEvent.OnAddEditUserProfilePicture(it))
                             },
                             onRemoveProfilePicture = {
-                                settingsViewModel.onEvent(
-                                    SettingsEvent.OnRemoveProfilePicture,
-                                )
-                                loginViewModel.onEvent(
-                                    LoginEvent.OnRemoveUserProfilePicture,
-                                )
+                                loginViewModel.onEvent(LoginEvent.OnRemoveUserProfilePicture)
                             },
                             onAllowPictureOptedIn = {
-                                loginViewModel.onEvent(
-                                    LoginEvent.OnAllowPictureOptedIn(it),
-                                )
+                                loginViewModel.onEvent(LoginEvent.OnAllowPictureOptedIn(it))
                             },
                             allowOtherUsersToSeeProfilePicture = loginState.user?.showProfilePictureOptedIn
                                 ?: false,
@@ -215,9 +201,13 @@ fun InclusiMapNavHost(
         }
 
         DisposableEffect(loginState.userProfilePicture) {
-            settingsViewModel.onEvent(
-                SettingsEvent.OnAddEditProfilePicture(loginState.userProfilePicture),
-            )
+            if (loginState.userProfilePicture != null) {
+                settingsViewModel.onEvent(
+                    SettingsEvent.OnAddEditProfilePicture(loginState.userProfilePicture),
+                )
+            } else {
+                settingsViewModel.onEvent(SettingsEvent.OnRemoveProfilePicture)
+            }
             onDispose { }
         }
     }
