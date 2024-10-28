@@ -97,6 +97,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
+import com.rafael.inclusimap.core.domain.model.PlaceImage
 import com.rafael.inclusimap.core.domain.model.icon
 import com.rafael.inclusimap.core.domain.model.toAccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.toCategoryName
@@ -111,6 +112,7 @@ import com.rafael.inclusimap.feature.map.map.domain.InclusiMapState
 import com.rafael.inclusimap.feature.map.placedetails.domain.model.PlaceDetailsEvent
 import com.rafael.inclusimap.feature.map.placedetails.domain.model.PlaceDetailsState
 import com.rafael.inclusimap.feature.map.placedetails.presentation.dialogs.AccessibilityResourcesSelectionDialog
+import com.rafael.inclusimap.feature.map.placedetails.presentation.dialogs.DeleteImageConfirmationDialog
 import com.rafael.inclusimap.feature.map.placedetails.presentation.dialogs.FullScreenImageViewDialog
 import com.rafael.inclusimap.feature.map.placedetails.presentation.dialogs.ImagesUploadProgressDialog
 import com.rafael.inclusimap.feature.map.placedetails.presentation.dialogs.PlaceInfoDialog
@@ -316,6 +318,7 @@ fun PlaceDetailsBottomSheet(
             }
         }
     }
+
     AnimatedVisibility(showPlaceInfo) {
         PlaceInfoDialog(
             currentPlace = state.currentPlace.toAccessibleLocalMarker(),
@@ -404,6 +407,8 @@ fun ImageSection(
     val gridHeight by remember { mutableStateOf(260.dp) }
     val imageWidth by remember { mutableStateOf(185.dp) }
     var showToast by remember { mutableStateOf(false) }
+    var showDeleteImageConfirmationDialog by remember { mutableStateOf(false) }
+    var selectedImage by remember { mutableStateOf<PlaceImage?>(null) }
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) { uris ->
             uris.takeIf { it.isNotEmpty() }?.let {
@@ -473,12 +478,8 @@ fun ImageSection(
                             ) {
                                 IconButton(
                                     onClick = {
-                                        onEvent(PlaceDetailsEvent.OnDeletePlaceImage(image))
-                                        Toast.makeText(
-                                            context,
-                                            "Imagem removida!",
-                                            Toast.LENGTH_SHORT,
-                                        ).show()
+                                        selectedImage = image
+                                        showDeleteImageConfirmationDialog = true
                                     },
                                     modifier = Modifier
                                         .align(Alignment.TopEnd)
@@ -588,6 +589,21 @@ fun ImageSection(
                 }
             }
         }
+    }
+
+    AnimatedVisibility(showDeleteImageConfirmationDialog) {
+        DeleteImageConfirmationDialog(
+            onDismiss = {
+                showDeleteImageConfirmationDialog = false
+            },
+            onDelete = {
+                selectedImage?.let {onEvent(PlaceDetailsEvent.OnDeletePlaceImage(it)) }
+                selectedImage = null
+            },
+            isDeletingImage = state.isDeletingImage,
+            isInternetAvailable = isInternetAvailable,
+            isDeleted = state.isImageDeleted,
+        )
     }
 }
 

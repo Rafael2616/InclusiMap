@@ -18,6 +18,7 @@ import com.rafael.inclusimap.core.domain.model.toFullAccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.util.extractPlaceID
 import com.rafael.inclusimap.core.domain.model.util.extractUserEmail
 import com.rafael.inclusimap.core.domain.network.Result
+import com.rafael.inclusimap.core.domain.network.onError
 import com.rafael.inclusimap.core.domain.network.onSuccess
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_IMAGE_FOLDER_ID
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID
@@ -74,7 +75,10 @@ class PlaceDetailsViewModel(
             is PlaceDetailsEvent.SetIsUserCommented -> _state.update { it.copy(isUserCommented = event.isCommented) }
             PlaceDetailsEvent.OnDeleteComment -> onDeleteComment()
             is PlaceDetailsEvent.SetIsEditingPlace -> _state.update { it.copy(isEditingPlace = event.isEditing) }
-            is PlaceDetailsEvent.OnUpdatePlaceAccessibilityResources -> onUpdatePlaceAccessibilityResources(event.resources)
+            is PlaceDetailsEvent.OnUpdatePlaceAccessibilityResources -> onUpdatePlaceAccessibilityResources(
+                event.resources,
+            )
+
             is PlaceDetailsEvent.SetIsEditingComment -> _state.update { it.copy(isEditingComment = event.isEditing) }
             is PlaceDetailsEvent.SetIsTrySendComment -> _state.update { it.copy(trySendComment = event.isTrying) }
         }
@@ -447,27 +451,27 @@ class PlaceDetailsViewModel(
     private fun onDeletePlaceImage(image: PlaceImage) {
         _state.update {
             it.copy(
-                currentPlace = it.currentPlace.copy(
-                    images = it.currentPlace.images - image,
-                    imageFolderId = state.value.inclusiMapImageRepositoryFolder.find { subPaths ->
-                        subPaths.name.split("_")[0] == _state.value.currentPlace.id
-                    }?.id,
-                ),
-                loadedPlaces = it.loadedPlaces.map { place ->
-                    if (place.id == it.currentPlace.id) {
-                        place.copy(images = it.currentPlace.images - image)
-                    } else {
-                        place
-                    }
-                },
+                isDeletingImage = true,
+                isImageDeleted = false,
+                isErrorDeletingImage = false,
             )
         }
         viewModelScope.launch(Dispatchers.Default) {
-            val folderId = state.value.currentPlace.imageFolderId.orEmpty()
-            when (val result = driveService.listFiles(folderId)) {
-                is Result.Success -> {
+            val folderId = state.value.currentPlace.imageFolderId
+            folderId?.let {
+                driveService.listFiles(folderId).onSuccess { files ->
                     val imageId =
-                        result.data.find { it.name.extractUserEmail() == image.userEmail }?.id.orEmpty()
+                        files.find { it.name.extractUserEmail() == image.userEmail }?.id
+
+                    if (imageId == null) {
+                        _state.update {
+                            it.copy(
+                                isErrorDeletingImage = true,
+                                isDeletingImage = false,
+                            )
+                        }
+                        return@launch
+                    }
                     driveService.deleteFile(imageId)
                     removeContribution(
                         Contribution(
@@ -475,10 +479,42 @@ class PlaceDetailsViewModel(
                             type = ContributionType.IMAGE,
                         ),
                     )
+                    _state.update {
+                        it.copy(
+                            currentPlace = it.currentPlace.copy(
+                                images = it.currentPlace.images - image,
+                                imageFolderId = state.value.inclusiMapImageRepositoryFolder.find { subPaths ->
+                                    subPaths.name.split("_")[0] == _state.value.currentPlace.id
+                                }?.id,
+                            ),
+                            loadedPlaces = it.loadedPlaces.map { place ->
+                                if (place.id == it.currentPlace.id) {
+                                    place.copy(images = it.currentPlace.images - image)
+                                } else {
+                                    place
+                                }
+                            },
+                            isImageDeleted = true,
+                        )
+                    }
+                }.onError {
+                    _state.update {
+                        it.copy(
+                            isErrorDeletingImage = true,
+                            isDeletingImage = false,
+                        )
+                    }
+                    return@launch
                 }
-
-                is Result.Error -> {
-                }
+            }
+            delay(500)
+        }.invokeOnCompletion {
+            _state.update {
+                it.copy(
+                    isDeletingImage = false,
+                    isErrorDeletingImage = false,
+                    isImageDeleted = false,
+                )
             }
         }
     }

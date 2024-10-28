@@ -20,4 +20,7 @@ data class PlaceDetailsState(
     val imagesUploadedSize: Int = 0,
     val isErrorUploadingImages: Boolean = false,
     val isUploadingImages: Boolean = false,
+    val isDeletingImage: Boolean = false,
+    val isErrorDeletingImage: Boolean = false,
+    val isImageDeleted: Boolean = false,
 )
