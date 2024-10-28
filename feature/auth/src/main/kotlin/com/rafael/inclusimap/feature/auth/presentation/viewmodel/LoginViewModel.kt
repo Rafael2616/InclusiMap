@@ -27,7 +27,6 @@ import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.Dispatchers
@@ -39,6 +38,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -125,7 +125,7 @@ class LoginViewModel(
             driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID)
                 .onSuccess { result ->
                     val isUserRegistered =
-                        result.any { userFile -> userFile.name.split(".json")[0] == newUser.email }
+                        result.any { userFile -> userFile.name == newUser.email }
                     _state.update {
                         it.copy(userAlreadyRegistered = isUserRegistered)
                     }
@@ -216,7 +216,7 @@ class LoginViewModel(
                     _state.update {
                         it.copy(
                             userAlreadyRegistered =
-                            userFile.any { user -> user.name.split(".json")[0] == registeredUser.email }
+                            userFile.any { user -> user.name == registeredUser.email }
                                 .also { isRegistered ->
                                     println("User already registered? $isRegistered")
                                 },
@@ -239,17 +239,16 @@ class LoginViewModel(
             }
 
             async {
-                driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { result ->
-                    result.find { userFile ->
-                        userFile.name.split(".json")[0] == registeredUser.email
-                    }.also { user ->
+                driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { users ->
+                    users.find { userPath -> userPath.name == registeredUser.email }.also { user ->
+                        println("User path found for: ${user?.name}")
                         driveService.listFiles(user?.id ?: return@async).onSuccess { userFiles ->
                             userFiles.find { userFile ->
                                 userFile.name == "${registeredUser.email}.json"
                             }.also { userLoginFile ->
-
-                                val userLoginFileContent = userLoginFile?.id?.let { fileId ->
-                                    driveService.getFileContent(fileId)?.decodeToString()
+                                println("User login file found for: ${user.name}")
+                                val userLoginFileContent = userLoginFile?.let { file ->
+                                    driveService.getFileContent(file.id)?.decodeToString()
                                 }
                                 if (userLoginFileContent == null) {
                                     _state.update {
@@ -262,6 +261,7 @@ class LoginViewModel(
                                     return@async
                                 }
                                 val userObj = json.decodeFromString<User>(userLoginFileContent)
+                                println("User object: $userObj")
                                 if (userObj.password != registeredUser.password) {
                                     _state.update {
                                         it.copy(isPasswordCorrect = false)
@@ -270,6 +270,7 @@ class LoginViewModel(
                                     return@async
                                 }
                                 _state.update { it.copy(userPathID = user.id) }
+                                println("Working on user path: ${_state.value.userPathID}")
                                 val userImageByteArray = ByteArrayOutputStream()
                                 async {
                                     downloadUserProfilePicture(userObj.email)?.asAndroidBitmap()
@@ -325,6 +326,7 @@ class LoginViewModel(
                 }
             }.await()
         }.invokeOnCompletion {
+            println("Login completed")
             if (_state.value.userAlreadyRegistered && _state.value.isPasswordCorrect && !_state.value.networkError && _state.value.user != null) {
                 _state.update {
                     it.copy(
@@ -382,33 +384,34 @@ class LoginViewModel(
             async {
                 driveService.listFiles(state.value.userPathID ?: return@async)
                     .onSuccess { result ->
-                        result.find { userFile -> userFile.name == state.value.user?.email + ".json" }.also { userLoginFile ->
-                            val userLoginFileContent = userLoginFile?.id?.let { fileId ->
-                                driveService.getFileContent(fileId)?.decodeToString()
-                            }
-
-                            if (userLoginFileContent == null) {
-                                println("User file content is null")
-                                return@async
-                            }
-                            val userObj =
-                                json.decodeFromString<User>(userLoginFileContent)
-                            if (userObj.password == password) {
-                                _state.update {
-                                    it.copy(
-                                        isSamePassword = true,
-                                        isUpdatingPassword = false,
-                                    )
+                        result.find { userFile -> userFile.name == state.value.user?.email + ".json" }
+                            .also { userLoginFile ->
+                                val userLoginFileContent = userLoginFile?.id?.let { fileId ->
+                                    driveService.getFileContent(fileId)?.decodeToString()
                                 }
-                                return@async
+
+                                if (userLoginFileContent == null) {
+                                    println("User file content is null")
+                                    return@async
+                                }
+                                val userObj =
+                                    json.decodeFromString<User>(userLoginFileContent)
+                                if (userObj.password == password) {
+                                    _state.update {
+                                        it.copy(
+                                            isSamePassword = true,
+                                            isUpdatingPassword = false,
+                                        )
+                                    }
+                                    return@async
+                                }
+                                userObj.password = password
+                                driveService.updateFile(
+                                    userLoginFile.id,
+                                    userLoginFile.name,
+                                    json.encodeToString(userObj).byteInputStream(),
+                                )
                             }
-                            userObj.password = password
-                            driveService.updateFile(
-                                userLoginFile.id,
-                                userLoginFile.name,
-                                json.encodeToString(userObj).byteInputStream(),
-                            )
-                        }
                     }.onError {
                         _state.update {
                             it.copy(
@@ -831,36 +834,40 @@ class LoginViewModel(
     }
 
     suspend fun allowedShowUserProfilePicture(email: String): Boolean {
-        return suspendCoroutine { continuation ->
-            viewModelScope.launch(Dispatchers.IO) {
+        return suspendCancellableCoroutine { continuation ->
+            val job = viewModelScope.launch(Dispatchers.IO) {
                 driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { users ->
                     users.find { user -> user.name == email }?.also { userPath ->
                         driveService.listFiles(userPath.id).onSuccess { userFiles ->
                             val userDataFile = userFiles.find { it.name == "$email.json" }
-                            val userContentString =
-                                driveService.getFileContent(userDataFile?.id ?: return@launch)
+                            val userContentString = userDataFile?.id?.let { fileId ->
+                                driveService.getFileContent(fileId)
                                     ?.decodeToString()
-                            val userObj =
-                                json.decodeFromString<User>(userContentString ?: return@launch)
-                            println("User ${userObj.email} opted in for show profile picture: ${userObj.showProfilePictureOptedIn}")
-                            continuation.resume(userObj.showProfilePictureOptedIn)
+                            }
+                            val userObj = userContentString?.let { userContent ->
+                                json.decodeFromString<User>(userContent)
+                            }
+                            println("User ${userObj?.email} opted in for show profile picture: ${userObj?.showProfilePictureOptedIn}")
+                            continuation.resume(userObj?.showProfilePictureOptedIn ?: false)
                         }
                     }
                 }
             }
+            continuation.invokeOnCancellation { job.cancel() }
         }
     }
 
     suspend fun downloadUserProfilePicture(email: String?): ImageBitmap? {
         if (email == null) return null
-        return suspendCoroutine { continuation ->
-            viewModelScope.launch(Dispatchers.IO) {
+        return suspendCancellableCoroutine { continuation ->
+            val job = viewModelScope.launch(Dispatchers.IO) {
                 driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { users ->
                     users.find { user -> user.name == email }?.also { userPath ->
                         driveService.listFiles(userPath.id).onSuccess { userFiles ->
                             val userDataFile = userFiles.find { it.name == "picture.jpg" }
-                            val userImageByteArray =
-                                driveService.getFileContent(userDataFile?.id ?: return@launch)
+                            val userImageByteArray = userDataFile?.id?.let { fileId ->
+                                driveService.getFileContent(fileId)
+                            }
                             val userImage = userImageByteArray?.let {
                                 BitmapFactory.decodeStream(it.inputStream()).asImageBitmap()
                             }
@@ -870,6 +877,7 @@ class LoginViewModel(
                     }
                 }
             }
+            continuation.invokeOnCancellation { job.cancel() }
         }
     }
 
