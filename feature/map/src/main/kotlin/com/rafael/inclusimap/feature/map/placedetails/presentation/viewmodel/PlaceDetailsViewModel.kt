@@ -94,7 +94,7 @@ class PlaceDetailsViewModel(
                             ?: false,
                         currentPlace = place.toFullAccessibleLocalMarker(
                             images = emptyList(),
-                            imageFolderId = null,
+                            imageFolderId = it.loadedPlaces.find { existingPlace -> existingPlace.id == place.id }?.imageFolderId,
                             imageFolder = null,
                         ),
                         loadedPlaces = if (place !in state.value.loadedPlaces.map { it.toAccessibleLocalMarker() }) {
@@ -455,12 +455,13 @@ class PlaceDetailsViewModel(
                 isErrorDeletingImage = false,
             )
         }
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.IO) {
             val folderId = state.value.currentPlace.imageFolderId
+             println("Working on folder id: $folderId")
             folderId?.let {
                 driveService.listFiles(folderId).onSuccess { files ->
                     val imageId = files.find { it.name == image.name }?.id
-
+                    println("Image: ${image.name}, $imageId")
                     if (imageId == null) {
                         _state.update {
                             it.copy(
@@ -526,9 +527,7 @@ class PlaceDetailsViewModel(
         val userComment =
             Comment(
                 postDate = Date().toInstant().toString(),
-                id = _state.value.currentPlace.comments.size.plus(
-                    1,
-                ),
+                id = _state.value.currentPlace.comments.size.plus(1),
                 name = userName,
                 body = comment,
                 email = userEmail,
