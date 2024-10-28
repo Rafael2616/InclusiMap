@@ -124,8 +124,8 @@ class PlaceDetailsViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             async {
                 loginRepository.getLoginInfo(1)?.let {
-                    userName = it.userName!!
-                    userEmail = it.userEmail!!
+                    userName = it.userName ?: return@async
+                    userEmail = it.userEmail ?: return@async
                 }
             }.await()
         }.invokeOnCompletion {
@@ -191,7 +191,7 @@ class PlaceDetailsViewModel(
             if (_state.value.currentPlace.imageFolderId.isNullOrEmpty() ||
                 when (
                     val result =
-                        driveService.listFiles(_state.value.currentPlace.imageFolderId!!)
+                        driveService.listFiles(_state.value.currentPlace.imageFolderId ?: "")
                 ) {
                     is Result.Success -> result.data.isEmpty()
                     is Result.Error -> {
@@ -255,7 +255,7 @@ class PlaceDetailsViewModel(
                                 val placeImage = PlaceImage(
                                     userEmail = file.name.extractUserEmail(),
                                     image = image,
-                                    placeID = placeDetails.id!!,
+                                    placeID = placeDetails.id ?: return@async,
                                     name = file.name,
                                 )
                                 _state.update {
@@ -384,8 +384,7 @@ class PlaceDetailsViewModel(
                     val imageId = driveService.uploadFile(
                         fileContent = ByteArrayInputStream(compressedImage),
                         fileName = imageFileName,
-                        folderId = _state.value.currentPlace.imageFolderId
-                            ?: throw IllegalStateException("Folder not found: Maybe an issue has occurred while creating the folder"),
+                        folderId = _state.value.currentPlace.imageFolderId ?: return@async,
                     )
 
                     if (imageId == null) {

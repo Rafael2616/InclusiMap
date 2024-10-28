@@ -359,7 +359,7 @@ fun ContributionsScreen(
                                                                                 Location(
                                                                                     place.place.position.first,
                                                                                     place.place.position.second,
-                                                                                    place.place.id!!,
+                                                                                    place.place.id ?: return@IconButton,
                                                                                 ),
                                                                             ),
                                                                         )
