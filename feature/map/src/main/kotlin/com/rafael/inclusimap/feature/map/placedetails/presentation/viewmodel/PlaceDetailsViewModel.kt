@@ -460,7 +460,7 @@ class PlaceDetailsViewModel(
             folderId?.let {
                 driveService.listFiles(folderId).onSuccess { files ->
                     val imageId =
-                        files.find { it.name.extractUserEmail() == image.userEmail }?.id
+                        files.find { it.name == image.name }?.id
 
                     if (imageId == null) {
                         _state.update {
