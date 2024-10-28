@@ -411,6 +411,7 @@ fun AddEditPlaceBottomSheet(
                                 "O endereço do local deve ter pelo menos $minPlaceAddressLength caracteres!",
                                 Toast.LENGTH_SHORT,
                             ).show()
+                            return@Button
                         }
                         if (placeLocatedIn.length < minPlaceLocatedInLength) {
                             Toast.makeText(
@@ -418,6 +419,7 @@ fun AddEditPlaceBottomSheet(
                                 "A localização deve ter pelo menos $minPlaceLocatedInLength caracteres!",
                                 Toast.LENGTH_SHORT,
                             ).show()
+                            return@Button
                         }
                         if (placeDetailsState.isEditingPlace) {
                             onEditNewPlace(
