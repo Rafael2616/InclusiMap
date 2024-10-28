@@ -207,8 +207,11 @@ fun PlaceSearchLayout(
                         onSearchEvent(SearchEvent.DeleteFromHistory(it))
                     },
                     isHistoryEnabled = isHistoryEnabled,
-                    onDeleteHistory = {
+                    onDeleteHistory = {f
                         onSearchEvent(SearchEvent.ClearHistory)
+                    },
+                    onRemoveInexistentPlacesFromHistory = {
+                        onSearchEvent(SearchEvent.RemoveInexistentPlaceFromHistory(it))
                     },
                 )
             }
