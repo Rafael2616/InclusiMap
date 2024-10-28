@@ -244,19 +244,17 @@ class LoginViewModel(
             }
             async {
                 driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { result ->
-                    result.map { it }.find { userFile ->
+                    result.find { userFile ->
                         userFile.name.split(".json")[0] == registeredUser.email
                     }.also { user ->
-                        driveService.listFiles(user?.id ?: return@async).onSuccess { result ->
-                            result.map { it }.find { userFile ->
+                        driveService.listFiles(user?.id ?: return@async).onSuccess { userFiles ->
+                            userFiles.find { userFile ->
                                 userFile.name == "${registeredUser.email}.json"
                             }.also { userLoginFile ->
 
-                                val userLoginFileContent = driveService.getFileContent(
-                                    userLoginFile?.id
-                                        ?: return@async,
-                                )?.decodeToString()
-
+                                val userLoginFileContent = userLoginFile?.id?.let { fileId ->
+                                    driveService.getFileContent(fileId)?.decodeToString()
+                                }
                                 if (userLoginFileContent == null) {
                                     _state.update {
                                         it.copy(
@@ -275,6 +273,7 @@ class LoginViewModel(
                                     println("Password is incorrect")
                                     return@async
                                 }
+                                _state.update { it.copy(userPathID = user.id) }
                                 val userImageByteArray = ByteArrayOutputStream()
                                 async {
                                     downloadUserProfilePicture(userObj.email)?.asAndroidBitmap()
@@ -360,6 +359,7 @@ class LoginViewModel(
                         userProfilePicture = null,
                         isLoggedIn = false,
                         isLoginOut = false,
+                        userPathID = null,
                     )
                 }
             }
