@@ -35,6 +35,7 @@ class SearchViewModel(
             is SearchEvent.UpdateHistory -> updateHistory(event.placeId)
             is SearchEvent.DeleteFromHistory -> deleteFromHistory(event.placeId)
             SearchEvent.ClearHistory -> clearHistory()
+            is SearchEvent.RemoveInexistentPlaceFromHistory -> removeInexistentPlaceFromHistory(event.placeId)
         }
     }
 
@@ -120,6 +121,16 @@ class SearchViewModel(
             val places =
                 json.decodeFromString<List<String>>(searchRepository.getHistory()).toMutableList()
             places.clear()
+            _state.update { it.copy(placesHistory = places) }
+            searchRepository.updateHistory(json.encodeToString(places))
+        }
+    }
+
+    private fun removeInexistentPlaceFromHistory(placeId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val places =
+                json.decodeFromString<List<String>>(searchRepository.getHistory()).toMutableList()
+            places.remove(placeId)
             _state.update { it.copy(placesHistory = places) }
             searchRepository.updateHistory(json.encodeToString(places))
         }

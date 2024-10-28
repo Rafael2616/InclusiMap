@@ -59,6 +59,7 @@ fun PlaceSearchScreen(
     onLoadHistory: () -> Unit,
     onDeleteHistory: () -> Unit,
     onRemoveFromHistory: (String) -> Unit,
+    onRemoveInexistentPlacesFromHistory: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val focusManager = LocalFocusManager.current
@@ -138,6 +139,10 @@ fun PlaceSearchScreen(
             // History UI
             if (shouldShowHistoryUI) {
                 state.placesHistory.forEachIndexed { index, place ->
+                    if (place !in allMappedPlaces.map { it.id }) {
+                        onRemoveInexistentPlacesFromHistory(place)
+                        return@forEachIndexed
+                    }
                     val placeStored =
                         allMappedPlaces.find { it.id == place } ?: return@forEachIndexed
                     item {

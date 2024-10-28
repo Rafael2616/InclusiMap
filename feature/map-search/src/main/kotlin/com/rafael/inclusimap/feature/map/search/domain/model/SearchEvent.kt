@@ -9,4 +9,5 @@ sealed interface SearchEvent {
     data class DeleteFromHistory(val placeId: String) : SearchEvent
     data object ClearHistory : SearchEvent
     data object LoadHistory : SearchEvent
+    data class RemoveInexistentPlaceFromHistory(val placeId: String) : SearchEvent
 }
