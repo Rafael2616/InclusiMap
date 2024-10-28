@@ -796,7 +796,7 @@ fun CommentSection(
                             Text(text = "Adicione um comentário sobre a acessibilidade desse local")
                         },
                         maxLines = 3,
-                        shape = RoundedCornerShape(16.dp),
+                        shape = RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp),
                         trailingIcon = {
                             Column(
                                 verticalArrangement = Arrangement.spacedBy(2.dp),

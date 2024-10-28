@@ -5,7 +5,9 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -100,37 +102,46 @@ fun DeleteAccountConfirmationDialog(
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.error,
                 )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-                    verticalAlignment = Alignment.CenterVertically,
+                Spacer(modifier = Modifier.height(30.dp))
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    Text(text = "Manter suas contribuições")
-                    Checkbox(
-                        checked = keepContributions,
-                        onCheckedChange = {
-                            keepContributions = it
-                        },
-                        enabled = deleteProcessStarted,
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(text = "Manter suas contribuições")
+                        Checkbox(
+                            checked = keepContributions,
+                            onCheckedChange = {
+                                keepContributions = it
+                            },
+                            enabled = deleteProcessStarted,
+                            modifier = Modifier.size(24.dp),
+                        )
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(text = "Apagar tudo")
+                        Checkbox(
+                            checked = !keepContributions,
+                            onCheckedChange = {
+                                keepContributions = !it
+                            },
+                            colors = CheckboxDefaults.colors(
+                                checkedColor = MaterialTheme.colorScheme.error,
+                            ),
+                            enabled = deleteProcessStarted,
+                            modifier = Modifier.size(24.dp),
+                            )
+                    }
                 }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(text = "Apagar tudo")
-                    Checkbox(
-                        checked = !keepContributions,
-                        onCheckedChange = {
-                            keepContributions = !it
-                        },
-                        colors = CheckboxDefaults.colors(
-                            checkedColor = MaterialTheme.colorScheme.error,
-                        ),
-                        enabled = deleteProcessStarted,
-                    )
-                }
+                Spacer(modifier = Modifier.height(4.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
