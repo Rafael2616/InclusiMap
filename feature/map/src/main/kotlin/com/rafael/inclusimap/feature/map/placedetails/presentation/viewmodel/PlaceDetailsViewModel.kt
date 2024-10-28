@@ -508,7 +508,6 @@ class PlaceDetailsViewModel(
             _state.update {
                 it.copy(
                     isDeletingImage = false,
-                    isErrorDeletingImage = false,
                     isImageDeleted = false,
                 )
             }
