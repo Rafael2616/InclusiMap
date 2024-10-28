@@ -459,8 +459,7 @@ class PlaceDetailsViewModel(
             val folderId = state.value.currentPlace.imageFolderId
             folderId?.let {
                 driveService.listFiles(folderId).onSuccess { files ->
-                    val imageId =
-                        files.find { it.name == image.name }?.id
+                    val imageId = files.find { it.name == image.name }?.id
 
                     if (imageId == null) {
                         _state.update {
