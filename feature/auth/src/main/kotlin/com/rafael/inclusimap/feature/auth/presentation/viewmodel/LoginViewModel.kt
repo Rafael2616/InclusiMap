@@ -48,6 +48,10 @@ class LoginViewModel(
     private val driveService: GoogleDriveService = GoogleDriveService()
     private val _state = MutableStateFlow(LoginState())
     val state = _state.asStateFlow()
+    private val json = Json {
+        ignoreUnknownKeys = true
+        prettyPrint = true
+    }
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -152,10 +156,6 @@ class LoginViewModel(
                 }
             }.await()
 
-            val json = Json {
-                ignoreUnknownKeys = true
-                prettyPrint = true
-            }
             async {
                 val userPathId = driveService.uploadFile(
                     json.encodeToString(user).byteInputStream(),
@@ -238,10 +238,6 @@ class LoginViewModel(
                 return@launch
             }
 
-            val json = Json {
-                ignoreUnknownKeys = true
-                prettyPrint = true
-            }
             async {
                 driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { result ->
                     result.find { userFile ->
@@ -386,10 +382,7 @@ class LoginViewModel(
             async {
                 driveService.listFiles(state.value.userPathID ?: return@async)
                     .onSuccess { result ->
-                        result.find { userFile ->
-                            userFile.name.endsWith(".json")
-                        }.also { userLoginFile ->
-                            val json = Json { ignoreUnknownKeys = true }
+                        result.find { userFile -> userFile.name == state.value.user?.email + ".json" }.also { userLoginFile ->
                             val userLoginFileContent = userLoginFile?.id?.let { fileId ->
                                 driveService.getFileContent(fileId)?.decodeToString()
                             }
@@ -581,10 +574,6 @@ class LoginViewModel(
                     async {
                         // Delete user comments
                         _state.update { it.copy(deleteStep = DeleteProcess.DELETING_USER_COMMENTS) }
-                        val json = Json {
-                            ignoreUnknownKeys = true
-                            prettyPrint = true
-                        }
                         driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
                             .onSuccess { result ->
                                 result.map { place ->
@@ -677,12 +666,8 @@ class LoginViewModel(
     private fun checkUserExists() {
         viewModelScope.launch(Dispatchers.IO) {
             driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { result ->
-                result.find {
-                    it.name == _state.value.user?.email
-                }.also { userExists ->
-                    _state.update {
-                        it.copy(isLoggedIn = userExists != null)
-                    }
+                result.find { it.name == _state.value.user?.email }.also { userExists ->
+                    _state.update { it.copy(isLoggedIn = userExists != null) }
                     val loginData = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
                     loginData.isLoggedIn = userExists != null
                     loginData.userPathID = userExists?.id
@@ -705,7 +690,6 @@ class LoginViewModel(
             // Download user profile picture
             viewModelScope.launch(Dispatchers.IO) {
                 val picture = downloadUserProfilePicture(state.value.user?.email)
-
                 if (picture == state.value.userProfilePicture) return@launch
 
                 _state.update { it.copy(userProfilePicture = picture) }
@@ -728,7 +712,7 @@ class LoginViewModel(
                 val userDataFile =
                     userFiles.find { it.name == state.value.user?.email + ".json" }
                 val userContentString =
-                    driveService.getFileContent(userDataFile?.id ?: "")?.decodeToString()
+                    driveService.getFileContent(userDataFile?.id ?: return@launch)?.decodeToString()
                 driveService.uploadFile(
                     userContentString?.toByteArray()?.inputStream(),
                     _state.value.user?.email + ".json",
@@ -753,9 +737,7 @@ class LoginViewModel(
 
         viewModelScope.launch(Dispatchers.IO) {
             driveService.listFiles(state.value.userPathID ?: return@launch).onSuccess { userFiles ->
-                val pictureFileId = userFiles.find {
-                    it.name == "picture.jpg"
-                }?.id
+                val pictureFileId = userFiles.find { it.name == "picture.jpg" }?.id
                 driveService.deleteFile(pictureFileId ?: return@launch)
             }.onError {
                 _state.update {
@@ -805,9 +787,7 @@ class LoginViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             driveService.listFiles(state.value.userPathID ?: return@launch)
                 .onSuccess { userFiles ->
-                    val pictureFileId = userFiles.find {
-                        it.name == "picture.jpg"
-                    }?.id
+                    val pictureFileId = userFiles.find { it.name == "picture.jpg" }?.id
                     driveService.deleteFile(pictureFileId ?: return@launch)
                 }.onError {
                     _state.update {
@@ -851,18 +831,22 @@ class LoginViewModel(
     }
 
     suspend fun allowedShowUserProfilePicture(email: String): Boolean {
-        val json = Json { ignoreUnknownKeys = true }
         return suspendCoroutine { continuation ->
             viewModelScope.launch(Dispatchers.IO) {
-                driveService.listFiles(state.value.userPathID ?: return@launch)
-                    .onSuccess { userFiles ->
-                        val userDataFile = userFiles.find { it.name == "$email.json" }
-                        val userContentString =
-                            driveService.getFileContent(userDataFile?.id ?: "")?.decodeToString()
-                        val userObj = json.decodeFromString<User>(userContentString ?: "")
-                        println("User ${userObj.email} opted in for show profile picture: ${userObj.showProfilePictureOptedIn}")
-                        continuation.resume(userObj.showProfilePictureOptedIn)
+                driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { users ->
+                    users.find { user -> user.name == email }?.also { userPath ->
+                        driveService.listFiles(userPath.id).onSuccess { userFiles ->
+                            val userDataFile = userFiles.find { it.name == "$email.json" }
+                            val userContentString =
+                                driveService.getFileContent(userDataFile?.id ?: return@launch)
+                                    ?.decodeToString()
+                            val userObj =
+                                json.decodeFromString<User>(userContentString ?: return@launch)
+                            println("User ${userObj.email} opted in for show profile picture: ${userObj.showProfilePictureOptedIn}")
+                            continuation.resume(userObj.showProfilePictureOptedIn)
+                        }
                     }
+                }
             }
         }
     }
@@ -871,16 +855,20 @@ class LoginViewModel(
         if (email == null) return null
         return suspendCoroutine { continuation ->
             viewModelScope.launch(Dispatchers.IO) {
-                driveService.listFiles(state.value.userPathID ?: return@launch)
-                    .onSuccess { userFiles ->
-                        val userDataFile = userFiles.find { it.name == "picture.jpg" }
-                        val userImageByteArray = driveService.getFileContent(userDataFile?.id ?: "")
-                        val userImage = userImageByteArray?.let {
-                            BitmapFactory.decodeStream(it.inputStream()).asImageBitmap()
+                driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { users ->
+                    users.find { user -> user.name == email }?.also { userPath ->
+                        driveService.listFiles(userPath.id).onSuccess { userFiles ->
+                            val userDataFile = userFiles.find { it.name == "picture.jpg" }
+                            val userImageByteArray =
+                                driveService.getFileContent(userDataFile?.id ?: return@launch)
+                            val userImage = userImageByteArray?.let {
+                                BitmapFactory.decodeStream(it.inputStream()).asImageBitmap()
+                            }
+                            println("User image downloaded successfully: ${userImage != null}")
+                            continuation.resume(userImage)
                         }
-                        println("User image downloaded successfully: ${userImage != null}")
-                        continuation.resume(userImage)
                     }
+                }
             }
         }
     }
@@ -901,7 +889,6 @@ class LoginViewModel(
                         result.find { userFile ->
                             userFile.name.endsWith(".json")
                         }.also { userLoginFile ->
-                            val json = Json { ignoreUnknownKeys = true }
                             val userLoginFileContent =
                                 userLoginFile?.id?.let { fileId ->
                                     driveService.getFileContent(fileId)
@@ -968,46 +955,31 @@ class LoginViewModel(
         // Update the value in Google Drive
         viewModelScope.launch(Dispatchers.IO) {
             async {
-                driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID)
+
+                driveService.listFiles(state.value.userPathID ?: return@async)
                     .onSuccess { result ->
-                        result.map { it }.find { userFile ->
-                            userFile.name == _state.value.user?.email
-                        }.also { user ->
-                            driveService.listFiles(user?.id ?: return@async)
-                                .onSuccess { result ->
-                                    result.map { it }.find { userFile ->
-                                        userFile.name.endsWith(".json")
-                                    }.also { userLoginFile ->
-                                        val json = Json { ignoreUnknownKeys = true }
-                                        val userLoginFileContent =
-                                            userLoginFile?.id?.let { fileId ->
-                                                driveService.getFileContent(fileId)
-                                                    ?.decodeToString()
-                                            }
-
-                                        if (userLoginFileContent == null) {
-                                            return@async
-                                        }
-                                        val userObj =
-                                            json.decodeFromString<User>(userLoginFileContent)
-
-                                        userObj.showProfilePictureOptedIn = isAllowed
-                                        driveService.updateFile(
-                                            userLoginFile.id,
-                                            userLoginFile.name,
-                                            json.encodeToString(userObj).byteInputStream(),
-                                        )
-                                        println("User profile picture opted in successfully to: $isAllowed")
+                        result.find { userFile -> userFile.name == state.value.user?.email + ".json" }
+                            .also { userLoginFile ->
+                                val userLoginFileContent =
+                                    userLoginFile?.id?.let { fileId ->
+                                        driveService.getFileContent(fileId)
+                                            ?.decodeToString()
                                     }
-                                }.onError {
-                                    _state.update {
-                                        it.copy(
-                                            isAllowingPictureOptedIn = false,
-                                            isErrorAllowingPictureOptedIn = true,
-                                        )
-                                    }
+
+                                if (userLoginFileContent == null) {
+                                    return@async
                                 }
-                        }
+                                val userObj =
+                                    json.decodeFromString<User>(userLoginFileContent)
+
+                                userObj.showProfilePictureOptedIn = isAllowed
+                                driveService.updateFile(
+                                    userLoginFile.id,
+                                    userLoginFile.name,
+                                    json.encodeToString(userObj).byteInputStream(),
+                                )
+                                println("User profile picture opted in successfully to: $isAllowed")
+                            }
                     }.onError {
                         _state.update {
                             it.copy(
