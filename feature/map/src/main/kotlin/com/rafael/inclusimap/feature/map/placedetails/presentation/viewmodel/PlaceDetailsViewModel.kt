@@ -482,9 +482,6 @@ class PlaceDetailsViewModel(
                         it.copy(
                             currentPlace = it.currentPlace.copy(
                                 images = it.currentPlace.images - image,
-                                imageFolderId = state.value.inclusiMapImageRepositoryFolder.find { subPaths ->
-                                    subPaths.name.split("_")[0] == _state.value.currentPlace.id
-                                }?.id,
                             ),
                             loadedPlaces = it.loadedPlaces.map { place ->
                                 if (place.id == it.currentPlace.id) {
