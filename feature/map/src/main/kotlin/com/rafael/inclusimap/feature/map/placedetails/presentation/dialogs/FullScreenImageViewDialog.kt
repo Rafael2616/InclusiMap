@@ -139,7 +139,7 @@ fun FullScreenImageViewDialog(
                                         .zoomable(
                                             zoomState = zoomState,
                                             onTap = {},
-                                        )
+                                        ),
                                 )
                             }
                         }

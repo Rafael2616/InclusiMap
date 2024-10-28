@@ -88,4 +88,3 @@ val Icons.Outlined.BankNotes: ImageVector by lazy {
         }
     }.build()
 }
-

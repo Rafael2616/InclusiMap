@@ -50,4 +50,3 @@ val Icons.Outlined.Shirt: ImageVector by lazy {
         }
     }.build()
 }
-

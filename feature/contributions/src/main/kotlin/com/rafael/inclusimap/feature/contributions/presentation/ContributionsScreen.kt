@@ -587,7 +587,7 @@ fun ContributionsScreen(
                                                         Text(
                                                             text = place.first().place.title,
                                                             fontSize = 16.sp,
-                                                            overflow = TextOverflow.Ellipsis,//TextOverflow.MiddleEllipsis,
+                                                            overflow = TextOverflow.Ellipsis, // TextOverflow.MiddleEllipsis,
                                                             maxLines = 1,
                                                             modifier = Modifier.fillMaxWidth(0.8f),
                                                         )
@@ -725,7 +725,7 @@ fun ContributionsScreen(
                                                 Text(
                                                     text = place.first().place.title,
                                                     fontSize = 16.sp,
-                                                    overflow = TextOverflow.Ellipsis,//TextOverflow.MiddleEllipsis,
+                                                    overflow = TextOverflow.Ellipsis, // TextOverflow.MiddleEllipsis,
                                                     maxLines = 1,
                                                 )
                                                 Text(
@@ -771,7 +771,7 @@ fun ContributionsScreen(
                                     condition = state.allResourcesContributionsLoaded,
                                 )
                             }
-                            loadingProgressIndicator(condition = !state.allResourcesContributionsLoaded  && !state.errorWhileConnectingToServer)
+                            loadingProgressIndicator(condition = !state.allResourcesContributionsLoaded && !state.errorWhileConnectingToServer)
                             connectionErrorScreen(
                                 state = state,
                                 condition = !state.allResourcesContributionsLoaded,

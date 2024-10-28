@@ -138,7 +138,7 @@ fun DeleteAccountConfirmationDialog(
                             ),
                             enabled = deleteProcessStarted,
                             modifier = Modifier.size(24.dp),
-                            )
+                        )
                     }
                 }
                 Spacer(modifier = Modifier.height(4.dp))

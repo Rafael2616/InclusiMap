@@ -98,10 +98,14 @@ fun DeletePlaceConfirmationDialog(
                                 .copy(
                                     containerColor = if (isInternetAvailable) {
                                         MaterialTheme.colorScheme.error
-                                    } else MaterialTheme.colorScheme.errorContainer,
+                                    } else {
+                                        MaterialTheme.colorScheme.errorContainer
+                                    },
                                     contentColor = if (isInternetAvailable) {
                                         MaterialTheme.colorScheme.onError
-                                    } else MaterialTheme.colorScheme.onErrorContainer,
+                                    } else {
+                                        MaterialTheme.colorScheme.onErrorContainer
+                                    },
                                 ),
                         ) {
                             Text(text = "Remover")

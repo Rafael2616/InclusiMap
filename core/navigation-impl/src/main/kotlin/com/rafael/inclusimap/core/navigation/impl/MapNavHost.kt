@@ -131,7 +131,7 @@ fun MapNavHost(
                         setShowAppIntro(showAppIntro)
                         onMapEvent(InclusiMapEvent.ShouldAnimateMap(showAppIntro))
                     },
-                    settingsState =settingsState,
+                    settingsState = settingsState,
                     userName = loginState.user?.name ?: "",
                     userEmail = loginState.user?.email ?: "",
                     onReport = { report ->
@@ -144,7 +144,7 @@ fun MapNavHost(
                     location = args.location,
                     onUpdateSearchHistory = { placeId ->
                         onSearchEvent(SearchEvent.UpdateHistory(placeId))
-                    }
+                    },
                 )
             }
             composable<Destination.ContributionsScreen> {

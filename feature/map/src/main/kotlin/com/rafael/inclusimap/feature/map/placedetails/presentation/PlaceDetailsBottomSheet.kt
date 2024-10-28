@@ -311,7 +311,7 @@ fun PlaceDetailsBottomSheet(
                         allowedShowUserProfilePicture = allowedShowUserProfilePicture,
                         downloadUserProfilePicture = downloadUserProfilePicture,
                         onShouldShowUnsavedCommentDialog = {
-                          //  showUnsavedCommentDialog = it
+                            //  showUnsavedCommentDialog = it
                         },
                     )
                 }
@@ -356,13 +356,14 @@ fun PlaceDetailsBottomSheet(
     }
 
     // Do not enable this while the issue that causes the sheet to be hide with back press even it is disable is solved
-    AnimatedVisibility(/*showUnsavedCommentDialog && isDismissing*/false) {
+    /*showUnsavedCommentDialog && isDismissing*/
+    AnimatedVisibility(false) {
         UnsavedCommentDialog(
             onDismiss = {
                 onDismiss()
             },
             onContinue = {
-                //isDismissing = false
+                // isDismissing = false
             },
         )
     }
@@ -597,7 +598,7 @@ fun ImageSection(
                 showDeleteImageConfirmationDialog = false
             },
             onDelete = {
-                selectedImage?.let {onEvent(PlaceDetailsEvent.OnDeletePlaceImage(it)) }
+                selectedImage?.let { onEvent(PlaceDetailsEvent.OnDeletePlaceImage(it)) }
                 selectedImage = null
             },
             isDeletingImage = state.isDeletingImage,
@@ -1022,7 +1023,9 @@ fun CommentSection(
                                     latestEvent(PlaceDetailsEvent.OnDeleteComment)
                                     userComment = ""
                                     Toast.makeText(
-                                        context, "Comentário removido!", Toast.LENGTH_SHORT,
+                                        context,
+                                        "Comentário removido!",
+                                        Toast.LENGTH_SHORT,
                                     ).show()
                                     showUserCommentOptions = false
                                 },
@@ -1136,9 +1139,12 @@ fun CommentSection(
                             lineHeight = 18.sp,
                             fontWeight = FontWeight.Normal,
                         )
-                        if (index != (state.currentPlace.comments.filter {
-                                it.email != userEmail
-                            }.size - 1)) {
+                        if (index != (
+                                state.currentPlace.comments.filter {
+                                    it.email != userEmail
+                                }.size - 1
+                                )
+                        ) {
                             HorizontalDivider(thickness = 2.dp)
                         }
                     }
