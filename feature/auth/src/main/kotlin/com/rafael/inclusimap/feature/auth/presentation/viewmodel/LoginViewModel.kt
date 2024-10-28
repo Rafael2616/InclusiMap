@@ -806,6 +806,7 @@ class LoginViewModel(
                         repository.updateLoginInfo(
                             user.copy(profilePicture = null),
                         )
+                        println("Picture deleted successfully")
                     }
                 }.onError {
                     _state.update {
@@ -814,7 +815,6 @@ class LoginViewModel(
                             isErrorRemovingProfilePicture = true,
                         )
                     }
-                    println("Picture deleted successfully")
                 }
         }.invokeOnCompletion {
             if (!state.value.isErrorRemovingProfilePicture) {
