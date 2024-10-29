@@ -210,18 +210,22 @@ class LoginViewModel(
         }
         viewModelScope.launch(Dispatchers.IO) {
             async {
-                driveService.listFiles(
-                    INCLUSIMAP_USERS_FOLDER_ID,
-                ).onSuccess { userFile ->
-                    _state.update {
-                        it.copy(
-                            userAlreadyRegistered =
-                            userFile.any { user -> user.name == registeredUser.email }
-                                .also { isRegistered ->
-                                    println("User already registered? $isRegistered")
-                                },
-                        )
-                    }
+                driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { usersPaths ->
+                    usersPaths.find { userPath -> userPath.name == registeredUser.email }
+                        ?.also { userPath ->
+                            driveService.listFiles(userPath.id).onSuccess {
+                                val userExists =
+                                    it.find { userLoginFile -> userLoginFile.name == "${registeredUser.email}.json" }
+                                _state.update { it.copy(userAlreadyRegistered = userExists != null) }
+                            }.onError {
+                                _state.update {
+                                    it.copy(
+                                        isRegistering = false,
+                                        userAlreadyRegistered = false,
+                                    )
+                                }
+                            }
+                        }
                 }.onError {
                     _state.update {
                         it.copy(
@@ -240,89 +244,95 @@ class LoginViewModel(
 
             async {
                 driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { users ->
-                    users.find { userPath -> userPath.name == registeredUser.email }.also { user ->
-                        println("User path found for: ${user?.name}")
-                        driveService.listFiles(user?.id ?: return@async).onSuccess { userFiles ->
-                            userFiles.find { userFile ->
-                                userFile.name == "${registeredUser.email}.json"
-                            }.also { userLoginFile ->
-                                println("User login file found for: ${user.name}")
-                                val userLoginFileContent = userLoginFile?.let { file ->
-                                    driveService.getFileContent(file.id)?.decodeToString()
-                                }
-                                if (userLoginFileContent == null) {
+                    users.find { userPath -> userPath.name == registeredUser.email }
+                        .also { user ->
+                            println("User path found for: ${user?.name}")
+                            driveService.listFiles(user?.id ?: return@async)
+                                .onSuccess { userFiles ->
+                                    userFiles.find { userFile ->
+                                        userFile.name == "${registeredUser.email}.json"
+                                    }.also { userLoginFile ->
+                                        println("User login file found for: ${user.name}")
+                                        val userLoginFileContent = userLoginFile?.let { file ->
+                                            driveService.getFileContent(file.id)
+                                                ?.decodeToString()
+                                        }
+                                        if (userLoginFileContent == null) {
+                                            _state.update {
+                                                it.copy(
+                                                    isRegistering = false,
+                                                    networkError = true,
+                                                )
+                                            }
+                                            println("User file content is null")
+                                            return@async
+                                        }
+                                        val userObj =
+                                            json.decodeFromString<User>(userLoginFileContent)
+                                        println("User object: $userObj")
+                                        if (userObj.password != registeredUser.password) {
+                                            _state.update {
+                                                it.copy(isPasswordCorrect = false)
+                                            }
+                                            println("Password is incorrect")
+                                            return@async
+                                        }
+                                        _state.update { it.copy(userPathID = user.id) }
+                                        println("Working on user path: ${_state.value.userPathID}")
+                                        val userImageByteArray = ByteArrayOutputStream()
+                                        async {
+                                            downloadUserProfilePicture(userObj.email)?.asAndroidBitmap()
+                                                ?.compress(
+                                                    Bitmap.CompressFormat.JPEG,
+                                                    100,
+                                                    userImageByteArray,
+                                                )
+                                        }.await()
+                                        val loginData =
+                                            repository.getLoginInfo(1)
+                                                ?: LoginEntity.getDefault()
+                                        loginData.userId = userObj.id
+                                        loginData.userName = userObj.name
+                                        loginData.userEmail = userObj.email
+                                        loginData.userPassword = userObj.password
+                                        loginData.userPathID = user.id
+                                        loginData.isLoggedIn = true
+                                        loginData.showProfilePictureOptedIn =
+                                            userObj.showProfilePictureOptedIn
+                                        loginData.profilePicture =
+                                            userImageByteArray.toByteArray()
+                                        repository.updateLoginInfo(loginData)
+
+                                        _state.update {
+                                            it.copy(
+                                                isPasswordCorrect = true,
+                                                user = User(
+                                                    id = userObj.id,
+                                                    name = userObj.name,
+                                                    email = userObj.email,
+                                                    password = userObj.password,
+                                                    showProfilePictureOptedIn = userObj.showProfilePictureOptedIn,
+                                                ),
+                                                userProfilePicture = userImageByteArray.run {
+                                                    BitmapFactory.decodeByteArray(
+                                                        userImageByteArray.toByteArray(),
+                                                        0,
+                                                        userImageByteArray.toByteArray().size,
+                                                    )?.asImageBitmap()
+                                                },
+                                            )
+                                        }
+                                    }
+                                }.onError {
                                     _state.update {
                                         it.copy(
                                             isRegistering = false,
                                             networkError = true,
                                         )
                                     }
-                                    println("User file content is null")
                                     return@async
                                 }
-                                val userObj = json.decodeFromString<User>(userLoginFileContent)
-                                println("User object: $userObj")
-                                if (userObj.password != registeredUser.password) {
-                                    _state.update {
-                                        it.copy(isPasswordCorrect = false)
-                                    }
-                                    println("Password is incorrect")
-                                    return@async
-                                }
-                                _state.update { it.copy(userPathID = user.id) }
-                                println("Working on user path: ${_state.value.userPathID}")
-                                val userImageByteArray = ByteArrayOutputStream()
-                                async {
-                                    downloadUserProfilePicture(userObj.email)?.asAndroidBitmap()
-                                        ?.compress(
-                                            Bitmap.CompressFormat.JPEG,
-                                            100,
-                                            userImageByteArray,
-                                        )
-                                }.await()
-                                val loginData =
-                                    repository.getLoginInfo(1) ?: LoginEntity.getDefault()
-                                loginData.userId = userObj.id
-                                loginData.userName = userObj.name
-                                loginData.userEmail = userObj.email
-                                loginData.userPassword = userObj.password
-                                loginData.userPathID = user.id
-                                loginData.isLoggedIn = true
-                                loginData.showProfilePictureOptedIn =
-                                    userObj.showProfilePictureOptedIn
-                                loginData.profilePicture = userImageByteArray.toByteArray()
-                                repository.updateLoginInfo(loginData)
-
-                                _state.update {
-                                    it.copy(
-                                        isPasswordCorrect = true,
-                                        user = User(
-                                            id = userObj.id,
-                                            name = userObj.name,
-                                            email = userObj.email,
-                                            password = userObj.password,
-                                            showProfilePictureOptedIn = userObj.showProfilePictureOptedIn,
-                                        ),
-                                        userProfilePicture = userImageByteArray.run {
-                                            BitmapFactory.decodeByteArray(
-                                                userImageByteArray.toByteArray(),
-                                                0,
-                                                userImageByteArray.toByteArray().size,
-                                            )?.asImageBitmap()
-                                        },
-                                    )
-                                }
-                            }
-                        }.onError {
-                            _state.update {
-                                it.copy(
-                                    isRegistering = false,
-                                    networkError = true,
-                                )
-                            }
-                            return@async
                         }
-                    }
                 }
             }.await()
         }.invokeOnCompletion {
@@ -715,7 +725,8 @@ class LoginViewModel(
                 val userDataFile =
                     userFiles.find { it.name == state.value.user?.email + ".json" }
                 val userContentString =
-                    driveService.getFileContent(userDataFile?.id ?: return@launch)?.decodeToString()
+                    driveService.getFileContent(userDataFile?.id ?: return@launch)
+                        ?.decodeToString()
                 driveService.uploadFile(
                     userContentString?.toByteArray()?.inputStream(),
                     _state.value.user?.email + ".json",
@@ -739,19 +750,20 @@ class LoginViewModel(
             .compress(Bitmap.CompressFormat.JPEG, 70, imageByteArrayOutputStream)
 
         viewModelScope.launch(Dispatchers.IO) {
-            driveService.listFiles(state.value.userPathID ?: return@launch).onSuccess { userFiles ->
-                val pictureFileId = userFiles.find { it.name == "picture.jpg" }?.id
-                if (pictureFileId != null) {
-                    driveService.deleteFile(pictureFileId)
+            driveService.listFiles(state.value.userPathID ?: return@launch)
+                .onSuccess { userFiles ->
+                    val pictureFileId = userFiles.find { it.name == "picture.jpg" }?.id
+                    if (pictureFileId != null) {
+                        driveService.deleteFile(pictureFileId)
+                    }
+                }.onError {
+                    _state.update {
+                        it.copy(
+                            isErrorRemovingProfilePicture = true,
+                            isUpdatingProfilePicture = false,
+                        )
+                    }
                 }
-            }.onError {
-                _state.update {
-                    it.copy(
-                        isErrorRemovingProfilePicture = true,
-                        isUpdatingProfilePicture = false,
-                    )
-                }
-            }
             println("Old picture deleted successfully")
 
             val picture = ByteArrayInputStream(imageByteArrayOutputStream.toByteArray())
