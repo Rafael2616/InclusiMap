@@ -888,14 +888,13 @@ class LoginViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             async {
                 driveService.listFiles(state.value.userPathID ?: return@async)
-                    .onSuccess { result ->
-                        result.find { userFile ->
-                            userFile.name.endsWith(".json")
+                    .onSuccess { userFiles ->
+                        userFiles.find { userFile ->
+                            userFile.name == state.value.user?.email + ".json"
                         }.also { userLoginFile ->
                             val userLoginFileContent =
                                 userLoginFile?.id?.let { fileId ->
-                                    driveService.getFileContent(fileId)
-                                        ?.decodeToString()
+                                    driveService.getFileContent(fileId)?.decodeToString()
                                 }
                             if (userLoginFileContent == null) {
                                 return@async
