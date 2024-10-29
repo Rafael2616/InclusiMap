@@ -90,8 +90,6 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.activity.compose)
-    // Google Maps
-    implementation(libs.play.services.location)
     // Test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

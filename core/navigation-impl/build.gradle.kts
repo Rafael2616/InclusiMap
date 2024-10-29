@@ -8,16 +8,16 @@ plugins {
 android.namespace = "com.rafael.inclusimap.core.navigation_impl"
 
 dependencies {
-    // Navigation
+    // AndroidX
     implementation(libs.androidx.navigation)
     // Koin
     implementation(libs.koin.compose.viewmodel)
     implementation(libs.koin.androidx.compose)
     // Material Motion
     implementation(libs.material.motion.compose)
-
-    implementation(libs.play.services.location)
+    // Kotlin
     implementation(libs.kotlinx.serialization.json)
+
     // Projects
     implementation(projects.core.navigation)
     implementation(projects.core.settings)

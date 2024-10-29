@@ -19,7 +19,6 @@ coreKtx = "1.13.1"
 lifecycle = "2.8.6"
 activityCompose = "1.9.3"
 mapsCompose = "6.1.2"
-playServicesLocation = "21.3.0"
 core-splashscreen = "1.2.0-alpha02"
 kotlinx-coroutines = "1.9.0"
 lazycolumn-scrollbar = "2.2.0"
@@ -72,9 +71,6 @@ coil-compose-core = { module = "io.coil-kt.coil3:coil-compose-core", version.ref
 coil-network = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
 ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
 
-maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "mapsCompose" }
-play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
-
 google-accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissionsVersion" }
 google-api-client = { module = "com.google.api-client:google-api-client", version.ref = "googleApiClientVersion" }
 google-api-services-drive = { module = "com.google.apis:google-api-services-drive", version.ref = "googleApiServicesDriveVersion" }
@@ -86,6 +82,7 @@ koin-core-viewmodel = { module = "io.insert-koin:koin-core-viewmodel", version.r
 koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
 koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
 
+maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "mapsCompose" }
 material-motion-compose = { module = "io.github.fornewid:material-motion-compose-core", version.ref = "material-motion-compose" }
 ktlint-compose-rules = { module = "io.nlopez.compose.rules:ktlint", version.ref = "compose-rules" }
 lazycolumn-scrollbar = { module = "com.github.nanihadesuka:LazyColumnScrollbar", version.ref = "lazycolumn-scrollbar" }

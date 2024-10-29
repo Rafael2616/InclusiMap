@@ -17,7 +17,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.google.android.gms.location.FusedLocationProviderClient
 import com.rafael.inclusimap.core.navigation.Destination
 import com.rafael.inclusimap.core.settings.domain.model.SettingsEvent
 import com.rafael.inclusimap.core.ui.theme.InclusiMapTheme
@@ -39,7 +38,6 @@ import soup.compose.material.motion.animation.rememberSlideDistance
 
 @Composable
 fun InclusiMapNavHost(
-    fusedLocationProviderClient: FusedLocationProviderClient,
     modifier: Modifier = Modifier,
 ) {
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
