@@ -754,16 +754,34 @@ class LoginViewModel(
                 isProfilePictureUpdated = false,
             )
         }
-        val imageByteArrayOutputStream = ByteArrayOutputStream()
-        image.asAndroidBitmap()
-            .compress(Bitmap.CompressFormat.JPEG, 70, imageByteArrayOutputStream)
-
         viewModelScope.launch(Dispatchers.IO) {
+            val resizedImage = image.asAndroidBitmap().let { bitmap ->
+                val maxSize = 1024
+                val width = bitmap.width
+                val height = bitmap.height
+                val scale = if (width > height) {
+                    maxSize.toFloat() / width
+                } else {
+                    maxSize.toFloat() / height
+                }
+                Bitmap.createScaledBitmap(
+                    bitmap,
+                    (width * scale).toInt(),
+                    (height * scale).toInt(),
+                    true
+                )
+            }
+
+            val imageByteArrayOutputStream = ByteArrayOutputStream()
+            resizedImage.compress(Bitmap.CompressFormat.JPEG, 85, imageByteArrayOutputStream)
+
             driveService.listFiles(state.value.userPathID ?: return@launch)
                 .onSuccess { userFiles ->
                     val pictureFileId = userFiles.find { it.name == "picture.jpg" }?.id
                     if (pictureFileId != null) {
-                        driveService.deleteFile(pictureFileId)
+                        async {
+                            driveService.deleteFile(pictureFileId)
+                        }.await()
                     }
                 }.onError {
                     _state.update {
