@@ -158,13 +158,16 @@ class ContributionsViewModel(
                         }
 
                         inProgressFileIds.add(contribution.fileId)
+                        println("Loading image: ${contribution.fileId}")
                         try {
                             val placeMetadata = driveService.getFileMetadata(contribution.fileId)
                             val placeID = placeMetadata?.name?.extractPlaceID()
+                            println("Place ID: $placeID for image contribution: ${contribution.fileId}")
 
                             driveService.getFileContent(contribution.fileId)?.let { content ->
                                 BitmapFactory.decodeByteArray(content, 0, content.size, options)
                                     ?.asImageBitmap()?.let { img ->
+                                        println("Image founded for contribution: ${contribution.fileId}")
                                         _state.update {
                                             it.copy(
                                                 userContributions = it.userContributions.copy(
@@ -204,6 +207,7 @@ class ContributionsViewModel(
                     ),
                 )
             }
+            println("Loaded all images contributions + size: ${state.value.userContributions.images.size}")
         }
     }
 
@@ -248,6 +252,7 @@ class ContributionsViewModel(
                     ),
                 )
             }
+            println("Loaded all comments contributions")
         }
     }
 
@@ -286,6 +291,7 @@ class ContributionsViewModel(
                     ),
                 )
             }
+            println("Loaded all resources contributions")
         }
     }
 
@@ -330,6 +336,7 @@ class ContributionsViewModel(
                     ),
                 )
             }
+            println("Loaded all places contributions")
         }
     }
 
@@ -400,7 +407,8 @@ class ContributionsViewModel(
                 .onSuccess {
                     val placeFileID =
                         it.find { it.name.extractPlaceID() == placeID }?.id
-                            ?: return@withContext null
+                            println("Place founded with ID: $placeFileID")
+                            if (placeFileID == null) return@withContext null
                     driveService.getFileContent(placeFileID)?.let { content ->
                         place =
                             json.decodeFromString<AccessibleLocalMarker>(content.decodeToString())
