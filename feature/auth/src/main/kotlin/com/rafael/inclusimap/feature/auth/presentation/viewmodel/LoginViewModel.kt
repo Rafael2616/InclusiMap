@@ -395,7 +395,7 @@ class LoginViewModel(
         // Update the password in local database
         viewModelScope.launch(Dispatchers.IO) {
             val loginData = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
-            loginData.userEmail = password
+            loginData.userPassword = password
             repository.updateLoginInfo(loginData)
         }
         // Update the password in Google Drive
