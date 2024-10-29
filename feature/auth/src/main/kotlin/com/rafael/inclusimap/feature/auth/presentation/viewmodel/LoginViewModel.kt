@@ -155,21 +155,22 @@ class LoginViewModel(
                     )
                 }
             }.await()
-
             val userString = json.encodeToString<User>(user)
             async {
-                val userPathId = driveService.createFile(
+                driveService.createFile(
                     "${newUser.email}.json",
                     userString,
-                    INCLUSIMAP_USERS_FOLDER_ID,
+                    state.value.userPathID,
                 )
-                _state.update { it.copy(userPathID = userPathId) }
+                driveService.listFiles(state.value.userPathID ?: return@async).onSuccess {
+                    it.find { file -> file.name == "contributions.json" }
+                        ?: driveService.createFile(
+                            "contributions.json",
+                            "[]",
+                            state.value.userPathID,
+                        )
+                }
             }.await()
-            driveService.createFile(
-                "contributions.json",
-                "[]",
-                state.value.userPathID,
-            )
             // Artificial Delay
             delay(500L)
         }.invokeOnCompletion {
