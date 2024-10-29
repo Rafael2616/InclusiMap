@@ -275,6 +275,9 @@ fun ProfileSettingsDialog(
                                 unfocusedIndicatorColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
                                     2.dp,
                                 ),
+                                disabledIndicatorColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                                    2.dp,
+                                ),
                             ),
                             label = {
                                 Text(
