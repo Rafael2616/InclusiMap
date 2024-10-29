@@ -213,8 +213,16 @@ class LoginViewModel(
             async {
                 driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { usersPaths ->
                     usersPaths.find { userPath -> userPath.name == registeredUser.email }
-                        ?.also { userPath ->
-                            driveService.listFiles(userPath.id).onSuccess {
+                        .also { userPath ->
+                            if (userPath == null) {
+                                _state.update {
+                                    it.copy(
+                                        isRegistering = false,
+                                        userAlreadyRegistered = false,
+                                    )
+                                }
+                            }
+                            driveService.listFiles(userPath?.id ?: return@async).onSuccess {
                                 val userExists =
                                     it.find { userLoginFile -> userLoginFile.name == "${registeredUser.email}.json" }
                                 _state.update { it.copy(userAlreadyRegistered = userExists != null) }
