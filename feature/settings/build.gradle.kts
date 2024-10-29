@@ -9,6 +9,8 @@ android.namespace = "com.rafael.inclusimap.feature.settings"
 dependencies {
     // AndroidX
     implementation(libs.androidx.navigation)
+    implementation(libs.exifInterface)
+
     // Koin
     api(libs.koin.core)
     implementation(libs.koin.core.viewmodel)

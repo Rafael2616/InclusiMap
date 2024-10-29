@@ -2,6 +2,7 @@ package com.rafael.inclusimap.feature.settings.presentation
 
 import android.content.res.Configuration
 import android.graphics.BitmapFactory
+import android.media.ExifInterface
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -68,6 +69,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rafael.inclusimap.core.domain.network.InternetConnectionState
+import com.rafael.inclusimap.core.domain.util.rotateImage
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 
 @Composable
@@ -92,10 +94,18 @@ fun ProfileSettingsDialog(
         contract = ActivityResultContracts.PickVisualMedia(),
     ) { uri ->
         uri?.let {
-            profilePicture =
-                context.contentResolver.openInputStream(it)?.use { image ->
-                    BitmapFactory.decodeStream(image).asImageBitmap()
-                } ?: return@let
+            profilePicture = context.contentResolver.openInputStream(it)?.use { image ->
+                val bitmap = BitmapFactory.decodeStream(image)
+                val imageOrientation =
+                    context.contentResolver.openFileDescriptor(uri, "r")?.use { fd ->
+                        ExifInterface(fd.fileDescriptor).getAttributeInt(
+                            ExifInterface.TAG_ORIENTATION,
+                            ExifInterface.ORIENTATION_NORMAL
+                        )
+                    } ?: ExifInterface.ORIENTATION_NORMAL
+
+                rotateImage(bitmap, imageOrientation).asImageBitmap()
+            } ?: return@let
         }
     }
     var allowOtherUsersToSeeProfilePictureOptedId by remember {

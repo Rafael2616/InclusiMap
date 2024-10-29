@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafael.inclusimap.core.domain.model.AccessibilityResource
@@ -23,6 +24,7 @@ import com.rafael.inclusimap.core.domain.network.onSuccess
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_IMAGE_FOLDER_ID
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID
 import com.rafael.inclusimap.core.domain.util.Constants.MAX_IMAGE_NUMBER
+import com.rafael.inclusimap.core.domain.util.rotateImage
 import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
 import com.rafael.inclusimap.feature.contributions.domain.model.Contribution
@@ -281,6 +283,7 @@ class PlaceDetailsViewModel(
                                     println("All images cached successfully for ${placeDetails.title} ${placeDetails.id} + size: ${_state.value.currentPlace.images.size}")
                                 }
                             }
+                        fileContent.close()
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
@@ -335,19 +338,12 @@ class PlaceDetailsViewModel(
     ) {
         _state.update {
             it.copy(
-                imagesToUploadSize = null,
                 imagesUploadedSize = 0,
                 isUploadingImages = true,
                 isErrorUploadingImages = false,
+                imagesToUploadSize = uris.size
             )
         }
-        // Add the image to the list of images tobe showed in the app UI
-        val options = BitmapFactory.Options()
-        options.inSampleSize = 3
-        val options2 = BitmapFactory.Options()
-        options2.inSampleSize = 2
-
-        _state.update { it.copy(imagesToUploadSize = uris.size) }
 
         viewModelScope.launch(Dispatchers.IO) {
             async {
@@ -369,13 +365,24 @@ class PlaceDetailsViewModel(
 
             var imagesFileIds = emptyList<String?>()
             uris.mapIndexed { index, uri ->
-                val bitmap =
-                    BitmapFactory.decodeStream(context.contentResolver.openInputStream(uri))
+                val bitmap = context.contentResolver.openInputStream(uri)?.use { image ->
+                    val bitmap = BitmapFactory.decodeStream(image)
+                    val imageOrientation =
+                        context.contentResolver.openFileDescriptor(uri, "r")?.use { fd ->
+                            ExifInterface(fd.fileDescriptor).getAttributeInt(
+                                ExifInterface.TAG_ORIENTATION,
+                                ExifInterface.ORIENTATION_NORMAL,
+                            )
+                        } ?: ExifInterface.ORIENTATION_NORMAL
+
+                    rotateImage(bitmap, imageOrientation)
+                }
                 val outputStream = ByteArrayOutputStream()
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
+                bitmap?.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
                 val compressedImage = outputStream.toByteArray()
                 val imageFileName =
                     "${_state.value.currentPlace.id}_$userEmail-${Date().toInstant()}.jpg"
+
                 async {
                     val imageId = driveService.uploadFile(
                         fileContent = ByteArrayInputStream(compressedImage),
@@ -389,19 +396,15 @@ class PlaceDetailsViewModel(
                             it.copy(isErrorUploadingImages = true)
                         }
                     }
+
+                    // UI displayed image // more compressed
+                    val options = BitmapFactory.Options()
+                    options.inSampleSize = 2
+                    val compressedBitmap =BitmapFactory.decodeStream(compressedImage.inputStream(), null, options)
+
                     val image = PlaceImage(
                         userEmail = userEmail,
-                        image = BitmapFactory.decodeStream(
-                            context.contentResolver.openInputStream(uri),
-                            null,
-                            options,
-                        )?.asImageBitmap() ?: BitmapFactory.decodeStream(
-                            context.contentResolver.openInputStream(uri),
-                            null,
-                            options2,
-                        )?.asImageBitmap() ?: BitmapFactory.decodeStream(
-                            context.contentResolver.openInputStream(uri),
-                        ).asImageBitmap(),
+                        image = compressedBitmap?.asImageBitmap() ?: return@async,
                         placeID = imageId ?: return@async,
                         name = imageFileName,
                     )
@@ -453,7 +456,7 @@ class PlaceDetailsViewModel(
         }
         viewModelScope.launch(Dispatchers.IO) {
             val folderId = state.value.currentPlace.imageFolderId
-             println("Working on folder id: $folderId")
+            println("Working on folder id: $folderId")
             folderId?.let {
                 driveService.listFiles(folderId).onSuccess { files ->
                     val imageId = files.find { it.name == image.name }?.id

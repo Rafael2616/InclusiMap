@@ -17,6 +17,7 @@ import com.rafael.inclusimap.core.domain.network.onSuccess
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_IMAGE_FOLDER_ID
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_USERS_FOLDER_ID
+import com.rafael.inclusimap.core.domain.util.resizedImageAsByteArrayOS
 import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.feature.auth.domain.model.LoginEntity
 import com.rafael.inclusimap.feature.auth.domain.model.LoginEvent
@@ -755,25 +756,7 @@ class LoginViewModel(
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
-            val resizedImage = image.asAndroidBitmap().let { bitmap ->
-                val maxSize = 1024
-                val width = bitmap.width
-                val height = bitmap.height
-                val scale = if (width > height) {
-                    maxSize.toFloat() / width
-                } else {
-                    maxSize.toFloat() / height
-                }
-                Bitmap.createScaledBitmap(
-                    bitmap,
-                    (width * scale).toInt(),
-                    (height * scale).toInt(),
-                    true
-                )
-            }
-
-            val imageByteArrayOutputStream = ByteArrayOutputStream()
-            resizedImage.compress(Bitmap.CompressFormat.JPEG, 85, imageByteArrayOutputStream)
+            val resizedImage = resizedImageAsByteArrayOS(image)
 
             driveService.listFiles(state.value.userPathID ?: return@launch)
                 .onSuccess { userFiles ->
@@ -793,7 +776,7 @@ class LoginViewModel(
                 }
             println("Old picture deleted successfully")
 
-            val picture = ByteArrayInputStream(imageByteArrayOutputStream.toByteArray())
+            val picture = ByteArrayInputStream(resizedImage.toByteArray())
             val pictureId = driveService.uploadFile(
                 picture,
                 "picture.jpg",
@@ -807,7 +790,7 @@ class LoginViewModel(
                 val user = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
                 repository.updateLoginInfo(
                     user.copy(
-                        profilePicture = imageByteArrayOutputStream.toByteArray(),
+                        profilePicture = resizedImage.toByteArray(),
                     ),
                 )
             }
