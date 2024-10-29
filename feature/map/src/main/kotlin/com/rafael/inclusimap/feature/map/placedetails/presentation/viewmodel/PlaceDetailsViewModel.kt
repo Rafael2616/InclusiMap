@@ -34,6 +34,7 @@ import com.rafael.inclusimap.feature.map.placedetails.domain.model.PlaceDetailsE
 import com.rafael.inclusimap.feature.map.placedetails.domain.model.PlaceDetailsState
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.util.Date
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -229,7 +230,7 @@ class PlaceDetailsViewModel(
 
             _state.value.currentPlace.imageFolder?.mapIndexed { index, file ->
                 async {
-                    // Is expected that this condition never sucessseds, but is important to ensure
+                    // Is expected that this condition never succeeds, but is important to ensure
                     // that no more images that max limit loads, as it can cause UI lags, and much processing
                     if (index >= MAX_IMAGE_NUMBER) {
                         _state.update {
@@ -242,48 +243,58 @@ class PlaceDetailsViewModel(
                     try {
                         val fileContent = driveService.driveService.files().get(file.id)
                             .executeMediaAsInputStream()
-                        val options = BitmapFactory.Options()
-                        options.inSampleSize = 2
-                        BitmapFactory.decodeStream(fileContent, null, options)
-                            ?.asImageBitmap()?.also { image ->
-                                if (placeDetails.id != _state.value.currentPlace.id) {
-                                    return@async
-                                }
-                                if (file.name in _state.value.currentPlace.images.map { it?.name }) {
-                                    println("Skipping already loaded image ${file.name}")
-                                    return@async
-                                }
+                        val tempFile = File.createTempFile("downloaded_image", ".jpg")
+                        tempFile.outputStream().use { fileContent.copyTo(it) }
 
-                                val placeImage = PlaceImage(
-                                    userEmail = file.name.extractUserEmail(),
-                                    image = image,
-                                    placeID = placeDetails.id ?: return@async,
-                                    name = file.name,
-                                )
-                                _state.update {
-                                    it.copy(
-                                        currentPlace = it.currentPlace.copy(
-                                            images = it.currentPlace.images + placeImage,
-                                        ),
-                                        loadedPlaces = it.loadedPlaces.map { place ->
-                                            if (place.id == state.value.currentPlace.id) {
-                                                place.copy(images = place.images + placeImage)
-                                            } else {
-                                                place
-                                            }
-                                        },
-                                    ).also {
-                                        println("Loading image $index with name ${file.name} with id ${file.id}")
+                        val exifInterface = ExifInterface(tempFile.absolutePath)
+                        val orientation = exifInterface.getAttributeInt(
+                            ExifInterface.TAG_ORIENTATION,
+                            ExifInterface.ORIENTATION_NORMAL,
+                        )
+
+                        val options = BitmapFactory.Options().apply { inSampleSize = 2 }
+                        val bitmap = BitmapFactory.decodeFile(tempFile.absolutePath, options)
+                        val adjustedBitmap = rotateImage(bitmap, orientation).asImageBitmap()
+
+                        if (placeDetails.id != _state.value.currentPlace.id) {
+                            return@async
+                        }
+                        if (file.name in _state.value.currentPlace.images.map { it?.name }) {
+                            println("Skipping already loaded image ${file.name}")
+                            return@async
+                        }
+
+                        val placeImage = PlaceImage(
+                            userEmail = file.name.extractUserEmail(),
+                            image = adjustedBitmap,
+                            placeID = placeDetails.id ?: return@async,
+                            name = file.name,
+                        )
+                        _state.update {
+                            it.copy(
+                                currentPlace = it.currentPlace.copy(
+                                    images = it.currentPlace.images + placeImage,
+                                ),
+                                loadedPlaces = it.loadedPlaces.map { place ->
+                                    if (place.id == state.value.currentPlace.id) {
+                                        place.copy(images = place.images + placeImage)
+                                    } else {
+                                        place
                                     }
-                                }
-                                if (_state.value.currentPlace.images.size == _state.value.currentPlace.imageFolder?.size) {
-                                    _state.update {
-                                        it.copy(allImagesLoaded = true)
-                                    }
-                                    println("All images cached successfully for ${placeDetails.title} ${placeDetails.id} + size: ${_state.value.currentPlace.images.size}")
-                                }
+                                },
+                            ).also {
+                                println("Loading image $index with name ${file.name} with id ${file.id}")
                             }
+                        }
+                        if (_state.value.currentPlace.images.size == _state.value.currentPlace.imageFolder?.size) {
+                            _state.update {
+                                it.copy(allImagesLoaded = true)
+                            }
+                            println("All images cached successfully for ${placeDetails.title} ${placeDetails.id} + size: ${_state.value.currentPlace.images.size}")
+                        }
+
                         fileContent.close()
+                        tempFile.delete()
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
@@ -341,7 +352,7 @@ class PlaceDetailsViewModel(
                 imagesUploadedSize = 0,
                 isUploadingImages = true,
                 isErrorUploadingImages = false,
-                imagesToUploadSize = uris.size
+                imagesToUploadSize = uris.size,
             )
         }
 
@@ -400,7 +411,8 @@ class PlaceDetailsViewModel(
                     // UI displayed image // more compressed
                     val options = BitmapFactory.Options()
                     options.inSampleSize = 2
-                    val compressedBitmap =BitmapFactory.decodeStream(compressedImage.inputStream(), null, options)
+                    val compressedBitmap =
+                        BitmapFactory.decodeStream(compressedImage.inputStream(), null, options)
 
                     val image = PlaceImage(
                         userEmail = userEmail,
