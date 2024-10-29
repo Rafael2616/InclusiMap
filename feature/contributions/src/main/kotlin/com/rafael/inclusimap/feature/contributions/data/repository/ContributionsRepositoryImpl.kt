@@ -20,7 +20,7 @@ class ContributionsRepositoryImpl(
         ignoreUnknownKeys = true
     }
 
-    override suspend fun addNewContributions(contributions: List<Contribution>) {
+    override suspend fun addNewContributions(contributions: List<Contribution>, attempt: Int) {
         withContext(Dispatchers.IO) {
             val userPathId = loginRepository.getLoginInfo(1)?.userPathID ?: return@withContext
             driveService.listFiles(userPathId).onSuccess { userFiles ->
@@ -41,18 +41,20 @@ class ContributionsRepositoryImpl(
                         )
                         println("Contribution added successfully: $contributions")
                     }
-                if (userContributionsFile == null) {
+                if (userContributionsFile == null && attempt < 3) {
                     driveService.createFile(
                         "contributions.json",
                         "[]",
                         userPathId,
                     )
+                    println("Contribution file was created now, attempting to add contribution again")
+                    addNewContributions(contributions, attempt + 1)
                 }
             }
         }
     }
 
-    override suspend fun addNewContribution(contribution: Contribution) {
+    override suspend fun addNewContribution(contribution: Contribution, attempt: Int) {
         withContext(Dispatchers.IO) {
             val userPathId = loginRepository.getLoginInfo(1)?.userPathID ?: return@withContext
             driveService.listFiles(userPathId).onSuccess { userFiles ->
@@ -74,12 +76,14 @@ class ContributionsRepositoryImpl(
                         )
                         println("Contribution added successfully" + contribution.fileId)
                     }
-                if (userContributionsFile == null) {
+                if (userContributionsFile == null && attempt < 3) {
                     driveService.createFile(
                         "contributions.json",
                         "[]",
                         userPathId,
                     )
+                    println("Contribution file was created now, attempting to add contribution again")
+                    addNewContribution(contribution, attempt + 1)
                 }
             }
         }
