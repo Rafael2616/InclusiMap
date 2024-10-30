@@ -12,6 +12,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -78,6 +79,7 @@ fun ProfileSettingsDialog(
     onAddUpdatePicture: (ImageBitmap) -> Unit,
     onRemovePicture: () -> Unit,
     userName: String,
+    userEmail: String,
     allowOtherUsersToSeeProfilePicture: Boolean,
     onEditUserName: (String) -> Unit,
     onAllowPictureOptedIn: (Boolean) -> Unit,
@@ -100,7 +102,7 @@ fun ProfileSettingsDialog(
                     context.contentResolver.openFileDescriptor(uri, "r")?.use { fd ->
                         ExifInterface(fd.fileDescriptor).getAttributeInt(
                             ExifInterface.TAG_ORIENTATION,
-                            ExifInterface.ORIENTATION_NORMAL
+                            ExifInterface.ORIENTATION_NORMAL,
                         )
                     } ?: ExifInterface.ORIENTATION_NORMAL
 
@@ -158,7 +160,7 @@ fun ProfileSettingsDialog(
                         textAlign = TextAlign.Start,
                         softWrap = true,
 
-                    )
+                        )
                 }
                 profilePicture?.let { image ->
                     item {
@@ -260,8 +262,7 @@ fun ProfileSettingsDialog(
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(16.dp))
                             .background(MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp))
-                            .padding(8.dp)
-                            .padding(horizontal = 4.dp),
+                            .padding(8.dp),
                     ) {
                         TextField(
                             value = newName,
@@ -330,6 +331,30 @@ fun ProfileSettingsDialog(
                                 contentDescription = "Edit",
                             )
                         }
+                    }
+                }
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp))
+                            .padding(8.dp)
+                            .padding(horizontal = 4.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.Start,
+                    ) {
+                        Text(
+                            text = "Conta",
+                            fontSize = 10.sp,
+                            color = MaterialTheme.colorScheme.primary,
+                            lineHeight = 14.sp,
+                        )
+                        Text(
+                            text = userEmail,
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f),
+                        )
                     }
                 }
                 item {

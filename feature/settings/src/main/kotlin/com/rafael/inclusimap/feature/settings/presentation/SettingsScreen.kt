@@ -29,6 +29,7 @@ fun SettingsScreen(
     networkError: Boolean,
     deleteStep: DeleteProcess,
     userName: String,
+    userEmail: String,
     allowOtherUsersToSeeProfilePicture: Boolean,
     onEditUserName: (String) -> Unit,
     onAddEditProfilePicture: (ImageBitmap) -> Unit,
@@ -108,6 +109,7 @@ fun SettingsScreen(
                 onRemoveProfilePicture()
             },
             userName = userName,
+            userEmail = userEmail,
             allowOtherUsersToSeeProfilePicture = allowOtherUsersToSeeProfilePicture,
             onEditUserName = {
                 onEditUserName(it)

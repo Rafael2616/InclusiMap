@@ -142,6 +142,7 @@ fun InclusiMapNavHost(
                             deleteStep = loginState.deleteStep,
                             networkError = loginState.networkError,
                             userName = loginState.user?.name ?: "",
+                            userEmail = loginState.user?.email ?: "",
                             onEditUserName = {
                                 loginViewModel.onEvent(LoginEvent.UpdateUserName(it))
                             },
