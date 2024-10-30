@@ -2,6 +2,7 @@ package com.rafael.inclusimap.feature.contributions.presentation.viewmodel
 
 import android.graphics.BitmapFactory
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
@@ -12,6 +13,7 @@ import com.rafael.inclusimap.core.domain.model.util.removeTime
 import com.rafael.inclusimap.core.domain.network.onError
 import com.rafael.inclusimap.core.domain.network.onSuccess
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID
+import com.rafael.inclusimap.core.domain.util.rotateImage
 import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
 import com.rafael.inclusimap.feature.contributions.domain.ContributionsState
@@ -23,6 +25,7 @@ import com.rafael.inclusimap.feature.contributions.domain.model.ContributionsEve
 import com.rafael.inclusimap.feature.contributions.domain.model.ContributionsSize
 import com.rafael.inclusimap.feature.contributions.domain.model.PlaceImageWithPlace
 import com.rafael.inclusimap.feature.contributions.domain.repository.ContributionsRepository
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -147,7 +150,6 @@ class ContributionsViewModel(
     ) {
         _state.update { it.copy(allImagesContributionsLoaded = false) }
         viewModelScope.launch(Dispatchers.IO) {
-            val options = BitmapFactory.Options().apply { inSampleSize = 3 }
             val batchSize = 8
             contributions.chunked(batchSize).forEach { batch ->
                 val deferreds = batch.map { contribution ->
@@ -165,29 +167,44 @@ class ContributionsViewModel(
                             println("Place ID: $placeID for image contribution: ${contribution.fileId}")
 
                             driveService.getFileContent(contribution.fileId)?.let { content ->
-                                BitmapFactory.decodeByteArray(content, 0, content.size, options)
-                                    ?.asImageBitmap()?.let { img ->
-                                        println("Image founded for contribution: ${contribution.fileId}")
-                                        _state.update {
-                                            it.copy(
-                                                userContributions = it.userContributions.copy(
-                                                    images = it.userContributions.images + PlaceImageWithPlace(
-                                                        placeImage = PlaceImage(
-                                                            image = img,
-                                                            userEmail = userEmail,
-                                                            placeID = placeID ?: return@async,
-                                                            name = contribution.fileId,
-                                                        ),
-                                                        date = placeMetadata.name.removeTime()
-                                                            ?.formatDate(),
-                                                        place = loadPlaceById(placeID)
-                                                            ?: return@async,
-                                                        fileId = contribution.fileId,
-                                                    ),
+                                val tempFile = File.createTempFile(
+                                    "downloaded_image_${contribution.fileId}",
+                                    ".jpg",
+                                )
+                                tempFile.outputStream().use { content.inputStream().copyTo(it) }
+
+                                val exifInterface = ExifInterface(tempFile.absolutePath)
+                                val orientation = exifInterface.getAttributeInt(
+                                    ExifInterface.TAG_ORIENTATION,
+                                    ExifInterface.ORIENTATION_NORMAL,
+                                )
+
+                                val options = BitmapFactory.Options().apply { inSampleSize = 3 }
+                                val bitmap =
+                                    BitmapFactory.decodeFile(tempFile.absolutePath, options)
+                                val adjustedBitmap =
+                                    rotateImage(bitmap, orientation).asImageBitmap()
+
+                                println("Image founded for contribution: ${contribution.fileId}")
+                                _state.update {
+                                    it.copy(
+                                        userContributions = it.userContributions.copy(
+                                            images = it.userContributions.images + PlaceImageWithPlace(
+                                                placeImage = PlaceImage(
+                                                    image = adjustedBitmap,
+                                                    userEmail = userEmail,
+                                                    placeID = placeID ?: return@async,
+                                                    name = contribution.fileId,
                                                 ),
-                                            )
-                                        }
-                                    }
+                                                date = placeMetadata.name.removeTime()
+                                                    ?.formatDate(),
+                                                place = loadPlaceById(placeID)
+                                                    ?: return@async,
+                                                fileId = contribution.fileId,
+                                            ),
+                                        ),
+                                    )
+                                }
                             }
                         } finally {
                             inProgressFileIds.remove(contribution.fileId)
@@ -407,8 +424,8 @@ class ContributionsViewModel(
                 .onSuccess {
                     val placeFileID =
                         it.find { it.name.extractPlaceID() == placeID }?.id
-                            println("Place founded with ID: $placeFileID")
-                            if (placeFileID == null) return@withContext null
+                    println("Place founded with ID: $placeFileID")
+                    if (placeFileID == null) return@withContext null
                     driveService.getFileContent(placeFileID)?.let { content ->
                         place =
                             json.decodeFromString<AccessibleLocalMarker>(content.decodeToString())

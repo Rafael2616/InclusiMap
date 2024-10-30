@@ -11,6 +11,7 @@ dependencies {
     // AndroidX
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.navigation)
+    implementation(libs.exifInterface)
     // Kotlin
     implementation(libs.kotlinx.serialization.json)
     // Koin
