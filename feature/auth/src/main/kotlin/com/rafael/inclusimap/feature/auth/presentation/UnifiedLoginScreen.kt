@@ -113,7 +113,7 @@ fun UnifiedLoginScreen(
                     .fillMaxWidth()
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+                verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
             ) {
                 item {
                     Text(
@@ -122,7 +122,6 @@ fun UnifiedLoginScreen(
                         color = MaterialTheme.colorScheme.primary,
                         textAlign = TextAlign.Center,
                         modifier = Modifier
-                            .padding(bottom = 8.dp)
                             .fillMaxWidth(),
                     )
                 }
