@@ -79,7 +79,7 @@ fun UnifiedLoginScreen(
             modifier = Modifier
                 .navigationBarsPadding()
                 .statusBarsPadding()
-                .fillMaxWidth(if (isLandscape) 0.5f else 0.82f)
+                .fillMaxWidth(if (isLandscape) 0.5f else 0.85f)
                 .imeNestedScroll()
                 .imePadding()
                 .shadow(
