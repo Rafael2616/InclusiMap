@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -152,7 +151,7 @@ fun FullScreenImageViewDialog(
                                 .padding(top = 4.dp)
                                 .align(Alignment.TopCenter)
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(Color.Black.copy(alpha = 0.35f))
+                                .background(Color.Black.copy(alpha = 0.4f))
                                 .padding(horizontal = 6.dp, vertical = 4.dp),
                             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.Start),
                             verticalAlignment = Alignment.CenterVertically,
@@ -164,23 +163,23 @@ fun FullScreenImageViewDialog(
                                 Icon(
                                     imageVector = Icons.Filled.Close,
                                     contentDescription = null,
+                                    tint = Color.White,
                                 )
                             }
                             Text(
                                 text = placeName,
                                 fontSize = 20.sp,
-                                color = Color.White.copy(alpha = 0.8f),
+                                color = Color.White.copy(alpha = 0.85f),
                                 modifier = Modifier.fillMaxWidth(0.85f),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                             )
-                            Spacer(Modifier.weight(1f))
                         }
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .align(Alignment.BottomCenter)
-                                .padding(bottom = 10.dp, start = 6.dp),
+                                .padding(bottom = 16.dp, start = 6.dp),
                             contentAlignment = Alignment.BottomStart,
                         ) {
                             Row(
@@ -194,7 +193,7 @@ fun FullScreenImageViewDialog(
                                 Text(
                                     text = "Publicada em: ${images[currentImageIndex]?.name?.extractImageDate() ?: "Sem dados"}",
                                     fontSize = 12.sp,
-                                    color = Color.White.copy(alpha = 0.7f),
+                                    color = Color.White.copy(alpha = 0.75f),
                                     textAlign = TextAlign.Center,
                                 )
                             }

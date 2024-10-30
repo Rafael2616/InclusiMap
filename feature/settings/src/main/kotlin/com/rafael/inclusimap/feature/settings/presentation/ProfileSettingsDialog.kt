@@ -136,7 +136,7 @@ fun ProfileSettingsDialog(
             modifier = modifier
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .fillMaxWidth(if (isLandscape) 0.5f else 0.8f),
+                .fillMaxWidth(if (isLandscape) 0.5f else 0.85f),
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp),
