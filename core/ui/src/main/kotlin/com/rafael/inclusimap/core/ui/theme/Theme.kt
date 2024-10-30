@@ -75,7 +75,7 @@ fun InclusiMapTheme(
             navigationBarStyle = SystemBarStyle.auto(
                 Color.TRANSPARENT,
                 Color.TRANSPARENT,
-            ) { isDarkThemeOn },
+            ) { isFollowingSystemOn && isSystemInDarkTheme || !isFollowingSystemOn && isDarkThemeOn },
         )
         onDispose {}
     }
