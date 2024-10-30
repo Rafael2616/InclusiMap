@@ -242,9 +242,9 @@ class PlaceDetailsViewModel(
 
                     try {
                         val fileContent = driveService.driveService.files().get(file.id)
-                            .executeMediaAsInputStream()
+                            .executeMediaAsInputStream().readBytes()
                         val tempFile = File.createTempFile("downloaded_image_${file.name}", ".jpg")
-                        tempFile.outputStream().use { fileContent.copyTo(it) }
+                        tempFile.outputStream().use { fileContent.inputStream().copyTo(it) }
 
                         val exifInterface = ExifInterface(tempFile.absolutePath)
                         val orientation = exifInterface.getAttributeInt(
@@ -284,6 +284,7 @@ class PlaceDetailsViewModel(
                                 },
                             ).also {
                                 println("Loaded image $index with name ${file.name} with id ${file.id}")
+                                tempFile.delete()
                             }
                         }
                         if (_state.value.currentPlace.images.size == _state.value.currentPlace.imageFolder?.size) {
