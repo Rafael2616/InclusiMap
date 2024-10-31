@@ -1,6 +1,7 @@
 package com.rafael.inclusimap.feature.map.placedetails.presentation.dialogs
 
 import android.content.res.Configuration
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
@@ -56,15 +57,16 @@ import com.rafael.inclusimap.feature.report.presentation.dialogs.PlaceReportDial
 fun PlaceInfoDialog(
     currentPlace: AccessibleLocalMarker,
     isInternetAvailable: Boolean,
+    googleMapsPlaceUri: Uri?,
     onDismiss: () -> Unit,
     onReport: (Report) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var showReportDialog by remember { mutableStateOf(false) }
     val clipboardManager = LocalClipboardManager.current
-    val launcher = rememberLauncherForActivityResult(OpenInGoogleMapContract()) { }
     val orientation = LocalConfiguration.current.orientation
     val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
+    val launcher = rememberLauncherForActivityResult(OpenInGoogleMapContract(googleMapsPlaceUri)) { }
 
     Dialog(
         onDismissRequest = onDismiss,

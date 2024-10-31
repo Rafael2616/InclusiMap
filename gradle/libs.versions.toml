@@ -19,6 +19,7 @@ coreKtx = "1.15.0"
 lifecycle = "2.8.7"
 activityCompose = "1.9.3"
 mapsCompose = "6.2.0"
+placesVersion = "4.0.0"
 core-splashscreen = "1.2.0-alpha02"
 kotlinx-coroutines = "1.9.0"
 lazycolumn-scrollbar = "2.2.0"
@@ -86,6 +87,7 @@ maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = 
 material-motion-compose = { module = "io.github.fornewid:material-motion-compose-core", version.ref = "material-motion-compose" }
 ktlint-compose-rules = { module = "io.nlopez.compose.rules:ktlint", version.ref = "compose-rules" }
 lazycolumn-scrollbar = { module = "com.github.nanihadesuka:LazyColumnScrollbar", version.ref = "lazycolumn-scrollbar" }
+places = { module = "com.google.android.libraries.places:places", version.ref = "placesVersion" }
 zoomable-compose = { module = "net.engawapg.lib:zoomable", version.ref = "zoomable" }
 exifInterface = { module = "androidx.exifinterface:exifinterface", version.ref = "exif-interface" }
 

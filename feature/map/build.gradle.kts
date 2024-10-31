@@ -21,6 +21,7 @@ dependencies {
 
     // Google Maps
     api(libs.maps.compose)
+    implementation(libs.places)
 
     // Room
     implementation(libs.androidx.room.runtime)
