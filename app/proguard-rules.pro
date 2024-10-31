@@ -21,7 +21,12 @@
 #-renamesourcefileattribute SourceFile
 
 #Google Drive
+-keep class com.google.api.client.googleapis.** { *; }
+-keep class com.google.api.client.http.** { *; }
+-keep class com.google.api.client.json.** { *; }
+-keep class com.google.api.client.util.** { *; }
 -keep class com.google.api.services.drive.** { *; }
+-dontwarn com.google.api.client.**
 -dontwarn com.google.api.services.drive.**
 
 #Places Api
@@ -31,3 +36,5 @@
 #Google Maps
 -dontwarn javax.naming.**
 -dontwarn javax.naming.directory.**
+-dontwarn javax.naming.ldap.**
+-dontwarn org.ietf.jgss.**
