@@ -103,6 +103,13 @@ fun AboutAppScreen(
                 )
             }
             item {
+                Text(
+                    text = "v${BuildConfig.VERSION_NAME}",
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            item {
                 Spacer(modifier = Modifier.height(50.dp))
                 Text(
                     "Autores:",
@@ -110,14 +117,14 @@ fun AboutAppScreen(
                     textAlign = TextAlign.Start,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
-                        .fillMaxWidth(if (isLandscape) 0.6f else 1f),
+                        .fillMaxWidth(if (isLandscape) 0.7f else 1f),
                 )
             }
             Author.authors.forEach { author ->
                 item {
                     Card(
                         modifier = Modifier
-                            .fillMaxWidth(if (isLandscape) 0.6f else 1f)
+                            .fillMaxWidth(if (isLandscape) 0.7f else 1f)
                             .clip(RoundedCornerShape(24.dp)),
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(6.dp),
@@ -181,13 +188,6 @@ fun AboutAppScreen(
                         }
                     }
                 }
-            }
-            item {
-                Text(
-                    text = "v${BuildConfig.VERSION_NAME}",
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
             }
         }
     }
