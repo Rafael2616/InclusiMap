@@ -22,7 +22,6 @@
 
 #Google Drive
 -keep class com.google.api.services.drive.** { *; }
--dontwarn com.google.api.client.**
 -dontwarn com.google.api.services.drive.**
 
 #Places Api
@@ -32,5 +31,3 @@
 #Google Maps
 -dontwarn javax.naming.**
 -dontwarn javax.naming.directory.**
--dontwarn javax.naming.ldap.**
--dontwarn org.ietf.jgss.**
