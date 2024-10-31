@@ -58,6 +58,8 @@ import com.rafael.inclusimap.feature.intro.domain.model.AppIntroState
 import com.rafael.inclusimap.feature.intro.presentation.dialogs.AppIntroDialog
 import com.rafael.inclusimap.feature.map.map.domain.InclusiMapEvent
 import com.rafael.inclusimap.feature.map.map.domain.InclusiMapState
+import com.rafael.inclusimap.feature.map.map.domain.TILT_RANGE
+import com.rafael.inclusimap.feature.map.map.domain.inNorthRange
 import com.rafael.inclusimap.feature.map.map.presentation.dialog.PlacesNotLoadedDialog
 import com.rafael.inclusimap.feature.map.map.presentation.dialog.PlacesNotUpdatedDialog
 import com.rafael.inclusimap.feature.map.map.presentation.dialog.ServerUnavailableDialog
@@ -110,7 +112,8 @@ fun InclusiMapGoogleMapScreen(
     val isInternetAvailable by internetState.state.collectAsStateWithLifecycle()
     var firstTimeAnimation by remember { mutableStateOf<Boolean?>(null) }
     var openPlaceDetailsBottomSheet by rememberSaveable { mutableStateOf(false) }
-    var isNorth by remember(state.isMapLoaded) { mutableStateOf(state.currentLocation?.tilt == 0f && state.currentLocation.bearing == 0f) }
+    var isNorth by remember(state.isMapLoaded) { mutableStateOf((state.currentLocation?.bearing?.inNorthRange() ?: false) && (state.currentLocation?.tilt ?: 0f) in TILT_RANGE) }
+    var isFindNorthBtnClicked by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -213,6 +216,7 @@ fun InclusiMapGoogleMapScreen(
                     .size(45.dp)
                     .align(Alignment.TopStart),
                 onClick = {
+                    isFindNorthBtnClicked = true
                     onPlaceTravelScope.launch {
                         async {
                             cameraPositionState.animate(
@@ -230,6 +234,7 @@ fun InclusiMapGoogleMapScreen(
                         }.await()
                         delay(800)
                         isNorth = true
+                        isFindNorthBtnClicked = false
                     }
                 },
                 containerColor = MaterialTheme.colorScheme.surface,
@@ -238,7 +243,11 @@ fun InclusiMapGoogleMapScreen(
                 Icon(
                     imageVector = Icons.Outlined.CompassCalibration,
                     contentDescription = "Localizar",
-                    tint = if (cameraPositionState.position.bearing in -0.2f..0.2f && cameraPositionState.position.tilt in -0.2f..0.2f) Color.Green else MaterialTheme.colorScheme.error,
+                    tint = if (cameraPositionState.position.bearing.inNorthRange() && cameraPositionState.position.tilt in TILT_RANGE) {
+                        Color.Green
+                    } else {
+                        MaterialTheme.colorScheme.error
+                    },
                 )
             }
         }
@@ -450,14 +459,18 @@ fun InclusiMapGoogleMapScreen(
         if (!cameraPositionState.isMoving && cameraPositionState.position != defaultPos) {
             latestOnEvent(InclusiMapEvent.UpdateMapState(cameraPositionState.position))
         }
-        if (!cameraPositionState.isMoving && cameraPositionState.position.tilt in -0.2f..0.2f && cameraPositionState.position.bearing in -0.2f..0.2f) {
-            isNorth = true
-        }
         onDispose { }
     }
 
+    LaunchedEffect(!cameraPositionState.isMoving) {
+        if (!cameraPositionState.isMoving && !isFindNorthBtnClicked && cameraPositionState.position.tilt.inNorthRange() && cameraPositionState.position.bearing in TILT_RANGE) {
+            delay(800)
+            isNorth = true
+        }
+    }
+
     DisposableEffect(cameraPositionState.position) {
-        if (cameraPositionState.position.bearing != 0f || cameraPositionState.position.tilt != 0f) {
+        if (!cameraPositionState.position.bearing.inNorthRange()|| cameraPositionState.position.tilt !in TILT_RANGE) {
             isNorth = false
         }
         onDispose { }
