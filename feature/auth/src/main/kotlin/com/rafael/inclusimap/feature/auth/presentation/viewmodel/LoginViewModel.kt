@@ -850,28 +850,26 @@ class LoginViewModel(
         }
     }
 
-    suspend fun allowedShowUserProfilePicture(email: String): Boolean {
-        return suspendCancellableCoroutine { continuation ->
-            val job = viewModelScope.launch(Dispatchers.IO) {
-                driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { users ->
-                    users.find { user -> user.name == email }?.also { userPath ->
-                        driveService.listFiles(userPath.id).onSuccess { userFiles ->
-                            val userDataFile = userFiles.find { it.name == "$email.json" }
-                            val userContentString = userDataFile?.id?.let { fileId ->
-                                driveService.getFileContent(fileId)
-                                    ?.decodeToString()
-                            }
-                            val userObj = userContentString?.let { userContent ->
-                                json.decodeFromString<User>(userContent)
-                            }
-                            println("User ${userObj?.email} opted in for show profile picture: ${userObj?.showProfilePictureOptedIn}")
-                            continuation.resume(userObj?.showProfilePictureOptedIn ?: false)
+    suspend fun allowedShowUserProfilePicture(email: String): Boolean = suspendCancellableCoroutine { continuation ->
+        val job = viewModelScope.launch(Dispatchers.IO) {
+            driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { users ->
+                users.find { user -> user.name == email }?.also { userPath ->
+                    driveService.listFiles(userPath.id).onSuccess { userFiles ->
+                        val userDataFile = userFiles.find { it.name == "$email.json" }
+                        val userContentString = userDataFile?.id?.let { fileId ->
+                            driveService.getFileContent(fileId)
+                                ?.decodeToString()
                         }
+                        val userObj = userContentString?.let { userContent ->
+                            json.decodeFromString<User>(userContent)
+                        }
+                        println("User ${userObj?.email} opted in for show profile picture: ${userObj?.showProfilePictureOptedIn}")
+                        continuation.resume(userObj?.showProfilePictureOptedIn ?: false)
                     }
                 }
             }
-            continuation.invokeOnCancellation { job.cancel() }
         }
+        continuation.invokeOnCancellation { job.cancel() }
     }
 
     suspend fun downloadUserProfilePicture(email: String?): ImageBitmap? {
@@ -979,7 +977,6 @@ class LoginViewModel(
         // Update the value in Google Drive
         viewModelScope.launch(Dispatchers.IO) {
             async {
-
                 driveService.listFiles(state.value.userPathID ?: return@async)
                     .onSuccess { result ->
                         result.find { userFile -> userFile.name == state.value.user?.email + ".json" }

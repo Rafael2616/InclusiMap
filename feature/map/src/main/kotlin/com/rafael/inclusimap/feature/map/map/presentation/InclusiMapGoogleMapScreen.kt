@@ -228,7 +228,7 @@ fun InclusiMapGoogleMapScreen(
                                             0f,
                                             0f,
                                         )
-                                    }
+                                    },
                                 ),
                             )
                         }.await()
@@ -238,7 +238,7 @@ fun InclusiMapGoogleMapScreen(
                     }
                 },
                 containerColor = MaterialTheme.colorScheme.surface,
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
             ) {
                 Icon(
                     imageVector = Icons.Outlined.CompassCalibration,
@@ -470,7 +470,7 @@ fun InclusiMapGoogleMapScreen(
     }
 
     DisposableEffect(cameraPositionState.position) {
-        if (!cameraPositionState.position.bearing.inNorthRange()|| cameraPositionState.position.tilt !in TILT_RANGE) {
+        if (!cameraPositionState.position.bearing.inNorthRange() || cameraPositionState.position.tilt !in TILT_RANGE) {
             isNorth = false
         }
         onDispose { }

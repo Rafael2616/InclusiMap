@@ -35,8 +35,8 @@ fun InclusiMapScaffold(
     onNavigateToExplore: (fromContributionScreen: Boolean) -> Unit,
     onTravelToPlace: (String) -> Unit,
     onFullScreenModeChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
     isFullScreenMode: Boolean,
+    modifier: Modifier = Modifier,
     content: @Composable (PaddingValues, Boolean) -> Unit,
 ) {
     val focusRequester = remember { FocusRequester() }

@@ -160,7 +160,7 @@ fun ProfileSettingsDialog(
                         textAlign = TextAlign.Start,
                         softWrap = true,
 
-                        )
+                    )
                 }
                 profilePicture?.let { image ->
                     item {
