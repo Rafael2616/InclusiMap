@@ -16,4 +16,4 @@ local.properties
 /.kotlin
 /app/src/main/resources/credentials.json
 /app/src/main/resources/places_credentials.txt
-/keystore.properties
+keystore.properties
