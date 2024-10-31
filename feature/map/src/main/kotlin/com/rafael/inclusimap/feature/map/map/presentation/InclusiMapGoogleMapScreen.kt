@@ -466,7 +466,7 @@ fun InclusiMapGoogleMapScreen(
     }
 
     LaunchedEffect(!cameraPositionState.isMoving) {
-        if (!cameraPositionState.isMoving && !isFindNorthBtnClicked && cameraPositionState.position.tilt.inNorthRange() && cameraPositionState.position.bearing in TILT_RANGE) {
+        if (!cameraPositionState.isMoving && !isFindNorthBtnClicked && cameraPositionState.position.tilt in TILT_RANGE && cameraPositionState.position.bearing.inNorthRange()) {
             delay(800)
             isNorth = true
         }
