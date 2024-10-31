@@ -85,7 +85,7 @@ fun AboutAppScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             item {
-                Spacer(modifier = Modifier.height(30.dp))
+                Spacer(modifier = Modifier.height(25.dp))
                 Image(
                     painter = painterResource(id = R.drawable.ic_launcher_foreground),
                     contentDescription = null,
@@ -95,10 +95,10 @@ fun AboutAppScreen(
                 )
             }
             item {
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "InclusiMap©",
-                    fontSize = 30.sp,
+                    fontSize = 28.sp,
                     fontStyle = FontStyle.Italic,
                 )
             }
@@ -106,11 +106,12 @@ fun AboutAppScreen(
                 Text(
                     text = "v${BuildConfig.VERSION_NAME}",
                     fontSize = 12.sp,
+                    lineHeight = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
             item {
-                Spacer(modifier = Modifier.height(50.dp))
+                Spacer(modifier = Modifier.height(40.dp))
                 Text(
                     "Autores:",
                     fontSize = 16.sp,
