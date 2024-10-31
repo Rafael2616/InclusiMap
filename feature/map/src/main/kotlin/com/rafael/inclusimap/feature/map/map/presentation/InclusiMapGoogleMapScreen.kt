@@ -30,7 +30,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -60,6 +59,7 @@ import com.rafael.inclusimap.feature.intro.presentation.dialogs.AppIntroDialog
 import com.rafael.inclusimap.feature.map.map.domain.InclusiMapEvent
 import com.rafael.inclusimap.feature.map.map.domain.InclusiMapState
 import com.rafael.inclusimap.feature.map.map.domain.TILT_RANGE
+import com.rafael.inclusimap.feature.map.map.domain.greenColor
 import com.rafael.inclusimap.feature.map.map.domain.inNorthRange
 import com.rafael.inclusimap.feature.map.map.presentation.dialog.PlacesNotLoadedDialog
 import com.rafael.inclusimap.feature.map.map.presentation.dialog.PlacesNotUpdatedDialog
@@ -212,8 +212,7 @@ fun InclusiMapGoogleMapScreen(
             FloatingActionButton(
                 modifier = Modifier
                     .statusBarsPadding()
-                    .padding(top = 90.dp)
-                    .padding(horizontal = 8.dp)
+                    .padding(top = 85.dp, start = 12.dp)
                     .size(45.dp)
                     .align(Alignment.TopStart),
                 onClick = {
@@ -245,7 +244,7 @@ fun InclusiMapGoogleMapScreen(
                     imageVector = Icons.Outlined.CompassCalibration,
                     contentDescription = "Localizar",
                     tint = if (cameraPositionState.position.bearing.inNorthRange() && cameraPositionState.position.tilt in TILT_RANGE) {
-                        Color.Green
+                        greenColor(settingsState.isDarkThemeOn)
                     } else {
                         MaterialTheme.colorScheme.error
                     },
