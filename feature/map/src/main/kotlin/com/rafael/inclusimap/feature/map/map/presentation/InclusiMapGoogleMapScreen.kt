@@ -4,8 +4,18 @@ import android.Manifest
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CompassCalibration
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -17,9 +27,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
@@ -71,6 +84,7 @@ fun InclusiMapGoogleMapScreen(
     settingsState: SettingsState,
     userName: String,
     userEmail: String,
+    isFullScreenMode: Boolean,
     onReport: (Report) -> Unit,
     reportState: ReportState,
     location: Location?,
@@ -96,91 +110,135 @@ fun InclusiMapGoogleMapScreen(
     val isInternetAvailable by internetState.state.collectAsStateWithLifecycle()
     var firstTimeAnimation by remember { mutableStateOf<Boolean?>(null) }
     var openPlaceDetailsBottomSheet by rememberSaveable { mutableStateOf(false) }
+    var isNorth by remember(state.isMapLoaded) { mutableStateOf(state.currentLocation?.tilt == 0f && state.currentLocation.bearing == 0f) }
 
-    GoogleMap(
-        modifier = modifier
+    Box(
+        modifier = Modifier
             .fillMaxSize(),
-        properties = remember(
-            settingsState.mapType,
-            state.isLocationPermissionGranted,
-            state.isMyLocationFound,
-        ) {
-            MapProperties(
-                isBuildingEnabled = true,
-                mapType = settingsState.mapType,
-                isMyLocationEnabled = state.isLocationPermissionGranted && state.isMyLocationFound,
-            )
-        },
-        uiSettings = remember {
-            MapUiSettings(
-                zoomGesturesEnabled = true,
-                compassEnabled = false,
-                rotationGesturesEnabled = true,
-                zoomControlsEnabled = false,
-                mapToolbarEnabled = false,
-            )
-        },
-        cameraPositionState = cameraPositionState,
-        onMapClick = {
-            println("latitude ${it.latitude}" + "," + it.longitude)
-        },
-        mapColorScheme = when {
-            settingsState.isFollowingSystemOn && isSystemInDarkTheme() -> ComposeMapColorScheme.DARK
-            settingsState.isFollowingSystemOn && !isSystemInDarkTheme() -> ComposeMapColorScheme.LIGHT
-            settingsState.isDarkThemeOn -> ComposeMapColorScheme.DARK
-            else -> ComposeMapColorScheme.LIGHT
-        },
-        onMapLoaded = {
-            latestOnEvent(InclusiMapEvent.OnMapLoad)
-            if (!appIntroState.showAppIntro) {
-                locationPermission.launchPermissionRequest()
-            }
-        },
-        onMapLongClick = {
-            latestOnEvent(InclusiMapEvent.OnUnmappedPlaceSelected(it))
-            if (isInternetAvailable) {
-                addPlaceBottomSheetScope.launch {
-                    addPlaceBottomSheetState.show()
-                }
-            } else {
-                Toast.makeText(
-                    context,
-                    "Não é possivel adicionar novos locais sem internet, verifique sua conexão!",
-                    Toast.LENGTH_SHORT,
-                ).show()
-            }
-        },
     ) {
-        if (state.isMapLoaded) {
-            state.allMappedPlaces.forEach { place ->
-                val accessibilityAverage by remember(place.comments) {
-                    mutableStateOf(
-                        place.comments.map { it.accessibilityRate }.average().toFloat(),
+        GoogleMap(
+            modifier = modifier
+                .fillMaxSize(),
+            properties = remember(
+                settingsState.mapType,
+                state.isLocationPermissionGranted,
+                state.isMyLocationFound,
+            ) {
+                MapProperties(
+                    isBuildingEnabled = true,
+                    mapType = settingsState.mapType,
+                    isMyLocationEnabled = state.isLocationPermissionGranted && state.isMyLocationFound,
+                )
+            },
+            uiSettings = remember {
+                MapUiSettings(
+                    zoomGesturesEnabled = true,
+                    compassEnabled = false,
+                    rotationGesturesEnabled = true,
+                    zoomControlsEnabled = false,
+                    mapToolbarEnabled = false,
+                )
+            },
+            cameraPositionState = cameraPositionState,
+            onMapClick = {
+                println("latitude ${it.latitude}" + "," + it.longitude)
+            },
+            mapColorScheme = when {
+                settingsState.isFollowingSystemOn && isSystemInDarkTheme() -> ComposeMapColorScheme.DARK
+                settingsState.isFollowingSystemOn && !isSystemInDarkTheme() -> ComposeMapColorScheme.LIGHT
+                settingsState.isDarkThemeOn -> ComposeMapColorScheme.DARK
+                else -> ComposeMapColorScheme.LIGHT
+            },
+            onMapLoaded = {
+                latestOnEvent(InclusiMapEvent.OnMapLoad)
+                if (!appIntroState.showAppIntro) {
+                    locationPermission.launchPermissionRequest()
+                }
+            },
+            onMapLongClick = {
+                latestOnEvent(InclusiMapEvent.OnUnmappedPlaceSelected(it))
+                if (isInternetAvailable) {
+                    addPlaceBottomSheetScope.launch {
+                        addPlaceBottomSheetState.show()
+                    }
+                } else {
+                    Toast.makeText(
+                        context,
+                        "Não é possivel adicionar novos locais sem internet, verifique sua conexão!",
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                }
+            },
+        ) {
+            if (state.isMapLoaded) {
+                state.allMappedPlaces.forEach { place ->
+                    val accessibilityAverage by remember(place.comments) {
+                        mutableStateOf(
+                            place.comments.map { it.accessibilityRate }.average().toFloat(),
+                        )
+                    }
+                    Marker(
+                        state = remember(place.position) {
+                            MarkerState(
+                                position = LatLng(
+                                    place.position.first,
+                                    place.position.second,
+                                ),
+                            )
+                        },
+                        title = place.title,
+                        snippet = place.category?.toCategoryName(),
+                        icon = remember(accessibilityAverage) {
+                            BitmapDescriptorFactory.defaultMarker(
+                                accessibilityAverage.toHUE(),
+                            )
+                        },
+                        onClick = {
+                            latestOnEvent(InclusiMapEvent.OnMappedPlaceSelected(place))
+                            place.id?.let { id -> onUpdateSearchHistory(id) }
+                            openPlaceDetailsBottomSheet = true
+                            false
+                        },
+                        visible = showMarkers,
                     )
                 }
-                Marker(
-                    state = remember(place.position) {
-                        MarkerState(
-                            position = LatLng(
-                                place.position.first,
-                                place.position.second,
-                            ),
-                        )
-                    },
-                    title = place.title,
-                    snippet = place.category?.toCategoryName(),
-                    icon = remember(accessibilityAverage) {
-                        BitmapDescriptorFactory.defaultMarker(
-                            accessibilityAverage.toHUE(),
-                        )
-                    },
-                    onClick = {
-                        latestOnEvent(InclusiMapEvent.OnMappedPlaceSelected(place))
-                        place.id?.let { id -> onUpdateSearchHistory(id) }
-                        openPlaceDetailsBottomSheet = true
-                        false
-                    },
-                    visible = showMarkers,
+            }
+        }
+        if (!isFullScreenMode && !isNorth && state.isMapLoaded) {
+            FloatingActionButton(
+                modifier = Modifier
+                    .statusBarsPadding()
+                    .padding(top = 90.dp)
+                    .padding(horizontal = 8.dp)
+                    .size(45.dp)
+                    .align(Alignment.TopStart),
+                onClick = {
+                    onPlaceTravelScope.launch {
+                        async {
+                            cameraPositionState.animate(
+                                CameraUpdateFactory.newCameraPosition(
+                                    with(cameraPositionState.position) {
+                                        CameraPosition(
+                                            target,
+                                            zoom,
+                                            0f,
+                                            0f,
+                                        )
+                                    }
+                                ),
+                            )
+                        }.await()
+                        delay(800)
+                        isNorth = true
+                    }
+                },
+                containerColor = MaterialTheme.colorScheme.surface,
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.CompassCalibration,
+                    contentDescription = "Localizar",
+                    tint = if (cameraPositionState.position.bearing in -0.2f..0.2f && cameraPositionState.position.tilt in -0.2f..0.2f) Color.Green else MaterialTheme.colorScheme.error,
                 )
             }
         }
@@ -391,6 +449,16 @@ fun InclusiMapGoogleMapScreen(
     DisposableEffect(!cameraPositionState.isMoving) {
         if (!cameraPositionState.isMoving && cameraPositionState.position != defaultPos) {
             latestOnEvent(InclusiMapEvent.UpdateMapState(cameraPositionState.position))
+        }
+        if (!cameraPositionState.isMoving && cameraPositionState.position.tilt in -0.2f..0.2f && cameraPositionState.position.bearing in -0.2f..0.2f) {
+            isNorth = true
+        }
+        onDispose { }
+    }
+
+    DisposableEffect(cameraPositionState.position) {
+        if (cameraPositionState.position.bearing != 0f || cameraPositionState.position.tilt != 0f) {
+            isNorth = false
         }
         onDispose { }
     }

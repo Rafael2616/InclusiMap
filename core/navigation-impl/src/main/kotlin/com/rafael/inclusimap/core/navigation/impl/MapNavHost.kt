@@ -108,7 +108,7 @@ fun MapNavHost(
             }
         },
         modifier = modifier,
-    ) { paddingValues ->
+    ) { paddingValues, isFullScreenMode ->
         NavHost(
             navController = navController,
             startDestination = Destination.MapScreen(),
@@ -145,6 +145,7 @@ fun MapNavHost(
                     onUpdateSearchHistory = { placeId ->
                         onSearchEvent(SearchEvent.UpdateHistory(placeId))
                     },
+                    isFullScreenMode = isFullScreenMode,
                 )
             }
             composable<Destination.ContributionsScreen> {

@@ -36,8 +36,8 @@ fun InclusiMapScaffold(
     onTravelToPlace: (String) -> Unit,
     onFullScreenModeChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    isFullScreenMode: Boolean = false,
-    content: @Composable (PaddingValues) -> Unit,
+    isFullScreenMode: Boolean,
+    content: @Composable (PaddingValues, Boolean) -> Unit,
 ) {
     val focusRequester = remember { FocusRequester() }
     val items = listOf(
@@ -121,7 +121,7 @@ fun InclusiMapScaffold(
             }
         },
     ) { innerPadding ->
-        content(innerPadding)
+        content(innerPadding, isFullScreenMode)
     }
 }
 
