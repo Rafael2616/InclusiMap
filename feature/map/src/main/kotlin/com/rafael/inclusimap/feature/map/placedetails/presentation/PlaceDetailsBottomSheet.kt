@@ -1,6 +1,5 @@
 package com.rafael.inclusimap.feature.map.placedetails.presentation
 
-import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -111,7 +110,6 @@ import com.rafael.inclusimap.core.domain.model.util.toMessage
 import com.rafael.inclusimap.core.domain.network.InternetConnectionState
 import com.rafael.inclusimap.core.domain.util.Constants.MAX_IMAGE_NUMBER
 import com.rafael.inclusimap.feature.map.map.domain.InclusiMapState
-import com.rafael.inclusimap.feature.map.map.domain.getNearestPlaceId
 import com.rafael.inclusimap.feature.map.placedetails.domain.model.PlaceDetailsEvent
 import com.rafael.inclusimap.feature.map.placedetails.domain.model.PlaceDetailsState
 import com.rafael.inclusimap.feature.map.placedetails.presentation.dialogs.AccessibilityResourcesSelectionDialog
@@ -156,7 +154,6 @@ fun PlaceDetailsBottomSheet(
     var showUploadImagesProgressDialog by remember { mutableStateOf(false) }
     var showAccessibilityResourcesSelectionDialog by remember { mutableStateOf(false) }
     val currentPlace by remember { mutableStateOf(inclusiMapState.selectedMappedPlace) }
-    var googleMapsPlaceId by remember { mutableStateOf<Uri?>(null) }
     val accessibilityAverage by remember(
         state.trySendComment,
         state.currentPlace.comments,
@@ -183,15 +180,16 @@ fun PlaceDetailsBottomSheet(
     }
 
     LaunchedEffect(Unit) {
-        googleMapsPlaceId = getNearestPlaceId(
-            with(inclusiMapState.selectedMappedPlace) {
-                LatLng(
-                    this?.position?.first ?: 0.0,
-                    this?.position?.second ?: 0.0,
-                )
-            }, context).also {
-            println(it)
-        }
+        onEvent(
+            PlaceDetailsEvent.GetCurrentNearestPlaceUri(
+                with(inclusiMapState.selectedMappedPlace) {
+                    LatLng(
+                        this?.position?.first ?: 0.0,
+                        this?.position?.second ?: 0.0,
+                    )
+                },
+            )
+        )
     }
 
     ModalBottomSheet(
@@ -343,7 +341,7 @@ fun PlaceDetailsBottomSheet(
             },
             onReport = onReport,
             isInternetAvailable = isInternetAvailable,
-            googleMapsPlaceUri = googleMapsPlaceId,
+            googleMapsPlaceUri = state.nearestPlaceUri,
         )
     }
 

@@ -18,11 +18,8 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.navigation)
     implementation(libs.exifInterface)
-
     // Google Maps
     api(libs.maps.compose)
-    implementation(libs.places)
-
     // Room
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)

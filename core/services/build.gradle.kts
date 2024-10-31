@@ -9,7 +9,12 @@ dependencies {
     // Google drive
     api(libs.google.api.client)
     api(libs.google.api.services.drive)
+    // Places Api
+    implementation(libs.places)
+    // Google Maps
+    implementation(libs.maps.compose)
     // Koin
+    implementation(libs.koin.android)
     implementation(libs.koin.core)
     implementation(libs.koin.core.viewmodel)
     // Kotlin

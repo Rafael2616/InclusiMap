@@ -28,6 +28,12 @@
 -keep class com.google.api.services.drive.** { *; }
 -dontwarn com.google.api.client.**
 -dontwarn com.google.api.services.drive.**
+
+#Places Api
+-keep class android.net.http.AndroidHttpClient.** { *; }
+-dontwarn android.net.http.**
+
+#Google Maps
 -dontwarn javax.naming.**
 -dontwarn javax.naming.directory.**
 -dontwarn javax.naming.ldap.**

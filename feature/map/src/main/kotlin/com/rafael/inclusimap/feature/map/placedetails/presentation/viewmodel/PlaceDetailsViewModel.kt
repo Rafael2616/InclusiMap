@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.maps.model.LatLng
 import com.rafael.inclusimap.core.domain.model.AccessibilityResource
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.Comment
@@ -26,6 +27,7 @@ import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_PARAGOMINAS_P
 import com.rafael.inclusimap.core.domain.util.Constants.MAX_IMAGE_NUMBER
 import com.rafael.inclusimap.core.domain.util.rotateImage
 import com.rafael.inclusimap.core.services.GoogleDriveService
+import com.rafael.inclusimap.core.services.PlacesApiService
 import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
 import com.rafael.inclusimap.feature.contributions.domain.model.Contribution
 import com.rafael.inclusimap.feature.contributions.domain.model.ContributionType
@@ -49,6 +51,7 @@ import kotlinx.serialization.json.Json
 
 class PlaceDetailsViewModel(
     private val driveService: GoogleDriveService,
+    private val placesApiService: PlacesApiService,
     private val loginRepository: LoginRepository,
     private val contributionsRepository: ContributionsRepository,
 ) : ViewModel() {
@@ -84,6 +87,7 @@ class PlaceDetailsViewModel(
 
             is PlaceDetailsEvent.SetIsEditingComment -> _state.update { it.copy(isEditingComment = event.isEditing) }
             is PlaceDetailsEvent.SetIsTrySendComment -> _state.update { it.copy(trySendComment = event.isTrying) }
+            is PlaceDetailsEvent.GetCurrentNearestPlaceUri -> getNearestPlaceUri(event.latLng)
         }
     }
 
@@ -694,6 +698,15 @@ class PlaceDetailsViewModel(
                             )
                         }
                 }
+        }
+    }
+
+    private fun getNearestPlaceUri(latLng: LatLng) {
+        _state.update { it.copy(nearestPlaceUri = null) }
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.update {
+                it.copy(nearestPlaceUri = placesApiService.getNearestPlaceUri(latLng))
+            }
         }
     }
 

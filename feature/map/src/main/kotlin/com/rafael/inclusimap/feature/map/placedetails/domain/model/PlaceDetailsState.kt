@@ -1,5 +1,6 @@
 package com.rafael.inclusimap.feature.map.placedetails.domain.model
 
+import android.net.Uri
 import com.google.api.services.drive.model.File
 import com.rafael.inclusimap.core.domain.model.FullAccessibleLocalMarker
 
@@ -23,4 +24,5 @@ data class PlaceDetailsState(
     val isDeletingImage: Boolean = false,
     val isErrorDeletingImage: Boolean = false,
     val isImageDeleted: Boolean = false,
+    val nearestPlaceUri: Uri? = null,
 )
