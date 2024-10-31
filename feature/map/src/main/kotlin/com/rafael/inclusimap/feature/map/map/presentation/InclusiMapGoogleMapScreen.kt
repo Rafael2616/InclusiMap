@@ -6,16 +6,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CompassCalibration
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -27,12 +18,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
@@ -59,7 +47,6 @@ import com.rafael.inclusimap.feature.intro.presentation.dialogs.AppIntroDialog
 import com.rafael.inclusimap.feature.map.map.domain.InclusiMapEvent
 import com.rafael.inclusimap.feature.map.map.domain.InclusiMapState
 import com.rafael.inclusimap.feature.map.map.domain.TILT_RANGE
-import com.rafael.inclusimap.feature.map.map.domain.greenColor
 import com.rafael.inclusimap.feature.map.map.domain.inNorthRange
 import com.rafael.inclusimap.feature.map.map.presentation.dialog.PlacesNotLoadedDialog
 import com.rafael.inclusimap.feature.map.map.presentation.dialog.PlacesNotUpdatedDialog
@@ -209,49 +196,32 @@ fun InclusiMapGoogleMapScreen(
             }
         }
         if (!isFullScreenMode && !isNorth && state.isMapLoaded) {
-            FloatingActionButton(
-                modifier = Modifier
-                    .statusBarsPadding()
-                    .padding(top = 85.dp, start = 12.dp)
-                    .size(45.dp)
-                    .align(Alignment.TopStart),
-                onClick = {
-                    isFindNorthBtnClicked = true
-                    onPlaceTravelScope.launch {
-                        async {
-                            cameraPositionState.animate(
-                                CameraUpdateFactory.newCameraPosition(
-                                    with(cameraPositionState.position) {
-                                        CameraPosition(
-                                            target,
-                                            zoom,
-                                            0f,
-                                            0f,
-                                        )
-                                    },
-                                ),
-                            )
-                        }.await()
-                        delay(800)
-                        isNorth = true
-                        isFindNorthBtnClicked = false
-                    }
-                },
-                containerColor = MaterialTheme.colorScheme.surface,
-                shape = RoundedCornerShape(12.dp),
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.CompassCalibration,
-                    contentDescription = "Localizar",
-                    tint = if (cameraPositionState.position.bearing.inNorthRange() && cameraPositionState.position.tilt in TILT_RANGE) {
-                        greenColor(settingsState.isDarkThemeOn)
-                    } else {
-                        MaterialTheme.colorScheme.error
-                    },
-                    modifier = Modifier
-                        .rotate(degrees = -cameraPositionState.position.bearing)
-                )
-            }
+           FindNorthWidget(
+               cameraPositionState = cameraPositionState,
+               settingsState = settingsState,
+               onFind = {
+                   isFindNorthBtnClicked = true
+                   onPlaceTravelScope.launch {
+                       async {
+                           cameraPositionState.animate(
+                               CameraUpdateFactory.newCameraPosition(
+                                   with(cameraPositionState.position) {
+                                       CameraPosition(
+                                           target,
+                                           zoom,
+                                           0f,
+                                           0f,
+                                       )
+                                   },
+                               ),
+                           )
+                       }.await()
+                       delay(800)
+                       isNorth = true
+                       isFindNorthBtnClicked = false
+                   }
+               },
+           )
         }
     }
 
