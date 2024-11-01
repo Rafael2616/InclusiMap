@@ -694,7 +694,7 @@ fun AccessibilityResourcesSection(
                     },
                     modifier = Modifier
                         .height(45.dp)
-                        .padding(end = 16.dp),
+                        .padding(start = if (state.currentPlace.resources.isEmpty()) 16.dp else 0.dp, end = 16.dp),
                     leadingIcon = {
                         Icon(
                             imageVector = if (state.currentPlace.resources.isEmpty()) Icons.Outlined.Add else Icons.Filled.Edit,

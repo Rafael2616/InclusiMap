@@ -12,7 +12,7 @@ fun Modifier.horizontalPaddingEdgeToEdge(
     when {
         index == 0 -> padding(start = 16.dp)
         index == 1 && size > 2 -> padding(start = 16.dp)
-        size - 1 == index -> padding(end = 16.dp)
+        size > 2 && size - 1 == index -> padding(end = 16.dp)
         else -> this
     }
 }
