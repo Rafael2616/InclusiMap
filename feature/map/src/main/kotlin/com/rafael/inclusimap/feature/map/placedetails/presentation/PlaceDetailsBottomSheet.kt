@@ -188,7 +188,7 @@ fun PlaceDetailsBottomSheet(
                         this?.position?.second ?: 0.0,
                     )
                 },
-            )
+            ),
         )
     }
 
@@ -208,12 +208,14 @@ fun PlaceDetailsBottomSheet(
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                .padding(vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
             ) {
                 Column(
                     modifier = Modifier.weight(0.5f),
@@ -458,7 +460,8 @@ fun ImageSection(
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier,
+            modifier = Modifier
+                .padding(horizontal = 16.dp),
         )
         LazyHorizontalGrid(
             rows = GridCells.Fixed(1),
@@ -468,6 +471,7 @@ fun ImageSection(
             verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            item { Spacer(modifier = Modifier.width(8.dp)) }
             state.currentPlace.images.forEachIndexed { index, image ->
                 image?.let {
                     item {
@@ -604,6 +608,7 @@ fun ImageSection(
                     }
                 }
             }
+            item { Spacer(modifier = Modifier.width(8.dp)) }
         }
     }
 
@@ -631,15 +636,15 @@ fun AccessibilityResourcesSection(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
     ) {
         Text(
             text = "Recursos de acessibilidade",
             fontSize = 20.sp,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier
-                .padding(vertical = 4.dp),
         )
         LazyHorizontalStaggeredGrid(
             rows = StaggeredGridCells.Fixed(if (state.currentPlace.resources.size in 0..2) 1 else 2),
@@ -666,7 +671,9 @@ fun AccessibilityResourcesSection(
                                 )
                             },
                             colors = AssistChipDefaults.assistChipColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(5.dp),
+                                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                                    5.dp,
+                                ),
                             ),
                         )
                     }
@@ -723,7 +730,9 @@ fun CommentSection(
     var userComment by remember(state.isUserCommented) { mutableStateOf(state.userComment) }
 
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
     ) {
         Text(
             text = "Comentários" + " (${state.currentPlace.comments.size})",
