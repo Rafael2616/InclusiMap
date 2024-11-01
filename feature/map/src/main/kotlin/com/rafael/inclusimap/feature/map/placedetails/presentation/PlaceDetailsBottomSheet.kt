@@ -118,6 +118,7 @@ import com.rafael.inclusimap.feature.map.placedetails.presentation.dialogs.FullS
 import com.rafael.inclusimap.feature.map.placedetails.presentation.dialogs.ImagesUploadProgressDialog
 import com.rafael.inclusimap.feature.map.placedetails.presentation.dialogs.PlaceInfoDialog
 import com.rafael.inclusimap.feature.map.placedetails.presentation.dialogs.UnsavedCommentDialog
+import com.rafael.inclusimap.feature.map.placedetails.presentation.util.horizontalPaddingEdgeToEdge
 import com.rafael.inclusimap.feature.report.domain.model.Report
 import com.rafael.inclusimap.feature.report.domain.model.ReportState
 import kotlinx.coroutines.async
@@ -637,14 +638,16 @@ fun AccessibilityResourcesSection(
 ) {
     Column(
         modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .fillMaxWidth(),
     ) {
         Text(
             text = "Recursos de acessibilidade",
             fontSize = 20.sp,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 4.dp),
         )
         LazyHorizontalStaggeredGrid(
             rows = StaggeredGridCells.Fixed(if (state.currentPlace.resources.size in 0..2) 1 else 2),
@@ -655,14 +658,16 @@ fun AccessibilityResourcesSection(
             horizontalItemSpacing = 6.dp,
         ) {
             if (state.currentPlace.resources.isNotEmpty()) {
-                state.currentPlace.resources.forEach { resource ->
+                state.currentPlace.resources.forEachIndexed { index, resource ->
                     item {
                         AssistChip(
                             label = {
                                 Text(text = resource.resource.displayName)
                             },
                             onClick = { },
-                            modifier = Modifier.height(45.dp),
+                            modifier = Modifier
+                                .height(45.dp)
+                                .horizontalPaddingEdgeToEdge(index, state.currentPlace.resources.size),
                             enabled = true,
                             leadingIcon = {
                                 Icon(
@@ -687,7 +692,9 @@ fun AccessibilityResourcesSection(
                     onClick = {
                         onAddAccessibilityResource()
                     },
-                    modifier = Modifier.height(45.dp),
+                    modifier = Modifier
+                        .height(45.dp)
+                        .padding(end = 16.dp),
                     leadingIcon = {
                         Icon(
                             imageVector = if (state.currentPlace.resources.isEmpty()) Icons.Outlined.Add else Icons.Filled.Edit,
@@ -740,7 +747,7 @@ fun CommentSection(
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier
-                .padding(vertical = 4.dp),
+                .padding(bottom = 4.dp),
         )
         Box(
             modifier = Modifier
