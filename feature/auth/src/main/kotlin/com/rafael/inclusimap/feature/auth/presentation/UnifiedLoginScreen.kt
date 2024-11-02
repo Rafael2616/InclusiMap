@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,9 +44,11 @@ import com.rafael.inclusimap.feature.auth.domain.model.LoginState
 import com.rafael.inclusimap.feature.auth.domain.model.RegisteredUser
 import com.rafael.inclusimap.feature.auth.domain.model.User
 import com.rafael.inclusimap.feature.auth.presentation.components.LoginScreen
-import com.rafael.inclusimap.feature.auth.presentation.components.RecoverPasswordScreen
+import com.rafael.inclusimap.feature.auth.presentation.components.RecoveryPasswordScreen
 import com.rafael.inclusimap.feature.auth.presentation.components.RegistrationScreen
 import com.rafael.inclusimap.feature.auth.presentation.components.UpdatePasswordScreen
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -62,11 +65,12 @@ fun UnifiedLoginScreen(
     isEditPasswordModeFromSettings: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    var cadastreNewUser by remember { mutableStateOf(false) }
+    var registerNewUser by remember { mutableStateOf(false) }
     val orientation = LocalConfiguration.current.orientation
     val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
     var isForgotPasswordScreen by remember { mutableStateOf(false) }
     var isEditPasswordScreen by remember { mutableStateOf(isEditPasswordModeFromSettings) }
+    val scope = rememberCoroutineScope()
 
     Box(
         modifier = modifier
@@ -134,11 +138,15 @@ fun UnifiedLoginScreen(
                 when {
                     isEditPasswordScreen && !isForgotPasswordScreen -> {
                         item {
-                            RecoverPasswordScreen(
+                            RecoveryPasswordScreen(
                                 state = loginState,
                                 onCancel = {
                                     onCancel()
-                                    isEditPasswordScreen = false
+                                    // Await for the navigation to finish
+                                    scope.launch {
+                                        delay(350L)
+                                        isEditPasswordScreen = false
+                                    }
                                 },
                                 onSendRecoverEmail = { email ->
                                     onSendRecoverEmail(email)
@@ -162,6 +170,7 @@ fun UnifiedLoginScreen(
                                 },
                                 popBackStack = {
                                     onPopBackStack()
+                                    onResetUpdateProcess()
                                 },
                             )
                         }
@@ -169,7 +178,7 @@ fun UnifiedLoginScreen(
                     else -> {
                         item {
                             AnimatedContent(
-                                targetState = cadastreNewUser,
+                                targetState = registerNewUser,
                                 modifier = Modifier.fillMaxWidth(),
                                 label = "",
                             ) {
@@ -177,13 +186,13 @@ fun UnifiedLoginScreen(
                                     RegistrationScreen(
                                         state = loginState,
                                         onRegister = { registredUser -> onRegister(registredUser) },
-                                        onGoToLogin = { cadastreNewUser = false },
+                                        onGoToLogin = { registerNewUser = false },
                                     )
                                 } else {
                                     LoginScreen(
                                         state = loginState,
                                         onLogin = { user -> onLogin(user) },
-                                        onGoToRegister = { cadastreNewUser = true },
+                                        onGoToRegister = { registerNewUser = true },
                                         onGoToRecover = {
                                             isForgotPasswordScreen = false
                                             isEditPasswordScreen = true

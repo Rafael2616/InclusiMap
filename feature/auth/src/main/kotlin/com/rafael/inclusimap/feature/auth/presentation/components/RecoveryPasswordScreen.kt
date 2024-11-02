@@ -45,7 +45,7 @@ import com.rafael.inclusimap.feature.auth.domain.utils.isValidEmail
 import com.rafael.inclusimap.feature.auth.presentation.viewmodel.formatInMinutes
 
 @Composable
-fun RecoverPasswordScreen(
+fun RecoveryPasswordScreen(
     state: LoginState,
     onCancel: () -> Unit,
     onSendRecoverEmail: (String) -> Unit,
@@ -192,14 +192,17 @@ fun RecoverPasswordScreen(
         }
     }
 
-    if (state.isTokenValid && state.isTokenValidated && receivedToken.isNotEmpty()) {
-        Toast.makeText(context, "Token verificado!", Toast.LENGTH_LONG).show()
+    DisposableEffect(state.isTokenValidated, state.isTokenValid) {
+       if(!state.isTokenValid && state.isTokenValidated && receivedToken.isNotEmpty()) {
+        Toast.makeText(context, "Token incorreto ou expirado! Tente novamente", Toast.LENGTH_LONG)
+            .show()
+       }
+        if (state.isTokenValid && state.isTokenValidated && receivedToken.isNotEmpty()) {
+            Toast.makeText(context, "Token verificado!", Toast.LENGTH_LONG).show()
+        }
+        onDispose { }
     }
 
-    if (!state.isTokenValid && state.isTokenValidated && receivedToken.isNotEmpty()) {
-        Toast.makeText(context, "Token Errado ou expirado! Tente novamente", Toast.LENGTH_LONG)
-            .show()
-    }
     DisposableEffect(state.isEmailSent) {
         canUpdate = false
         onDispose { }

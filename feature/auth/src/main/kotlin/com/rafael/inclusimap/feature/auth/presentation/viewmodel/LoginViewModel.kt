@@ -1137,6 +1137,7 @@ class LoginViewModel(
                 it.copy(
                     isTokenValid = isTokenValid,
                     isValidatingToken = false,
+                    isTokenValidated = true
                 )
             }
             if (isTokenValid) {
@@ -1166,8 +1167,6 @@ class LoginViewModel(
                         }
                     }
                 }
-            }.invokeOnCompletion {
-                _state.update { it.copy(isTokenValidated = true) }
             }
         }
 
