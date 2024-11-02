@@ -82,20 +82,11 @@ data class SettingItem(
             ),
             // Desconectar
             SettingItem(
-                content = { onEvent, _, navController -> LogoutPreference(navController, onEvent) },
+                content = { onEvent, _, _ -> LogoutPreference(onEvent) },
                 searchSpecs = SearchItemSpecs(
                     namespace = NAMESPACE,
                     id = Uuid.random().toString(),
                     text = "Configurações da conta",
-                ),
-            ),
-            // Reexibir dicas
-            SettingItem(
-                content = { onEvent, state, _ -> TODO() },
-                searchSpecs = SearchItemSpecs(
-                    namespace = NAMESPACE,
-                    id = Uuid.random().toString(),
-                    text = "Reexibir dicas",
                 ),
             ),
             // Sobre o app

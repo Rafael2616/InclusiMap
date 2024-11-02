@@ -17,7 +17,7 @@ fun AccountPreferenceGroup(
         heading = "Conta",
     ) {
         UpdatePasswordPreference(navController)
-        LogoutPreference(navController, onEvent)
+        LogoutPreference(onEvent)
         DeleteAccountPreference(onEvent)
     }
 }

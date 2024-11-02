@@ -50,6 +50,7 @@ fun RecoveryPasswordScreen(
     onCancel: () -> Unit,
     onSendRecoverEmail: (String) -> Unit,
     onValidateToken: (String) -> Unit,
+    onResetProcess: () -> Unit,
     modifier: Modifier = Modifier,
     defaultRoundedShape: Shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
 ) {
@@ -206,5 +207,10 @@ fun RecoveryPasswordScreen(
     DisposableEffect(state.isEmailSent) {
         canUpdate = false
         onDispose { }
+    }
+
+    DisposableEffect(state.tokenExpirationTimer == 0L) {
+        onResetProcess()
+        onDispose {  }
     }
 }

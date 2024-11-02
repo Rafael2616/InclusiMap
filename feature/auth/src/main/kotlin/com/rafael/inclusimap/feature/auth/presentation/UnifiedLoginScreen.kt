@@ -154,9 +154,13 @@ fun UnifiedLoginScreen(
                                 onValidateToken = { token ->
                                     onValidateToken(token)
                                 },
+                                onResetProcess = {
+                                    onResetUpdateProcess()
+                                },
                             )
                         }
                     }
+
                     isEditPasswordScreen && isForgotPasswordScreen -> {
                         item {
                             UpdatePasswordScreen(
@@ -175,6 +179,7 @@ fun UnifiedLoginScreen(
                             )
                         }
                     }
+
                     else -> {
                         item {
                             AnimatedContent(

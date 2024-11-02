@@ -13,7 +13,7 @@ fun UpdatePasswordPreference(
     navController: NavController,
 ) {
     IconPreference(
-        title = "Atualizar senha",
+        title = "Alterar senha",
         leadingIcon = Icons.Default.Password,
         trailingIcon = Icons.AutoMirrored.Filled.ArrowForward,
         onClick = { navController.navigate(Destination.LoginScreen(isEditPasswordMode = true)) },

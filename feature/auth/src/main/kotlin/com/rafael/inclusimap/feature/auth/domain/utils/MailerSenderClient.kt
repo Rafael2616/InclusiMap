@@ -20,13 +20,13 @@ class MailerSenderClient(
 
     suspend fun sendEmail(
         receiver: String,
-        body: String,
+        subject: String,
         html: String?,
     ) {
         val request = MailerSendEmailRequest(
             from = From(sender),
             to = listOf(To(receiver)),
-            subject = body,
+            subject = subject,
             html = html ?: "",
         )
 

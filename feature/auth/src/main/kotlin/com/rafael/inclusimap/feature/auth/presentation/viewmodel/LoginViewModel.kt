@@ -1056,7 +1056,7 @@ class LoginViewModel(
     }
 
     private fun generateRecoveryToken(): String {
-        val expiration = System.currentTimeMillis() + (10 * 60 * 1000)
+        val expiration = System.currentTimeMillis() + (3 * 60 * 1000)
         val token = generateToken()
         _state.update {
             it.copy(
@@ -1087,16 +1087,16 @@ class LoginViewModel(
             val userName = findUserNameByEmail(email)
             emailClient.sendEmail(
                 receiver = email,
-                body = "Recuperação de senha",
+                subject = "Recuperação de senha",
                 html = """
                     <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-                        <h2 style="color: #000;">Recuperação de Senha</h2>
+                        <h2 style="color: #000;">Recuperação de senha</h2>
                         <p>Olá, $userName!</p>
                         <p>Você solicitou a recuperação de senha. Para continuar, copie o código abaixo e cole no aplicativo:</p>
                         <p style="font-size: 24px; font-weight: bold; color: #000; text-align: center; margin: 20px 0;">
                            $token
                         </p>
-                        <p style="font-size: 14px; color: #888;">Este código é válido por 15 minutos. Se você não solicitou a recuperação de senha, ignore este e-mail.</p>
+                        <p style="font-size: 14px; color: #888;">Este código é válido por 3 minutos.</p>
                         <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
                         <p style="font-size: 12px; color: #888;">Atenciosamente, <br>Equipe InclusiMap</p>
                     </div>
@@ -1180,6 +1180,7 @@ class LoginViewModel(
                 recoveryToken = null,
                 tokenHash = null,
                 tokenExpirationTime = null,
+                tokenExpirationTimer = null,
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
