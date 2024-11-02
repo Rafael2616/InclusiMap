@@ -176,7 +176,7 @@ fun UpdatePasswordScreen(
                         onCancel()
                     },
                 ) {
-                    Text(text = "Cancelar")
+                    Text(text = "Voltar")
                 }
             }
             Button(
