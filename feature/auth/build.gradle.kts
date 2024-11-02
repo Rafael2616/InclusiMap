@@ -14,7 +14,6 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.runtime)
     // Google drive
-    implementation(libs.google.api.client)
     implementation(libs.google.api.services.drive)
     // Kotlin
     implementation(libs.kotlinx.serialization.json)
