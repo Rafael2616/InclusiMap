@@ -14,4 +14,7 @@ sealed interface LoginEvent {
     data class OnAddEditUserProfilePicture(val image: ImageBitmap) : LoginEvent
     data object OnRemoveUserProfilePicture : LoginEvent
     data class OnAllowPictureOptedIn(val value: Boolean) : LoginEvent
+    data class SendPasswordResetEmail(val email: String) : LoginEvent
+    data class ValidateToken(val token: String) : LoginEvent
+    data object InvalidateUpdatePasswordProcess : LoginEvent
 }

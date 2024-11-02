@@ -23,4 +23,3 @@ class OpenInGoogleMapContract(private val placeUri: Uri?) : ActivityResultContra
         // Do nothing
     }
 }
-

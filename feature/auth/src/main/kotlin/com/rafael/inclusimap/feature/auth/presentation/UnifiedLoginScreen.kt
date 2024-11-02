@@ -43,6 +43,7 @@ import com.rafael.inclusimap.feature.auth.domain.model.LoginState
 import com.rafael.inclusimap.feature.auth.domain.model.RegisteredUser
 import com.rafael.inclusimap.feature.auth.domain.model.User
 import com.rafael.inclusimap.feature.auth.presentation.components.LoginScreen
+import com.rafael.inclusimap.feature.auth.presentation.components.RecoverPasswordScreen
 import com.rafael.inclusimap.feature.auth.presentation.components.RegistrationScreen
 import com.rafael.inclusimap.feature.auth.presentation.components.UpdatePasswordScreen
 
@@ -53,14 +54,19 @@ fun UnifiedLoginScreen(
     onLogin: (RegisteredUser) -> Unit,
     onRegister: (User) -> Unit,
     onUpdatePassword: (String) -> Unit,
+    onSendRecoverEmail: (String) -> Unit,
+    onValidateToken: (String) -> Unit,
     onCancel: () -> Unit,
+    onResetUpdateProcess: () -> Unit,
     onPopBackStack: () -> Unit,
+    isEditPasswordModeFromSettings: Boolean,
     modifier: Modifier = Modifier,
-    isEditPasswordMode: Boolean = false,
 ) {
     var cadastreNewUser by remember { mutableStateOf(false) }
     val orientation = LocalConfiguration.current.orientation
     val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
+    var isForgotPasswordScreen by remember { mutableStateOf(false) }
+    var isEditPasswordScreen by remember { mutableStateOf(isEditPasswordModeFromSettings) }
 
     Box(
         modifier = modifier
@@ -125,45 +131,74 @@ fun UnifiedLoginScreen(
                             .fillMaxWidth(),
                     )
                 }
-                if (isEditPasswordMode) {
-                    item {
-                        UpdatePasswordScreen(
-                            state = loginState,
-                            onCancel = {
-                                onCancel()
-                            },
-                            onUpdatePassword = {
-                                onUpdatePassword(it)
-                            },
-                            popBackStack = {
-                                onPopBackStack()
-                            },
-                        )
+                when {
+                    isEditPasswordScreen && !isForgotPasswordScreen -> {
+                        item {
+                            RecoverPasswordScreen(
+                                state = loginState,
+                                onCancel = {
+                                    onCancel()
+                                    isEditPasswordScreen = false
+                                },
+                                onSendRecoverEmail = { email ->
+                                    onSendRecoverEmail(email)
+                                },
+                                onValidateToken = { token ->
+                                    onValidateToken(token)
+                                },
+                            )
+                        }
                     }
-                } else {
-                    item {
-                        AnimatedContent(
-                            targetState = cadastreNewUser,
-                            modifier = Modifier.fillMaxWidth(),
-                            label = "",
-                        ) {
-                            if (it) {
-                                RegistrationScreen(
-                                    state = loginState,
-                                    onRegister = { registredUser -> onRegister(registredUser) },
-                                    onGoToLogin = { cadastreNewUser = false },
-                                )
-                            } else {
-                                LoginScreen(
-                                    state = loginState,
-                                    onLogin = { user -> onLogin(user) },
-                                    onGoToRegister = { cadastreNewUser = true },
-                                )
+                    isEditPasswordScreen && isForgotPasswordScreen -> {
+                        item {
+                            UpdatePasswordScreen(
+                                state = loginState,
+                                onCancel = {
+                                    isForgotPasswordScreen = false
+                                    onResetUpdateProcess()
+                                },
+                                onUpdatePassword = {
+                                    onUpdatePassword(it)
+                                },
+                                popBackStack = {
+                                    onPopBackStack()
+                                },
+                            )
+                        }
+                    }
+                    else -> {
+                        item {
+                            AnimatedContent(
+                                targetState = cadastreNewUser,
+                                modifier = Modifier.fillMaxWidth(),
+                                label = "",
+                            ) {
+                                if (it) {
+                                    RegistrationScreen(
+                                        state = loginState,
+                                        onRegister = { registredUser -> onRegister(registredUser) },
+                                        onGoToLogin = { cadastreNewUser = false },
+                                    )
+                                } else {
+                                    LoginScreen(
+                                        state = loginState,
+                                        onLogin = { user -> onLogin(user) },
+                                        onGoToRegister = { cadastreNewUser = true },
+                                        onGoToRecover = {
+                                            isForgotPasswordScreen = false
+                                            isEditPasswordScreen = true
+                                        },
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
         }
+    }
+
+    if (loginState.isTokenValid) {
+        isForgotPasswordScreen = true
     }
 }

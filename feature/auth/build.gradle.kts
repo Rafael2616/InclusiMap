@@ -22,6 +22,11 @@ dependencies {
     api(libs.koin.core)
     implementation(libs.koin.core.viewmodel)
     implementation(libs.koin.android)
+    // Ktor
+    implementation(libs.ktor.client.android)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.client.logging)
 
     // Projects
     implementation(projects.core.domain)

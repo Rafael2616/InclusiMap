@@ -97,7 +97,20 @@ fun InclusiMapNavHost(
                                     LoginEvent.SetIsPasswordChanged(false),
                                 )
                             },
-                            isEditPasswordMode = it.toRoute<Destination.LoginScreen>().isEditPasswordMode,
+                            onSendRecoverEmail = { email ->
+                                loginViewModel.onEvent(
+                                    LoginEvent.SendPasswordResetEmail(email),
+                                )
+                            },
+                            onValidateToken = { token ->
+                                loginViewModel.onEvent(
+                                    LoginEvent.ValidateToken(token),
+                                )
+                            },
+                            onResetUpdateProcess = {
+                                loginViewModel.onEvent(LoginEvent.InvalidateUpdatePasswordProcess)
+                            },
+                            isEditPasswordModeFromSettings = it.toRoute<Destination.LoginScreen>().isEditPasswordMode,
                         )
                     }
                     composable<Destination.MapHost> {

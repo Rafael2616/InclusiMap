@@ -196,32 +196,32 @@ fun InclusiMapGoogleMapScreen(
             }
         }
         if (!isFullScreenMode && !isNorth && state.isMapLoaded) {
-           FindNorthWidget(
-               cameraPositionState = cameraPositionState,
-               settingsState = settingsState,
-               onFind = {
-                   isFindNorthBtnClicked = true
-                   onPlaceTravelScope.launch {
-                       async {
-                           cameraPositionState.animate(
-                               CameraUpdateFactory.newCameraPosition(
-                                   with(cameraPositionState.position) {
-                                       CameraPosition(
-                                           target,
-                                           zoom,
-                                           0f,
-                                           0f,
-                                       )
-                                   },
-                               ),
-                           )
-                       }.await()
-                       delay(800)
-                       isNorth = true
-                       isFindNorthBtnClicked = false
-                   }
-               },
-           )
+            FindNorthWidget(
+                cameraPositionState = cameraPositionState,
+                settingsState = settingsState,
+                onFind = {
+                    isFindNorthBtnClicked = true
+                    onPlaceTravelScope.launch {
+                        async {
+                            cameraPositionState.animate(
+                                CameraUpdateFactory.newCameraPosition(
+                                    with(cameraPositionState.position) {
+                                        CameraPosition(
+                                            target,
+                                            zoom,
+                                            0f,
+                                            0f,
+                                        )
+                                    },
+                                ),
+                            )
+                        }.await()
+                        delay(800)
+                        isNorth = true
+                        isFindNorthBtnClicked = false
+                    }
+                },
+            )
         }
     }
 

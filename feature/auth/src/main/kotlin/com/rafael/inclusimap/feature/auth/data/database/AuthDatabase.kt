@@ -10,7 +10,7 @@ import com.rafael.inclusimap.feature.auth.domain.model.LoginEntity
 
 @Database(
     entities = [LoginEntity::class],
-    version = 3,
+    version = 4,
     exportSchema = false,
 )
 abstract class AuthDatabase : RoomDatabase() {
@@ -40,6 +40,21 @@ internal class Migrations {
                     "ALTER TABLE 'login_db' ADD COLUMN 'userPathID' TEXT DEFAULT 'null'"
 
                 connection.execSQL(addUserPathID)
+            }
+        }
+
+        val migration3To4 = object : Migration(3, 4) {
+            override fun migrate(connection: SQLiteConnection) {
+                val addRecoveryHash =
+                    "ALTER TABLE 'login_db' ADD COLUMN 'recoveryToken' TEXT DEFAULT 'null'"
+                val addTokenHash =
+                    "ALTER TABLE 'login_db' ADD COLUMN 'tokenHash' TEXT DEFAULT 'null'"
+                val addExpirationDate =
+                    "ALTER TABLE 'login_db' ADD COLUMN 'tokenExpirationDate' INTEGER DEFAULT 'null'"
+
+                connection.execSQL(addRecoveryHash)
+                connection.execSQL(addTokenHash)
+                connection.execSQL(addExpirationDate)
             }
         }
     }

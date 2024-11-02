@@ -25,18 +25,30 @@ import com.rafael.inclusimap.feature.auth.domain.model.LoginState
 import com.rafael.inclusimap.feature.auth.domain.model.RegisteredUser
 import com.rafael.inclusimap.feature.auth.domain.model.User
 import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
+import com.rafael.inclusimap.feature.auth.domain.utils.MailerSenderClient
+import com.rafael.inclusimap.feature.auth.domain.utils.generateToken
+import com.rafael.inclusimap.feature.auth.domain.utils.hashToken
+import com.rafael.inclusimap.feature.auth.domain.utils.verifyToken
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.util.Locale
 import kotlin.coroutines.resume
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -45,6 +57,7 @@ import kotlinx.serialization.json.Json
 
 class LoginViewModel(
     private val repository: LoginRepository,
+    private val emailClient: MailerSenderClient,
 ) : ViewModel() {
     private val driveService: GoogleDriveService = GoogleDriveService()
     private val _state = MutableStateFlow(LoginState())
@@ -76,6 +89,9 @@ class LoginViewModel(
                             )?.asImageBitmap()
                         },
                         userPathID = loginData.userPathID,
+                        tokenHash = loginData.tokenHash,
+                        recoveryToken = loginData.recoveryToken,
+                        tokenExpirationTime = loginData.tokenExpirationDate,
                     )
                 }
             }
@@ -102,6 +118,9 @@ class LoginViewModel(
             LoginEvent.OnRemoveUserProfilePicture -> onDeleteProfilePicture()
             is LoginEvent.UpdateUserName -> updateUserName(event.name)
             is LoginEvent.OnAllowPictureOptedIn -> allowUserToSeeProfilePicture(event.value)
+            is LoginEvent.SendPasswordResetEmail -> recoveryPasswordProcess(event.email)
+            is LoginEvent.ValidateToken -> validateToken(event.token)
+            LoginEvent.InvalidateUpdatePasswordProcess -> invalidateUpdatePasswordProcess()
         }
     }
 
@@ -850,27 +869,28 @@ class LoginViewModel(
         }
     }
 
-    suspend fun allowedShowUserProfilePicture(email: String): Boolean = suspendCancellableCoroutine { continuation ->
-        val job = viewModelScope.launch(Dispatchers.IO) {
-            driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { users ->
-                users.find { user -> user.name == email }?.also { userPath ->
-                    driveService.listFiles(userPath.id).onSuccess { userFiles ->
-                        val userDataFile = userFiles.find { it.name == "$email.json" }
-                        val userContentString = userDataFile?.id?.let { fileId ->
-                            driveService.getFileContent(fileId)
-                                ?.decodeToString()
+    suspend fun allowedShowUserProfilePicture(email: String): Boolean =
+        suspendCancellableCoroutine { continuation ->
+            val job = viewModelScope.launch(Dispatchers.IO) {
+                driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { users ->
+                    users.find { user -> user.name == email }?.also { userPath ->
+                        driveService.listFiles(userPath.id).onSuccess { userFiles ->
+                            val userDataFile = userFiles.find { it.name == "$email.json" }
+                            val userContentString = userDataFile?.id?.let { fileId ->
+                                driveService.getFileContent(fileId)
+                                    ?.decodeToString()
+                            }
+                            val userObj = userContentString?.let { userContent ->
+                                json.decodeFromString<User>(userContent)
+                            }
+                            println("User ${userObj?.email} opted in for show profile picture: ${userObj?.showProfilePictureOptedIn}")
+                            continuation.resume(userObj?.showProfilePictureOptedIn ?: false)
                         }
-                        val userObj = userContentString?.let { userContent ->
-                            json.decodeFromString<User>(userContent)
-                        }
-                        println("User ${userObj?.email} opted in for show profile picture: ${userObj?.showProfilePictureOptedIn}")
-                        continuation.resume(userObj?.showProfilePictureOptedIn ?: false)
                     }
                 }
             }
+            continuation.invokeOnCancellation { job.cancel() }
         }
-        continuation.invokeOnCancellation { job.cancel() }
-    }
 
     suspend fun downloadUserProfilePicture(email: String?): ImageBitmap? {
         if (email == null) return null
@@ -1029,4 +1049,174 @@ class LoginViewModel(
             }
         }
     }
+
+    private fun recoveryPasswordProcess(email: String) {
+        val token = generateRecoveryToken()
+        sendEmailRecoveryWithToken(email, token)
+    }
+
+    private fun generateRecoveryToken(): String {
+        val expiration = System.currentTimeMillis() + (10 * 60 * 1000)
+        val token = generateToken()
+        _state.update {
+            it.copy(
+                recoveryToken = token,
+                tokenHash = hashToken(token),
+                tokenExpirationTime = expiration,
+            )
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            val loginData = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
+            loginData.recoveryToken = token
+            loginData.tokenHash = hashToken(token)
+            loginData.tokenExpirationDate = expiration
+            repository.updateLoginInfo(loginData)
+        }
+        return token
+    }
+
+    private fun sendEmailRecoveryWithToken(email: String, token: String) {
+        _state.update {
+            it.copy(
+                isSendingEmail = true,
+                isEmailSent = false,
+            )
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val userName = findUserNameByEmail(email)
+            emailClient.sendEmail(
+                receiver = email,
+                body = "Recuperação de senha",
+                html = """
+                    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                        <h2 style="color: #000;">Recuperação de Senha</h2>
+                        <p>Olá, $userName!</p>
+                        <p>Você solicitou a recuperação de senha. Para continuar, copie o código abaixo e cole no aplicativo:</p>
+                        <p style="font-size: 24px; font-weight: bold; color: #000; text-align: center; margin: 20px 0;">
+                           $token
+                        </p>
+                        <p style="font-size: 14px; color: #888;">Este código é válido por 15 minutos. Se você não solicitou a recuperação de senha, ignore este e-mail.</p>
+                        <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+                        <p style="font-size: 12px; color: #888;">Atenciosamente, <br>Equipe InclusiMap</p>
+                    </div>
+                """.trimIndent(),
+            )
+        }.invokeOnCompletion {
+            if (it == null) {
+                _state.update {
+                    it.copy(
+                        isSendingEmail = false,
+                        isEmailSent = true,
+                    )
+                }
+                tokenExpirationTimer()
+            }
+        }
+    }
+
+    private fun validateToken(receivedToken: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.update {
+                it.copy(
+                    isValidatingToken = true,
+                    isTokenValidated = false,
+                )
+            }
+            var realToken = ""
+            if (receivedToken == state.value.recoveryToken) {
+                realToken = state.value.recoveryToken.orEmpty()
+            }
+            val isTokenValid = verifyToken(
+                realToken,
+                state.value.tokenHash ?: return@launch,
+                state.value.tokenExpirationTime ?: return@launch,
+            )
+            delay(1500L)
+            _state.update {
+                it.copy(
+                    isTokenValid = isTokenValid,
+                    isValidatingToken = false,
+                )
+            }
+            if (isTokenValid) {
+                println("Token hash validated! Allowing password redefinition.")
+            } else {
+                println("Token is invalid or expired.")
+            }
+        }
+    }
+
+    private suspend fun findUserNameByEmail(email: String) =
+        suspendCancellableCoroutine { continuation ->
+            viewModelScope.launch(Dispatchers.IO) {
+                driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { users ->
+                    val userFiles = users.find { it.name == email }
+                    driveService.listFiles(userFiles?.id ?: "").onSuccess { userDataFiles ->
+                        val userContentString =
+                            driveService.getFileContent(
+                                userDataFiles.find { it.name == "$email.json" }?.id
+                                    ?: return@launch,
+                            )
+                                ?.decodeToString()
+                        val user = json.decodeFromString<User>(userContentString ?: return@launch)
+                        continuation.resume(user.name)
+                        if (state.value.user == null) {
+                            _state.update { it.copy(user = user) }
+                        }
+                    }
+                }
+            }.invokeOnCompletion {
+                _state.update { it.copy(isTokenValidated = true) }
+            }
+        }
+
+    private fun invalidateUpdatePasswordProcess() {
+        _state.update {
+            it.copy(
+                isTokenValidated = false,
+                isTokenValid = false,
+                isEmailSent = false,
+                isSendingEmail = false,
+                recoveryToken = null,
+                tokenHash = null,
+                tokenExpirationTime = null,
+            )
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            val loginData = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
+            loginData.recoveryToken = null
+            loginData.tokenHash = null
+            loginData.tokenExpirationDate = null
+            repository.updateLoginInfo(loginData)
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun tokenExpirationTimer() {
+        viewModelScope.launch {
+            state.map { it.tokenExpirationTime }
+                .distinctUntilChanged()
+                .filterNotNull()
+                .flatMapLatest { expirationTime ->
+                    flow {
+                        while (true) {
+                            val remainingTime = (expirationTime - System.currentTimeMillis()).coerceAtLeast(0L)
+                            emit(remainingTime)
+                            delay(1000L)
+                        }
+                    }
+                }
+                .flowOn(Dispatchers.IO)
+                .collect { remainingTime ->
+                    _state.update { it.copy(tokenExpirationTimer = remainingTime) }
+                }
+        }
+    }
+}
+
+internal fun Long.formatInMinutes(): String {
+    val minutes = this / 60000
+    val remainingSeconds = (this % 60000) / 1000
+    return String.format(Locale.getDefault(), "%02d:%02d", minutes, remainingSeconds)
 }

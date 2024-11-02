@@ -32,4 +32,13 @@ data class LoginState(
     val isErrorRemovingProfilePicture: Boolean = false,
     val isProfilePictureRemoved: Boolean = true,
     val userProfilePicture: ImageBitmap? = null,
+    val recoveryToken: String? = null,
+    val tokenHash: String? = null,
+    val isTokenValid: Boolean = false,
+    val tokenExpirationTime: Long? = null,
+    val isSendingEmail: Boolean = false,
+    val isEmailSent: Boolean = false,
+    val isValidatingToken: Boolean = false,
+    val isTokenValidated: Boolean = false,
+    val tokenExpirationTimer: Long? = null,
 )

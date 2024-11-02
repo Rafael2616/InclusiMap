@@ -15,6 +15,9 @@ data class LoginEntity(
     var userPathID: String?,
     var showProfilePictureOptedIn: Boolean,
     var profilePicture: ByteArray? = null,
+    var tokenHash: String? = null,
+    var recoveryToken: String? = null,
+    var tokenExpirationDate: Long? = null,
 ) {
     companion object {
         fun getDefault() = LoginEntity(
@@ -27,6 +30,9 @@ data class LoginEntity(
             showProfilePictureOptedIn = true,
             profilePicture = null,
             userPathID = null,
+            tokenHash = null,
+            recoveryToken = null,
+            tokenExpirationDate = null,
         )
     }
 }
