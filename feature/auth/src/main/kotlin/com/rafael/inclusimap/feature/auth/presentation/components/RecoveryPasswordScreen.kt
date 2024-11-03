@@ -92,7 +92,7 @@ fun RecoveryPasswordScreen(
                     capitalization = KeyboardCapitalization.Words,
                     imeAction = ImeAction.Next,
                 ),
-                enabled = !state.isUpdatingPassword && !state.isEmailSent || !state.isLoggedIn,
+                enabled = !state.isEmailSent,
             )
             if (state.isEmailSent) {
                 TextField(

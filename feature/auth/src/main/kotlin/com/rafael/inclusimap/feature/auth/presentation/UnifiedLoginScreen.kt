@@ -68,8 +68,8 @@ fun UnifiedLoginScreen(
     var registerNewUser by remember { mutableStateOf(false) }
     val orientation = LocalConfiguration.current.orientation
     val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
-    var isForgotPasswordScreen by remember { mutableStateOf(false) }
-    var isEditPasswordScreen by remember { mutableStateOf(isEditPasswordModeFromSettings) }
+    var isRecoveryScreen by remember { mutableStateOf(false) }
+    var isUpdatePasswordMode by remember { mutableStateOf(isEditPasswordModeFromSettings) }
     val scope = rememberCoroutineScope()
 
     Box(
@@ -135,53 +135,57 @@ fun UnifiedLoginScreen(
                             .fillMaxWidth(),
                     )
                 }
-                when {
-                    isEditPasswordScreen && !isForgotPasswordScreen -> {
-                        item {
-                            RecoveryPasswordScreen(
-                                state = loginState,
-                                onCancel = {
-                                    onCancel()
-                                    // Await for the navigation to finish
-                                    scope.launch {
-                                        delay(350L)
-                                        isEditPasswordScreen = false
-                                    }
-                                },
-                                onSendRecoverEmail = { email ->
-                                    onSendRecoverEmail(email)
-                                },
-                                onValidateToken = { token ->
-                                    onValidateToken(token)
-                                },
-                                onResetProcess = {
-                                    onResetUpdateProcess()
-                                },
-                            )
-                        }
-                    }
-
-                    isEditPasswordScreen && isForgotPasswordScreen -> {
-                        item {
-                            UpdatePasswordScreen(
-                                state = loginState,
-                                onCancel = {
-                                    isForgotPasswordScreen = false
-                                    onResetUpdateProcess()
-                                },
-                                onUpdatePassword = {
-                                    onUpdatePassword(it)
-                                },
-                                popBackStack = {
-                                    onPopBackStack()
-                                    onResetUpdateProcess()
-                                },
-                            )
-                        }
-                    }
-
-                    else -> {
-                        item {
+                item {
+                    AnimatedContent(
+                        targetState = isUpdatePasswordMode,
+                        modifier = Modifier.fillMaxWidth(),
+                        label = "",
+                    ) { isPasswordUpdateMode ->
+                        if (isPasswordUpdateMode) {
+                            AnimatedContent(
+                                targetState = isRecoveryScreen,
+                                modifier = Modifier.fillMaxWidth(),
+                                label = "",
+                            ) { recoveryScreen ->
+                                if (recoveryScreen) {
+                                    RecoveryPasswordScreen(
+                                        state = loginState,
+                                        onCancel = {
+                                            onCancel()
+                                            // Await for the navigation to finish
+                                            scope.launch {
+                                                delay(350L)
+                                                isUpdatePasswordMode = false
+                                            }
+                                        },
+                                        onSendRecoverEmail = { email ->
+                                            onSendRecoverEmail(email)
+                                        },
+                                        onValidateToken = { token ->
+                                            onValidateToken(token)
+                                        },
+                                        onResetProcess = {
+                                            onResetUpdateProcess()
+                                        },
+                                    )
+                                } else {
+                                    UpdatePasswordScreen(
+                                        state = loginState,
+                                        onCancel = {
+                                            isRecoveryScreen = true
+                                            onResetUpdateProcess()
+                                        },
+                                        onUpdatePassword = {
+                                            onUpdatePassword(it)
+                                        },
+                                        popBackStack = {
+                                            onPopBackStack()
+                                            onResetUpdateProcess()
+                                        },
+                                    )
+                                }
+                            }
+                        } else {
                             AnimatedContent(
                                 targetState = registerNewUser,
                                 modifier = Modifier.fillMaxWidth(),
@@ -199,8 +203,8 @@ fun UnifiedLoginScreen(
                                         onLogin = { user -> onLogin(user) },
                                         onGoToRegister = { registerNewUser = true },
                                         onGoToRecover = {
-                                            isForgotPasswordScreen = false
-                                            isEditPasswordScreen = true
+                                            isUpdatePasswordMode = true
+                                            isRecoveryScreen = true
                                         },
                                     )
                                 }
@@ -213,6 +217,6 @@ fun UnifiedLoginScreen(
     }
 
     if (loginState.isTokenValid) {
-        isForgotPasswordScreen = true
+        isRecoveryScreen = false
     }
 }
