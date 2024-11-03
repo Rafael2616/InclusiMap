@@ -22,6 +22,7 @@ import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -102,7 +103,7 @@ fun DeleteAccountConfirmationDialog(
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.error,
                 )
-                Spacer(modifier = Modifier.height(30.dp))
+                Spacer(modifier = Modifier.height(40.dp))
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -112,7 +113,11 @@ fun DeleteAccountConfirmationDialog(
                         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(text = "Manter suas contribuições")
+                        Text(
+                            text = "Manter suas contribuições",
+                            fontSize = 16.sp,
+                            color = LocalContentColor.current.copy(alpha = 0.85f),
+                        )
                         Checkbox(
                             checked = keepContributions,
                             onCheckedChange = {
@@ -127,7 +132,11 @@ fun DeleteAccountConfirmationDialog(
                         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(text = "Apagar tudo")
+                        Text(
+                            text = "Apagar tudo",
+                            fontSize = 14.sp,
+                            color = LocalContentColor.current.copy(alpha = 0.85f),
+                        )
                         Checkbox(
                             checked = !keepContributions,
                             onCheckedChange = {
@@ -203,7 +212,11 @@ fun DeleteAccountConfirmationDialog(
     }
     val context = LocalContext.current
     if (networkError && deleteStep == DeleteProcess.ERROR) {
-        Toast.makeText(context, "Ocorreu um erro durante a exclusão, tente novamente!", Toast.LENGTH_LONG).show()
+        Toast.makeText(
+            context,
+            "Ocorreu um erro durante a exclusão, tente novamente!",
+            Toast.LENGTH_LONG,
+        ).show()
     }
     if (deleteStep == DeleteProcess.SUCCESS && !deleteProcessStarted) {
         Toast.makeText(context, "Conta deletada com sucesso!", Toast.LENGTH_LONG).show()
