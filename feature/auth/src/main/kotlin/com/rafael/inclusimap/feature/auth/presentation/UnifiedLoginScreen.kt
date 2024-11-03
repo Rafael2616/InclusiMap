@@ -68,7 +68,7 @@ fun UnifiedLoginScreen(
     var registerNewUser by remember { mutableStateOf(false) }
     val orientation = LocalConfiguration.current.orientation
     val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
-    var isRecoveryScreen by remember { mutableStateOf(false) }
+    var isRecoveryScreen by remember { mutableStateOf(true) }
     var isUpdatePasswordMode by remember { mutableStateOf(isEditPasswordModeFromSettings) }
     val scope = rememberCoroutineScope()
 
