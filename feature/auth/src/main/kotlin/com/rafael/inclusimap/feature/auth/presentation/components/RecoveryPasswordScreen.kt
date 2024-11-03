@@ -179,9 +179,6 @@ fun RecoveryPasswordScreen(
         Toast.makeText(context, "Token incorreto ou expirado! Tente novamente", Toast.LENGTH_LONG)
             .show()
        }
-        if (state.isTokenValid && state.isTokenValidated && receivedToken.isNotEmpty()) {
-            Toast.makeText(context, "Token verificado!", Toast.LENGTH_LONG).show()
-        }
         onDispose { }
     }
 
@@ -192,6 +189,6 @@ fun RecoveryPasswordScreen(
 
     DisposableEffect(state.tokenExpirationTimer == 0L) {
         onResetProcess()
-        onDispose {  }
+        onDispose { }
     }
 }
