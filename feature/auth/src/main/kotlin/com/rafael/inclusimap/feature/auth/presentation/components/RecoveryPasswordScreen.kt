@@ -11,13 +11,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -58,8 +53,6 @@ fun RecoveryPasswordScreen(
     var receivedToken by remember { mutableStateOf("") }
     var canUpdate by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val toast = Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT)
-    var showPassword by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     var isValidEmail by remember { mutableStateOf(true) }
 
@@ -99,18 +92,6 @@ fun RecoveryPasswordScreen(
                     capitalization = KeyboardCapitalization.Words,
                     imeAction = ImeAction.Next,
                 ),
-                trailingIcon = {
-                    IconButton(
-                        onClick = {
-                            showPassword = !showPassword
-                        },
-                    ) {
-                        Icon(
-                            imageVector = if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                            contentDescription = if (showPassword) "Hide password" else "Show password",
-                        )
-                    }
-                },
                 enabled = !state.isUpdatingPassword && !state.isEmailSent || !state.isLoggedIn,
             )
             if (state.isEmailSent) {
@@ -173,7 +154,7 @@ fun RecoveryPasswordScreen(
                 onClick = {
                     canUpdate = true
                     if (email.isEmpty()) {
-                        toast.show()
+                        Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT).show()
                         return@Button
                     }
                     if (!isValidEmail) {
