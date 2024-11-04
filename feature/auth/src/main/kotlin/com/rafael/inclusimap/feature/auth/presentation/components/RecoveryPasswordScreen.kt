@@ -167,7 +167,7 @@ fun RecoveryPasswordScreen(
                         onSendRecoverEmail(email)
                     }
                 },
-                enabled = !state.isUpdatingPassword,
+                enabled = if (state.isEmailSent) !state.isValidatingToken else !state.isSendingEmail,
             ) {
                 Text(text = if (state.isEmailSent) "Validar" else "Enviar")
             }
