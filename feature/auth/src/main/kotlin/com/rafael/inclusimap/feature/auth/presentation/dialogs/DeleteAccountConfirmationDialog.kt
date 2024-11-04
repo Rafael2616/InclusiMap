@@ -1,4 +1,4 @@
-package com.rafael.inclusimap.feature.settings.presentation
+package com.rafael.inclusimap.feature.auth.presentation.dialogs
 
 import android.content.res.Configuration
 import android.widget.Toast
@@ -42,15 +42,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import com.rafael.inclusimap.core.domain.model.DeleteProcess
+import com.rafael.inclusimap.feature.auth.domain.model.LoginState
 
-@Suppress("ktlint:compose:modifier-not-used-at-root")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeleteAccountConfirmationDialog(
-    isDeleting: Boolean,
-    isLoginOut: Boolean,
-    deleteStep: DeleteProcess,
-    networkError: Boolean,
+    loginState: LoginState,
     onDismissRequest: () -> Unit,
     onDeleteAccount: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -69,10 +66,10 @@ fun DeleteAccountConfirmationDialog(
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
         ),
-        modifier = Modifier.fillMaxWidth(if (isLandscape) 0.5f else 0.82f),
+        modifier = modifier.fillMaxWidth(if (isLandscape) 0.5f else 0.82f),
     ) {
         Card(
-            modifier = modifier
+            modifier = Modifier
                 .clip(RoundedCornerShape(24.dp)),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp),
@@ -156,7 +153,7 @@ fun DeleteAccountConfirmationDialog(
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    if (!isDeleting && !isLoginOut) {
+                    if (!loginState.isDeletingAccount && !loginState.isLoginOut) {
                         OutlinedButton(
                             onClick = {
                                 onDismissRequest()
@@ -171,8 +168,8 @@ fun DeleteAccountConfirmationDialog(
                         ) {
                             Text(
                                 fontSize = 14.sp,
-                                text = if (!isLoginOut) {
-                                    when (deleteStep) {
+                                text = if (!loginState.isLoginOut) {
+                                    when (loginState.deleteStep) {
                                         DeleteProcess.NO_OP -> "Iniciando..."
                                         DeleteProcess.DELETING_USER_INFO -> "Deletando suas informações..."
                                         DeleteProcess.DELETING_USER_COMMENTS -> "Deletando seus comentários..."
@@ -190,7 +187,7 @@ fun DeleteAccountConfirmationDialog(
                             )
                         }
                     }
-                    if (!isDeleting && !isLoginOut) {
+                    if (!loginState.isDeletingAccount && !loginState.isLoginOut) {
                         OutlinedButton(
                             onClick = {
                                 deleteProcessStarted = false
@@ -211,14 +208,14 @@ fun DeleteAccountConfirmationDialog(
         }
     }
     val context = LocalContext.current
-    if (networkError && deleteStep == DeleteProcess.ERROR) {
+    if (loginState.networkError && loginState.deleteStep == DeleteProcess.ERROR) {
         Toast.makeText(
             context,
             "Ocorreu um erro durante a exclusão, tente novamente!",
             Toast.LENGTH_LONG,
         ).show()
     }
-    if (deleteStep == DeleteProcess.SUCCESS && !deleteProcessStarted) {
+    if (loginState.deleteStep == DeleteProcess.SUCCESS && !deleteProcessStarted) {
         Toast.makeText(context, "Conta deletada com sucesso!", Toast.LENGTH_LONG).show()
     }
 }

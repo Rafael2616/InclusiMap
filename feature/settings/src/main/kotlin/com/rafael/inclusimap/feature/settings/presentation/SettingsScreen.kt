@@ -9,7 +9,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.navigation.NavController
-import com.rafael.inclusimap.core.domain.model.DeleteProcess
 import com.rafael.inclusimap.core.settings.domain.model.SettingsEvent
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 import com.rafael.inclusimap.feature.intro.presentation.dialogs.AppIntroDialog
@@ -19,15 +18,9 @@ import com.rafael.inclusimap.feature.settings.presentation.components.SettingsTo
 
 @Composable
 fun SettingsScreen(
-    isLoginOut: Boolean,
     navController: NavController,
     state: SettingsState,
     onEvent: (SettingsEvent) -> Unit,
-    onLogout: () -> Unit,
-    onDeleteAccount: (Boolean) -> Unit,
-    isDeleting: Boolean,
-    networkError: Boolean,
-    deleteStep: DeleteProcess,
     userName: String,
     userEmail: String,
     allowOtherUsersToSeeProfilePicture: Boolean,
@@ -54,32 +47,6 @@ fun SettingsScreen(
                 showAppIntro = it
             },
             navController,
-        )
-    }
-    if (state.showLogoutDialog) {
-        LogoutConfirmationDialog(
-            isLoginOut = isLoginOut,
-            onDismissRequest = {
-                latestOnEvent(SettingsEvent.ShowLogoutDialog(false))
-            },
-            onLogout = {
-                onLogout()
-            },
-        )
-    }
-
-    if (state.showDeleteAccountDialog) {
-        DeleteAccountConfirmationDialog(
-            isDeleting = isDeleting,
-            deleteStep = deleteStep,
-            isLoginOut = isLoginOut,
-            networkError = networkError,
-            onDeleteAccount = { keepContributions ->
-                onDeleteAccount(keepContributions)
-            },
-            onDismissRequest = {
-                latestOnEvent(SettingsEvent.ShowDeleteAccountDialog(false))
-            },
         )
     }
 

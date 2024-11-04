@@ -1,5 +1,6 @@
 package com.rafael.inclusimap.core.navigation.impl
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
@@ -24,6 +25,8 @@ import com.rafael.inclusimap.feature.about.presentation.AboutAppScreen
 import com.rafael.inclusimap.feature.about.util.SingletonCoilImageLoader
 import com.rafael.inclusimap.feature.auth.domain.model.LoginEvent
 import com.rafael.inclusimap.feature.auth.presentation.UnifiedLoginScreen
+import com.rafael.inclusimap.feature.auth.presentation.dialogs.DeleteAccountConfirmationDialog
+import com.rafael.inclusimap.feature.auth.presentation.dialogs.LogoutConfirmationDialog
 import com.rafael.inclusimap.feature.auth.presentation.viewmodel.LoginViewModel
 import com.rafael.inclusimap.feature.contributions.presentation.LibraryScreen
 import com.rafael.inclusimap.feature.contributions.presentation.viewmodel.LibraryViewModel
@@ -137,23 +140,9 @@ fun InclusiMapNavHost(
                             }
                         }
                         SettingsScreen(
-                            loginState.isLoginOut,
                             navController,
                             settingsState,
                             settingsViewModel::onEvent,
-                            onLogout = {
-                                loginViewModel.onEvent(
-                                    LoginEvent.OnLogout,
-                                )
-                            },
-                            onDeleteAccount = { keepContributions ->
-                                loginViewModel.onEvent(
-                                    LoginEvent.DeleteAccount(keepContributions),
-                                )
-                            },
-                            isDeleting = loginState.isDeletingAccount,
-                            deleteStep = loginState.deleteStep,
-                            networkError = loginState.networkError,
                             userName = loginState.user?.name ?: "",
                             userEmail = loginState.user?.email ?: "",
                             onEditUserName = {
@@ -183,6 +172,32 @@ fun InclusiMapNavHost(
                                 )
                                 navController.clearBackStack(Destination.MapHost)
                             }
+                        }
+                        AnimatedVisibility(settingsState.showLogoutDialog) {
+                            LogoutConfirmationDialog(
+                                isLoginOut = loginState.isLoginOut,
+                                onDismissRequest = {
+                                    settingsViewModel.onEvent(SettingsEvent.ShowLogoutDialog(false))
+                                },
+                                onLogout = {
+                                    loginViewModel.onEvent(
+                                        LoginEvent.OnLogout,
+                                    )
+                                },
+                            )
+                        }
+                        AnimatedVisibility(settingsState.showDeleteAccountDialog) {
+                            DeleteAccountConfirmationDialog(
+                                loginState = loginState,
+                                onDeleteAccount = { keepContributions ->
+                                    loginViewModel.onEvent(
+                                        LoginEvent.DeleteAccount(keepContributions),
+                                    )
+                                },
+                                onDismissRequest = {
+                                    settingsViewModel.onEvent(SettingsEvent.ShowDeleteAccountDialog(false))
+                                },
+                            )
                         }
                     }
                     composable<Destination.LibraryScreen> {
