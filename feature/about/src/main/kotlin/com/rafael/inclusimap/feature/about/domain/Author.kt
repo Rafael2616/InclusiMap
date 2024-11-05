@@ -7,26 +7,25 @@ data class Author(
     val position: String,
 ) {
     companion object {
-        val authors =
-            listOf(
-                Author(
-                    name = "Rafael de Moura Nascimento",
-                    site = "https://github.com/Rafael2616",
-                    image = "https://avatars.githubusercontent.com/u/93414086?s=96&v=4",
-                    position = "Tech Lider/Desenvolvedor",
-                ),
-                Author(
-                    name = "Alcilia Maria",
-                    site = "https://github.com/",
-                    image = "https://github.com/",
-                    position = "Tech Lider/Desenvolvedor",
-                ),
-                Author(
-                    name = "Cléber Felix",
-                    site = "https://github.com/",
-                    image = "https://github.com/",
-                    position = "Tech Lider/Desenvolvedor",
-                ),
-            )
+        val authors = listOf(
+            Author(
+                name = "Rafael de Moura Nascimento",
+                site = "https://github.com/Rafael2616",
+                image = "https://avatars.githubusercontent.com/u/93414086?s=96&v=4",
+                position = "Tech Lider/Desenvolvedor",
+            ),
+            Author(
+                name = "Alcilia Maria",
+                site = "https://github.com/",
+                image = "https://github.com/",
+                position = "Tech Lider/Desenvolvedor",
+            ),
+            Author(
+                name = "Cléber Felix",
+                site = "https://github.com/",
+                image = "https://github.com/",
+                position = "Tech Lider/Desenvolvedor",
+            ),
+        )
     }
 }

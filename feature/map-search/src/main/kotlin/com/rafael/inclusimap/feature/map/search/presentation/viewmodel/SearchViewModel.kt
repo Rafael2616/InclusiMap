@@ -22,11 +22,10 @@ class SearchViewModel(
 ) : ViewModel() {
     private val _state = MutableStateFlow(SearchState())
     val state = _state.asStateFlow()
-    private val json =
-        Json {
-            ignoreUnknownKeys = true
-            prettyPrint = true
-        }
+    private val json = Json {
+        ignoreUnknownKeys = true
+        prettyPrint = true
+    }
 
     fun onEvent(event: SearchEvent) {
         when (event) {
@@ -40,10 +39,7 @@ class SearchViewModel(
         }
     }
 
-    private fun onSearch(
-        query: String,
-        allPlaces: List<AccessibleLocalMarker>,
-    ) {
+    private fun onSearch(query: String, allPlaces: List<AccessibleLocalMarker>) {
         _state.update {
             it.copy(searchQuery = query)
         }
@@ -64,15 +60,14 @@ class SearchViewModel(
     private fun defaultSearch(
         query: String,
         allPlaces: List<AccessibleLocalMarker>,
-    ): List<AccessibleLocalMarker> =
-        allPlaces.filter {
-            normalizeText(it.title).contains(
-                query,
-                ignoreCase = true,
-            ) ||
-                normalizeText(it.category?.toCategoryName() ?: "")
-                    .contains(query, ignoreCase = true)
-        }
+    ): List<AccessibleLocalMarker> = allPlaces.filter {
+        normalizeText(it.title).contains(
+            query,
+            ignoreCase = true,
+        ) ||
+            normalizeText(it.category?.toCategoryName() ?: "")
+                .contains(query, ignoreCase = true)
+    }
 
     private fun lavenshteinSearch(
         query: String,
@@ -81,10 +76,9 @@ class SearchViewModel(
         val threshold = 0.7 // 70% of minimum similarity
         return allPlaces.filter { place ->
             val titleSimilarity = similarity(normalizeText(place.title), query)
-            val categorySimilarity =
-                place.category?.let { cat ->
-                    similarity(normalizeText(cat.toCategoryName()), query)
-                } ?: 0.0
+            val categorySimilarity = place.category?.let { cat ->
+                similarity(normalizeText(cat.toCategoryName()), query)
+            } ?: 0.0
             titleSimilarity >= threshold || categorySimilarity >= threshold
         }
     }

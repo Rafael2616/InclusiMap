@@ -7,21 +7,20 @@ import com.rafael.inclusimap.core.settings.data.repository.SettingsRepositoryImp
 import org.koin.android.ext.koin.androidApplication
 import org.koin.dsl.module
 
-val coreSettingsModule =
-    module {
-        single {
-            Room
-                .databaseBuilder(
-                    androidApplication(),
-                    SettingsDatabase::class.java,
-                    SettingsDatabase.DATABASE_NAME,
-                ).fallbackToDestructiveMigration(true)
-                .addMigrations(Migrations.migration1To2)
-                .build()
-        }
-        single {
-            SettingsRepositoryImpl(
-                get<SettingsDatabase>().settingsDao(),
-            )
-        }
+val coreSettingsModule = module {
+    single {
+        Room.databaseBuilder(
+            androidApplication(),
+            SettingsDatabase::class.java,
+            SettingsDatabase.DATABASE_NAME,
+        )
+            .fallbackToDestructiveMigration(true)
+            .addMigrations(Migrations.migration1To2)
+            .build()
     }
+    single {
+        SettingsRepositoryImpl(
+            get<SettingsDatabase>().settingsDao(),
+        )
+    }
+}

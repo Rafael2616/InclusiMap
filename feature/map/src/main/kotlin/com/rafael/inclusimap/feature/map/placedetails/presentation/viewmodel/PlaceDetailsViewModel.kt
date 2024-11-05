@@ -55,24 +55,23 @@ class PlaceDetailsViewModel(
     private val loginRepository: LoginRepository,
     private val contributionsRepository: ContributionsRepository,
 ) : ViewModel() {
+
     private val _state = MutableStateFlow(PlaceDetailsState())
     val state = _state.asStateFlow()
     private var userName = ""
     private var userEmail = ""
-    private val json =
-        Json {
-            prettyPrint = true
-            ignoreUnknownKeys = true
-        }
+    private val json = Json {
+        prettyPrint = true
+        ignoreUnknownKeys = true
+    }
 
     fun onEvent(event: PlaceDetailsEvent) {
         when (event) {
-            is PlaceDetailsEvent.OnUploadPlaceImages ->
-                onUploadPlaceImages(
-                    event.uris,
-                    event.context,
-                    event.placeId,
-                )
+            is PlaceDetailsEvent.OnUploadPlaceImages -> onUploadPlaceImages(
+                event.uris,
+                event.context,
+                event.placeId,
+            )
 
             PlaceDetailsEvent.OnDestroyPlaceDetails -> onDestroyPlaceDetailsScreen()
             is PlaceDetailsEvent.SetCurrentPlace -> setCurrentPlace(event.place)
@@ -82,10 +81,9 @@ class PlaceDetailsViewModel(
             is PlaceDetailsEvent.SetIsUserCommented -> _state.update { it.copy(isUserCommented = event.isCommented) }
             PlaceDetailsEvent.OnDeleteComment -> onDeleteComment()
             is PlaceDetailsEvent.SetIsEditingPlace -> _state.update { it.copy(isEditingPlace = event.isEditing) }
-            is PlaceDetailsEvent.OnUpdatePlaceAccessibilityResources ->
-                onUpdatePlaceAccessibilityResources(
-                    event.resources,
-                )
+            is PlaceDetailsEvent.OnUpdatePlaceAccessibilityResources -> onUpdatePlaceAccessibilityResources(
+                event.resources,
+            )
 
             is PlaceDetailsEvent.SetIsEditingComment -> _state.update { it.copy(isEditingComment = event.isEditing) }
             is PlaceDetailsEvent.SetIsTrySendComment -> _state.update { it.copy(trySendComment = event.isTrying) }
@@ -94,80 +92,63 @@ class PlaceDetailsViewModel(
     }
 
     private fun setCurrentPlace(place: AccessibleLocalMarker) {
-        viewModelScope
-            .launch(Dispatchers.IO) {
-                async {
-                    _state.update { it ->
-                        it.copy(
-                            isCurrentPlaceLoaded = it.loadedPlaces.any { existingPlace -> existingPlace.id == place.id },
-                            allImagesLoaded =
-                            it.loadedPlaces
-                                .find { existingPlace -> existingPlace.id == place.id }
-                                ?.images
-                                ?.isNotEmpty()
-                                ?: false,
-                            currentPlace =
-                            place.toFullAccessibleLocalMarker(
+        viewModelScope.launch(Dispatchers.IO) {
+            async {
+                _state.update { it ->
+                    it.copy(
+                        isCurrentPlaceLoaded = it.loadedPlaces.any { existingPlace -> existingPlace.id == place.id },
+                        allImagesLoaded = it.loadedPlaces.find { existingPlace -> existingPlace.id == place.id }?.images?.isNotEmpty()
+                            ?: false,
+                        currentPlace = place.toFullAccessibleLocalMarker(
+                            images = emptyList(),
+                            imageFolderId = it.loadedPlaces.find { existingPlace -> existingPlace.id == place.id }?.imageFolderId,
+                            imageFolder = null,
+                        ),
+                        loadedPlaces = if (place !in state.value.loadedPlaces.map { it.toAccessibleLocalMarker() }) {
+                            state.value.loadedPlaces + place.toFullAccessibleLocalMarker(
                                 images = emptyList(),
-                                imageFolderId = it.loadedPlaces.find { existingPlace -> existingPlace.id == place.id }?.imageFolderId,
                                 imageFolder = null,
-                            ),
-                            loadedPlaces =
-                            if (place !in state.value.loadedPlaces.map { it.toAccessibleLocalMarker() }) {
-                                state.value.loadedPlaces +
-                                    place.toFullAccessibleLocalMarker(
-                                        images = emptyList(),
-                                        imageFolder = null,
-                                        imageFolderId = null,
-                                    )
-                            } else {
-                                state.value.loadedPlaces
-                            },
-                        )
-                    }
-                    delay(300)
-                }.await()
-            }.invokeOnCompletion {
-                if (!state.value.isCurrentPlaceLoaded ||
-                    state.value.loadedPlaces
-                        .find { existingPlace -> existingPlace.id == place.id }
-                        ?.images
-                        ?.isEmpty() == true
-                ) {
-                    loadImages(place)
-                } else {
-                    loadImagesFromCache(place)
+                                imageFolderId = null,
+                            )
+                        } else {
+                            state.value.loadedPlaces
+                        },
+                    )
                 }
+                delay(300)
+            }.await()
+        }.invokeOnCompletion {
+            if (!state.value.isCurrentPlaceLoaded || state.value.loadedPlaces.find { existingPlace -> existingPlace.id == place.id }?.images?.isEmpty() == true) {
+                loadImages(place)
+            } else {
+                loadImagesFromCache(place)
             }
+        }
         loadUserComment(place)
     }
 
     private fun loadUserComment(place: AccessibleLocalMarker) {
-        viewModelScope
-            .launch(Dispatchers.IO) {
-                async {
-                    loginRepository.getLoginInfo(1)?.let {
-                        userName = it.userName ?: return@async
-                        userEmail = it.userEmail ?: return@async
-                    }
-                }.await()
-            }.invokeOnCompletion {
-                val userComment =
-                    state.value.loadedPlaces
-                        .find { existingPlace ->
-                            existingPlace.id == place.id
-                        }?.comments
-                        ?.find { it.email == userEmail }
-
-                _state.update {
-                    it.copy(
-                        isUserCommented = userComment != null,
-                        userComment = userComment?.body ?: "",
-                        userCommentDate = userComment?.postDate ?: "",
-                        userAccessibilityRate = userComment?.accessibilityRate ?: 0,
-                    )
+        viewModelScope.launch(Dispatchers.IO) {
+            async {
+                loginRepository.getLoginInfo(1)?.let {
+                    userName = it.userName ?: return@async
+                    userEmail = it.userEmail ?: return@async
                 }
+            }.await()
+        }.invokeOnCompletion {
+            val userComment = state.value.loadedPlaces.find { existingPlace ->
+                existingPlace.id == place.id
+            }?.comments?.find { it.email == userEmail }
+
+            _state.update {
+                it.copy(
+                    isUserCommented = userComment != null,
+                    userComment = userComment?.body ?: "",
+                    userCommentDate = userComment?.postDate ?: "",
+                    userAccessibilityRate = userComment?.accessibilityRate ?: 0,
+                )
             }
+        }
     }
 
     private fun onDestroyPlaceDetailsScreen() {
@@ -185,207 +166,166 @@ class PlaceDetailsViewModel(
 
     private fun loadImages(placeDetails: AccessibleLocalMarker) {
         _state.update { it.copy(allImagesLoaded = false) }
-        viewModelScope
-            .launch(Dispatchers.IO) {
-                async {
-                    driveService
-                        .listFiles(
-                            INCLUSIMAP_IMAGE_FOLDER_ID,
-                        ).onSuccess { imageRepositoryFolder ->
-                            _state.update {
-                                it.copy(
-                                    inclusiMapImageRepositoryFolder = imageRepositoryFolder,
-                                )
-                            }
-                        }
-                }.await()
-                _state.update {
-                    val imageFolderID =
-                        state.value.inclusiMapImageRepositoryFolder
-                            .find { subPaths ->
-                                subPaths.name == placeDetails.id + "_" + placeDetails.authorEmail
-                            }?.id
-                    it.copy(
-                        currentPlace =
-                        it.currentPlace.copy(
-                            imageFolderId = imageFolderID,
-                        ),
-                        loadedPlaces =
-                        it.loadedPlaces.map { place ->
-                            if (place.id == placeDetails.id) {
-                                place.copy(imageFolderId = imageFolderID)
-                            } else {
-                                place
-                            }
-                        },
-                    )
-                }
-                if (_state.value.currentPlace.imageFolderId
-                        .isNullOrEmpty() ||
-                    when (
-                        val result =
-                            driveService.listFiles(_state.value.currentPlace.imageFolderId ?: "")
-                    ) {
-                        is Result.Success -> result.data.isEmpty()
-                        is Result.Error -> {
-                            true
-                        }
+        viewModelScope.launch(Dispatchers.IO) {
+            async {
+                driveService.listFiles(
+                    INCLUSIMAP_IMAGE_FOLDER_ID,
+                ).onSuccess { imageRepositoryFolder ->
+                    _state.update {
+                        it.copy(
+                            inclusiMapImageRepositoryFolder = imageRepositoryFolder,
+                        )
                     }
-                ) {
-                    _state.update { it.copy(allImagesLoaded = true) }
-                    println("No images found for place ${placeDetails.title} ${placeDetails.id}")
-                    return@launch
                 }
-                async {
-                    val folderId = state.value.currentPlace.imageFolderId
-                    folderId?.let {
-                        driveService.listFiles(folderId).onSuccess { imageFolder ->
-                            _state.update {
-                                it.copy(
-                                    currentPlace =
-                                    it.currentPlace.copy(
-                                        imageFolder = imageFolder,
-                                    ),
-                                    loadedPlaces =
-                                    it.loadedPlaces.map { place ->
-                                        if (place.id == placeDetails.id) {
-                                            place.copy(imageFolder = imageFolder)
-                                        } else {
-                                            place
-                                        }
-                                    },
-                                )
-                            }
+            }.await()
+            _state.update {
+                val imageFolderID = state.value.inclusiMapImageRepositoryFolder.find { subPaths ->
+                    subPaths.name == placeDetails.id + "_" + placeDetails.authorEmail
+                }?.id
+                it.copy(
+                    currentPlace = it.currentPlace.copy(
+                        imageFolderId = imageFolderID,
+                    ),
+                    loadedPlaces = it.loadedPlaces.map { place ->
+                        if (place.id == placeDetails.id) {
+                            place.copy(imageFolderId = imageFolderID)
+                        } else {
+                            place
                         }
-                    }
-                }.await()
-
-                _state.value.currentPlace.imageFolder
-                    ?.mapIndexed { index, file ->
-                        async {
-                            // Is expected that this condition never succeeds, but is important to ensure
-                            // that no more images that max limit loads, as it can cause UI lags, and much processing
-                            if (index >= MAX_IMAGE_NUMBER) {
-                                _state.update {
-                                    it.copy(allImagesLoaded = true)
-                                }
-                                println("Max image limit reached, skipping image ${file.name}")
-                                return@async
-                            }
-
-                            try {
-                                val fileContent =
-                                    driveService.driveService
-                                        .files()
-                                        .get(file.id)
-                                        .executeMediaAsInputStream()
-                                        .readBytes()
-                                val tempFile = File.createTempFile("downloaded_image_${file.name}", ".jpg")
-                                tempFile.outputStream().use { fileContent.inputStream().copyTo(it) }
-
-                                val exifInterface = ExifInterface(tempFile.absolutePath)
-                                val orientation =
-                                    exifInterface.getAttributeInt(
-                                        ExifInterface.TAG_ORIENTATION,
-                                        ExifInterface.ORIENTATION_NORMAL,
-                                    )
-
-                                val options = BitmapFactory.Options().apply { inSampleSize = 2 }
-                                val bitmap = BitmapFactory.decodeFile(tempFile.absolutePath, options)
-                                val adjustedBitmap = rotateImage(bitmap, orientation).asImageBitmap()
-
-                                if (placeDetails.id != _state.value.currentPlace.id) {
-                                    return@async
-                                }
-                                if (file.name in
-                                    _state.value.currentPlace.images
-                                        .map { it?.name }
-                                ) {
-                                    println("Skipping already loaded image ${file.name}")
-                                    return@async
-                                }
-
-                                val placeImage =
-                                    PlaceImage(
-                                        userEmail = file.name.extractUserEmail(),
-                                        image = adjustedBitmap,
-                                        placeID = placeDetails.id ?: return@async,
-                                        name = file.name,
-                                    )
-                                _state.update {
-                                    it
-                                        .copy(
-                                            currentPlace =
-                                            it.currentPlace.copy(
-                                                images = it.currentPlace.images + placeImage,
-                                            ),
-                                            loadedPlaces =
-                                            it.loadedPlaces.map { place ->
-                                                if (place.id == state.value.currentPlace.id) {
-                                                    place.copy(images = place.images + placeImage)
-                                                } else {
-                                                    place
-                                                }
-                                            },
-                                        ).also {
-                                            println("Loaded image $index with name ${file.name} with id ${file.id}")
-                                            tempFile.delete()
-                                        }
-                                }
-                                if (_state.value.currentPlace.images.size ==
-                                    _state.value.currentPlace.imageFolder
-                                        ?.size
-                                ) {
-                                    _state.update {
-                                        it.copy(allImagesLoaded = true)
-                                    }
-                                    println(
-                                        "All images cached successfully for ${placeDetails.title} ${placeDetails.id} + size: ${_state.value.currentPlace.images.size}",
-                                    )
-                                }
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                            }
-                        }
-                    }?.awaitAll()
-            }.invokeOnCompletion {
-                _state.update { it.copy(allImagesLoaded = true) }
+                    },
+                )
             }
+            if (_state.value.currentPlace.imageFolderId.isNullOrEmpty() ||
+                when (
+                    val result =
+                        driveService.listFiles(_state.value.currentPlace.imageFolderId ?: "")
+                ) {
+                    is Result.Success -> result.data.isEmpty()
+                    is Result.Error -> {
+                        true
+                    }
+                }
+            ) {
+                _state.update { it.copy(allImagesLoaded = true) }
+                println("No images found for place ${placeDetails.title} ${placeDetails.id}")
+                return@launch
+            }
+            async {
+                val folderId = state.value.currentPlace.imageFolderId
+                folderId?.let {
+                    driveService.listFiles(folderId).onSuccess { imageFolder ->
+                        _state.update {
+                            it.copy(
+                                currentPlace = it.currentPlace.copy(
+                                    imageFolder = imageFolder,
+                                ),
+                                loadedPlaces = it.loadedPlaces.map { place ->
+                                    if (place.id == placeDetails.id) {
+                                        place.copy(imageFolder = imageFolder)
+                                    } else {
+                                        place
+                                    }
+                                },
+                            )
+                        }
+                    }
+                }
+            }.await()
+
+            _state.value.currentPlace.imageFolder?.mapIndexed { index, file ->
+                async {
+                    // Is expected that this condition never succeeds, but is important to ensure
+                    // that no more images that max limit loads, as it can cause UI lags, and much processing
+                    if (index >= MAX_IMAGE_NUMBER) {
+                        _state.update {
+                            it.copy(allImagesLoaded = true)
+                        }
+                        println("Max image limit reached, skipping image ${file.name}")
+                        return@async
+                    }
+
+                    try {
+                        val fileContent = driveService.driveService.files().get(file.id)
+                            .executeMediaAsInputStream().readBytes()
+                        val tempFile = File.createTempFile("downloaded_image_${file.name}", ".jpg")
+                        tempFile.outputStream().use { fileContent.inputStream().copyTo(it) }
+
+                        val exifInterface = ExifInterface(tempFile.absolutePath)
+                        val orientation = exifInterface.getAttributeInt(
+                            ExifInterface.TAG_ORIENTATION,
+                            ExifInterface.ORIENTATION_NORMAL,
+                        )
+
+                        val options = BitmapFactory.Options().apply { inSampleSize = 2 }
+                        val bitmap = BitmapFactory.decodeFile(tempFile.absolutePath, options)
+                        val adjustedBitmap = rotateImage(bitmap, orientation).asImageBitmap()
+
+                        if (placeDetails.id != _state.value.currentPlace.id) {
+                            return@async
+                        }
+                        if (file.name in _state.value.currentPlace.images.map { it?.name }) {
+                            println("Skipping already loaded image ${file.name}")
+                            return@async
+                        }
+
+                        val placeImage = PlaceImage(
+                            userEmail = file.name.extractUserEmail(),
+                            image = adjustedBitmap,
+                            placeID = placeDetails.id ?: return@async,
+                            name = file.name,
+                        )
+                        _state.update {
+                            it.copy(
+                                currentPlace = it.currentPlace.copy(
+                                    images = it.currentPlace.images + placeImage,
+                                ),
+                                loadedPlaces = it.loadedPlaces.map { place ->
+                                    if (place.id == state.value.currentPlace.id) {
+                                        place.copy(images = place.images + placeImage)
+                                    } else {
+                                        place
+                                    }
+                                },
+                            ).also {
+                                println("Loaded image $index with name ${file.name} with id ${file.id}")
+                                tempFile.delete()
+                            }
+                        }
+                        if (_state.value.currentPlace.images.size == _state.value.currentPlace.imageFolder?.size) {
+                            _state.update {
+                                it.copy(allImagesLoaded = true)
+                            }
+                            println("All images cached successfully for ${placeDetails.title} ${placeDetails.id} + size: ${_state.value.currentPlace.images.size}")
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }?.awaitAll()
+        }.invokeOnCompletion {
+            _state.update { it.copy(allImagesLoaded = true) }
+        }
     }
 
     private fun loadImagesFromCache(placeDetails: AccessibleLocalMarker) {
         viewModelScope.launch(Dispatchers.IO) {
-            val placeWithImages =
-                placeDetails.toFullAccessibleLocalMarker(
-                    _state.value.loadedPlaces
-                        .find { place -> place.id == placeDetails.id }
-                        ?.images
-                        ?: emptyList(),
-                    _state.value.loadedPlaces
-                        .find { place -> place.id == placeDetails.id }
-                        ?.imageFolder,
-                    _state.value.loadedPlaces
-                        .find { place -> place.id == placeDetails.id }
-                        ?.imageFolderId,
-                )
-            println(
-                "All images founded:" +
-                    _state.value.loadedPlaces
-                        .find { place -> place.id == placeDetails.id }
-                        ?.images
-                        ?.size,
+            val placeWithImages = placeDetails.toFullAccessibleLocalMarker(
+                _state.value.loadedPlaces.find { place -> place.id == placeDetails.id }?.images
+                    ?: emptyList(),
+                _state.value.loadedPlaces.find { place -> place.id == placeDetails.id }?.imageFolder,
+                _state.value.loadedPlaces.find { place -> place.id == placeDetails.id }?.imageFolderId,
             )
+            println("All images founded:" + _state.value.loadedPlaces.find { place -> place.id == placeDetails.id }?.images?.size)
             _state.update { it ->
-                it
-                    .copy(
-                        currentPlace = placeWithImages,
-                    ).also {
-                        checkAllImagesLoaded(
-                            place = placeDetails,
-                            currentImagesSize = it.currentPlace.images.size,
-                            imagesLoadedSize = placeWithImages.imageFolder?.size,
-                        )
-                    }
+                it.copy(
+                    currentPlace = placeWithImages,
+                ).also {
+                    checkAllImagesLoaded(
+                        place = placeDetails,
+                        currentImagesSize = it.currentPlace.images.size,
+                        imagesLoadedSize = placeWithImages.imageFolder?.size,
+                    )
+                }
             }
         }
     }
@@ -418,121 +358,106 @@ class PlaceDetailsViewModel(
             )
         }
 
-        viewModelScope
-            .launch(Dispatchers.IO) {
-                async {
-                    driveService.listFiles(INCLUSIMAP_IMAGE_FOLDER_ID).onSuccess { placeImagesFolder ->
-                        val placeImageFolderExists =
-                            placeImagesFolder.find { it.name.extractPlaceID() == placeId }?.id
-                        _state.update {
-                            it.copy(
-                                currentPlace =
-                                it.currentPlace.copy(
-                                    imageFolderId =
-                                    placeImageFolderExists ?: driveService.createFolder(
-                                        _state.value.currentPlace.id + "_" + _state.value.currentPlace.authorEmail,
-                                        INCLUSIMAP_IMAGE_FOLDER_ID,
-                                    ),
+        viewModelScope.launch(Dispatchers.IO) {
+            async {
+                driveService.listFiles(INCLUSIMAP_IMAGE_FOLDER_ID).onSuccess { placeImagesFolder ->
+                    val placeImageFolderExists =
+                        placeImagesFolder.find { it.name.extractPlaceID() == placeId }?.id
+                    _state.update {
+                        it.copy(
+                            currentPlace = it.currentPlace.copy(
+                                imageFolderId = placeImageFolderExists ?: driveService.createFolder(
+                                    _state.value.currentPlace.id + "_" + _state.value.currentPlace.authorEmail,
+                                    INCLUSIMAP_IMAGE_FOLDER_ID,
                                 ),
-                            )
-                        }
-                    }
-                }.await()
-
-                var imagesFileIds = emptyList<String?>()
-                uris
-                    .mapIndexed { index, uri ->
-                        val bitmap =
-                            context.contentResolver.openInputStream(uri)?.use { image ->
-                                val bitmap = BitmapFactory.decodeStream(image)
-                                val imageOrientation =
-                                    context.contentResolver.openFileDescriptor(uri, "r")?.use { fd ->
-                                        ExifInterface(fd.fileDescriptor).getAttributeInt(
-                                            ExifInterface.TAG_ORIENTATION,
-                                            ExifInterface.ORIENTATION_NORMAL,
-                                        )
-                                    } ?: ExifInterface.ORIENTATION_NORMAL
-
-                                rotateImage(bitmap, imageOrientation)
-                            }
-                        val outputStream = ByteArrayOutputStream()
-                        bitmap?.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
-                        val compressedImage = outputStream.toByteArray()
-                        val imageFileName =
-                            "${_state.value.currentPlace.id}_$userEmail-${Date().toInstant()}.jpg"
-
-                        async {
-                            val imageId =
-                                driveService.uploadFile(
-                                    fileContent = ByteArrayInputStream(compressedImage),
-                                    fileName = imageFileName,
-                                    folderId = _state.value.currentPlace.imageFolderId ?: return@async,
-                                )
-
-                            if (imageId == null) {
-                                println("Error uploading image $index")
-                                _state.update {
-                                    it.copy(isErrorUploadingImages = true)
-                                }
-                            }
-
-                            // UI displayed image // more compressed
-                            val options = BitmapFactory.Options()
-                            options.inSampleSize = 2
-                            val compressedBitmap =
-                                BitmapFactory.decodeStream(compressedImage.inputStream(), null, options)
-
-                            val image =
-                                PlaceImage(
-                                    userEmail = userEmail,
-                                    image = compressedBitmap?.asImageBitmap() ?: return@async,
-                                    placeID = imageId ?: return@async,
-                                    name = imageFileName,
-                                )
-
-                            _state.update {
-                                it.copy(
-                                    currentPlace =
-                                    it.currentPlace.copy(
-                                        images = it.currentPlace.images + image,
-                                    ),
-                                    loadedPlaces =
-                                    it.loadedPlaces.map { place ->
-                                        if (place.id == _state.value.currentPlace.id) {
-                                            place.copy(images = place.images + image)
-                                        } else {
-                                            place
-                                        }
-                                    },
-                                    imagesUploadedSize = it.imagesUploadedSize.plus(1),
-                                )
-                            }
-                            imagesFileIds = imagesFileIds + imageId
-                            if (index == uris.size - 1) {
-                                println("All images uploaded successfully for $placeId")
-                                println(
-                                    state.value.loadedPlaces
-                                        .find { it.id == placeId }
-                                        ?.images
-                                        ?.size,
-                                )
-                            }
-                        }
-                    }.awaitAll()
-                val imageIds = imagesFileIds.filterNotNull()
-                val contributions =
-                    imageIds.map {
-                        Contribution(
-                            fileId = it,
-                            type = ContributionType.IMAGE,
+                            ),
                         )
                     }
-                addNewContributions(contributions)
-            }.invokeOnCompletion {
-                _state.update {
-                    it.copy(isUploadingImages = false)
                 }
+            }.await()
+
+            var imagesFileIds = emptyList<String?>()
+            uris.mapIndexed { index, uri ->
+                val bitmap = context.contentResolver.openInputStream(uri)?.use { image ->
+                    val bitmap = BitmapFactory.decodeStream(image)
+                    val imageOrientation =
+                        context.contentResolver.openFileDescriptor(uri, "r")?.use { fd ->
+                            ExifInterface(fd.fileDescriptor).getAttributeInt(
+                                ExifInterface.TAG_ORIENTATION,
+                                ExifInterface.ORIENTATION_NORMAL,
+                            )
+                        } ?: ExifInterface.ORIENTATION_NORMAL
+
+                    rotateImage(bitmap, imageOrientation)
+                }
+                val outputStream = ByteArrayOutputStream()
+                bitmap?.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
+                val compressedImage = outputStream.toByteArray()
+                val imageFileName =
+                    "${_state.value.currentPlace.id}_$userEmail-${Date().toInstant()}.jpg"
+
+                async {
+                    val imageId = driveService.uploadFile(
+                        fileContent = ByteArrayInputStream(compressedImage),
+                        fileName = imageFileName,
+                        folderId = _state.value.currentPlace.imageFolderId ?: return@async,
+                    )
+
+                    if (imageId == null) {
+                        println("Error uploading image $index")
+                        _state.update {
+                            it.copy(isErrorUploadingImages = true)
+                        }
+                    }
+
+                    // UI displayed image // more compressed
+                    val options = BitmapFactory.Options()
+                    options.inSampleSize = 2
+                    val compressedBitmap =
+                        BitmapFactory.decodeStream(compressedImage.inputStream(), null, options)
+
+                    val image = PlaceImage(
+                        userEmail = userEmail,
+                        image = compressedBitmap?.asImageBitmap() ?: return@async,
+                        placeID = imageId ?: return@async,
+                        name = imageFileName,
+                    )
+
+                    _state.update {
+                        it.copy(
+                            currentPlace = it.currentPlace.copy(
+                                images = it.currentPlace.images + image,
+                            ),
+                            loadedPlaces = it.loadedPlaces.map { place ->
+                                if (place.id == _state.value.currentPlace.id) {
+                                    place.copy(images = place.images + image)
+                                } else {
+                                    place
+                                }
+                            },
+                            imagesUploadedSize = it.imagesUploadedSize.plus(1),
+                        )
+                    }
+                    imagesFileIds = imagesFileIds + imageId
+                    if (index == uris.size - 1) {
+                        println("All images uploaded successfully for $placeId")
+                        println(state.value.loadedPlaces.find { it.id == placeId }?.images?.size)
+                    }
+                }
+            }.awaitAll()
+            val imageIds = imagesFileIds.filterNotNull()
+            val contributions = imageIds.map {
+                Contribution(
+                    fileId = it,
+                    type = ContributionType.IMAGE,
+                )
             }
+            addNewContributions(contributions)
+        }.invokeOnCompletion {
+            _state.update {
+                it.copy(isUploadingImages = false)
+            }
+        }
     }
 
     private fun onDeletePlaceImage(image: PlaceImage) {
@@ -543,77 +468,71 @@ class PlaceDetailsViewModel(
                 isErrorDeletingImage = false,
             )
         }
-        viewModelScope
-            .launch(Dispatchers.IO) {
-                val folderId = state.value.currentPlace.imageFolderId
-                println("Working on folder id: $folderId")
-                folderId?.let {
-                    driveService
-                        .listFiles(folderId)
-                        .onSuccess { files ->
-                            val imageId = files.find { it.name == image.name }?.id
-                            println("Image: ${image.name}, $imageId")
-                            if (imageId == null) {
-                                _state.update {
-                                    it.copy(
-                                        isErrorDeletingImage = true,
-                                        isDeletingImage = false,
-                                    )
-                                }
-                                println("Image not found in folder")
-                                return@launch
-                            }
-                            driveService.deleteFile(imageId)
-                            removeContribution(
-                                Contribution(
-                                    fileId = imageId,
-                                    type = ContributionType.IMAGE,
-                                ),
+        viewModelScope.launch(Dispatchers.IO) {
+            val folderId = state.value.currentPlace.imageFolderId
+            println("Working on folder id: $folderId")
+            folderId?.let {
+                driveService.listFiles(folderId).onSuccess { files ->
+                    val imageId = files.find { it.name == image.name }?.id
+                    println("Image: ${image.name}, $imageId")
+                    if (imageId == null) {
+                        _state.update {
+                            it.copy(
+                                isErrorDeletingImage = true,
+                                isDeletingImage = false,
                             )
-                            _state.update {
-                                it.copy(
-                                    currentPlace =
-                                    it.currentPlace.copy(
-                                        images = it.currentPlace.images - image,
-                                    ),
-                                    loadedPlaces =
-                                    it.loadedPlaces.map { place ->
-                                        if (place.id == it.currentPlace.id) {
-                                            place.copy(images = it.currentPlace.images - image)
-                                        } else {
-                                            place
-                                        }
-                                    },
-                                    isImageDeleted = true,
-                                )
-                            }
-                        }.onError {
-                            _state.update {
-                                it.copy(
-                                    isErrorDeletingImage = true,
-                                    isDeletingImage = false,
-                                )
-                            }
-                            return@launch
                         }
-                }
-                delay(500)
-            }.invokeOnCompletion {
-                _state.update {
-                    it.copy(
-                        isDeletingImage = false,
-                        isImageDeleted = false,
+                        println("Image not found in folder")
+                        return@launch
+                    }
+                    driveService.deleteFile(imageId)
+                    removeContribution(
+                        Contribution(
+                            fileId = imageId,
+                            type = ContributionType.IMAGE,
+                        ),
                     )
+                    _state.update {
+                        it.copy(
+                            currentPlace = it.currentPlace.copy(
+                                images = it.currentPlace.images - image,
+                            ),
+                            loadedPlaces = it.loadedPlaces.map { place ->
+                                if (place.id == it.currentPlace.id) {
+                                    place.copy(images = it.currentPlace.images - image)
+                                } else {
+                                    place
+                                }
+                            },
+                            isImageDeleted = true,
+                        )
+                    }
+                }.onError {
+                    _state.update {
+                        it.copy(
+                            isErrorDeletingImage = true,
+                            isDeletingImage = false,
+                        )
+                    }
+                    return@launch
                 }
             }
+            delay(500)
+        }.invokeOnCompletion {
+            _state.update {
+                it.copy(
+                    isDeletingImage = false,
+                    isImageDeleted = false,
+                )
+            }
+        }
     }
 
     private fun onSendComment(comment: String) {
         _state.update {
             it.copy(
                 trySendComment = true,
-                currentPlace =
-                it.currentPlace.copy(
+                currentPlace = it.currentPlace.copy(
                     comments = it.currentPlace.comments.filter { comment -> comment.email != userEmail },
                 ),
             )
@@ -621,9 +540,7 @@ class PlaceDetailsViewModel(
         val userComment =
             Comment(
                 postDate = Date().toInstant().toString(),
-                id =
-                _state.value.currentPlace.comments.size
-                    .plus(1),
+                id = _state.value.currentPlace.comments.size.plus(1),
                 name = userName,
                 body = comment,
                 email = userEmail,
@@ -631,16 +548,14 @@ class PlaceDetailsViewModel(
             )
         _state.update {
             it.copy(
-                currentPlace =
-                it.currentPlace.copy(
+                currentPlace = it.currentPlace.copy(
                     comments = it.currentPlace.comments + userComment,
                 ),
                 userComment = comment,
                 trySendComment = false,
                 isEditingComment = false,
                 isUserCommented = true,
-                loadedPlaces =
-                it.loadedPlaces.map { place ->
+                loadedPlaces = it.loadedPlaces.map { place ->
                     if (place.id == _state.value.currentPlace.id) {
                         place.copy(comments = place.comments.filter { comment -> comment.email != userEmail } + userComment)
                     } else {
@@ -651,22 +566,18 @@ class PlaceDetailsViewModel(
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
-            driveService
-                .listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
+            driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
                 .onSuccess { places ->
-                    places
-                        .find { it.name.extractPlaceID() == _state.value.currentPlace.id }
+                    places.find { it.name.extractPlaceID() == _state.value.currentPlace.id }
                         .also { place ->
                             val placeJson = driveService.getFileContent(place?.id ?: return@launch)
-                            val json =
-                                Json {
-                                    ignoreUnknownKeys = true
-                                    prettyPrint = true
-                                }
-                            val placeString =
-                                json.decodeFromString<AccessibleLocalMarker>(
-                                    placeJson?.decodeToString() ?: return@launch,
-                                )
+                            val json = Json {
+                                ignoreUnknownKeys = true
+                                prettyPrint = true
+                            }
+                            val placeString = json.decodeFromString<AccessibleLocalMarker>(
+                                placeJson?.decodeToString() ?: return@launch,
+                            )
                             val filteredComments =
                                 placeString.comments.filterNot { it.email == userEmail }
                             val updatedPlace =
@@ -695,12 +606,10 @@ class PlaceDetailsViewModel(
                 trySendComment = false,
                 userAccessibilityRate = 0,
                 isUserCommented = false,
-                currentPlace =
-                it.currentPlace.copy(
+                currentPlace = it.currentPlace.copy(
                     comments = it.currentPlace.comments.filter { comment -> comment.email != userEmail },
                 ),
-                loadedPlaces =
-                it.loadedPlaces.map { place ->
+                loadedPlaces = it.loadedPlaces.map { place ->
                     if (place.id == it.currentPlace.id) {
                         place.copy(comments = place.comments.filter { comment -> comment.email != userEmail })
                     } else {
@@ -710,27 +619,22 @@ class PlaceDetailsViewModel(
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
-            driveService
-                .listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
+            driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
                 .onSuccess { places ->
-                    places
-                        .find { it.name.extractPlaceID() == _state.value.currentPlace.id }
+                    places.find { it.name.extractPlaceID() == _state.value.currentPlace.id }
                         .also { place ->
                             val placeJson = driveService.getFileContent(place?.id ?: return@launch)
-                            val json =
-                                Json {
-                                    ignoreUnknownKeys = true
-                                    prettyPrint = true
-                                }
-                            val placeString =
-                                json.decodeFromString<AccessibleLocalMarker>(
-                                    placeJson?.decodeToString() ?: return@launch,
-                                )
+                            val json = Json {
+                                ignoreUnknownKeys = true
+                                prettyPrint = true
+                            }
+                            val placeString = json.decodeFromString<AccessibleLocalMarker>(
+                                placeJson?.decodeToString() ?: return@launch,
+                            )
 
-                            val updatedPlace =
-                                placeString.copy(
-                                    comments = placeString.comments.filterNot { it.email == userEmail },
-                                )
+                            val updatedPlace = placeString.copy(
+                                comments = placeString.comments.filterNot { it.email == userEmail },
+                            )
                             val updatedPlaceString = json.encodeToString(updatedPlace)
 
                             driveService.updateFile(
@@ -758,31 +662,27 @@ class PlaceDetailsViewModel(
     }
 
     private fun onUpdatePlaceAccessibilityResources(updatedResources: List<Resource>) {
-        val updatedResourcesBuilder =
-            updatedResources.map { resource ->
-                AccessibilityResource(
-                    resource = resource,
-                    lastModified = Date().toInstant().toString(),
-                    lastModifiedBy = userEmail,
-                )
-            }
+        val updatedResourcesBuilder = updatedResources.map { resource ->
+            AccessibilityResource(
+                resource = resource,
+                lastModified = Date().toInstant().toString(),
+                lastModifiedBy = userEmail,
+            )
+        }
 
         _state.update {
             it.copy(currentPlace = it.currentPlace.copy(resources = updatedResourcesBuilder))
         }
 
         viewModelScope.launch(Dispatchers.IO) {
-            driveService
-                .listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
+            driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
                 .onSuccess { places ->
-                    places
-                        .find { it.name.extractPlaceID() == _state.value.currentPlace.id }
+                    places.find { it.name.extractPlaceID() == _state.value.currentPlace.id }
                         .also { place ->
                             val placeJson = driveService.getFileContent(place?.id ?: return@launch)
-                            val placeString =
-                                json.decodeFromString<AccessibleLocalMarker>(
-                                    placeJson?.decodeToString() ?: return@launch,
-                                )
+                            val placeString = json.decodeFromString<AccessibleLocalMarker>(
+                                placeJson?.decodeToString() ?: return@launch,
+                            )
                             val updatedPlace = placeString.copy(resources = updatedResourcesBuilder)
                             val updatedPlaceString = json.encodeToString(updatedPlace)
                             driveService.updateFile(
@@ -810,9 +710,12 @@ class PlaceDetailsViewModel(
         }
     }
 
-    private suspend fun addNewContribution(contribution: Contribution) = contributionsRepository.addNewContribution(contribution)
+    private suspend fun addNewContribution(contribution: Contribution) =
+        contributionsRepository.addNewContribution(contribution)
 
-    private suspend fun addNewContributions(contributions: List<Contribution>) = contributionsRepository.addNewContributions(contributions)
+    private suspend fun addNewContributions(contributions: List<Contribution>) =
+        contributionsRepository.addNewContributions(contributions)
 
-    private suspend fun removeContribution(contribution: Contribution) = contributionsRepository.removeContribution(contribution)
+    private suspend fun removeContribution(contribution: Contribution) =
+        contributionsRepository.removeContribution(contribution)
 }

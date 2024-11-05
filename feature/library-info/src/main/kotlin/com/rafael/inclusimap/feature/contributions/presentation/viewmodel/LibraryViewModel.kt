@@ -6,5 +6,6 @@ import com.rafael.inclusimap.feature.contributions.data.repository.OssLibraryRep
 class LibraryViewModel(
     libraryRepository: OssLibraryRepository,
 ) : ViewModel() {
+
     val ossLibraries = libraryRepository.ossLibraries
 }

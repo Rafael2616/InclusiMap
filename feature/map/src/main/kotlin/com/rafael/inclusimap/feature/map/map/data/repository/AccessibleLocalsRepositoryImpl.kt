@@ -20,57 +20,52 @@ class AccessibleLocalsRepositoryImpl(
     private val driveService: GoogleDriveService,
     private val dao: AccessibleLocalsDao,
 ) : AccessibleLocalsRepository {
-    private val json =
-        Json {
-            ignoreUnknownKeys = true
-            prettyPrint = true
-        }
+    private val json = Json {
+        ignoreUnknownKeys = true
+        prettyPrint = true
+    }
 
-    override suspend fun getAccessibleLocals(): List<AccessibleLocalMarker>? =
-        withContext(Dispatchers.IO) {
-            val places = mutableListOf<AccessibleLocalMarker>()
-            when (
-                val result =
-                    driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
-            ) {
-                is Success -> {
-                    result.data
-                        .map { file ->
-                            async {
-                                driveService.getFileContent(file.id)?.decodeToString()?.let { content ->
-                                    try {
-                                        places.add(
-                                            json.decodeFromString<AccessibleLocalMarker>(
-                                                content,
-                                            ),
-                                        )
-                                    } catch (e: Exception) {
-                                        e.printStackTrace()
-                                    }
-                                }
+    override suspend fun getAccessibleLocals(): List<AccessibleLocalMarker>? = withContext(Dispatchers.IO) {
+        val places = mutableListOf<AccessibleLocalMarker>()
+        when (
+            val result =
+                driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
+        ) {
+            is Success -> {
+                result.data.map { file ->
+                    async {
+                        driveService.getFileContent(file.id)?.decodeToString()?.let { content ->
+                            try {
+                                places.add(
+                                    json.decodeFromString<AccessibleLocalMarker>(
+                                        content,
+                                    ),
+                                )
+                            } catch (e: Exception) {
+                                e.printStackTrace()
                             }
-                        }.awaitAll()
-                    if (places.isEmpty()) null else places
-                }
+                        }
+                    }
+                }.awaitAll()
+                if (places.isEmpty()) null else places
+            }
 
-                is Error -> {
-                    places
-                }
+            is Error -> {
+                places
             }
         }
+    }
 
-    override suspend fun saveAccessibleLocal(accessibleLocal: AccessibleLocalMarker): String? =
-        withContext(Dispatchers.IO) {
-            val updatedPlace = json.encodeToString(accessibleLocal)
-            driveService
-                .createFile(
-                    accessibleLocal.id + "_" + accessibleLocal.authorEmail + ".json",
-                    updatedPlace,
-                    INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID,
-                ).also {
-                    println("File uploaded successfully with new place: $accessibleLocal")
-                }
+    override suspend fun saveAccessibleLocal(accessibleLocal: AccessibleLocalMarker): String? = withContext(Dispatchers.IO) {
+        val updatedPlace = json.encodeToString(accessibleLocal)
+        driveService.createFile(
+            accessibleLocal.id + "_" + accessibleLocal.authorEmail + ".json",
+            updatedPlace,
+            INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID,
+        ).also {
+            println("File uploaded successfully with new place: $accessibleLocal")
         }
+    }
 
     override suspend fun updateAccessibleLocal(accessibleLocal: AccessibleLocalMarker) {
         withContext(Dispatchers.IO) {

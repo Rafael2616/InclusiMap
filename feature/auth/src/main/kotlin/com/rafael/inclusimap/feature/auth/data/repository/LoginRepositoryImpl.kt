@@ -8,7 +8,6 @@ class LoginRepositoryImpl(
     private val loginDao: LoginDao,
 ) : LoginRepository {
     override suspend fun getLoginInfo(id: Int): LoginEntity? = loginDao.getLoginInfo(id)
-
     override suspend fun updateLoginInfo(loginEntity: LoginEntity) {
         loginDao.updateLoginInfo(loginEntity)
     }

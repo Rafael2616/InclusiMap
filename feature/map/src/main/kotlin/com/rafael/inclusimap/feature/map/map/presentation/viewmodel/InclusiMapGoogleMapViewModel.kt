@@ -38,11 +38,10 @@ class InclusiMapGoogleMapViewModel(
 ) : ViewModel() {
     private val _state = MutableStateFlow(InclusiMapState())
     val state = _state.asStateFlow()
-    private val json =
-        Json {
-            ignoreUnknownKeys = true
-            prettyPrint = true
-        }
+    private val json = Json {
+        ignoreUnknownKeys = true
+        prettyPrint = true
+    }
     private var userEmail: MutableStateFlow<String?> = MutableStateFlow(null)
 
     init {
@@ -69,17 +68,15 @@ class InclusiMapGoogleMapViewModel(
             InclusiMapEvent.GetCurrentState -> getCurrentState()
             InclusiMapEvent.ResetState -> onResetState()
             InclusiMapEvent.LoadCachedPlaces -> loadCachedPlaces()
-            is InclusiMapEvent.SetIsContributionsScreen ->
-                _state.update {
-                    it.copy(isContributionsScreen = event.isContributionsScreen)
-                }
+            is InclusiMapEvent.SetIsContributionsScreen -> _state.update {
+                it.copy(isContributionsScreen = event.isContributionsScreen)
+            }
 
             is InclusiMapEvent.SetCurrentPlaceById -> setPlaceById(event.placeId)
             is InclusiMapEvent.OnTravelToPlace -> onTravelToPlace(event.placeId)
-            is InclusiMapEvent.SetShouldTravel ->
-                _state.update {
-                    it.copy(shouldTravel = event.shouldTravel)
-                }
+            is InclusiMapEvent.SetShouldTravel -> _state.update {
+                it.copy(shouldTravel = event.shouldTravel)
+            }
         }
     }
 
@@ -104,23 +101,21 @@ class InclusiMapGoogleMapViewModel(
 
     private fun getCurrentState() {
         _state.update { it.copy(isStateRestored = false) }
-        viewModelScope
-            .launch(Dispatchers.IO) {
-                val currentState = inclusiMapRepository.getPosition(1) ?: InclusiMapEntity.getDefault()
-                _state.update {
-                    it.copy(
-                        currentLocation =
-                        CameraPosition(
-                            LatLng(currentState.lat, currentState.lng),
-                            currentState.zoom,
-                            currentState.tilt,
-                            currentState.bearing,
-                        ),
-                    )
-                }
-            }.invokeOnCompletion {
-                _state.update { it.copy(isStateRestored = true) }
+        viewModelScope.launch(Dispatchers.IO) {
+            val currentState = inclusiMapRepository.getPosition(1) ?: InclusiMapEntity.getDefault()
+            _state.update {
+                it.copy(
+                    currentLocation = CameraPosition(
+                        LatLng(currentState.lat, currentState.lng),
+                        currentState.zoom,
+                        currentState.tilt,
+                        currentState.bearing,
+                    ),
+                )
             }
+        }.invokeOnCompletion {
+            _state.update { it.copy(isStateRestored = true) }
+        }
     }
 
     private fun onResetState() {
@@ -136,13 +131,11 @@ class InclusiMapGoogleMapViewModel(
     private fun loadCachedPlaces() {
         viewModelScope.launch(Dispatchers.IO) {
             // Get the cached places from local database
-            val accessibleLocalsEntity =
-                accessibleLocalsRepository.getAccessibleLocalsStored(1)
-                    ?: AccessibleLocalsEntity.getDefault()
-            val cachedPlaces =
-                json.decodeFromString<List<AccessibleLocalMarker>>(
-                    accessibleLocalsEntity.locals,
-                )
+            val accessibleLocalsEntity = accessibleLocalsRepository.getAccessibleLocalsStored(1)
+                ?: AccessibleLocalsEntity.getDefault()
+            val cachedPlaces = json.decodeFromString<List<AccessibleLocalMarker>>(
+                accessibleLocalsEntity.locals,
+            )
             _state.update { it.copy(allMappedPlaces = cachedPlaces) }
         }
     }
@@ -155,40 +148,39 @@ class InclusiMapGoogleMapViewModel(
                 failedToGetNewPlaces = false,
             )
         }
-        viewModelScope
-            .launch(Dispatchers.IO) {
-                // try to fetch new and updated places from server
-                accessibleLocalsRepository.getAccessibleLocals().let { mappedPlaces ->
-                    if (mappedPlaces == null) {
-                        _state.update { it.copy(failedToConnectToServer = true) }
-                        return@launch
-                    }
-                    if (mappedPlaces.isEmpty() && _state.value.allMappedPlaces.isEmpty()) {
-                        _state.update { it.copy(failedToLoadPlaces = true) }
-                        return@launch
-                    }
-                    if (mappedPlaces.isEmpty() && !_state.value.useAppWithoutInternet) {
-                        _state.update { it.copy(failedToGetNewPlaces = true) }
-                        return@launch
-                    }
-                    if (mappedPlaces.isEmpty()) return@launch
+        viewModelScope.launch(Dispatchers.IO) {
+            // try to fetch new and updated places from server
+            accessibleLocalsRepository.getAccessibleLocals().let { mappedPlaces ->
+                if (mappedPlaces == null) {
+                    _state.update { it.copy(failedToConnectToServer = true) }
+                    return@launch
+                }
+                if (mappedPlaces.isEmpty() && _state.value.allMappedPlaces.isEmpty()) {
+                    _state.update { it.copy(failedToLoadPlaces = true) }
+                    return@launch
+                }
+                if (mappedPlaces.isEmpty() && !_state.value.useAppWithoutInternet) {
+                    _state.update { it.copy(failedToGetNewPlaces = true) }
+                    return@launch
+                }
+                if (mappedPlaces.isEmpty()) return@launch
 
-                    _state.update { it.copy(allMappedPlaces = mappedPlaces) }
-                }
-            }.invokeOnCompletion {
-                // Update the cache for places
-                if (!_state.value.failedToConnectToServer && !_state.value.failedToLoadPlaces) {
-                    viewModelScope.launch(Dispatchers.IO) {
-                        accessibleLocalsRepository.updateAccessibleLocalStored(
-                            AccessibleLocalsEntity(
-                                id = 1,
-                                locals = json.encodeToString<List<AccessibleLocalMarker>>(state.value.allMappedPlaces),
-                            ),
-                        )
-                    }
-                    _state.update { it.copy(useAppWithoutInternet = false) }
-                }
+                _state.update { it.copy(allMappedPlaces = mappedPlaces) }
             }
+        }.invokeOnCompletion {
+            // Update the cache for places
+            if (!_state.value.failedToConnectToServer && !_state.value.failedToLoadPlaces) {
+                viewModelScope.launch(Dispatchers.IO) {
+                    accessibleLocalsRepository.updateAccessibleLocalStored(
+                        AccessibleLocalsEntity(
+                            id = 1,
+                            locals = json.encodeToString<List<AccessibleLocalMarker>>(state.value.allMappedPlaces),
+                        ),
+                    )
+                }
+                _state.update { it.copy(useAppWithoutInternet = false) }
+            }
+        }
     }
 
     private fun onMapLoad() {
@@ -211,65 +203,62 @@ class InclusiMapGoogleMapViewModel(
                 isPlaceAdded = false,
             )
         }
-        viewModelScope
-            .launch(Dispatchers.IO) {
-                val placeFileId = accessibleLocalsRepository.saveAccessibleLocal(newPlace)
-                if (placeFileId == null) {
-                    _state.update {
-                        it.copy(
-                            isErrorAddingNewPlace = true,
-                            isAddingNewPlace = false,
-                            isPlaceAdded = false,
-                        )
-                    }
-                    return@launch
-                }
-                addNewContribution(
-                    Contribution(
-                        fileId = placeFileId,
-                        type = ContributionType.PLACE,
-                    ),
-                )
-                val updatedPlaces = _state.value.allMappedPlaces + newPlace
-                accessibleLocalsRepository.updateAccessibleLocalStored(
-                    AccessibleLocalsEntity(
-                        id = 1,
-                        locals = json.encodeToString<List<AccessibleLocalMarker>>(updatedPlaces),
-                    ),
-                )
+        viewModelScope.launch(Dispatchers.IO) {
+            val placeFileId = accessibleLocalsRepository.saveAccessibleLocal(newPlace)
+            if (placeFileId == null) {
                 _state.update {
                     it.copy(
-                        allMappedPlaces = updatedPlaces,
-                        isErrorAddingNewPlace = false,
-                        isAddingNewPlace = false,
-                        isPlaceAdded = true,
-                    )
-                }
-                delay(1000)
-            }.invokeOnCompletion {
-                _state.update {
-                    it.copy(
-                        isErrorAddingNewPlace = false,
+                        isErrorAddingNewPlace = true,
                         isAddingNewPlace = false,
                         isPlaceAdded = false,
                     )
                 }
+                return@launch
             }
+            addNewContribution(
+                Contribution(
+                    fileId = placeFileId,
+                    type = ContributionType.PLACE,
+                ),
+            )
+            val updatedPlaces = _state.value.allMappedPlaces + newPlace
+            accessibleLocalsRepository.updateAccessibleLocalStored(
+                AccessibleLocalsEntity(
+                    id = 1,
+                    locals = json.encodeToString<List<AccessibleLocalMarker>>(updatedPlaces),
+                ),
+            )
+            _state.update {
+                it.copy(
+                    allMappedPlaces = updatedPlaces,
+                    isErrorAddingNewPlace = false,
+                    isAddingNewPlace = false,
+                    isPlaceAdded = true,
+                )
+            }
+            delay(1000)
+        }.invokeOnCompletion {
+            _state.update {
+                it.copy(
+                    isErrorAddingNewPlace = false,
+                    isAddingNewPlace = false,
+                    isPlaceAdded = false,
+                )
+            }
+        }
     }
 
     private fun setLocationPermissionGranted(isGranted: Boolean) {
-        _state.value =
-            _state.value.copy(
-                isLocationPermissionGranted = isGranted,
-            )
+        _state.value = _state.value.copy(
+            isLocationPermissionGranted = isGranted,
+        )
     }
 
     private fun onUpdateMappedPlace(placeUpdated: AccessibleLocalMarker) {
         if (placeUpdated.id.isNullOrEmpty() || placeUpdated.id !in _state.value.allMappedPlaces.map { it.id }) return
         _state.update {
             it.copy(
-                allMappedPlaces =
-                _state.value.allMappedPlaces.map {
+                allMappedPlaces = _state.value.allMappedPlaces.map {
                     if (it.id == placeUpdated.id) {
                         placeUpdated
                     } else {
@@ -299,78 +288,72 @@ class InclusiMapGoogleMapViewModel(
         }
         println("Initializing Deleting place job: $placeID")
         var placeImageId: String? = null
-        viewModelScope
-            .launch(Dispatchers.IO) {
-                driveService.listFiles(INCLUSIMAP_IMAGE_FOLDER_ID).onSuccess {
-                    it.find { it.name.extractPlaceID() == placeID }?.also { placeImageFolder ->
-                        placeImageId = placeImageFolder.id
-                        driveService.listFiles(placeImageFolder.id).onSuccess { images ->
-                            val contributions =
-                                images.map { contribution ->
-                                    Contribution(
-                                        fileId = contribution.id,
-                                        type = ContributionType.IMAGE,
-                                    )
-                                }
-                            removeContributions(contributions)
+        viewModelScope.launch(Dispatchers.IO) {
+            driveService.listFiles(INCLUSIMAP_IMAGE_FOLDER_ID).onSuccess {
+                it.find { it.name.extractPlaceID() == placeID }?.also { placeImageFolder ->
+                    placeImageId = placeImageFolder.id
+                    driveService.listFiles(placeImageFolder.id).onSuccess { images ->
+                        val contributions = images.map { contribution ->
+                            Contribution(
+                                fileId = contribution.id,
+                                type = ContributionType.IMAGE,
+                            )
                         }
+                        removeContributions(contributions)
                     }
                 }
-                driveService.deleteFile(placeImageId ?: return@launch)
-            }.invokeOnCompletion {
-                viewModelScope
-                    .launch(Dispatchers.IO) {
-                        driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID).onSuccess {
-                            val fileId = it.find { it.name.extractPlaceID() == placeID }?.id
-                            accessibleLocalsRepository.deleteAccessibleLocal(placeID)
-                            accessibleLocalsRepository.updateAccessibleLocalStored(
-                                AccessibleLocalsEntity(
-                                    id = 1,
-                                    locals =
-                                    json.encodeToString<List<AccessibleLocalMarker>>(
-                                        state.value.allMappedPlaces.filter { it.id != placeID },
-                                    ),
-                                ),
-                            )
-                            if (fileId == null) {
-                                _state.update {
-                                    it.copy(
-                                        isErrorDeletingPlace = true,
-                                        isDeletingPlace = false,
-                                        isPlaceDeleted = false,
-                                    )
-                                }
-                                println("File ID is null, returning...")
-                                return@launch
-                            }
-                            removeContribution(
-                                Contribution(
-                                    fileId = fileId,
-                                    type = ContributionType.PLACE,
-                                ),
-                            )
-                            _state.update {
-                                it.copy(
-                                    isErrorDeletingPlace = false,
-                                    isDeletingPlace = false,
-                                    isPlaceDeleted = true,
-                                    allMappedPlaces = _state.value.allMappedPlaces.filter { it.id != placeID },
-                                )
-                            }
-                            println("Place deleted successfully")
-                            delay(1000)
-                        }
-                    }.invokeOnCompletion {
+            }
+            driveService.deleteFile(placeImageId ?: return@launch)
+        }.invokeOnCompletion {
+            viewModelScope.launch(Dispatchers.IO) {
+                driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID).onSuccess {
+                    val fileId = it.find { it.name.extractPlaceID() == placeID }?.id
+                    accessibleLocalsRepository.deleteAccessibleLocal(placeID)
+                    accessibleLocalsRepository.updateAccessibleLocalStored(
+                        AccessibleLocalsEntity(
+                            id = 1,
+                            locals = json.encodeToString<List<AccessibleLocalMarker>>(state.value.allMappedPlaces.filter { it.id != placeID }),
+                        ),
+                    )
+                    if (fileId == null) {
                         _state.update {
                             it.copy(
-                                isErrorDeletingPlace = false,
+                                isErrorDeletingPlace = true,
                                 isDeletingPlace = false,
                                 isPlaceDeleted = false,
                             )
                         }
-                        println("Job completed")
+                        println("File ID is null, returning...")
+                        return@launch
                     }
+                    removeContribution(
+                        Contribution(
+                            fileId = fileId,
+                            type = ContributionType.PLACE,
+                        ),
+                    )
+                    _state.update {
+                        it.copy(
+                            isErrorDeletingPlace = false,
+                            isDeletingPlace = false,
+                            isPlaceDeleted = true,
+                            allMappedPlaces = _state.value.allMappedPlaces.filter { it.id != placeID },
+                        )
+                    }
+                    println("Place deleted successfully")
+                    delay(1000)
+                }
+            }.invokeOnCompletion {
+                _state.update {
+                    it.copy(
+                        isErrorDeletingPlace = false,
+                        isDeletingPlace = false,
+                        isPlaceDeleted = false,
+                    )
+                }
+                println("Job completed")
             }
+        }
     }
 
     private fun setPlaceById(placeID: String) {
@@ -381,9 +364,12 @@ class InclusiMapGoogleMapViewModel(
         }
     }
 
-    private suspend fun addNewContribution(contribution: Contribution) = contributionsRepository.addNewContribution(contribution)
+    private suspend fun addNewContribution(contribution: Contribution) =
+        contributionsRepository.addNewContribution(contribution)
 
-    private suspend fun removeContribution(contribution: Contribution) = contributionsRepository.removeContribution(contribution)
+    private suspend fun removeContribution(contribution: Contribution) =
+        contributionsRepository.removeContribution(contribution)
 
-    private suspend fun removeContributions(contributions: List<Contribution>) = contributionsRepository.removeContributions(contributions)
+    private suspend fun removeContributions(contributions: List<Contribution>) =
+        contributionsRepository.removeContributions(contributions)
 }

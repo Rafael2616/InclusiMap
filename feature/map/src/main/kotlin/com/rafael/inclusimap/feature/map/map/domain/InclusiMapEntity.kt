@@ -15,14 +15,13 @@ data class InclusiMapEntity(
     var bearing: Float,
 ) {
     companion object {
-        fun getDefault(): InclusiMapEntity =
-            InclusiMapEntity(
-                id = 1,
-                zoom = 15f,
-                lat = PARAGOMINAS_LAT_LNG.latitude,
-                lng = PARAGOMINAS_LAT_LNG.longitude,
-                tilt = 0f,
-                bearing = 0f,
-            )
+        fun getDefault(): InclusiMapEntity = InclusiMapEntity(
+            id = 1,
+            zoom = 15f,
+            lat = PARAGOMINAS_LAT_LNG.latitude,
+            lng = PARAGOMINAS_LAT_LNG.longitude,
+            tilt = 0f,
+            bearing = 0f,
+        )
     }
 }

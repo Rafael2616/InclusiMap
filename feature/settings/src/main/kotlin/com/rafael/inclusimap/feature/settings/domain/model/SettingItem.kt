@@ -28,90 +28,84 @@ data class SettingItem(
 
         @OptIn(ExperimentalUuidApi::class)
         @Stable
-        fun getSettingsItems(settingsState: SettingsState): List<SettingItem> =
-            listOf(
-                // Follow System
-                SettingItem(
-                    content = { onEvent, state, _ -> FollowSystemPreference(onEvent, state) },
-                    searchSpecs =
-                    SearchItemSpecs(
-                        namespace = NAMESPACE,
-                        id = Uuid.random().toString(),
-                        text = "Siga o sistema",
-                    ),
+        fun getSettingsItems(
+            settingsState: SettingsState,
+        ): List<SettingItem> = listOf(
+            // Follow System
+            SettingItem(
+                content = { onEvent, state, _ -> FollowSystemPreference(onEvent, state) },
+                searchSpecs = SearchItemSpecs(
+                    namespace = NAMESPACE,
+                    id = Uuid.random().toString(),
+                    text = "Siga o sistema",
                 ),
-                // Dark Theme
-                SettingItem(
-                    content = { onEvent, state, _ -> DarkThemePreference(onEvent, state) },
-                    searchSpecs =
-                    SearchItemSpecs(
-                        namespace = NAMESPACE,
-                        id = Uuid.random().toString(),
-                        text = "Tema escuro",
-                    ),
-                    isAvailable = !settingsState.isFollowingSystemOn,
+            ),
+            // Dark Theme
+            SettingItem(
+                content = { onEvent, state, _ -> DarkThemePreference(onEvent, state) },
+                searchSpecs = SearchItemSpecs(
+                    namespace = NAMESPACE,
+                    id = Uuid.random().toString(),
+                    text = "Tema escuro",
                 ),
-                // Dynamic Colors
-                SettingItem(
-                    content = { onEvent, state, _ -> DynamicColorsPreference(onEvent, state) },
-                    searchSpecs =
-                    SearchItemSpecs(
-                        namespace = NAMESPACE,
-                        id = Uuid.random().toString(),
-                        text = "Cores dinâmicas",
-                    ),
-                    isAvailable = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
+                isAvailable = !settingsState.isFollowingSystemOn,
+
+            ),
+            // Dynamic Colors
+            SettingItem(
+                content = { onEvent, state, _ -> DynamicColorsPreference(onEvent, state) },
+                searchSpecs = SearchItemSpecs(
+                    namespace = NAMESPACE,
+                    id = Uuid.random().toString(),
+                    text = "Cores dinâmicas",
                 ),
-                // Estilo do mapa
-                SettingItem(
-                    content = { onEvent, state, _ -> MapTypePreference(onEvent, state) },
-                    searchSpecs =
-                    SearchItemSpecs(
-                        namespace = NAMESPACE,
-                        id = Uuid.random().toString(),
-                        text = "Estilo do mapa",
-                    ),
+                isAvailable = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
+            ),
+            // Estilo do mapa
+            SettingItem(
+                content = { onEvent, state, _ -> MapTypePreference(onEvent, state) },
+                searchSpecs = SearchItemSpecs(
+                    namespace = NAMESPACE,
+                    id = Uuid.random().toString(),
+                    text = "Estilo do mapa",
                 ),
-                // Atualizar senha
-                SettingItem(
-                    content = { _, _, navController -> UpdatePasswordPreference(navController) },
-                    searchSpecs =
-                    SearchItemSpecs(
-                        namespace = NAMESPACE,
-                        id = Uuid.random().toString(),
-                        text = "Atualizar Senha",
-                    ),
+            ),
+            // Atualizar senha
+            SettingItem(
+                content = { _, _, navController -> UpdatePasswordPreference(navController) },
+                searchSpecs = SearchItemSpecs(
+                    namespace = NAMESPACE,
+                    id = Uuid.random().toString(),
+                    text = "Atualizar Senha",
                 ),
-                // Desconectar
-                SettingItem(
-                    content = { onEvent, _, _ -> LogoutPreference(onEvent) },
-                    searchSpecs =
-                    SearchItemSpecs(
-                        namespace = NAMESPACE,
-                        id = Uuid.random().toString(),
-                        text = "Configurações da conta",
-                    ),
+            ),
+            // Desconectar
+            SettingItem(
+                content = { onEvent, _, _ -> LogoutPreference(onEvent) },
+                searchSpecs = SearchItemSpecs(
+                    namespace = NAMESPACE,
+                    id = Uuid.random().toString(),
+                    text = "Configurações da conta",
                 ),
-                // Sobre o app
-                SettingItem(
-                    content = { _, _, navController -> AboutAppPreference(navController) },
-                    searchSpecs =
-                    SearchItemSpecs(
-                        namespace = NAMESPACE,
-                        id = Uuid.random().toString(),
-                        text = "Sobre o app",
-                    ),
+            ),
+            // Sobre o app
+            SettingItem(
+                content = { _, _, navController -> AboutAppPreference(navController) },
+                searchSpecs = SearchItemSpecs(
+                    namespace = NAMESPACE,
+                    id = Uuid.random().toString(),
+                    text = "Sobre o app",
                 ),
-                // Licences Screen
-                SettingItem(
-                    content = { _, _, navController -> OpenSourceLicensesPreference(navController) },
-                    searchSpecs =
-                    SearchItemSpecs(
-                        namespace = NAMESPACE,
-                        id = Uuid.random().toString(),
-                        text = "Licenças",
-                    ),
+            ),
+            // Licences Screen
+            SettingItem(
+                content = { _, _, navController -> OpenSourceLicensesPreference(navController) },
+                searchSpecs = SearchItemSpecs(
+                    namespace = NAMESPACE,
+                    id = Uuid.random().toString(),
+                    text = "Licenças",
                 ),
-            )
+            ),
+        )
     }
 }

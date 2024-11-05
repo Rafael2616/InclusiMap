@@ -13,9 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
-class PlacesApiService(
-    context: Context,
-) {
+class PlacesApiService(context: Context) {
     private val placesClient: PlacesClient
 
     init {
@@ -26,24 +24,21 @@ class PlacesApiService(
             context,
             credentialsStream.bufferedReader().use { it.readText() }.trim(),
         )
-        placesClient =
-            Places
-                .createClient(context)
+        placesClient = Places
+            .createClient(context)
     }
 
-    suspend fun getNearestPlaceUri(latLng: LatLng): Uri? =
-        try {
-            withContext(Dispatchers.IO) {
-                val request =
-                    SearchNearbyRequest.newInstance(
-                        CircularBounds.newInstance(latLng, 20.0),
-                        listOf(Field.ID, Field.GOOGLE_MAPS_URI),
-                    )
-                val response = placesClient.searchNearby(request).await()
-                response.places.firstOrNull()?.googleMapsUri
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
+    suspend fun getNearestPlaceUri(latLng: LatLng): Uri? = try {
+        withContext(Dispatchers.IO) {
+            val request = SearchNearbyRequest.newInstance(
+                CircularBounds.newInstance(latLng, 20.0),
+                listOf(Field.ID, Field.GOOGLE_MAPS_URI),
+            )
+            val response = placesClient.searchNearby(request).await()
+            response.places.firstOrNull()?.googleMapsUri
         }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
 }

@@ -7,6 +7,7 @@ import com.rafael.inclusimap.feature.map.search.domain.model.MapSearchEntity
 
 @Dao
 interface MapSearchDao {
+
     @Query("SELECT * FROM map_search_db WHERE id = :id")
     suspend fun getHistory(id: Int): MapSearchEntity?
 

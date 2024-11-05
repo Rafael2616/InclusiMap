@@ -6,10 +6,9 @@ import com.rafael.inclusimap.feature.settings.presentation.viewmodel.SettingsVie
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
-val settingsModule =
-    module {
-        includes(coreSettingsModule)
-        viewModel {
-            SettingsViewModel(get<SettingsRepositoryImpl>())
-        }
+val settingsModule = module {
+    includes(coreSettingsModule)
+    viewModel {
+        SettingsViewModel(get<SettingsRepositoryImpl>())
     }
+}

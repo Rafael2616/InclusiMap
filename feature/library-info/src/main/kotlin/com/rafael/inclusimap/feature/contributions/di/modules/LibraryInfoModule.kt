@@ -5,12 +5,11 @@ import com.rafael.inclusimap.feature.contributions.presentation.viewmodel.Librar
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
-val libraryInfoModule =
-    module {
-        single { OssLibraryRepository() }
-        viewModel {
-            LibraryViewModel(
-                get<OssLibraryRepository>(),
-            )
-        }
+val libraryInfoModule = module {
+    single { OssLibraryRepository() }
+    viewModel {
+        LibraryViewModel(
+            get<OssLibraryRepository>(),
+        )
     }
+}

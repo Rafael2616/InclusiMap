@@ -6,13 +6,8 @@ import android.net.Uri
 import androidx.activity.result.contract.ActivityResultContract
 import com.google.android.gms.maps.model.LatLng
 
-class OpenInGoogleMapContract(
-    private val placeUri: Uri?,
-) : ActivityResultContract<LatLng, Unit>() {
-    override fun createIntent(
-        context: Context,
-        input: LatLng,
-    ): Intent {
+class OpenInGoogleMapContract(private val placeUri: Uri?) : ActivityResultContract<LatLng, Unit>() {
+    override fun createIntent(context: Context, input: LatLng): Intent {
         val gmmIntentUri = placeUri ?: Uri.parse("geo:${input.latitude},${input.longitude}?z=17")
 
         return Intent(Intent.ACTION_VIEW, gmmIntentUri)
@@ -20,10 +15,7 @@ class OpenInGoogleMapContract(
             .putExtra(Intent.EXTRA_REFERRER_NAME, context.packageName)
     }
 
-    override fun parseResult(
-        resultCode: Int,
-        intent: Intent?,
-    ) {
+    override fun parseResult(resultCode: Int, intent: Intent?) {
         // Do nothing
     }
 }

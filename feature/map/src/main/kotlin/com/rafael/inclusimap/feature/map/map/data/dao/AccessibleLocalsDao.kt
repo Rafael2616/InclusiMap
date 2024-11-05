@@ -7,6 +7,7 @@ import com.rafael.inclusimap.feature.map.map.domain.AccessibleLocalsEntity
 
 @Dao
 interface AccessibleLocalsDao {
+
     @Query("SELECT * FROM accessible_locals WHERE id = :id")
     suspend fun getLocals(id: Int): AccessibleLocalsEntity?
 
