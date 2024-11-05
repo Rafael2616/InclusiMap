@@ -11,10 +11,11 @@ data class AppIntroEntity(
     var isFirstTime: Boolean,
 ) {
     companion object {
-        fun getDefault() = AppIntroEntity(
-            id = 1,
-            showAppIntro = false,
-            isFirstTime = true,
-        )
+        fun getDefault() =
+            AppIntroEntity(
+                id = 1,
+                showAppIntro = false,
+                isFirstTime = true,
+            )
     }
 }

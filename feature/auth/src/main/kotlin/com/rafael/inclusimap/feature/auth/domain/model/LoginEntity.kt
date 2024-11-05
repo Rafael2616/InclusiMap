@@ -45,12 +45,12 @@ data class LoginEntity(
         if (profilePicture != null) {
             if (other.profilePicture == null) return false
             if (!profilePicture.contentEquals(other.profilePicture)) return false
-        } else if (other.profilePicture != null) return false
+        } else if (other.profilePicture != null) {
+            return false
+        }
 
         return true
     }
 
-    override fun hashCode(): Int {
-        return profilePicture?.contentHashCode() ?: 0
-    }
+    override fun hashCode(): Int = profilePicture?.contentHashCode() ?: 0
 }

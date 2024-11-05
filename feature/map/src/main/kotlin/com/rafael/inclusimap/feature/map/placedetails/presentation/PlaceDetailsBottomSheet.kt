@@ -181,7 +181,7 @@ fun PlaceDetailsBottomSheet(
     }
 
     LaunchedEffect(Unit) {
-        onEvent(
+        latestEvent(
             PlaceDetailsEvent.GetCurrentNearestPlaceUri(
                 with(inclusiMapState.selectedMappedPlace) {
                     LatLng(

@@ -27,9 +27,10 @@ fun BoxScope.FindNorthWidget(
     cameraPositionState: CameraPositionState,
     settingsState: SettingsState,
     onFind: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     FloatingActionButton(
-        modifier = Modifier
+        modifier = modifier
             .statusBarsPadding()
             .navigationBarsPadding()
             .padding(top = 85.dp, start = 12.dp)
@@ -50,7 +51,7 @@ fun BoxScope.FindNorthWidget(
                 MaterialTheme.colorScheme.error
             },
             modifier = Modifier
-                .rotate(degrees = -cameraPositionState.position.bearing)
+                .rotate(degrees = -cameraPositionState.position.bearing),
         )
     }
 }

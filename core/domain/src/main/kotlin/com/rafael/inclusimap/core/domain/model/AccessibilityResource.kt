@@ -23,7 +23,9 @@ data class AccessibilityResource(
     val lastModifiedBy: String = "",
 )
 
-enum class Resource(val displayName: String) {
+enum class Resource(
+    val displayName: String,
+) {
     WHEELCHAIR("Cadeira de rodas"),
     RAMP("Rampa acessível"),
     ELEVATOR("Elevador adaptado"),
@@ -38,17 +40,18 @@ enum class Resource(val displayName: String) {
     NOT_APPLICABLE("Não aplicável"),
 }
 
-fun String.toResourceIcon(): ImageVector = when (this) {
-    "Cadeira de rodas" -> Icons.Outlined.WheelchairPickup
-    "Rampa acessível" -> Icons.Outlined.Airlines
-    "Elevador adaptado" -> Icons.Outlined.Elevator
-    "Corredores espaçosos" -> Icons.Outlined.SpaceBar
-    "Poucas elevações" -> Icons.Outlined.TextRotationAngleup
-    "Banheiro adaptado" -> Icons.Outlined.Bathroom
-    "Caixa preferencial" -> Icons.Outlined.LocalOffer
-    "Estacionamento especial" -> Icons.Outlined.LocalParking
-    "Carrinho adaptado" -> Icons.Outlined.ShoppingCart
-    "Assistência humana" -> Icons.Outlined.EmojiPeople
-    "Porta automática ou de fácil manuseio" -> Icons.Outlined.SensorDoor
-    else -> Icons.Outlined.Attachment
-}
+fun String.toResourceIcon(): ImageVector =
+    when (this) {
+        "Cadeira de rodas" -> Icons.Outlined.WheelchairPickup
+        "Rampa acessível" -> Icons.Outlined.Airlines
+        "Elevador adaptado" -> Icons.Outlined.Elevator
+        "Corredores espaçosos" -> Icons.Outlined.SpaceBar
+        "Poucas elevações" -> Icons.Outlined.TextRotationAngleup
+        "Banheiro adaptado" -> Icons.Outlined.Bathroom
+        "Caixa preferencial" -> Icons.Outlined.LocalOffer
+        "Estacionamento especial" -> Icons.Outlined.LocalParking
+        "Carrinho adaptado" -> Icons.Outlined.ShoppingCart
+        "Assistência humana" -> Icons.Outlined.EmojiPeople
+        "Porta automática ou de fácil manuseio" -> Icons.Outlined.SensorDoor
+        else -> Icons.Outlined.Attachment
+    }

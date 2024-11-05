@@ -8,20 +8,21 @@ import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
-val introModule = module {
-    single {
-        Room.databaseBuilder(
-            androidApplication(),
-            AppIntroDatabase::class.java,
-            AppIntroDatabase.DATABASE_NAME,
-        )
-            .fallbackToDestructiveMigration(true)
-            .build()
+val introModule =
+    module {
+        single {
+            Room
+                .databaseBuilder(
+                    androidApplication(),
+                    AppIntroDatabase::class.java,
+                    AppIntroDatabase.DATABASE_NAME,
+                ).fallbackToDestructiveMigration(true)
+                .build()
+        }
+        single {
+            AppIntroRepositoryImpl(get<AppIntroDatabase>().appIntroDao())
+        }
+        viewModel {
+            AppIntroViewModel(get<AppIntroRepositoryImpl>())
+        }
     }
-    single {
-        AppIntroRepositoryImpl(get<AppIntroDatabase>().appIntroDao())
-    }
-    viewModel {
-        AppIntroViewModel(get<AppIntroRepositoryImpl>())
-    }
-}
