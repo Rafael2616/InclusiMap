@@ -1,4 +1,4 @@
-package com.rafael.inclusimap.settings.domain.model
+package com.rafael.inclusimap.feature.settings.domain.model
 
 data class SearchItemSpecs(
     val namespace: String,

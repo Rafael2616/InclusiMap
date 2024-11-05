@@ -1,8 +1,8 @@
 package com.rafael.inclusimap.feature.intro.data.repository
 
-import AppIntroRepository
 import com.rafael.inclusimap.feature.intro.data.dao.AppIntroDao
 import com.rafael.inclusimap.feature.intro.domain.model.AppIntroEntity
+import com.rafael.inclusimap.feature.intro.domain.repository.AppIntroRepository
 
 class AppIntroRepositoryImpl(
     private val appIntroDao: AppIntroDao,

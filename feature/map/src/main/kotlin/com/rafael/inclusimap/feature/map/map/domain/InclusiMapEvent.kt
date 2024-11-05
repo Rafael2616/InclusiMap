@@ -5,7 +5,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 
 sealed interface InclusiMapEvent {
-    data class UpdateMapCameraPosition(val latLng: LatLng, val isMyLocationFounded: Boolean) : InclusiMapEvent
     data object OnLoadPlaces : InclusiMapEvent
     data class OnMappedPlaceSelected(val place: AccessibleLocalMarker) : InclusiMapEvent
     data class OnUnmappedPlaceSelected(val latLng: LatLng) : InclusiMapEvent

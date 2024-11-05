@@ -94,7 +94,7 @@ class PlaceDetailsViewModel(
     private fun setCurrentPlace(place: AccessibleLocalMarker) {
         viewModelScope.launch(Dispatchers.IO) {
             async {
-                _state.update {
+                _state.update { it ->
                     it.copy(
                         isCurrentPlaceLoaded = it.loadedPlaces.any { existingPlace -> existingPlace.id == place.id },
                         allImagesLoaded = it.loadedPlaces.find { existingPlace -> existingPlace.id == place.id }?.images?.isNotEmpty()
@@ -316,7 +316,7 @@ class PlaceDetailsViewModel(
                 _state.value.loadedPlaces.find { place -> place.id == placeDetails.id }?.imageFolderId,
             )
             println("All images founded:" + _state.value.loadedPlaces.find { place -> place.id == placeDetails.id }?.images?.size)
-            _state.update {
+            _state.update { it ->
                 it.copy(
                     currentPlace = placeWithImages,
                 ).also {

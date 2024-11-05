@@ -105,10 +105,6 @@ class LoginViewModel(
             is LoginEvent.OnRegisterNewUser -> registerNewUser(event.user)
             LoginEvent.OnLogout -> logout()
             is LoginEvent.UpdatePassword -> updatePassword(event.password)
-            is LoginEvent.SetIsNewUser -> _state.update {
-                it.copy(isNewUser = event.isNewUser)
-            }
-
             is LoginEvent.SetIsPasswordChanged -> _state.update {
                 it.copy(isPasswordChanged = event.isChanged)
             }
@@ -583,11 +579,9 @@ class LoginViewModel(
                             driveService.listFiles(place.id).onSuccess { images ->
                                 images.filter { image ->
                                     image.name.extractUserEmail() == _state.value.user?.email
-                                }.also { userImages ->
-                                    userImages.forEach {
-                                        println("Deleting file: ${it.name} - ${it.id} posted by user ${_state.value.user?.email}")
-                                        async { driveService.deleteFile(it.id) }.await()
-                                    }
+                                }.onEach {
+                                    println("Deleting file: ${it.name} - ${it.id} posted by user ${_state.value.user?.email}")
+                                    async { driveService.deleteFile(it.id) }.await()
                                 }
                             }
                         }

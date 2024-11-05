@@ -52,11 +52,6 @@ class InclusiMapGoogleMapViewModel(
 
     fun onEvent(event: InclusiMapEvent) {
         when (event) {
-            is InclusiMapEvent.UpdateMapCameraPosition -> updateMapCameraPosition(
-                event.latLng,
-                event.isMyLocationFounded,
-            )
-
             InclusiMapEvent.OnLoadPlaces -> onLoadPlaces()
             InclusiMapEvent.OnMapLoad -> onMapLoad()
             is InclusiMapEvent.OnMappedPlaceSelected -> onMappedPlaceSelected(event.place)
@@ -88,15 +83,6 @@ class InclusiMapGoogleMapViewModel(
     private fun onTravelToPlace(placeId: String) {
         setPlaceById(placeId)
         _state.update { it.copy(shouldTravel = true) }
-    }
-
-    private fun updateMapCameraPosition(latLng: LatLng, isMyLocationFounded: Boolean) {
-        _state.update {
-            it.copy(
-                defaultLocationLatLng = latLng,
-                isMyLocationFound = isMyLocationFounded,
-            )
-        }
     }
 
     private fun updateMapState(mapState: CameraPosition) {

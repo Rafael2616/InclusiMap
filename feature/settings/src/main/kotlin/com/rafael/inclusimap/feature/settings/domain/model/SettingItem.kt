@@ -14,7 +14,6 @@ import com.rafael.inclusimap.feature.settings.presentation.components.preference
 import com.rafael.inclusimap.feature.settings.presentation.components.preferences.MapTypePreference
 import com.rafael.inclusimap.feature.settings.presentation.components.preferences.OpenSourceLicensesPreference
 import com.rafael.inclusimap.feature.settings.presentation.components.preferences.UpdatePasswordPreference
-import com.rafael.inclusimap.settings.domain.model.SearchItemSpecs
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 

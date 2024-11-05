@@ -196,7 +196,7 @@ fun AccessibilityResourcesSelectionDialog(
                                                 },
                                                 colors = AssistChipDefaults.assistChipColors(
                                                     containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
-                                                        if (resource !in state.currentPlace.resources.map { it.resource }) 4.dp else 24.dp,
+                                                        if (resource !in state.currentPlace.resources.map { res -> res.resource }) 4.dp else 24.dp,
                                                     ),
                                                 ),
                                             )

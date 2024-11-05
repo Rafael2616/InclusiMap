@@ -1,3 +1,5 @@
+package com.rafael.inclusimap.feature.intro.domain.repository
+
 import com.rafael.inclusimap.feature.intro.domain.model.AppIntroEntity
 
 interface AppIntroRepository {

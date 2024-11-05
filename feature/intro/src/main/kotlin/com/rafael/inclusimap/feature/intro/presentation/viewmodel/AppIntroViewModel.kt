@@ -1,10 +1,10 @@
 package com.rafael.inclusimap.feature.intro.presentation.viewmodel
 
-import AppIntroRepository
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafael.inclusimap.feature.intro.domain.model.AppIntroEntity
 import com.rafael.inclusimap.feature.intro.domain.model.AppIntroState
+import com.rafael.inclusimap.feature.intro.domain.repository.AppIntroRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

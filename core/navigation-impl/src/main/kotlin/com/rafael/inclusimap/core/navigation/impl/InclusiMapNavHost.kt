@@ -70,7 +70,7 @@ fun InclusiMapNavHost(
                     popEnterTransition = { materialSharedAxisXIn(isRtl, slideDistance) },
                     popExitTransition = { materialSharedAxisXOut(isRtl, slideDistance) },
                 ) {
-                    composable<Destination.LoginScreen> {
+                    composable<Destination.LoginScreen> { it ->
                         UnifiedLoginScreen(
                             loginState = loginState,
                             onLogin = { registeredUser ->

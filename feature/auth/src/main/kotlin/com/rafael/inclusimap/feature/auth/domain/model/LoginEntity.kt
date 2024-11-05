@@ -35,4 +35,22 @@ data class LoginEntity(
             tokenExpirationDate = null,
         )
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as LoginEntity
+
+        if (profilePicture != null) {
+            if (other.profilePicture == null) return false
+            if (!profilePicture.contentEquals(other.profilePicture)) return false
+        } else if (other.profilePicture != null) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return profilePicture?.contentHashCode() ?: 0
+    }
 }

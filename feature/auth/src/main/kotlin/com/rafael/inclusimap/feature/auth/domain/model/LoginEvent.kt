@@ -3,7 +3,6 @@ package com.rafael.inclusimap.feature.auth.domain.model
 import androidx.compose.ui.graphics.ImageBitmap
 
 sealed interface LoginEvent {
-    data class SetIsNewUser(val isNewUser: Boolean) : LoginEvent
     data class OnLogin(val registeredUser: RegisteredUser) : LoginEvent
     data class OnRegisterNewUser(val user: User) : LoginEvent
     data object OnLogout : LoginEvent

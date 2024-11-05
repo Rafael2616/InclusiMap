@@ -13,7 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
-class PlacesApiService(private val context: Context) {
+class PlacesApiService(context: Context) {
     private val placesClient: PlacesClient
 
     init {
