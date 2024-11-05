@@ -26,6 +26,9 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.client.logging)
+    // AndroidX
+    implementation(libs.exifInterface)
+    implementation(libs.androidx.activity.compose)
 
     // Projects
     implementation(projects.core.domain)

@@ -1,4 +1,4 @@
-package com.rafael.inclusimap.feature.settings.presentation
+package com.rafael.inclusimap.feature.auth.presentation.dialogs
 
 import android.content.res.Configuration
 import android.graphics.BitmapFactory
@@ -45,6 +45,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,7 +55,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -71,27 +71,20 @@ import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rafael.inclusimap.core.domain.network.InternetConnectionState
 import com.rafael.inclusimap.core.domain.util.rotateImage
-import com.rafael.inclusimap.core.settings.domain.model.SettingsState
+import com.rafael.inclusimap.feature.auth.domain.model.LoginEvent
+import com.rafael.inclusimap.feature.auth.domain.model.LoginState
 
 @Composable
 fun ProfileSettingsDialog(
+    loginState: LoginState,
+    onEvent: (LoginEvent) -> Unit,
     onDismiss: () -> Unit,
-    onAddUpdatePicture: (ImageBitmap) -> Unit,
-    onRemovePicture: () -> Unit,
-    userName: String,
-    userEmail: String,
-    allowOtherUsersToSeeProfilePicture: Boolean,
-    onEditUserName: (String) -> Unit,
-    onAllowPictureOptedIn: (Boolean) -> Unit,
-    state: SettingsState,
-    isSuccessfulUpdatingUserInfos: Boolean,
-    isErrorUpdatingUserInfos: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val orientation = LocalConfiguration.current.orientation
     val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
-    var profilePicture by remember { mutableStateOf(state.profilePicture) }
+    var profilePicture by remember { mutableStateOf(loginState.userProfilePicture) }
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
     ) { uri ->
@@ -110,18 +103,27 @@ fun ProfileSettingsDialog(
             } ?: return@let
         }
     }
-    var allowOtherUsersToSeeProfilePictureOptedId by remember {
+    var allowOtherUsersToSeeProfilePictureOptedIn by remember {
         mutableStateOf(
-            allowOtherUsersToSeeProfilePicture,
+            loginState.user?.showProfilePictureOptedIn ?: false,
         )
     }
-    var newName by remember { mutableStateOf(userName) }
+    var newName by remember { mutableStateOf(loginState.user?.name ?: "") }
     var shouldDismissDialog by remember { mutableStateOf(false) }
     val internetState = remember { InternetConnectionState(context) }
     val isInternetAvailable by internetState.state.collectAsStateWithLifecycle()
     val focusRequester = remember { FocusRequester() }
     var editUserName by remember { mutableStateOf(false) }
-
+    val isErrorUpdatingUserInfos by remember {
+        derivedStateOf {
+            loginState.isErrorUpdatingUserName && loginState.isErrorUpdatingProfilePicture && loginState.isErrorRemovingProfilePicture && loginState.isErrorAllowingPictureOptedIn
+        }
+    }
+    val isSuccessfulUpdatingUserInfos by remember {
+        derivedStateOf {
+            loginState.isPictureOptedInSuccessfullyChanged && loginState.isUserNameUpdated && loginState.isProfilePictureUpdated && loginState.isProfilePictureRemoved
+        }
+    }
     Dialog(
         onDismissRequest = {
             onDismiss()
@@ -243,9 +245,9 @@ fun ProfileSettingsDialog(
                             fontSize = 14.sp,
                         )
                         Checkbox(
-                            checked = allowOtherUsersToSeeProfilePictureOptedId,
+                            checked = allowOtherUsersToSeeProfilePictureOptedIn,
                             onCheckedChange = {
-                                allowOtherUsersToSeeProfilePictureOptedId = it
+                                allowOtherUsersToSeeProfilePictureOptedIn = it
                             },
                             modifier = Modifier.size(24.dp),
                         )
@@ -318,7 +320,7 @@ fun ProfileSettingsDialog(
                             onClick = {
                                 editUserName = !editUserName
                                 if (!editUserName) {
-                                    newName = userName
+                                    newName = loginState.user?.name.orEmpty()
                                     focusRequester.freeFocus()
                                 } else {
                                     focusRequester.requestFocus()
@@ -351,7 +353,7 @@ fun ProfileSettingsDialog(
                             lineHeight = 14.sp,
                         )
                         Text(
-                            text = userEmail,
+                            text = loginState.user?.email ?: "",
                             fontSize = 14.sp,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f),
                         )
@@ -395,18 +397,18 @@ fun ProfileSettingsDialog(
                                 )
                             }
                         }
-                        if (profilePicture != state.profilePicture || userName != newName || allowOtherUsersToSeeProfilePicture != allowOtherUsersToSeeProfilePictureOptedId) {
+                        if (profilePicture != loginState.userProfilePicture || loginState.user?.name != newName || loginState.user.showProfilePictureOptedIn != allowOtherUsersToSeeProfilePictureOptedIn) {
                             Button(
                                 onClick = {
-                                    if (profilePicture != state.profilePicture) {
+                                    if (profilePicture != loginState.userProfilePicture) {
                                         profilePicture?.let {
-                                            onAddUpdatePicture(it)
+                                            onEvent(LoginEvent.OnAddEditUserProfilePicture(it))
                                         }
                                     }
                                     if (profilePicture == null) {
-                                        onRemovePicture()
+                                        onEvent(LoginEvent.OnRemoveUserProfilePicture)
                                     }
-                                    if (newName != userName) {
+                                    if (newName != loginState.user?.name) {
                                         if (newName.length < 3) {
                                             Toast.makeText(
                                                 context,
@@ -414,12 +416,10 @@ fun ProfileSettingsDialog(
                                                 Toast.LENGTH_SHORT,
                                             ).show()
                                         }
-                                        onEditUserName(newName)
+                                        onEvent(LoginEvent.UpdateUserName(newName))
                                     }
-                                    if (allowOtherUsersToSeeProfilePictureOptedId != allowOtherUsersToSeeProfilePicture) {
-                                        onAllowPictureOptedIn(
-                                            allowOtherUsersToSeeProfilePictureOptedId,
-                                        )
+                                    if (allowOtherUsersToSeeProfilePictureOptedIn != loginState.user?.showProfilePictureOptedIn) {
+                                        onEvent(LoginEvent.OnAllowPictureOptedIn(allowOtherUsersToSeeProfilePictureOptedIn))
                                     }
                                     shouldDismissDialog = true
                                 },

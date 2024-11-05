@@ -1,6 +1,5 @@
 package com.rafael.inclusimap.core.settings.domain.model
 
-import androidx.compose.ui.graphics.ImageBitmap
 import com.google.maps.android.compose.MapType
 
 sealed interface SettingsEvent {
@@ -15,6 +14,4 @@ sealed interface SettingsEvent {
     data class ShowDeleteAccountDialog(val value: Boolean) : SettingsEvent
     data class OpenTermsAndConditions(val value: Boolean) : SettingsEvent
     data class ShowProfilePictureSettings(val value: Boolean) : SettingsEvent
-    data class OnAddEditProfilePicture(val value: ImageBitmap?) : SettingsEvent
-    data object OnRemoveProfilePicture : SettingsEvent
 }

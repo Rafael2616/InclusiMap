@@ -5,11 +5,8 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
@@ -27,6 +24,7 @@ import com.rafael.inclusimap.feature.auth.domain.model.LoginEvent
 import com.rafael.inclusimap.feature.auth.presentation.UnifiedLoginScreen
 import com.rafael.inclusimap.feature.auth.presentation.dialogs.DeleteAccountConfirmationDialog
 import com.rafael.inclusimap.feature.auth.presentation.dialogs.LogoutConfirmationDialog
+import com.rafael.inclusimap.feature.auth.presentation.dialogs.ProfileSettingsDialog
 import com.rafael.inclusimap.feature.auth.presentation.viewmodel.LoginViewModel
 import com.rafael.inclusimap.feature.contributions.presentation.LibraryScreen
 import com.rafael.inclusimap.feature.contributions.presentation.viewmodel.LibraryViewModel
@@ -54,8 +52,6 @@ fun InclusiMapNavHost(
         val loginState by loginViewModel.state.collectAsStateWithLifecycle()
         val settingsViewModel = koinViewModel<SettingsViewModel>()
         val settingsState by settingsViewModel.state.collectAsStateWithLifecycle()
-        val libraryViewModel = koinViewModel<LibraryViewModel>()
-        val ossLibraries by libraryViewModel.ossLibraries.collectAsStateWithLifecycle()
 
         InclusiMapTheme(state = settingsState) {
             Scaffold(
@@ -129,46 +125,17 @@ fun InclusiMapNavHost(
                         )
                     }
                     composable<Destination.SettingsScreen> {
-                        val isErrorUpdatingUserInfos by remember {
-                            derivedStateOf {
-                                loginState.isErrorUpdatingUserName && loginState.isErrorUpdatingProfilePicture && loginState.isErrorRemovingProfilePicture && loginState.isErrorAllowingPictureOptedIn
-                            }
-                        }
-                        val isSuccessfullUpdatingUserInfo by remember {
-                            derivedStateOf {
-                                loginState.isPictureOptedInSuccessfullyChanged && loginState.isUserNameUpdated && loginState.isProfilePictureUpdated && loginState.isProfilePictureRemoved
-                            }
-                        }
                         SettingsScreen(
                             navController,
                             settingsState,
                             settingsViewModel::onEvent,
-                            userName = loginState.user?.name ?: "",
-                            userEmail = loginState.user?.email ?: "",
-                            onEditUserName = {
-                                loginViewModel.onEvent(LoginEvent.UpdateUserName(it))
-                            },
-                            onAddEditProfilePicture = {
-                                loginViewModel.onEvent(LoginEvent.OnAddEditUserProfilePicture(it))
-                            },
-                            onRemoveProfilePicture = {
-                                loginViewModel.onEvent(LoginEvent.OnRemoveUserProfilePicture)
-                            },
-                            onAllowPictureOptedIn = {
-                                loginViewModel.onEvent(LoginEvent.OnAllowPictureOptedIn(it))
-                            },
-                            allowOtherUsersToSeeProfilePicture = loginState.user?.showProfilePictureOptedIn
-                                ?: false,
-                            isErrorUpdatingUserInfos = isErrorUpdatingUserInfos,
-                            isSuccessfulUpdatingUserInfos = isSuccessfullUpdatingUserInfo,
+                            userProfilePicture = loginState.userProfilePicture,
                         )
                         LaunchedEffect(loginState.isLoggedIn) {
                             if (!loginState.isLoggedIn) {
                                 settingsViewModel.onEvent(SettingsEvent.ShowLogoutDialog(false))
                                 settingsViewModel.onEvent(
-                                    SettingsEvent.ShowDeleteAccountDialog(
-                                        false,
-                                    ),
+                                    SettingsEvent.ShowDeleteAccountDialog(false),
                                 )
                                 navController.clearBackStack(Destination.MapHost)
                             }
@@ -199,8 +166,19 @@ fun InclusiMapNavHost(
                                 },
                             )
                         }
+                        AnimatedVisibility(settingsState.showProfilePictureSettings) {
+                            ProfileSettingsDialog(
+                                onDismiss = {
+                                    settingsViewModel.onEvent(SettingsEvent.ShowProfilePictureSettings(false))
+                                },
+                                loginState = loginState,
+                                onEvent = loginViewModel::onEvent,
+                            )
+                        }
                     }
                     composable<Destination.LibraryScreen> {
+                        val libraryViewModel = koinViewModel<LibraryViewModel>()
+                        val ossLibraries by libraryViewModel.ossLibraries.collectAsStateWithLifecycle()
                         LibraryScreen(
                             libraries = ossLibraries,
                             popBackStack = {
@@ -225,17 +203,6 @@ fun InclusiMapNavHost(
             if (loginState.isLoggedIn && appIntroState.showAppIntro) {
                 navController.navigate(Destination.MapHost)
             }
-        }
-
-        DisposableEffect(loginState.userProfilePicture) {
-            if (loginState.userProfilePicture != null) {
-                settingsViewModel.onEvent(
-                    SettingsEvent.OnAddEditProfilePicture(loginState.userProfilePicture),
-                )
-            } else {
-                settingsViewModel.onEvent(SettingsEvent.OnRemoveProfilePicture)
-            }
-            onDispose { }
         }
     }
 }

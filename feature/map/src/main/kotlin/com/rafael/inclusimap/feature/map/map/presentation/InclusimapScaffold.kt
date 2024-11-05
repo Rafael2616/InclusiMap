@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.google.maps.android.compose.MapType
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
@@ -28,6 +29,7 @@ fun InclusiMapScaffold(
     state: InclusiMapState,
     searchState: SearchState,
     settingsState: SettingsState,
+    userProfilePicture: ImageBitmap?,
     searchEvent: (SearchEvent) -> Unit,
     onMapTypeChange: (MapType) -> Unit,
     onNavigateToSettings: () -> Unit,
@@ -92,7 +94,7 @@ fun InclusiMapScaffold(
                     onTravelToPlace = onTravelToPlace,
                     focusRequester = focusRequester,
                     allMappedPlaces = state.allMappedPlaces,
-                    profilePicture = settingsState.profilePicture,
+                    profilePicture = userProfilePicture,
                     isHistoryEnabled = settingsState.searchHistoryEnabled,
                 )
             }

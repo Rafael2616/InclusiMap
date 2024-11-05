@@ -1,6 +1,5 @@
 package com.rafael.inclusimap.feature.settings.presentation.viewmodel
 
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.maps.android.compose.MapType
@@ -128,18 +127,7 @@ class SettingsViewModel(
             is SettingsEvent.ShowProfilePictureSettings -> _state.update {
                 it.copy(showProfilePictureSettings = event.value)
             }
-
-            is SettingsEvent.OnAddEditProfilePicture -> onAddEditProfilePicture(event.value)
-            SettingsEvent.OnRemoveProfilePicture -> onRemoveProfilePicture()
         }
-    }
-
-    private fun onAddEditProfilePicture(imageBitmap: ImageBitmap?) {
-        _state.update { it.copy(profilePicture = imageBitmap) }
-    }
-
-    private fun onRemoveProfilePicture() {
-        _state.update { it.copy(profilePicture = null) }
     }
 
     private fun MapType.toInt() = when (this) {

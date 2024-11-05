@@ -107,8 +107,9 @@ fun MapNavHost(
                 onMapEvent(InclusiMapEvent.SetIsContributionsScreen(true))
             }
         },
+        userProfilePicture = loginState.userProfilePicture,
         modifier = modifier,
-    ) { paddingValues, isFullScreenMode ->
+    ) { paddingValues, isFullScreen ->
         NavHost(
             navController = navController,
             startDestination = Destination.MapScreen(),
@@ -145,7 +146,8 @@ fun MapNavHost(
                     onUpdateSearchHistory = { placeId ->
                         onSearchEvent(SearchEvent.UpdateHistory(placeId))
                     },
-                    isFullScreenMode = isFullScreenMode,
+                    userProfilePicture = loginState.userProfilePicture,
+                    isFullScreenMode = isFullScreen,
                 )
             }
             composable<Destination.ContributionsScreen> {
@@ -153,7 +155,7 @@ fun MapNavHost(
                     state = contributionState,
                     onEvent = onContributionEvent,
                     userName = loginState.user?.name ?: "",
-                    userPicture = settingsState.profilePicture,
+                    userPicture = loginState.userProfilePicture,
                     navController = navController,
                     modifier = Modifier.padding(PaddingValues(bottom = paddingValues.calculateBottomPadding())),
                     onPopBackStack = {

@@ -60,7 +60,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@Suppress("ktlint:compose:modifier-not-used-at-root")
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun InclusiMapGoogleMapScreen(
@@ -74,6 +73,7 @@ fun InclusiMapGoogleMapScreen(
     settingsState: SettingsState,
     userName: String,
     userEmail: String,
+    userProfilePicture: ImageBitmap?,
     isFullScreenMode: Boolean,
     onReport: (Report) -> Unit,
     reportState: ReportState,
@@ -104,11 +104,11 @@ fun InclusiMapGoogleMapScreen(
     var isFindNorthBtnClicked by remember { mutableStateOf(false) }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize(),
     ) {
         GoogleMap(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize(),
             properties = remember(
                 settingsState.mapType,
@@ -254,7 +254,7 @@ fun InclusiMapGoogleMapScreen(
             reportState = reportState,
             downloadUserProfilePicture = downloadUserProfilePicture,
             allowedShowUserProfilePicture = allowedShowUserProfilePicture,
-            userPicture = settingsState.profilePicture,
+            userPicture = userProfilePicture,
         )
     }
 

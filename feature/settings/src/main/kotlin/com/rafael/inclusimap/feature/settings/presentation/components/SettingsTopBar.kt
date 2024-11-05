@@ -22,18 +22,18 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.rafael.inclusimap.core.settings.domain.model.SettingsEvent
-import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 internal fun SettingsTopBar(
     navController: NavController,
-    state: SettingsState,
+    userProfilePicture: ImageBitmap?,
     onEvent: (SettingsEvent) -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable (PaddingValues) -> Unit,
@@ -73,7 +73,7 @@ internal fun SettingsTopBar(
                             onEvent(SettingsEvent.ShowProfilePictureSettings(true))
                         },
                     ) {
-                        state.profilePicture?.let { image ->
+                        userProfilePicture?.let { image ->
                             Image(
                                 bitmap = image,
                                 contentDescription = "Profile picture",
@@ -83,7 +83,7 @@ internal fun SettingsTopBar(
                                     .clip(CircleShape),
                             )
                         }
-                        if (state.profilePicture == null) {
+                        if (userProfilePicture == null) {
                             Icon(
                                 imageVector = Icons.Outlined.Person,
                                 contentDescription = "No profile picture",

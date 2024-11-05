@@ -21,22 +21,14 @@ fun SettingsScreen(
     navController: NavController,
     state: SettingsState,
     onEvent: (SettingsEvent) -> Unit,
-    userName: String,
-    userEmail: String,
-    allowOtherUsersToSeeProfilePicture: Boolean,
-    onEditUserName: (String) -> Unit,
-    onAddEditProfilePicture: (ImageBitmap) -> Unit,
-    onRemoveProfilePicture: () -> Unit,
-    onAllowPictureOptedIn: (Boolean) -> Unit,
-    isSuccessfulUpdatingUserInfos: Boolean,
-    isErrorUpdatingUserInfos: Boolean,
+    userProfilePicture: ImageBitmap?,
 ) {
     val latestOnEvent by rememberUpdatedState(onEvent)
     var showAppIntro by remember { mutableStateOf(false) }
 
     SettingsTopBar(
         navController,
-        state,
+        userProfilePicture,
         latestOnEvent,
     ) { innerPadding ->
         Preferences(
@@ -62,31 +54,6 @@ fun SettingsScreen(
             onDismissRequest = {
                 latestOnEvent(SettingsEvent.OpenTermsAndConditions(false))
             },
-        )
-    }
-    AnimatedVisibility(state.showProfilePictureSettings) {
-        ProfileSettingsDialog(
-            onDismiss = {
-                latestOnEvent(SettingsEvent.ShowProfilePictureSettings(false))
-            },
-            onAddUpdatePicture = {
-                onAddEditProfilePicture(it)
-            },
-            onRemovePicture = {
-                onRemoveProfilePicture()
-            },
-            userName = userName,
-            userEmail = userEmail,
-            allowOtherUsersToSeeProfilePicture = allowOtherUsersToSeeProfilePicture,
-            onEditUserName = {
-                onEditUserName(it)
-            },
-            onAllowPictureOptedIn = {
-                onAllowPictureOptedIn(it)
-            },
-            isSuccessfulUpdatingUserInfos = isSuccessfulUpdatingUserInfos,
-            isErrorUpdatingUserInfos = isErrorUpdatingUserInfos,
-            state = state,
         )
     }
 }
