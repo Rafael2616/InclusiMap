@@ -23,64 +23,76 @@ class ReportViewModel(
     private val loginRepository: LoginRepository,
     private val driveService: GoogleDriveService,
 ) : ViewModel() {
-
     private val _state = MutableStateFlow(ReportState())
     val state = _state.asStateFlow()
 
     fun onReport(report: Report) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _state.update {
-                it.copy(
-                    isReported = false,
-                    isReporting = true,
-                    isError = false,
-                )
-            }
-            val loginData = loginRepository.getLoginInfo(1)!!
-            val user = User(
-                name = loginData.userName!!,
-                email = loginData.userEmail!!,
-                password = loginData.userPassword!!,
-                id = loginData.userId!!,
-                showProfilePictureOptedIn = loginData.showProfilePictureOptedIn,
-            )
-            val json = Json {
-                prettyPrint = true
-                encodeDefaults = true
-            }
-            val completedReport = report.copy(
-                user = user,
-                reportedLocal = report.reportedLocal.copy(
-                    comments = if (report.type == ReportType.COMMENT || report.type == ReportType.OTHER) report.reportedLocal.comments else emptyList(),
-                ),
-            )
-            val jsonReport = json.encodeToString<Report>(completedReport)
-
-            async {
-                val reportId = driveService.createFile(
-                    "Report_${Date().toInstant()}_${user.email}.txt",
-                    jsonReport,
-                    INCLUSIMAP_REPORT_FOLDER_ID,
-                )
-                if (reportId == null) {
-                    _state.update {
-                        it.copy(
-                            isReported = false,
-                            isError = true,
-                        )
-                    }
-                } else {
-                    _state.update {
-                        it.copy(isReported = true)
-                    }
+        viewModelScope
+            .launch(Dispatchers.IO) {
+                _state.update {
+                    it.copy(
+                        isReported = false,
+                        isReporting = true,
+                        isError = false,
+                    )
                 }
-            }.await()
-        }.invokeOnCompletion {
-            _state.update {
-                it.copy(
-                    isReporting = false,
-                )
+                val loginData = loginRepository.getLoginInfo(1)!!
+                val user =
+                    User(
+                        name = loginData.userName!!,
+                        email = loginData.userEmail!!,
+                        password = loginData.userPassword!!,
+                        id = loginData.userId!!,
+                        showProfilePictureOptedIn = loginData.showProfilePictureOptedIn,
+                    )
+                val json =
+                    Json {
+                        prettyPrint = true
+                        encodeDefaults = true
+                    }
+                val completedReport =
+                    report.copy(
+                        user = user,
+                        reportedLocal =
+                        report.reportedLocal.copy(
+                            comments =
+                            if (report.type == ReportType.COMMENT ||
+                                report.type == ReportType.OTHER
+                            ) {
+                                report.reportedLocal.comments
+                            } else {
+                                emptyList()
+                            },
+                        ),
+                    )
+                val jsonReport = json.encodeToString<Report>(completedReport)
+
+                async {
+                    val reportId =
+                        driveService.createFile(
+                            "Report_${Date().toInstant()}_${user.email}.txt",
+                            jsonReport,
+                            INCLUSIMAP_REPORT_FOLDER_ID,
+                        )
+                    if (reportId == null) {
+                        _state.update {
+                            it.copy(
+                                isReported = false,
+                                isError = true,
+                            )
+                        }
+                    } else {
+                        _state.update {
+                            it.copy(isReported = true)
+                        }
+                    }
+                }.await()
+            }.invokeOnCompletion {
+                _state.update {
+                    it.copy(
+                        isReporting = false,
+                    )
+                }
             }
-        }
     }
 }

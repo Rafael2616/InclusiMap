@@ -9,16 +9,27 @@ plugins {
 
 android {
     namespace = "com.rafael.baselineprofile"
-    compileSdk = libs.versions.compileSdk.get().toInt()
+    compileSdk =
+        libs.versions.compileSdk
+            .get()
+            .toInt()
 
     compileOptions {
-        val javaVersion = JavaVersion.toVersion(libs.versions.jvmTarget.get().toInt())
+        val javaVersion =
+            JavaVersion.toVersion(
+                libs.versions.jvmTarget
+                    .get()
+                    .toInt(),
+            )
         sourceCompatibility = javaVersion
         targetCompatibility = javaVersion
     }
 
     defaultConfig {
-        minSdk = libs.versions.minSdk.get().toInt()
+        minSdk =
+            libs.versions.minSdk
+                .get()
+                .toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

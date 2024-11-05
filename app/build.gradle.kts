@@ -17,9 +17,18 @@ android {
 
     defaultConfig {
         applicationId = "com.rafael.inclusimap"
-        minSdk = libs.versions.minSdk.get().toInt()
-        targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = libs.versions.versionCode.get().toInt()
+        minSdk =
+            libs.versions.minSdk
+                .get()
+                .toInt()
+        targetSdk =
+            libs.versions.targetSdk
+                .get()
+                .toInt()
+        versionCode =
+            libs.versions.versionCode
+                .get()
+                .toInt()
         versionName = libs.versions.versionName.get()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -29,24 +38,25 @@ android {
     }
     val releaseSigningFile = rootProject.file("keystore.properties")
     val keystoreProperties = Properties()
-    val releaseSigningConfig = if (releaseSigningFile.exists()) {
-        keystoreProperties.load(releaseSigningFile.inputStream())
-        signingConfigs.create("release") {
-            storeFile = file(keystoreProperties.getProperty("KEYSTORE"))
-            storePassword = keystoreProperties.getProperty("KEYSTORE_PASSWORD")
-            keyAlias = keystoreProperties.getProperty("KEY_ALIAS")
-            keyPassword = keystoreProperties.getProperty("KEY_PASSWORD")
-            enableV3Signing = true
+    val releaseSigningConfig =
+        if (releaseSigningFile.exists()) {
+            keystoreProperties.load(releaseSigningFile.inputStream())
+            signingConfigs.create("release") {
+                storeFile = file(keystoreProperties.getProperty("KEYSTORE"))
+                storePassword = keystoreProperties.getProperty("KEYSTORE_PASSWORD")
+                keyAlias = keystoreProperties.getProperty("KEY_ALIAS")
+                keyPassword = keystoreProperties.getProperty("KEY_PASSWORD")
+                enableV3Signing = true
+            }
+        } else {
+            signingConfigs.create("release") {
+                storeFile = file("inclusimap.jks")
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS")
+                keyPassword = System.getenv("KEY_PASSWORD")
+                enableV3Signing = true
+            }
         }
-    } else {
-        signingConfigs.create("release") {
-            storeFile = file("inclusimap.jks")
-            storePassword = System.getenv("KEYSTORE_PASSWORD")
-            keyAlias = System.getenv("KEY_ALIAS")
-            keyPassword = System.getenv("KEY_PASSWORD")
-            enableV3Signing = true
-        }
-    }
 
     buildTypes {
         named("debug") {
@@ -72,11 +82,12 @@ android {
     androidComponents.onVariants { variant ->
         val variantNameCapt = variant.name.replaceFirstChar { it.uppercase() }
         val licenseeTask = tasks.named<LicenseeTask>("licenseeAndroid$variantNameCapt")
-        val copyArtifactsTask = tasks.register<Copy>("copy${variantNameCapt}Artifacts") {
-            dependsOn(licenseeTask)
-            from(licenseeTask.map { it.outputDir.file("artifacts.json") })
-            into(layout.buildDirectory.dir("generated/dependencyAssets/${variant.name}"))
-        }
+        val copyArtifactsTask =
+            tasks.register<Copy>("copy${variantNameCapt}Artifacts") {
+                dependsOn(licenseeTask)
+                from(licenseeTask.map { it.outputDir.file("artifacts.json") })
+                into(layout.buildDirectory.dir("generated/dependencyAssets/${variant.name}"))
+            }
         variant.sources.assets?.addGeneratedSourceDirectory(licenseeTask) {
             objects.directoryProperty().fileProvider(copyArtifactsTask.map { it.destinationDir })
         }
@@ -112,5 +123,6 @@ licensee {
     allow("BSD-3-Clause")
     allowUrl("https://developer.android.com/studio/terms.html")
     allowUrl("https://cloud.google.com/maps-platform/terms/")
+
     unusedAction(IGNORE)
 }

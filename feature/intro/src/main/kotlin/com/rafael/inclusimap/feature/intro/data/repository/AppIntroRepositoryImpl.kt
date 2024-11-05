@@ -8,6 +8,7 @@ class AppIntroRepositoryImpl(
     private val appIntroDao: AppIntroDao,
 ) : AppIntroRepository {
     override suspend fun getAppIntro(id: Int): AppIntroEntity? = appIntroDao.getAppIntro(id)
+
     override suspend fun updateAppIntro(appIntroEntity: AppIntroEntity) {
         appIntroDao.updateAppIntro(appIntroEntity)
     }

@@ -8,6 +8,7 @@ class InclusiMapRepositoryImpl(
     private val inclusiMapDao: InclusiMapDao,
 ) : InclusiMapRepository {
     override suspend fun getPosition(id: Int): InclusiMapEntity? = inclusiMapDao.getPosition(id)
+
     override suspend fun updatePosition(position: InclusiMapEntity) {
         inclusiMapDao.updatePosition(position)
     }

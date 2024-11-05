@@ -17,7 +17,11 @@ fun hashToken(token: String): String {
     return Base64.getUrlEncoder().withoutPadding().encodeToString(hash)
 }
 
-fun verifyToken(receivedToken: String, storedHashToken: String, expirationTimeMillis: Long): Boolean {
+fun verifyToken(
+    receivedToken: String,
+    storedHashToken: String,
+    expirationTimeMillis: Long,
+): Boolean {
     if (System.currentTimeMillis() > expirationTimeMillis) {
         return false
     }

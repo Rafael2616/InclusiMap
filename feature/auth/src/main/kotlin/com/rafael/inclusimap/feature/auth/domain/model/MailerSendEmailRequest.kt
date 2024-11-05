@@ -11,7 +11,11 @@ data class MailerSendEmailRequest(
 )
 
 @Serializable
-data class From(val email: String)
+data class From(
+    val email: String,
+)
 
 @Serializable
-data class To(val email: String)
+data class To(
+    val email: String,
+)

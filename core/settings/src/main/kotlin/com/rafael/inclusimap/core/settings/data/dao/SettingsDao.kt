@@ -7,7 +7,6 @@ import com.rafael.inclusimap.core.settings.domain.model.SettingsEntity
 
 @Dao
 interface SettingsDao {
-
     @Query("SELECT * FROM settings WHERE id = :id")
     suspend fun getSettingsValues(id: Int): SettingsEntity?
 

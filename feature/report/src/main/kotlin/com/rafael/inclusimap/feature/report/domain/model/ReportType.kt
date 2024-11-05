@@ -7,9 +7,10 @@ enum class ReportType {
     OTHER,
 }
 
-fun ReportType.toText() = when (this) {
-    ReportType.LOCAL -> "O local"
-    ReportType.COMMENT -> "Um comentário"
-    ReportType.IMAGE -> "Uma imagem"
-    ReportType.OTHER -> "Outro"
-}
+fun ReportType.toText() =
+    when (this) {
+        ReportType.LOCAL -> "O local"
+        ReportType.COMMENT -> "Um comentário"
+        ReportType.IMAGE -> "Uma imagem"
+        ReportType.OTHER -> "Outro"
+    }

@@ -8,13 +8,14 @@ import com.rafael.inclusimap.feature.map.placedetails.presentation.viewmodel.Pla
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
-val placeDetailsModule = module {
-    viewModel {
-        PlaceDetailsViewModel(
-            get<GoogleDriveService>(),
-            get<PlacesApiService>(),
-            get<LoginRepositoryImpl>(),
-            get<ContributionsRepositoryImpl>(),
-        )
+val placeDetailsModule =
+    module {
+        viewModel {
+            PlaceDetailsViewModel(
+                get<GoogleDriveService>(),
+                get<PlacesApiService>(),
+                get<LoginRepositoryImpl>(),
+                get<ContributionsRepositoryImpl>(),
+            )
+        }
     }
-}

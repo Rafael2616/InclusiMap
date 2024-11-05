@@ -23,20 +23,22 @@ class MailerSenderClient(
         subject: String,
         html: String?,
     ) {
-        val request = MailerSendEmailRequest(
-            from = From(sender),
-            to = listOf(To(receiver)),
-            subject = subject,
-            html = html ?: "",
-        )
+        val request =
+            MailerSendEmailRequest(
+                from = From(sender),
+                to = listOf(To(receiver)),
+                subject = subject,
+                html = html ?: "",
+            )
 
         try {
-            val response = client.post("https://api.mailersend.com/v1/email") {
-                header("Authorization", "Bearer $apiKey")
-                header("X-Requested-With", "XMLHttpRequest")
-                contentType(ContentType.Application.Json)
-                setBody(request)
-            }
+            val response =
+                client.post("https://api.mailersend.com/v1/email") {
+                    header("Authorization", "Bearer $apiKey")
+                    header("X-Requested-With", "XMLHttpRequest")
+                    contentType(ContentType.Application.Json)
+                    setBody(request)
+                }
 
             if (response.status.value == 202) {
                 println("E-mail sent sucessfully!")

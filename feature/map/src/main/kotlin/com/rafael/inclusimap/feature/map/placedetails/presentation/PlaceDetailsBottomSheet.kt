@@ -181,7 +181,7 @@ fun PlaceDetailsBottomSheet(
     }
 
     LaunchedEffect(Unit) {
-        onEvent(
+        latestEvent(
             PlaceDetailsEvent.GetCurrentNearestPlaceUri(
                 with(inclusiMapState.selectedMappedPlace) {
                     LatLng(
@@ -296,7 +296,7 @@ fun PlaceDetailsBottomSheet(
                     ImageSection(
                         state = state,
                         isInternetAvailable = isInternetAvailable,
-                        onEvent = onEvent,
+                        onEvent = latestEvent,
                         userEmail = userEmail,
                         onShowFullScreenImageViewer = {
                             showFullScreenImageViewer = true
@@ -320,7 +320,7 @@ fun PlaceDetailsBottomSheet(
                     CommentSection(
                         state = state,
                         isInternetAvailable = isInternetAvailable,
-                        onEvent = onEvent,
+                        onEvent = latestEvent,
                         userPicture = userPicture,
                         userName = userName,
                         userEmail = userEmail,

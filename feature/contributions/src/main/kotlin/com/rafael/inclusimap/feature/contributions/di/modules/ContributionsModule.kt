@@ -7,18 +7,19 @@ import com.rafael.inclusimap.feature.contributions.presentation.viewmodel.Contri
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
-val contributionsModule = module {
-    viewModel {
-        ContributionsViewModel(
-            get<LoginRepositoryImpl>(),
-            get<GoogleDriveService>(),
-            get<ContributionsRepositoryImpl>(),
-        )
+val contributionsModule =
+    module {
+        viewModel {
+            ContributionsViewModel(
+                get<LoginRepositoryImpl>(),
+                get<GoogleDriveService>(),
+                get<ContributionsRepositoryImpl>(),
+            )
+        }
+        single {
+            ContributionsRepositoryImpl(
+                get<LoginRepositoryImpl>(),
+                get<GoogleDriveService>(),
+            )
+        }
     }
-    single {
-        ContributionsRepositoryImpl(
-            get<LoginRepositoryImpl>(),
-            get<GoogleDriveService>(),
-        )
-    }
-}

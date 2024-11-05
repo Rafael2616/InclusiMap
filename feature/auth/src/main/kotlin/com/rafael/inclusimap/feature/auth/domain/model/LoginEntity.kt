@@ -20,20 +20,21 @@ data class LoginEntity(
     var tokenExpirationDate: Long? = null,
 ) {
     companion object {
-        fun getDefault() = LoginEntity(
-            id = 1,
-            isLoggedIn = false,
-            userName = null,
-            userPassword = null,
-            userEmail = null,
-            userId = null,
-            showProfilePictureOptedIn = true,
-            profilePicture = null,
-            userPathID = null,
-            tokenHash = null,
-            recoveryToken = null,
-            tokenExpirationDate = null,
-        )
+        fun getDefault() =
+            LoginEntity(
+                id = 1,
+                isLoggedIn = false,
+                userName = null,
+                userPassword = null,
+                userEmail = null,
+                userId = null,
+                showProfilePictureOptedIn = true,
+                profilePicture = null,
+                userPathID = null,
+                tokenHash = null,
+                recoveryToken = null,
+                tokenExpirationDate = null,
+            )
     }
 
     override fun equals(other: Any?): Boolean {
@@ -45,12 +46,12 @@ data class LoginEntity(
         if (profilePicture != null) {
             if (other.profilePicture == null) return false
             if (!profilePicture.contentEquals(other.profilePicture)) return false
-        } else if (other.profilePicture != null) return false
+        } else if (other.profilePicture != null) {
+            return false
+        }
 
         return true
     }
 
-    override fun hashCode(): Int {
-        return profilePicture?.contentHashCode() ?: 0
-    }
+    override fun hashCode(): Int = profilePicture?.contentHashCode() ?: 0
 }

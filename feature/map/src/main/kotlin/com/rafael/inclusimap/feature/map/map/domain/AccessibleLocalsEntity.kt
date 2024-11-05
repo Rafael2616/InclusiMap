@@ -11,9 +11,10 @@ data class AccessibleLocalsEntity(
     val locals: String,
 ) {
     companion object {
-        fun getDefault(): AccessibleLocalsEntity = AccessibleLocalsEntity(
-            id = 1,
-            locals = "[]",
-        )
+        fun getDefault(): AccessibleLocalsEntity =
+            AccessibleLocalsEntity(
+                id = 1,
+                locals = "[]",
+            )
     }
 }

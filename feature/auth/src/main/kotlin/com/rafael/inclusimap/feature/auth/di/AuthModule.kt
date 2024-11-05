@@ -17,46 +17,46 @@ import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
-val authModule = module {
-    single {
-        Room.databaseBuilder(
-            androidApplication(),
-            AuthDatabase::class.java,
-            AuthDatabase.DATABASE_NAME,
-        )
-            .addMigrations(
-                Migrations.migration1To2,
-                Migrations.migration2To3,
-                Migrations.migration3To4,
-            )
-            .fallbackToDestructiveMigration(true)
-            .build()
-    }
-    single {
-        LoginRepositoryImpl(get<AuthDatabase>().loginDao())
-    }
+val authModule =
+    module {
+        single {
+            Room
+                .databaseBuilder(
+                    androidApplication(),
+                    AuthDatabase::class.java,
+                    AuthDatabase.DATABASE_NAME,
+                ).addMigrations(
+                    Migrations.migration1To2,
+                    Migrations.migration2To3,
+                    Migrations.migration3To4,
+                ).fallbackToDestructiveMigration(true)
+                .build()
+        }
+        single {
+            LoginRepositoryImpl(get<AuthDatabase>().loginDao())
+        }
 
-    single {
-        HttpClient(Android.create()) {
-            install(Logging) {
-                level = LogLevel.ALL
-            }
-            install(ContentNegotiation) {
-                json(
-                    json = Json { ignoreUnknownKeys = true },
-                )
+        single {
+            HttpClient(Android.create()) {
+                install(Logging) {
+                    level = LogLevel.ALL
+                }
+                install(ContentNegotiation) {
+                    json(
+                        json = Json { ignoreUnknownKeys = true },
+                    )
+                }
             }
         }
-    }
 
-    single {
-        MailerSenderClient(get())
-    }
+        single {
+            MailerSenderClient(get())
+        }
 
-    viewModel {
-        LoginViewModel(
-            get<LoginRepositoryImpl>(),
-            get<MailerSenderClient>(),
-        )
+        viewModel {
+            LoginViewModel(
+                get<LoginRepositoryImpl>(),
+                get<MailerSenderClient>(),
+            )
+        }
     }
-}

@@ -16,7 +16,6 @@ import kotlinx.coroutines.launch
 class SettingsViewModel(
     private val repository: SettingsRepository,
 ) : ViewModel() {
-
     // Get default values for settings from SettingsEntity for first app usage
     private val defaultSettings = SettingsEntity.getDefaultSettings()
 
@@ -112,37 +111,43 @@ class SettingsViewModel(
                 }
             }
 
-            is SettingsEvent.ShowLogoutDialog -> _state.update {
-                it.copy(showLogoutDialog = event.value)
-            }
+            is SettingsEvent.ShowLogoutDialog ->
+                _state.update {
+                    it.copy(showLogoutDialog = event.value)
+                }
 
-            is SettingsEvent.ShowDeleteAccountDialog -> _state.update {
-                it.copy(showDeleteAccountDialog = event.value)
-            }
+            is SettingsEvent.ShowDeleteAccountDialog ->
+                _state.update {
+                    it.copy(showDeleteAccountDialog = event.value)
+                }
 
-            is SettingsEvent.OpenTermsAndConditions -> _state.update {
-                it.copy(showTermsAndConditions = event.value)
-            }
+            is SettingsEvent.OpenTermsAndConditions ->
+                _state.update {
+                    it.copy(showTermsAndConditions = event.value)
+                }
 
-            is SettingsEvent.ShowProfilePictureSettings -> _state.update {
-                it.copy(showProfilePictureSettings = event.value)
-            }
+            is SettingsEvent.ShowProfilePictureSettings ->
+                _state.update {
+                    it.copy(showProfilePictureSettings = event.value)
+                }
         }
     }
 
-    private fun MapType.toInt() = when (this) {
-        MapType.NORMAL -> 1
-        MapType.SATELLITE -> 2
-        MapType.TERRAIN -> 3
-        MapType.HYBRID -> 4
-        else -> 1
-    }
+    private fun MapType.toInt() =
+        when (this) {
+            MapType.NORMAL -> 1
+            MapType.SATELLITE -> 2
+            MapType.TERRAIN -> 3
+            MapType.HYBRID -> 4
+            else -> 1
+        }
 
-    private fun Int.toMapType() = when (this) {
-        1 -> MapType.NORMAL
-        2 -> MapType.SATELLITE
-        3 -> MapType.TERRAIN
-        4 -> MapType.HYBRID
-        else -> MapType.NORMAL
-    }
+    private fun Int.toMapType() =
+        when (this) {
+            1 -> MapType.NORMAL
+            2 -> MapType.SATELLITE
+            3 -> MapType.TERRAIN
+            4 -> MapType.HYBRID
+            else -> MapType.NORMAL
+        }
 }

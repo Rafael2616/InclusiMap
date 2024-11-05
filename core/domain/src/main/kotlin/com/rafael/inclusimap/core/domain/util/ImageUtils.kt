@@ -7,7 +7,10 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.exifinterface.media.ExifInterface
 import java.io.ByteArrayOutputStream
 
-fun rotateImage(bitmap: Bitmap, orientation: Int): Bitmap {
+fun rotateImage(
+    bitmap: Bitmap,
+    orientation: Int,
+): Bitmap {
     var rotatedBitmap = bitmap
 
     when (orientation) {
@@ -19,30 +22,36 @@ fun rotateImage(bitmap: Bitmap, orientation: Int): Bitmap {
     return rotatedBitmap
 }
 
-private fun rotateBitmap(source: Bitmap, angle: Float): Bitmap {
+private fun rotateBitmap(
+    source: Bitmap,
+    angle: Float,
+): Bitmap {
     val matrix = Matrix().apply { postRotate(angle) }
     return Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
 }
 
-fun resizedImageAsByteArrayOS(image: ImageBitmap): ByteArrayOutputStream = image.asAndroidBitmap().let { bitmap ->
-    val maxSize = 1024
-    val width = bitmap.width
-    val height = bitmap.height
-    val scale = if (width > height) {
-        maxSize.toFloat() / width
-    } else {
-        maxSize.toFloat() / height
+fun resizedImageAsByteArrayOS(image: ImageBitmap): ByteArrayOutputStream =
+    image.asAndroidBitmap().let { bitmap ->
+        val maxSize = 1024
+        val width = bitmap.width
+        val height = bitmap.height
+        val scale =
+            if (width > height) {
+                maxSize.toFloat() / width
+            } else {
+                maxSize.toFloat() / height
+            }
+
+        val scaledBitmap =
+            Bitmap.createScaledBitmap(
+                bitmap,
+                (width * scale).toInt(),
+                (height * scale).toInt(),
+                true,
+            )
+
+        val baos = ByteArrayOutputStream()
+        scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 85, baos)
+
+        baos
     }
-
-    val scaledBitmap = Bitmap.createScaledBitmap(
-        bitmap,
-        (width * scale).toInt(),
-        (height * scale).toInt(),
-        true,
-    )
-
-    val baos = ByteArrayOutputStream()
-    scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 85, baos)
-
-    baos
-}
