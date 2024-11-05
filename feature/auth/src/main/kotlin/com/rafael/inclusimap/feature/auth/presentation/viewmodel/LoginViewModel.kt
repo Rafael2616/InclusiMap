@@ -747,6 +747,17 @@ class LoginViewModel(
         }
     }
 
+    private suspend fun checkUserExists(email: String) =
+        suspendCancellableCoroutine { continuation ->
+            viewModelScope.launch(Dispatchers.IO) {
+                driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { result ->
+                    result.find { it.name == email }.also { userExists ->
+                        continuation.resume(userExists != null)
+                    }
+                }
+            }
+        }
+
     // This is explained in Terms and conditions
     private fun copyUserInfoToPosthumousVerification(user: File): Job =
         viewModelScope.launch(Dispatchers.IO) {
@@ -1082,8 +1093,23 @@ class LoginViewModel(
                 isEmailSent = false,
             )
         }
-
         viewModelScope.launch(Dispatchers.IO) {
+            val userExists = checkUserExists(email)
+            if (!userExists) {
+                _state.update {
+                    it.copy(
+                        userExists = false,
+                        isSendingEmail = false,
+                        isEmailSent = false,
+                    )
+                }
+                return@launch
+            } else {
+                _state.update {
+                    it.copy(userExists = true)
+                }
+            }
+
             val userName = findUserNameByEmail(email)
             emailClient.sendEmail(
                 receiver = email,
@@ -1103,7 +1129,7 @@ class LoginViewModel(
                 """.trimIndent(),
             )
         }.invokeOnCompletion {
-            if (it == null) {
+            if (it == null && state.value.userExists) {
                 _state.update {
                     it.copy(
                         isSendingEmail = false,
@@ -1137,7 +1163,7 @@ class LoginViewModel(
                 it.copy(
                     isTokenValid = isTokenValid,
                     isValidatingToken = false,
-                    isTokenValidated = true
+                    isTokenValidated = true,
                 )
             }
             if (isTokenValid) {
@@ -1201,7 +1227,8 @@ class LoginViewModel(
                 .flatMapLatest { expirationTime ->
                     flow {
                         while (true) {
-                            val remainingTime = (expirationTime - System.currentTimeMillis()).coerceAtLeast(0L)
+                            val remainingTime =
+                                (expirationTime - System.currentTimeMillis()).coerceAtLeast(0L)
                             emit(remainingTime)
                             delay(1000L)
                         }

@@ -154,7 +154,8 @@ fun RecoveryPasswordScreen(
                 onClick = {
                     canUpdate = true
                     if (email.isEmpty()) {
-                        Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT)
+                            .show()
                         return@Button
                     }
                     if (!isValidEmail) {
@@ -175,10 +176,14 @@ fun RecoveryPasswordScreen(
     }
 
     DisposableEffect(state.isTokenValidated, state.isTokenValid) {
-       if(!state.isTokenValid && state.isTokenValidated && receivedToken.isNotEmpty()) {
-        Toast.makeText(context, "Token incorreto ou expirado! Tente novamente", Toast.LENGTH_LONG)
-            .show()
-       }
+        if (!state.isTokenValid && state.isTokenValidated && receivedToken.isNotEmpty()) {
+            Toast.makeText(
+                context,
+                "Token incorreto ou expirado! Tente novamente",
+                Toast.LENGTH_LONG,
+            )
+                .show()
+        }
         onDispose { }
     }
 
@@ -189,6 +194,18 @@ fun RecoveryPasswordScreen(
 
     DisposableEffect(state.tokenExpirationTimer == 0L) {
         onResetProcess()
+        onDispose { }
+    }
+
+    DisposableEffect(state.userExists) {
+        if (!state.userExists && email.isNotEmpty()) {
+            Toast.makeText(
+                context,
+                "Não existe um usuário cadastrado com esse email",
+                Toast.LENGTH_LONG,
+            )
+                .show()
+        }
         onDispose { }
     }
 }
