@@ -114,12 +114,12 @@ fun ProfileSettingsDialog(
     val isInternetAvailable by internetState.state.collectAsStateWithLifecycle()
     val focusRequester = remember { FocusRequester() }
     var editUserName by remember { mutableStateOf(false) }
-    val isErrorUpdatingUserInfos by remember {
+    val isErrorUpdatingUserInfos by remember(loginState) {
         derivedStateOf {
             loginState.isErrorUpdatingUserName && loginState.isErrorUpdatingProfilePicture && loginState.isErrorRemovingProfilePicture && loginState.isErrorAllowingPictureOptedIn
         }
     }
-    val isSuccessfulUpdatingUserInfos by remember {
+    val isSuccessfulUpdatingUserInfos by remember(loginState) {
         derivedStateOf {
             loginState.isPictureOptedInSuccessfullyChanged && loginState.isUserNameUpdated && loginState.isProfilePictureUpdated && loginState.isProfilePictureRemoved
         }
