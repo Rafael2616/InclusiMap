@@ -8,7 +8,7 @@ fun Float.toColor(): Color =
         in 1f..1.666f -> Color.Red
         in 1.666f..2.333f -> Color.Yellow
         in 2.333f..3f -> Color.Green
-        else -> Color.Gray
+        else -> Color.Cyan
     }
 
 fun Float.toMessage(): String =
