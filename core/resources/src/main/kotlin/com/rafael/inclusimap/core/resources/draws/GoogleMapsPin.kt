@@ -32,7 +32,7 @@ fun GoogleMapsPin(
         )
 
         drawCircle(
-            color = if (pinColor != Color.Red) pinColor.copy(alpha = 0.5f, red = 0.5f, green = 0.5f, blue = 0.5f) else Color.Red.copy(red = 0.7f),
+            color = pinColor.copy(alpha = 0.5f, red = 0.5f, green = 0.5f, blue = 0.5f),
             radius = size.width * 0.1f,
             center = Offset(size.width / 2, size.height * 0.35f),
         )
