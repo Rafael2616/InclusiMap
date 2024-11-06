@@ -415,6 +415,7 @@ fun ProfileSettingsDialog(
                                                 "O nome deve ter no mínimo 3 caracteres",
                                                 Toast.LENGTH_SHORT,
                                             ).show()
+                                            return@Button
                                         }
                                         onEvent(LoginEvent.UpdateUserName(newName))
                                     }
