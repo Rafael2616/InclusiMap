@@ -14,7 +14,6 @@ dependencies {
     implementation(libs.kotlinx.coroutines)
     implementation(libs.kotlinx.serialization.json)
     // AndroidX
-    implementation(libs.google.accompanist.permissions)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.navigation)
     implementation(libs.exifInterface)

@@ -2,6 +2,8 @@ package com.rafael.inclusimap.feature.map.map.presentation
 
 import android.Manifest
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -22,9 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionStatus
-import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -60,7 +59,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InclusiMapGoogleMapScreen(
     state: InclusiMapState,
@@ -86,13 +85,17 @@ fun InclusiMapGoogleMapScreen(
     val onPlaceTravelScope = rememberCoroutineScope()
     val addPlaceBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val addPlaceBottomSheetScope = rememberCoroutineScope()
-    val locationPermission = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
     val showMarkers by remember(
         !cameraPositionState.isMoving,
         state.allMappedPlaces,
         state.isMapLoaded,
     ) { mutableStateOf(cameraPositionState.position.zoom >= 15f) }
     val latestOnEvent by rememberUpdatedState(onEvent)
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+    ) { isGranted ->
+        latestOnEvent(InclusiMapEvent.SetLocationPermissionGranted(isGranted))
+    }
     val latestOnPlaceDetailsEvent by rememberUpdatedState(onPlaceDetailsEvent)
     val latestOnDismissAppIntro by rememberUpdatedState(onDismissAppIntro)
     val context = LocalContext.current
@@ -143,7 +146,7 @@ fun InclusiMapGoogleMapScreen(
             onMapLoaded = {
                 latestOnEvent(InclusiMapEvent.OnMapLoad)
                 if (!appIntroState.showAppIntro) {
-                    locationPermission.launchPermissionRequest()
+                    locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
                 }
             },
             onMapLongClick = {
@@ -331,11 +334,6 @@ fun InclusiMapGoogleMapScreen(
         onDispose { }
     }
 
-    DisposableEffect(locationPermission.status) {
-        latestOnEvent(InclusiMapEvent.SetLocationPermissionGranted(locationPermission.status == PermissionStatus.Granted))
-        onDispose { }
-    }
-
     LaunchedEffect(state.shouldAnimateMap, firstTimeAnimation) {
         if (firstTimeAnimation == true) {
             async {
@@ -347,7 +345,7 @@ fun InclusiMapGoogleMapScreen(
                     durationMs = 3500,
                 )
             }.await()
-            locationPermission.launchPermissionRequest()
+            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
             firstTimeAnimation = false
         }
     }
