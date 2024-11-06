@@ -47,7 +47,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.rafael.inclusimap.core.domain.model.Resource
 import com.rafael.inclusimap.core.domain.model.toResourceIcon
-import com.rafael.inclusimap.core.domain.model.util.isEven
+import com.rafael.inclusimap.core.domain.util.isEven
 import com.rafael.inclusimap.feature.map.placedetails.domain.model.PlaceDetailsState
 
 @Composable

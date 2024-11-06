@@ -103,13 +103,13 @@ import com.rafael.inclusimap.core.domain.model.icon
 import com.rafael.inclusimap.core.domain.model.toAccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.toCategoryName
 import com.rafael.inclusimap.core.domain.model.toResourceIcon
-import com.rafael.inclusimap.core.domain.model.util.formatDate
-import com.rafael.inclusimap.core.domain.model.util.removeTime
-import com.rafael.inclusimap.core.domain.model.util.toColor
-import com.rafael.inclusimap.core.domain.model.util.toMessage
 import com.rafael.inclusimap.core.domain.network.InternetConnectionState
 import com.rafael.inclusimap.core.domain.util.Constants.MAX_IMAGE_NUMBER
+import com.rafael.inclusimap.core.domain.util.formatDate
+import com.rafael.inclusimap.core.domain.util.removeTime
+import com.rafael.inclusimap.core.domain.util.toColor
 import com.rafael.inclusimap.feature.map.map.domain.InclusiMapState
+import com.rafael.inclusimap.feature.map.map.domain.toMessage
 import com.rafael.inclusimap.feature.map.placedetails.domain.model.PlaceDetailsEvent
 import com.rafael.inclusimap.feature.map.placedetails.domain.model.PlaceDetailsState
 import com.rafael.inclusimap.feature.map.placedetails.presentation.dialogs.AccessibilityResourcesSelectionDialog

@@ -1,4 +1,4 @@
-package com.rafael.inclusimap.feature.about.util
+package com.rafael.inclusimap.core.domain.network
 
 import androidx.compose.runtime.Composable
 import coil3.ImageLoader

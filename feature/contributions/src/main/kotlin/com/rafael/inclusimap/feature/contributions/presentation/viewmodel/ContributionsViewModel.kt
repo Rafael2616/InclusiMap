@@ -7,12 +7,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.PlaceImage
-import com.rafael.inclusimap.core.domain.model.util.extractPlaceID
-import com.rafael.inclusimap.core.domain.model.util.formatDate
-import com.rafael.inclusimap.core.domain.model.util.removeTime
 import com.rafael.inclusimap.core.domain.network.onError
 import com.rafael.inclusimap.core.domain.network.onSuccess
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID
+import com.rafael.inclusimap.core.domain.util.extractPlaceID
+import com.rafael.inclusimap.core.domain.util.formatDate
+import com.rafael.inclusimap.core.domain.util.removeTime
 import com.rafael.inclusimap.core.domain.util.rotateImage
 import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository

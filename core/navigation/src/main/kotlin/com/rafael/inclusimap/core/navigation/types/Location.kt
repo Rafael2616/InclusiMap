@@ -1,4 +1,4 @@
-package com.rafael.inclusimap.core.navigation
+package com.rafael.inclusimap.core.navigation.types
 
 import kotlinx.serialization.Serializable
 

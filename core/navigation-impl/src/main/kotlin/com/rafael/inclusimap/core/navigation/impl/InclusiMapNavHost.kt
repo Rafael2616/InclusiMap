@@ -15,11 +15,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.rafael.inclusimap.core.domain.network.SingletonCoilImageLoader
 import com.rafael.inclusimap.core.navigation.Destination
 import com.rafael.inclusimap.core.settings.domain.model.SettingsEvent
 import com.rafael.inclusimap.core.ui.theme.InclusiMapTheme
 import com.rafael.inclusimap.feature.about.presentation.AboutAppScreen
-import com.rafael.inclusimap.feature.about.util.SingletonCoilImageLoader
 import com.rafael.inclusimap.feature.auth.domain.model.LoginEvent
 import com.rafael.inclusimap.feature.auth.presentation.UnifiedLoginScreen
 import com.rafael.inclusimap.feature.auth.presentation.dialogs.DeleteAccountConfirmationDialog

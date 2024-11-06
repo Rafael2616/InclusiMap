@@ -74,11 +74,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.rafael.inclusimap.core.domain.model.icon
 import com.rafael.inclusimap.core.domain.model.toCategoryName
-import com.rafael.inclusimap.core.domain.model.util.formatDate
-import com.rafael.inclusimap.core.domain.model.util.removeTime
-import com.rafael.inclusimap.core.domain.model.util.toColor
+import com.rafael.inclusimap.core.domain.util.formatDate
+import com.rafael.inclusimap.core.domain.util.removeTime
+import com.rafael.inclusimap.core.domain.util.toColor
 import com.rafael.inclusimap.core.navigation.Destination
-import com.rafael.inclusimap.core.navigation.Location
+import com.rafael.inclusimap.core.navigation.types.Location
 import com.rafael.inclusimap.feature.contributions.domain.ContributionsState
 import com.rafael.inclusimap.feature.contributions.domain.model.ContributionType
 import com.rafael.inclusimap.feature.contributions.domain.model.ContributionsEvent

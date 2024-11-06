@@ -10,13 +10,13 @@ import androidx.lifecycle.viewModelScope
 import com.google.api.services.drive.model.File
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.DeleteProcess
-import com.rafael.inclusimap.core.domain.model.util.extractPlaceUserEmail
-import com.rafael.inclusimap.core.domain.model.util.extractUserEmail
 import com.rafael.inclusimap.core.domain.network.onError
 import com.rafael.inclusimap.core.domain.network.onSuccess
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_IMAGE_FOLDER_ID
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_USERS_FOLDER_ID
+import com.rafael.inclusimap.core.domain.util.extractPlaceUserEmail
+import com.rafael.inclusimap.core.domain.util.extractUserEmail
 import com.rafael.inclusimap.core.domain.util.resizedImageAsByteArrayOS
 import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.feature.auth.domain.model.LoginEntity

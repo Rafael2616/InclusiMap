@@ -16,10 +16,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.vector.ImageVector
 import com.google.maps.android.compose.MapType
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 import com.rafael.inclusimap.feature.map.map.domain.InclusiMapState
+import com.rafael.inclusimap.feature.map.map.domain.NavigationBarItem
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchEvent
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchState
 import com.rafael.inclusimap.feature.map.search.presentation.PlaceSearchLayout
@@ -126,10 +126,3 @@ fun InclusiMapScaffold(
         content(innerPadding, isFullScreenMode)
     }
 }
-
-data class NavigationBarItem(
-    val selected: Boolean,
-    val onClick: () -> Unit,
-    val icon: ImageVector,
-    val name: String,
-)

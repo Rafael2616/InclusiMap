@@ -19,8 +19,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.rafael.inclusimap.core.navigation.Destination
-import com.rafael.inclusimap.core.navigation.Location
 import com.rafael.inclusimap.core.navigation.impl.types.locationType
+import com.rafael.inclusimap.core.navigation.types.Location
 import com.rafael.inclusimap.core.settings.domain.model.SettingsEvent
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 import com.rafael.inclusimap.feature.auth.domain.model.LoginState

@@ -3,7 +3,7 @@ package com.rafael.inclusimap.core.navigation.impl.types
 import android.net.Uri
 import android.os.Bundle
 import androidx.navigation.NavType
-import com.rafael.inclusimap.core.navigation.Location
+import com.rafael.inclusimap.core.navigation.types.Location
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 

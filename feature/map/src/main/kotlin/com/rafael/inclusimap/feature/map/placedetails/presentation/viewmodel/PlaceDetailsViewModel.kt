@@ -17,14 +17,14 @@ import com.rafael.inclusimap.core.domain.model.PlaceImage
 import com.rafael.inclusimap.core.domain.model.Resource
 import com.rafael.inclusimap.core.domain.model.toAccessibleLocalMarker
 import com.rafael.inclusimap.core.domain.model.toFullAccessibleLocalMarker
-import com.rafael.inclusimap.core.domain.model.util.extractPlaceID
-import com.rafael.inclusimap.core.domain.model.util.extractUserEmail
 import com.rafael.inclusimap.core.domain.network.Result
 import com.rafael.inclusimap.core.domain.network.onError
 import com.rafael.inclusimap.core.domain.network.onSuccess
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_IMAGE_FOLDER_ID
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID
 import com.rafael.inclusimap.core.domain.util.Constants.MAX_IMAGE_NUMBER
+import com.rafael.inclusimap.core.domain.util.extractPlaceID
+import com.rafael.inclusimap.core.domain.util.extractUserEmail
 import com.rafael.inclusimap.core.domain.util.rotateImage
 import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.core.services.PlacesApiService

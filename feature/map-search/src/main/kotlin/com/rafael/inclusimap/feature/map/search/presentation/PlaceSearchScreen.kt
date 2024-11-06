@@ -45,7 +45,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
-import com.rafael.inclusimap.core.domain.model.util.toColor
+import com.rafael.inclusimap.core.domain.util.toColor
 import com.rafael.inclusimap.core.resources.draws.GoogleMapsPin
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchState
 import com.rafael.inclusimap.feature.map.search.presentation.dialogs.AboutHistoryDialog

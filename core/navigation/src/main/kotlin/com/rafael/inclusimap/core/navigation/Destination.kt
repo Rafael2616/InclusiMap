@@ -1,5 +1,6 @@
 package com.rafael.inclusimap.core.navigation
 
+import com.rafael.inclusimap.core.navigation.types.Location
 import kotlinx.serialization.Serializable
 
 @Serializable

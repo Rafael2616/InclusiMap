@@ -50,7 +50,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.rafael.inclusimap.core.domain.model.PlaceImage
-import com.rafael.inclusimap.core.domain.model.util.extractImageDate
+import com.rafael.inclusimap.core.domain.util.extractImageDate
 import kotlinx.coroutines.launch
 import net.engawapg.lib.zoomable.rememberZoomState
 import net.engawapg.lib.zoomable.zoomable

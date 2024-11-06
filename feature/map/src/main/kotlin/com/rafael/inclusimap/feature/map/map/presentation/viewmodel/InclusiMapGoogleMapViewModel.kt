@@ -5,10 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.rafael.inclusimap.core.domain.model.AccessibleLocalMarker
-import com.rafael.inclusimap.core.domain.model.util.extractPlaceID
 import com.rafael.inclusimap.core.domain.network.onSuccess
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_IMAGE_FOLDER_ID
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID
+import com.rafael.inclusimap.core.domain.util.extractPlaceID
 import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
 import com.rafael.inclusimap.feature.contributions.domain.model.Contribution

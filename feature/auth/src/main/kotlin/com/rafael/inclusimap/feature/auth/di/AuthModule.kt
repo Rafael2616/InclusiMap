@@ -2,7 +2,7 @@ package com.rafael.inclusimap.feature.auth.di
 
 import androidx.room.Room
 import com.rafael.inclusimap.feature.auth.data.database.AuthDatabase
-import com.rafael.inclusimap.feature.auth.data.database.Migrations
+import com.rafael.inclusimap.feature.auth.data.database.AuthMigrations
 import com.rafael.inclusimap.feature.auth.data.repository.LoginRepositoryImpl
 import com.rafael.inclusimap.feature.auth.domain.utils.MailerSenderClient
 import com.rafael.inclusimap.feature.auth.presentation.viewmodel.LoginViewModel
@@ -25,9 +25,9 @@ val authModule = module {
             AuthDatabase.DATABASE_NAME,
         )
             .addMigrations(
-                Migrations.migration1To2,
-                Migrations.migration2To3,
-                Migrations.migration3To4,
+                AuthMigrations.migration1To2,
+                AuthMigrations.migration2To3,
+                AuthMigrations.migration3To4,
             )
             .fallbackToDestructiveMigration(true)
             .build()

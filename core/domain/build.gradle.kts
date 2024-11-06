@@ -12,6 +12,8 @@ dependencies {
     implementation(libs.maps.compose)
     implementation(libs.google.api.services.drive)
     implementation(libs.exifInterface)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network)
 
     // Projects
     implementation(projects.core.resources)
