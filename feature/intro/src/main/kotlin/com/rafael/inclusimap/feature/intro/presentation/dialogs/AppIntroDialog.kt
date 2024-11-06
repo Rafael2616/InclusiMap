@@ -87,7 +87,7 @@ fun AppIntroDialog(
                                 ),
                         ) {
                             Text(
-                                text = "Bem vindo ao InclusiMap,\n${userName.split(" ").get(0)}",
+                                text = "Bem vindo ao InclusiMap,\n${userName.split(" ")[0]}",
                                 fontSize = 24.sp,
                                 color = Color.Black,
                                 fontWeight = FontWeight.Light,

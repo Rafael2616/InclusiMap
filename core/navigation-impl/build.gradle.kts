@@ -19,6 +19,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     // Projects
+    implementation(projects.core.domain)
     implementation(projects.core.navigation)
     implementation(projects.core.settings)
     implementation(projects.core.ui)
