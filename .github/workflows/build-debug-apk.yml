@@ -9,6 +9,13 @@ on:
 permissions:
   contents: write
 
+env:
+  # Signing secrets
+  KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+  KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+  KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+  KEYSTORE: ${{ secrets.KEYSTORE }}
+
 jobs:
   build-debug-android-apk:
     runs-on: ubuntu-latest
