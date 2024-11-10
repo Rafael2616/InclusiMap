@@ -2,7 +2,7 @@ Termos de serviço:
 
 1- Que informações coletamos?
 
-    Para o pleno funcionamento do app, nós coletamos seu email e nome de usuário, uma foto de perfil totalmente opicional, além da senha definida no ato do cadastro. Estas são as únicas informações pessoais armazenadas.
+    Para o pleno funcionamento do app, nós coletamos seu email e nome de usuário, uma foto de perfil totalmente opcional, além da senha definida no ato do cadastro. Estas são as únicas informações pessoais armazenadas.
 
 2- O que é feito com seus dados?
 
@@ -34,7 +34,7 @@ Condições:
 2- Ao entrar nesse serviço, você se compromente a:
 
     Não fazer spam (publicação em massa de vários locais sem um motivo específico), sobre punição de exclusão de conta.
-    Não publicar comentários e/ou recursos de acessibilidade não relacionados a acessibilidade do local onde se prentende comentar, sobre punição de exclusão de conta.
-    Não publicar imagens que não tenhar relação com a acessibilidade do local, sobre punição de exclusão de conta.
+    Não publicar comentários e/ou recursos de acessibilidade não relacionados a acessibilidade do local onde se pretende comentar, sobre punição de exclusão de conta.
+    Não publicar imagens que não tenham relação com a acessibilidade do local, sobre punição de exclusão de conta.
     Apenas fazer report/denúncia se realmente houver alguma inconformidade com os itens listados acima, sobre punição de exclusão de conta.
     Usar o recurso de foto de perfil com cautela, de modo que a imagem se encaixe nos fins propostos - retratar a pessoa do usuário -, sobre punição de exclusão de conta.
