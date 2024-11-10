@@ -204,18 +204,25 @@ fun UpdatePasswordScreen(
         }
     }
 
-    DisposableEffect(state.isSamePassword && canUpdate) {
-        Toast.makeText(context, "A nova senha não pode ser igual a atual!", Toast.LENGTH_LONG)
-            .show()
+
+    DisposableEffect(state.isSamePassword, canUpdate) {
+        if (state.isSamePassword && canUpdate) {
+            Toast.makeText(context, "A nova senha não pode ser igual a atual!", Toast.LENGTH_LONG)
+                .show()
+        }
         onDispose { }
     }
-    DisposableEffect(state.networkError && canUpdate) {
-        Toast.makeText(context, "Ocorreu um erro na conexão!", Toast.LENGTH_LONG).show()
-        canUpdate = false
+    DisposableEffect(state.networkError, canUpdate) {
+        if (state.networkError && canUpdate) {
+            Toast.makeText(context, "Ocorreu um erro na conexão!", Toast.LENGTH_LONG).show()
+        }
         onDispose { }
     }
-    if (state.isPasswordChanged) {
-        Toast.makeText(context, "Senha atualizada com sucesso!", Toast.LENGTH_LONG).show()
-        popBackStack()
+    DisposableEffect(state.isPasswordChanged) {
+        if (state.isPasswordChanged) {
+            Toast.makeText(context, "Senha atualizada com sucesso!", Toast.LENGTH_LONG).show()
+            popBackStack()
+        }
+        onDispose { }
     }
 }

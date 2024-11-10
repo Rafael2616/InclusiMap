@@ -26,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -91,7 +92,11 @@ fun RegistrationScreen(
         Toast.makeText(context, "Aceite os termos e condições", Toast.LENGTH_SHORT)
     var showTermsAndConditionsDialog by remember { mutableStateOf(false) }
     val shortNameToast =
-        Toast.makeText(context, "O nome precisa ter no mínimo $minNameLength letras", Toast.LENGTH_SHORT)
+        Toast.makeText(
+            context,
+            "O nome precisa ter no mínimo $minNameLength letras",
+            Toast.LENGTH_SHORT,
+        )
     var userAlreadyRegistered by remember(state.userAlreadyRegistered) { mutableStateOf(state.userAlreadyRegistered) }
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
@@ -351,14 +356,23 @@ fun RegistrationScreen(
             }
         }
     }
-    if (userAlreadyRegistered && !state.isRegistering && canLogin && email.isNotEmpty()) {
-        existentUserToast.show()
+    DisposableEffect(userAlreadyRegistered, state.isRegistering) {
+        if (userAlreadyRegistered && !state.isRegistering && canLogin && email.isNotEmpty()) {
+            existentUserToast.show()
+        }
+        onDispose { }
     }
-    if (state.isLoggedIn && canLogin) {
-        Toast.makeText(context, "Registrado com sucesso!", Toast.LENGTH_LONG).show()
+    DisposableEffect(state.isLoggedIn, canLogin) {
+        if (state.isLoggedIn && canLogin) {
+            Toast.makeText(context, "Registrado com sucesso!", Toast.LENGTH_LONG).show()
+        }
+        onDispose { }
     }
-    if (state.networkError && canLogin) {
-        Toast.makeText(context, "Ocorreu um erro na conexão!", Toast.LENGTH_LONG).show()
+    DisposableEffect(state.networkError, canLogin) {
+        if (state.networkError && canLogin) {
+            Toast.makeText(context, "Ocorreu um erro na conexão!", Toast.LENGTH_LONG).show()
+        }
+        onDispose { }
     }
 
     AnimatedVisibility(showTermsAndConditionsDialog) {
