@@ -511,8 +511,9 @@ class LoginViewModel(
                             viewModelScope.launch(Dispatchers.IO) {
                                 driveService.listFiles(user.id).onSuccess {
                                     it.forEach { file ->
-                                        if (file.name == "contributions.json") return@forEach
-                                        driveService.deleteFile(file.id)
+                                        if (file.name != "contributions.json") {
+                                            driveService.deleteFile(file.id)
+                                        }
                                     }
                                 }
                             }
