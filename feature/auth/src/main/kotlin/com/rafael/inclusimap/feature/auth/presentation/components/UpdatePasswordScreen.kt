@@ -23,6 +23,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -203,12 +204,15 @@ fun UpdatePasswordScreen(
         }
     }
 
-    if (state.isSamePassword && canUpdate) {
+    DisposableEffect(state.isSamePassword && canUpdate) {
         Toast.makeText(context, "A nova senha não pode ser igual a atual!", Toast.LENGTH_LONG)
             .show()
+        onDispose { }
     }
-    if (state.networkError && canUpdate) {
+    DisposableEffect(state.networkError && canUpdate) {
         Toast.makeText(context, "Ocorreu um erro na conexão!", Toast.LENGTH_LONG).show()
+        canUpdate = false
+        onDispose { }
     }
     if (state.isPasswordChanged) {
         Toast.makeText(context, "Senha atualizada com sucesso!", Toast.LENGTH_LONG).show()
