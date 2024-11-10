@@ -145,7 +145,6 @@ class LoginViewModel(
                             if (userPath == null) {
                                 _state.update {
                                     it.copy(
-                                        isRegistering = false,
                                         userAlreadyRegistered = false,
                                     )
                                 }
@@ -157,7 +156,6 @@ class LoginViewModel(
                             }.onError {
                                 _state.update {
                                     it.copy(
-                                        isRegistering = false,
                                         userAlreadyRegistered = false,
                                     )
                                 }
@@ -503,15 +501,17 @@ class LoginViewModel(
             // Delete user info from Google Drive
             _state.update { it.copy(deleteStep = DeleteProcess.DELETING_USER_INFO) }
             async {
-                driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { result ->
-                    result.find { userFile ->
-                        userFile.name == _state.value.user?.email
-                    }?.let { user ->
-                        copyUserInfoToPosthumousVerification(user).invokeOnCompletion {
+                driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { users ->
+                    val thisUserPath = users.find { userPath ->
+                        userPath.name == _state.value.user?.email
+                    }
+                    if (thisUserPath != null) {
+                        copyUserInfoToPosthumousVerification(thisUserPath).invokeOnCompletion {
                             viewModelScope.launch(Dispatchers.IO) {
-                                driveService.listFiles(user.id).onSuccess {
+                                driveService.listFiles(thisUserPath.id).onSuccess {
                                     it.forEach { file ->
                                         if (file.name != "contributions.json") {
+                                            println("Deleting file: ${file.name}")
                                             driveService.deleteFile(file.id)
                                         }
                                     }
