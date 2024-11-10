@@ -139,12 +139,30 @@ class LoginViewModel(
         )
         viewModelScope.launch(Dispatchers.IO) {
             driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID)
-                .onSuccess { result ->
-                    val isUserRegistered =
-                        result.any { userFile -> userFile.name == newUser.email }
-                    _state.update {
-                        it.copy(userAlreadyRegistered = isUserRegistered)
-                    }
+                .onSuccess { usersPaths ->
+                    usersPaths.find { userPath -> userPath.name == newUser.email }
+                        .also { userPath ->
+                            if (userPath == null) {
+                                _state.update {
+                                    it.copy(
+                                        isRegistering = false,
+                                        userAlreadyRegistered = false,
+                                    )
+                                }
+                            }
+                            driveService.listFiles(userPath?.id ?: "").onSuccess {
+                                val userExists =
+                                    it.find { userLoginFile -> userLoginFile.name == "${newUser.email}.json" }
+                                _state.update { it.copy(userAlreadyRegistered = userExists != null) }
+                            }.onError {
+                                _state.update {
+                                    it.copy(
+                                        isRegistering = false,
+                                        userAlreadyRegistered = false,
+                                    )
+                                }
+                            }
+                        }
                 }
                 .onError {
                     _state.update {
