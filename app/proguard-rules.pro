@@ -30,8 +30,7 @@
 -dontwarn com.google.api.services.drive.**
 
 #Places Api
--keep class android.net.http.AndroidHttpClient.** { *; }
--dontwarn android.net.http.**
+-dontwarn android.net.http.AndroidHttpClient
 
 #Google Maps
 -dontwarn javax.naming.**
