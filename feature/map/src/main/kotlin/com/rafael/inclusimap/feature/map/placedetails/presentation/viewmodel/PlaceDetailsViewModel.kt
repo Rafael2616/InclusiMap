@@ -22,12 +22,14 @@ import com.rafael.inclusimap.core.domain.network.onError
 import com.rafael.inclusimap.core.domain.network.onSuccess
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_IMAGE_FOLDER_ID
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID
+import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_USERS_FOLDER_ID
 import com.rafael.inclusimap.core.domain.util.Constants.MAX_IMAGE_NUMBER
 import com.rafael.inclusimap.core.domain.util.extractPlaceID
 import com.rafael.inclusimap.core.domain.util.extractUserEmail
 import com.rafael.inclusimap.core.domain.util.rotateImage
 import com.rafael.inclusimap.core.services.GoogleDriveService
 import com.rafael.inclusimap.core.services.PlacesApiService
+import com.rafael.inclusimap.feature.auth.domain.model.User
 import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
 import com.rafael.inclusimap.feature.contributions.domain.model.Contribution
 import com.rafael.inclusimap.feature.contributions.domain.model.ContributionType
@@ -38,6 +40,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.Date
+import kotlin.coroutines.resume
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -46,6 +49,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -125,6 +129,7 @@ class PlaceDetailsViewModel(
             }
         }
         loadUserComment(place)
+        updatePlaceCommentsAuthorName(place)
     }
 
     private fun loadUserComment(place: AccessibleLocalMarker) {
@@ -146,6 +151,44 @@ class PlaceDetailsViewModel(
                     userComment = userComment?.body ?: "",
                     userCommentDate = userComment?.postDate ?: "",
                     userAccessibilityRate = userComment?.accessibilityRate ?: 0,
+                )
+            }
+        }
+    }
+
+    private fun updatePlaceCommentsAuthorName(place: AccessibleLocalMarker) {
+        viewModelScope.launch(Dispatchers.IO) {
+            println("Updating place comments author name")
+            _state.update {
+                it.copy(
+                    currentPlace = it.currentPlace.copy(
+                        comments = it.currentPlace.comments.map {
+                            Comment(
+                                name = findUserNameByEmail(it.email) ?: it.name,
+                                id = it.id,
+                                body = it.body,
+                                email = it.email,
+                                postDate = it.postDate,
+                                accessibilityRate = it.accessibilityRate,
+                            )
+                        },
+                    ),
+                    loadedPlaces = it.loadedPlaces.map {
+                        if (it.id == place.id) {
+                            it.copy(
+                                comments = it.comments.map {
+                                    Comment(
+                                        name = findUserNameByEmail(it.email) ?: it.name,
+                                        id = it.id,
+                                        body = it.body,
+                                        email = it.email,
+                                        postDate = it.postDate,
+                                        accessibilityRate = it.accessibilityRate,
+                                    )
+                                },
+                            )
+                        } else it
+                    },
                 )
             }
         }
@@ -718,4 +761,26 @@ class PlaceDetailsViewModel(
 
     private suspend fun removeContribution(contribution: Contribution) =
         contributionsRepository.removeContribution(contribution)
+
+    private suspend fun findUserNameByEmail(email: String) =
+        suspendCancellableCoroutine { continuation ->
+            viewModelScope.launch(Dispatchers.IO) {
+                driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { users ->
+                    val userFiles = users.find { it.name == email }
+                   if  (userFiles?.id == null) {
+                       continuation.resume(null)
+                       return@launch
+                    }
+                    driveService.listFiles(userFiles.id).onSuccess { userDataFiles ->
+                        val userContentString = userDataFiles.find { it.name == "$email.json" }?.id?.let {
+                            driveService.getFileContent(it) }
+                                ?.decodeToString()
+                        val user = userContentString?.let {
+                            json.decodeFromString<User>(userContentString)
+                        }
+                        continuation.resume(user?.name)
+                    }
+                }
+            }
+        }
 }
