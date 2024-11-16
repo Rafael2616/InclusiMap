@@ -27,6 +27,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,6 +56,7 @@ fun UpdatePasswordScreen(
     modifier: Modifier = Modifier,
     defaultRoundedShape: Shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
 ) {
+    val onPopBackStack by rememberUpdatedState(popBackStack)
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var canUpdate by remember { mutableStateOf(false) }
@@ -204,7 +206,6 @@ fun UpdatePasswordScreen(
         }
     }
 
-
     DisposableEffect(state.isSamePassword, canUpdate) {
         if (state.isSamePassword && canUpdate) {
             Toast.makeText(context, "A nova senha não pode ser igual a atual!", Toast.LENGTH_LONG)
@@ -221,7 +222,7 @@ fun UpdatePasswordScreen(
     DisposableEffect(state.isPasswordChanged) {
         if (state.isPasswordChanged) {
             Toast.makeText(context, "Senha atualizada com sucesso!", Toast.LENGTH_LONG).show()
-            popBackStack()
+            onPopBackStack()
         }
         onDispose { }
     }

@@ -187,7 +187,9 @@ class PlaceDetailsViewModel(
                                     )
                                 },
                             )
-                        } else it
+                        } else {
+                            it
+                        }
                     },
                 )
             }
@@ -767,14 +769,15 @@ class PlaceDetailsViewModel(
             viewModelScope.launch(Dispatchers.IO) {
                 driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { users ->
                     val userFiles = users.find { it.name == email }
-                   if  (userFiles?.id == null) {
-                       continuation.resume(null)
-                       return@launch
+                    if (userFiles?.id == null) {
+                        continuation.resume(null)
+                        return@launch
                     }
                     driveService.listFiles(userFiles.id).onSuccess { userDataFiles ->
                         val userContentString = userDataFiles.find { it.name == "$email.json" }?.id?.let {
-                            driveService.getFileContent(it) }
-                                ?.decodeToString()
+                            driveService.getFileContent(it)
+                        }
+                            ?.decodeToString()
                         val user = userContentString?.let {
                             json.decodeFromString<User>(userContentString)
                         }
