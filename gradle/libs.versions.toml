@@ -126,4 +126,23 @@ rafael-application = { id = "com.rafael.application", version = "unspecified" }
 rafael-application-compose = { id = "com.rafael.compose.application", version = "unspecified" }
 
 [bundles]
-koin = ["koin-android", "koin-androidx-compose", "koin-core", "koin-core-viewmodel", "koin-compose", "koin-compose-viewmodel"]
+koin = [
+    "koin-android",
+    "koin-androidx-compose",
+    "koin-core", "koin-core-viewmodel",
+    "koin-compose",
+    "koin-compose-viewmodel"
+]
+compose = [
+    "androidx-lifecycle-runtime-compose",
+    "androidx-lifecycle-viewmodel-compose",
+    "androidx-compose-ui",
+    "androidx-compose-animation",
+    "androidx-compose-runtime",
+    "androidx-compose-foundation",
+    "androidx-compose-ui-tooling-preview",
+    "androidx-compose-ui-test-manifest",
+    "androidx-compose-ui-test-junit4",
+    "androidx-compose-material-icons-extended",
+    "androidx-compose-material3",
+]
