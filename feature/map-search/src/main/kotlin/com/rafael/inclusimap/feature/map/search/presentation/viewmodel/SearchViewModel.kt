@@ -35,7 +35,7 @@ class SearchViewModel(
             is SearchEvent.UpdateHistory -> updateHistory(event.placeId)
             is SearchEvent.DeleteFromHistory -> deleteFromHistory(event.placeId)
             SearchEvent.ClearHistory -> clearHistory()
-            is SearchEvent.RemoveInexistentPlaceFromHistory -> removeInexistentPlaceFromHistory(event.placeId)
+            is SearchEvent.RemoveNonexistentPlaceFromHistory -> removeInexistentPlaceFromHistory(event.placeId)
         }
     }
 

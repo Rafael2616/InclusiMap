@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -167,7 +168,7 @@ fun InclusiMapGoogleMapScreen(
             if (state.isMapLoaded) {
                 state.allMappedPlaces.forEach { place ->
                     val accessibilityAverage by remember(place.comments) {
-                        mutableStateOf(
+                        mutableFloatStateOf(
                             place.comments.map { it.accessibilityRate }.average().toFloat(),
                         )
                     }

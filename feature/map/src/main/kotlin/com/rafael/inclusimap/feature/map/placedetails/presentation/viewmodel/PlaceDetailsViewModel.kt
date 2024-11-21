@@ -101,8 +101,7 @@ class PlaceDetailsViewModel(
                 _state.update { it ->
                     it.copy(
                         isCurrentPlaceLoaded = it.loadedPlaces.any { existingPlace -> existingPlace.id == place.id },
-                        allImagesLoaded = it.loadedPlaces.find { existingPlace -> existingPlace.id == place.id }?.images?.isNotEmpty()
-                            ?: false,
+                        allImagesLoaded = it.loadedPlaces.find { existingPlace -> existingPlace.id == place.id }?.images?.isNotEmpty() == true,
                         currentPlace = place.toFullAccessibleLocalMarker(
                             images = emptyList(),
                             imageFolderId = it.loadedPlaces.find { existingPlace -> existingPlace.id == place.id }?.imageFolderId,
