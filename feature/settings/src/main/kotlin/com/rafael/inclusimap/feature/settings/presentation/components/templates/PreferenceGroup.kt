@@ -41,8 +41,8 @@ fun PreferenceGroup(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Start,
             modifier = Modifier
-                .padding(bottom = 6.dp)
-                .fillMaxWidth(if (isLandscape) 0.9f else 0.95f),
+                .padding(bottom = 2.dp)
+                .fillMaxWidth(if (isLandscape) 0.9f else 0.94f),
         )
         Card(
             shape = MaterialTheme.shapes.medium,

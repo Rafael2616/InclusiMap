@@ -38,7 +38,7 @@ internal fun Preferences(
             .consumeWindowInsets(innerPadding)
             .animateContentSize(),
         contentPadding = innerPadding,
-        verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top),
+        verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.Top),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
