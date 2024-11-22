@@ -188,8 +188,18 @@ fun InclusiMapNavHost(
                     }
                     composable<Destination.AboutScreen> {
                         AboutAppScreen(
+                            showTermsAndConditions = settingsState.showTermsAndConditions,
                             onPopBackStack = {
                                 navController.popBackStack()
+                            },
+                            onShowTermsAndConditions = {
+                                settingsViewModel.onEvent(SettingsEvent.OpenTermsAndConditions(true))
+                            },
+                            onGoToLicenses = {
+                                navController.navigate(Destination.LibraryScreen)
+                            },
+                            onDismissTermsDialog = {
+                                settingsViewModel.onEvent(SettingsEvent.OpenTermsAndConditions(false))
                             },
                         )
                     }

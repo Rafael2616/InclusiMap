@@ -54,7 +54,7 @@ internal fun Preferences(
             MapSearchPreferenceGroup(onEvent, state)
         }
         item {
-            OthersPreferenceGroup(onEvent, onAppIntroEvent, navController)
+            OthersPreferenceGroup(onAppIntroEvent, navController)
         }
     }
 }

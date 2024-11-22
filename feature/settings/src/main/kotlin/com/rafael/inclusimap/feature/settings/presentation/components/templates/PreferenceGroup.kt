@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 fun PreferenceGroup(
     heading: String,
     modifier: Modifier = Modifier,
+    textSize: Int = 16,
     preferences: @Composable () -> Unit,
 ) {
     val orientation = LocalConfiguration.current.orientation
@@ -36,7 +37,7 @@ fun PreferenceGroup(
     ) {
         Text(
             text = heading,
-            style = MaterialTheme.typography.titleLarge.copy(fontSize = 18.sp),
+            style = MaterialTheme.typography.titleLarge.copy(fontSize = textSize.sp),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Start,
             modifier = Modifier

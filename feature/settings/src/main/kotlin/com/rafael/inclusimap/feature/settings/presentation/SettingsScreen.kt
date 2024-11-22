@@ -12,7 +12,6 @@ import androidx.navigation.NavController
 import com.rafael.inclusimap.core.settings.domain.model.SettingsEvent
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 import com.rafael.inclusimap.feature.intro.presentation.dialogs.AppIntroDialog
-import com.rafael.inclusimap.feature.intro.presentation.dialogs.TermsAndConditionsDialog
 import com.rafael.inclusimap.feature.settings.presentation.components.Preferences
 import com.rafael.inclusimap.feature.settings.presentation.components.SettingsTopBar
 
@@ -46,13 +45,6 @@ fun SettingsScreen(
         AppIntroDialog(
             onDismiss = {
                 showAppIntro = false
-            },
-        )
-    }
-    AnimatedVisibility(state.showTermsAndConditions) {
-        TermsAndConditionsDialog(
-            onDismissRequest = {
-                latestOnEvent(SettingsEvent.OpenTermsAndConditions(false))
             },
         )
     }

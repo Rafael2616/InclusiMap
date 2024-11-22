@@ -25,4 +25,5 @@ dependencies {
 
     // Projects
     implementation(projects.core.resources)
+    implementation(projects.feature.intro)
 }

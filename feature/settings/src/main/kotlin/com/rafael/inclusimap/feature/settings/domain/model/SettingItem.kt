@@ -12,7 +12,6 @@ import com.rafael.inclusimap.feature.settings.presentation.components.preference
 import com.rafael.inclusimap.feature.settings.presentation.components.preferences.FollowSystemPreference
 import com.rafael.inclusimap.feature.settings.presentation.components.preferences.LogoutPreference
 import com.rafael.inclusimap.feature.settings.presentation.components.preferences.MapTypePreference
-import com.rafael.inclusimap.feature.settings.presentation.components.preferences.OpenSourceLicensesPreference
 import com.rafael.inclusimap.feature.settings.presentation.components.preferences.UpdatePasswordPreference
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -95,15 +94,6 @@ data class SettingItem(
                     namespace = NAMESPACE,
                     id = Uuid.random().toString(),
                     text = "Sobre o app",
-                ),
-            ),
-            // Licences Screen
-            SettingItem(
-                content = { _, _, navController -> OpenSourceLicensesPreference(navController) },
-                searchSpecs = SearchItemSpecs(
-                    namespace = NAMESPACE,
-                    id = Uuid.random().toString(),
-                    text = "Licenças",
                 ),
             ),
         )
