@@ -31,6 +31,7 @@ class OssLibraryRepository {
                     .asSequence()
                     .filter { it.name != "unknown" }
                     .distinctBy { "${it.groupId}:${it.artifactId}" }
+                    .distinctBy { it.name }
                     .sortedBy { it.name }
                     .toList()
             emit(ossLibraries)

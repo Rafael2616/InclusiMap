@@ -12,7 +12,7 @@ plugins {
     alias(libs.plugins.licensee).apply(false)
     alias(libs.plugins.baselineprofile).apply(false)
 
-//    This is not working on Gradle 8.1.0-rc-3
+//    This is not working on Gradle 8.11
 //    alias(libs.plugins.rafael.spotless).apply(false)
 //    alias(libs.plugins.rafael.library).apply(false)
 //    alias(libs.plugins.rafael.library.compose).apply(false)
