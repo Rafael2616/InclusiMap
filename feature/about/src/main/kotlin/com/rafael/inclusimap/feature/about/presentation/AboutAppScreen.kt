@@ -137,7 +137,7 @@ fun AboutAppScreen(
             item {
                 Spacer(modifier = Modifier.height(40.dp))
                 Text(
-                    "Autores:",
+                    "Autores",
                     fontSize = 16.sp,
                     textAlign = TextAlign.Start,
                     color = MaterialTheme.colorScheme.primary,
@@ -222,7 +222,7 @@ fun AboutAppScreen(
             }
             item {
                 Text(
-                    "Produto:",
+                    "Produto",
                     fontSize = 16.sp,
                     textAlign = TextAlign.Start,
                     color = MaterialTheme.colorScheme.primary,
