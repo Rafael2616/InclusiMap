@@ -18,14 +18,14 @@ data class Author(
                 Author(
                     name = "Alcilia Maria",
                     site = "https://github.com/",
-                    image = "https://github.com/",
-                    position = "Tech Lider/Desenvolvedor",
+                    image = "https://techcrunch.com/wp-content/uploads/2010/07/github-logo.png",
+                    position = "Gerente de Produto",
                 ),
                 Author(
                     name = "Cléber Felix",
                     site = "https://github.com/",
-                    image = "https://github.com/",
-                    position = "Tech Lider/Desenvolvedor",
+                    image = "https://techcrunch.com/wp-content/uploads/2010/07/github-logo.png",
+                    position = "Scrum Master",
                 ),
             )
     }
