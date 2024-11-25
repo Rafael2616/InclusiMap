@@ -310,6 +310,7 @@ fun InclusiMapGoogleMapScreen(
 
     AnimatedVisibility(!isServerAvailable) {
         ServerUnavailableDialog(
+            isInternetAvailable = isInternetAvailable,
             onRetry = {
                 onTryReconnect()
             },

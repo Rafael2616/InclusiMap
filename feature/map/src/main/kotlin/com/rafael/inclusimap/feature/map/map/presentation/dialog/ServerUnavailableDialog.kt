@@ -19,6 +19,7 @@ import kotlin.system.exitProcess
 @Composable
 fun ServerUnavailableDialog(
     onRetry: () -> Unit,
+    isInternetAvailable: Boolean = true,
 ) {
     AlertDialog(
         onDismissRequest = { },
@@ -43,7 +44,10 @@ fun ServerUnavailableDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = onRetry) {
+            TextButton(
+                enabled = isInternetAvailable,
+                onClick = onRetry,
+            ) {
                 Text("Tentar novamente")
             }
         },
