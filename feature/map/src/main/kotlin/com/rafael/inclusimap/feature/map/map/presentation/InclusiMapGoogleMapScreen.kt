@@ -50,6 +50,7 @@ import com.rafael.inclusimap.feature.map.map.domain.inNorthRange
 import com.rafael.inclusimap.feature.map.map.domain.toHUE
 import com.rafael.inclusimap.feature.map.map.presentation.dialog.PlacesNotLoadedDialog
 import com.rafael.inclusimap.feature.map.map.presentation.dialog.PlacesNotUpdatedDialog
+import com.rafael.inclusimap.feature.map.map.presentation.dialog.ServerConnectionErrorDialog
 import com.rafael.inclusimap.feature.map.map.presentation.dialog.ServerUnavailableDialog
 import com.rafael.inclusimap.feature.map.placedetails.domain.model.PlaceDetailsEvent
 import com.rafael.inclusimap.feature.map.placedetails.domain.model.PlaceDetailsState
@@ -73,6 +74,7 @@ fun InclusiMapGoogleMapScreen(
     onTryReconnect: () -> Unit,
     settingsState: SettingsState,
     isServerAvailable: Boolean,
+    isCheckingServerAvailability: Boolean,
     userName: String,
     userEmail: String,
     userProfilePicture: ImageBitmap?,
@@ -301,7 +303,7 @@ fun InclusiMapGoogleMapScreen(
     }
 
     AnimatedVisibility(state.failedToConnectToServer) {
-        ServerUnavailableDialog(
+        ServerConnectionErrorDialog(
             onRetry = {
                 latestOnEvent(InclusiMapEvent.OnFailToConnectToServer(false))
             },
@@ -311,12 +313,13 @@ fun InclusiMapGoogleMapScreen(
     AnimatedVisibility(!isServerAvailable) {
         ServerUnavailableDialog(
             isInternetAvailable = isInternetAvailable,
+            isRetrying = isCheckingServerAvailability,
+            isServerAvailable = isServerAvailable,
             onRetry = {
                 onTryReconnect()
             },
         )
     }
-
 
     AnimatedVisibility(state.failedToGetNewPlaces && !state.useAppWithoutInternet) {
         PlacesNotUpdatedDialog(

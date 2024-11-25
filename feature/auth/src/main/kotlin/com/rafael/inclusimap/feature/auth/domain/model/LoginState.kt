@@ -43,4 +43,5 @@ data class LoginState(
     val tokenExpirationTimer: Long? = null,
     val userExists: Boolean = true,
     val isServerAvailable: Boolean = true,
+    val isCheckingServerAvailability: Boolean = false,
 )

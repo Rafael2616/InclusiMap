@@ -796,7 +796,7 @@ class LoginViewModel(
 
     fun checkServerIsAvailable() {
         viewModelScope.launch(Dispatchers.IO) {
-            _state.update { it.copy(isServerAvailable = true) }
+            _state.update { it.copy(isCheckingServerAvailability = true) }
             driveService.listFiles(INCLUSIMAP_SERVER_FOLDER_ID).onSuccess {
                 println("Verifying InclusiMap server availability")
                 val serverStateFile = it.find { file -> file.name == "serverState.json" }?.id
@@ -809,6 +809,10 @@ class LoginViewModel(
                     }
                     println("Server state: isAvailable: ${serverState.isOn}")
                 }
+            }
+        }.invokeOnCompletion {
+            _state.update {
+                it.copy(isCheckingServerAvailability = false)
             }
         }
     }

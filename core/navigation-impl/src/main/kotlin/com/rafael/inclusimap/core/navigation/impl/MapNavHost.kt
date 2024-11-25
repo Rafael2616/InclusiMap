@@ -151,6 +151,7 @@ fun MapNavHost(
                     isFullScreenMode = isFullScreen,
                     isServerAvailable = loginState.isServerAvailable,
                     onTryReconnect = onTryReconnect,
+                    isCheckingServerAvailability = loginState.isCheckingServerAvailability,
                 )
             }
             composable<Destination.ContributionsScreen> {
