@@ -122,6 +122,7 @@ fun InclusiMapNavHost(
                             allowedShowUserProfilePicture = loginViewModel::allowedShowUserProfilePicture,
                             downloadUserProfilePicture = loginViewModel::downloadUserProfilePicture,
                             loginState = loginState,
+                            onTryReconnect = loginViewModel::checkServerIsAvailable,
                         )
                     }
                     composable<Destination.SettingsScreen> {

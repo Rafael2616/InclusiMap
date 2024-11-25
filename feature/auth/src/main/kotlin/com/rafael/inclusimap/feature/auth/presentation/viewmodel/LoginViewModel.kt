@@ -14,6 +14,7 @@ import com.rafael.inclusimap.core.domain.network.onError
 import com.rafael.inclusimap.core.domain.network.onSuccess
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_IMAGE_FOLDER_ID
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID
+import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_SERVER_FOLDER_ID
 import com.rafael.inclusimap.core.domain.util.Constants.INCLUSIMAP_USERS_FOLDER_ID
 import com.rafael.inclusimap.core.domain.util.extractPlaceUserEmail
 import com.rafael.inclusimap.core.domain.util.extractUserEmail
@@ -23,6 +24,7 @@ import com.rafael.inclusimap.feature.auth.domain.model.LoginEntity
 import com.rafael.inclusimap.feature.auth.domain.model.LoginEvent
 import com.rafael.inclusimap.feature.auth.domain.model.LoginState
 import com.rafael.inclusimap.feature.auth.domain.model.RegisteredUser
+import com.rafael.inclusimap.feature.auth.domain.model.ServerState
 import com.rafael.inclusimap.feature.auth.domain.model.User
 import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
 import com.rafael.inclusimap.feature.auth.domain.utils.MailerSenderClient
@@ -96,6 +98,7 @@ class LoginViewModel(
                 }
             }
         }
+        checkServerIsAvailable()
         checkUserExists()
     }
 
@@ -790,6 +793,25 @@ class LoginViewModel(
                 }
             }
         }
+
+    fun checkServerIsAvailable() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.update { it.copy(isServerAvailable = true) }
+            driveService.listFiles(INCLUSIMAP_SERVER_FOLDER_ID).onSuccess {
+                println("Verifying InclusiMap server availability")
+                val serverStateFile = it.find { file -> file.name == "serverState.json" }?.id
+                serverStateFile?.let {
+                    val state = driveService.getFileContent(it)
+                    val serverState =
+                        json.decodeFromString<ServerState>(state?.decodeToString() ?: return@launch)
+                    _state.update {
+                        it.copy(isServerAvailable = serverState.isOn)
+                    }
+                    println("Server state: isAvailable: ${serverState.isOn}")
+                }
+            }
+        }
+    }
 
     private fun addEditProfilePicture(image: ImageBitmap) {
         _state.update {

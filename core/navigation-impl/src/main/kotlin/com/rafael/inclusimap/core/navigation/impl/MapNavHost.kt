@@ -48,6 +48,7 @@ fun MapNavHost(
     onSettingsEvent: (SettingsEvent) -> Unit,
     appIntroState: AppIntroState,
     loginState: LoginState,
+    onTryReconnect: () -> Unit,
     setShowAppIntro: (Boolean) -> Unit,
     allowedShowUserProfilePicture: suspend (String) -> Boolean,
     downloadUserProfilePicture: suspend (String) -> ImageBitmap?,
@@ -148,6 +149,8 @@ fun MapNavHost(
                     },
                     userProfilePicture = loginState.userProfilePicture,
                     isFullScreenMode = isFullScreen,
+                    isServerAvailable = loginState.isServerAvailable,
+                    onTryReconnect = onTryReconnect,
                 )
             }
             composable<Destination.ContributionsScreen> {

@@ -70,7 +70,9 @@ fun InclusiMapGoogleMapScreen(
     appIntroState: AppIntroState,
     onDismissAppIntro: (Boolean) -> Unit,
     onUpdateSearchHistory: (String) -> Unit,
+    onTryReconnect: () -> Unit,
     settingsState: SettingsState,
+    isServerAvailable: Boolean,
     userName: String,
     userEmail: String,
     userProfilePicture: ImageBitmap?,
@@ -297,6 +299,7 @@ fun InclusiMapGoogleMapScreen(
             },
         )
     }
+
     AnimatedVisibility(state.failedToConnectToServer) {
         ServerUnavailableDialog(
             onRetry = {
@@ -304,6 +307,15 @@ fun InclusiMapGoogleMapScreen(
             },
         )
     }
+
+    AnimatedVisibility(!isServerAvailable) {
+        ServerUnavailableDialog(
+            onRetry = {
+                onTryReconnect()
+            },
+        )
+    }
+
 
     AnimatedVisibility(state.failedToGetNewPlaces && !state.useAppWithoutInternet) {
         PlacesNotUpdatedDialog(
