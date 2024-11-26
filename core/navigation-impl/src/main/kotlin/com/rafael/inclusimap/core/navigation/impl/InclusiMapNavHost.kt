@@ -31,6 +31,8 @@ import com.rafael.inclusimap.feature.contributions.presentation.viewmodel.Librar
 import com.rafael.inclusimap.feature.intro.presentation.viewmodel.AppIntroViewModel
 import com.rafael.inclusimap.feature.settings.presentation.SettingsScreen
 import com.rafael.inclusimap.feature.settings.presentation.viewmodel.SettingsViewModel
+import com.svenjacobs.reveal.RevealCanvas
+import com.svenjacobs.reveal.rememberRevealCanvasState
 import org.koin.compose.KoinContext
 import org.koin.compose.viewmodel.koinViewModel
 import soup.compose.material.motion.animation.materialSharedAxisXIn
@@ -44,6 +46,7 @@ fun InclusiMapNavHost(
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val slideDistance = rememberSlideDistance()
     val navController = rememberNavController()
+    val revealCanvasState = rememberRevealCanvasState()
 
     KoinContext {
         val appIntroViewModel = koinViewModel<AppIntroViewModel>()
@@ -58,151 +61,177 @@ fun InclusiMapNavHost(
                 modifier = modifier
                     .fillMaxSize(),
             ) { innerPadding ->
-                NavHost(
-                    navController = navController,
-                    startDestination = if (!loginState.isLoggedIn) Destination.LoginScreen(false) else Destination.MapHost,
-                    enterTransition = { materialSharedAxisXIn(!isRtl, slideDistance) },
-                    exitTransition = { materialSharedAxisXOut(!isRtl, slideDistance) },
-                    popEnterTransition = { materialSharedAxisXIn(isRtl, slideDistance) },
-                    popExitTransition = { materialSharedAxisXOut(isRtl, slideDistance) },
+                RevealCanvas(
+                    modifier = Modifier.fillMaxSize(),
+                    revealCanvasState = revealCanvasState,
                 ) {
-                    composable<Destination.LoginScreen> { it ->
-                        UnifiedLoginScreen(
-                            loginState = loginState,
-                            onLogin = { registeredUser ->
-                                loginViewModel.onEvent(
-                                    LoginEvent.OnLogin(registeredUser),
+                    NavHost(
+                        navController = navController,
+                        startDestination = if (!loginState.isLoggedIn) Destination.LoginScreen(false) else Destination.MapHost,
+                        enterTransition = { materialSharedAxisXIn(!isRtl, slideDistance) },
+                        exitTransition = { materialSharedAxisXOut(!isRtl, slideDistance) },
+                        popEnterTransition = { materialSharedAxisXIn(isRtl, slideDistance) },
+                        popExitTransition = { materialSharedAxisXOut(isRtl, slideDistance) },
+                    ) {
+                        composable<Destination.LoginScreen> { it ->
+                            UnifiedLoginScreen(
+                                loginState = loginState,
+                                onLogin = { registeredUser ->
+                                    loginViewModel.onEvent(
+                                        LoginEvent.OnLogin(registeredUser),
+                                    )
+                                    appIntroViewModel.setShowAppIntro(true)
+                                },
+                                onRegister = {
+                                    loginViewModel.onEvent(
+                                        LoginEvent.OnRegisterNewUser(it),
+                                    )
+                                    appIntroViewModel.setShowAppIntro(true)
+                                },
+                                modifier = Modifier.consumeWindowInsets(innerPadding),
+                                onUpdatePassword = { newPassword ->
+                                    loginViewModel.onEvent(
+                                        LoginEvent.UpdatePassword(newPassword),
+                                    )
+                                },
+                                onCancel = {
+                                    navController.popBackStack()
+                                },
+                                onPopBackStack = {
+                                    navController.popBackStack()
+                                    loginViewModel.onEvent(
+                                        LoginEvent.SetIsPasswordChanged(false),
+                                    )
+                                },
+                                onSendRecoverEmail = { email ->
+                                    loginViewModel.onEvent(
+                                        LoginEvent.SendPasswordResetEmail(email),
+                                    )
+                                },
+                                onValidateToken = { token ->
+                                    loginViewModel.onEvent(
+                                        LoginEvent.ValidateToken(token),
+                                    )
+                                },
+                                onResetUpdateProcess = {
+                                    loginViewModel.onEvent(LoginEvent.InvalidateUpdatePasswordProcess)
+                                },
+                                isEditPasswordModeFromSettings = it.toRoute<Destination.LoginScreen>().isEditPasswordMode,
+                            )
+                        }
+                        composable<Destination.MapHost> {
+                            MapNavHost(
+                                parentNavController = navController,
+                                settingsState = settingsState,
+                                onSettingsEvent = settingsViewModel::onEvent,
+                                appIntroState = appIntroState,
+                                setShowAppIntro = appIntroViewModel::setShowAppIntro,
+                                allowedShowUserProfilePicture = loginViewModel::allowedShowUserProfilePicture,
+                                downloadUserProfilePicture = loginViewModel::downloadUserProfilePicture,
+                                loginState = loginState,
+                                onTryReconnect = loginViewModel::checkServerIsAvailable,
+                            )
+                        }
+                        composable<Destination.SettingsScreen> {
+                            SettingsScreen(
+                                navController,
+                                settingsState,
+                                onEvent = settingsViewModel::onEvent,
+                                userProfilePicture = loginState.userProfilePicture,
+                                revealCanvasState = revealCanvasState,
+                            )
+                            LaunchedEffect(loginState.isLoggedIn) {
+                                if (!loginState.isLoggedIn) {
+                                    settingsViewModel.onEvent(SettingsEvent.ShowLogoutDialog(false))
+                                    settingsViewModel.onEvent(
+                                        SettingsEvent.ShowDeleteAccountDialog(false),
+                                    )
+                                    navController.clearBackStack(Destination.MapHost)
+                                }
+                            }
+                            AnimatedVisibility(settingsState.showLogoutDialog) {
+                                LogoutConfirmationDialog(
+                                    isLoginOut = loginState.isLoginOut,
+                                    onDismissRequest = {
+                                        settingsViewModel.onEvent(
+                                            SettingsEvent.ShowLogoutDialog(
+                                                false,
+                                            ),
+                                        )
+                                    },
+                                    onLogout = {
+                                        loginViewModel.onEvent(
+                                            LoginEvent.OnLogout,
+                                        )
+                                    },
                                 )
-                                appIntroViewModel.setShowAppIntro(true)
-                            },
-                            onRegister = {
-                                loginViewModel.onEvent(
-                                    LoginEvent.OnRegisterNewUser(it),
+                            }
+                            AnimatedVisibility(settingsState.showDeleteAccountDialog) {
+                                DeleteAccountConfirmationDialog(
+                                    loginState = loginState,
+                                    onDeleteAccount = { keepContributions ->
+                                        loginViewModel.onEvent(
+                                            LoginEvent.DeleteAccount(keepContributions),
+                                        )
+                                    },
+                                    onDismissRequest = {
+                                        settingsViewModel.onEvent(
+                                            SettingsEvent.ShowDeleteAccountDialog(
+                                                false,
+                                            ),
+                                        )
+                                    },
                                 )
-                                appIntroViewModel.setShowAppIntro(true)
-                            },
-                            modifier = Modifier.consumeWindowInsets(innerPadding),
-                            onUpdatePassword = { newPassword ->
-                                loginViewModel.onEvent(
-                                    LoginEvent.UpdatePassword(newPassword),
+                            }
+                            AnimatedVisibility(settingsState.showProfilePictureSettings) {
+                                ProfileSettingsDialog(
+                                    onDismiss = {
+                                        settingsViewModel.onEvent(
+                                            SettingsEvent.ShowProfilePictureSettings(
+                                                false,
+                                            ),
+                                        )
+                                    },
+                                    loginState = loginState,
+                                    onEvent = loginViewModel::onEvent,
                                 )
-                            },
-                            onCancel = {
-                                navController.popBackStack()
-                            },
-                            onPopBackStack = {
-                                navController.popBackStack()
-                                loginViewModel.onEvent(
-                                    LoginEvent.SetIsPasswordChanged(false),
-                                )
-                            },
-                            onSendRecoverEmail = { email ->
-                                loginViewModel.onEvent(
-                                    LoginEvent.SendPasswordResetEmail(email),
-                                )
-                            },
-                            onValidateToken = { token ->
-                                loginViewModel.onEvent(
-                                    LoginEvent.ValidateToken(token),
-                                )
-                            },
-                            onResetUpdateProcess = {
-                                loginViewModel.onEvent(LoginEvent.InvalidateUpdatePasswordProcess)
-                            },
-                            isEditPasswordModeFromSettings = it.toRoute<Destination.LoginScreen>().isEditPasswordMode,
-                        )
-                    }
-                    composable<Destination.MapHost> {
-                        MapNavHost(
-                            parentNavController = navController,
-                            settingsState = settingsState,
-                            onSettingsEvent = settingsViewModel::onEvent,
-                            appIntroState = appIntroState,
-                            setShowAppIntro = appIntroViewModel::setShowAppIntro,
-                            allowedShowUserProfilePicture = loginViewModel::allowedShowUserProfilePicture,
-                            downloadUserProfilePicture = loginViewModel::downloadUserProfilePicture,
-                            loginState = loginState,
-                            onTryReconnect = loginViewModel::checkServerIsAvailable,
-                        )
-                    }
-                    composable<Destination.SettingsScreen> {
-                        SettingsScreen(
-                            navController,
-                            settingsState,
-                            settingsViewModel::onEvent,
-                            userProfilePicture = loginState.userProfilePicture,
-                        )
-                        LaunchedEffect(loginState.isLoggedIn) {
-                            if (!loginState.isLoggedIn) {
-                                settingsViewModel.onEvent(SettingsEvent.ShowLogoutDialog(false))
-                                settingsViewModel.onEvent(
-                                    SettingsEvent.ShowDeleteAccountDialog(false),
-                                )
-                                navController.clearBackStack(Destination.MapHost)
                             }
                         }
-                        AnimatedVisibility(settingsState.showLogoutDialog) {
-                            LogoutConfirmationDialog(
-                                isLoginOut = loginState.isLoginOut,
-                                onDismissRequest = {
-                                    settingsViewModel.onEvent(SettingsEvent.ShowLogoutDialog(false))
+                        composable<Destination.LibraryScreen> {
+                            val libraryViewModel = koinViewModel<LibraryViewModel>()
+                            val ossLibraries by libraryViewModel.ossLibraries.collectAsStateWithLifecycle()
+                            LibraryScreen(
+                                libraries = ossLibraries,
+                                popBackStack = {
+                                    navController.popBackStack()
                                 },
-                                onLogout = {
-                                    loginViewModel.onEvent(
-                                        LoginEvent.OnLogout,
+                            )
+                        }
+                        composable<Destination.AboutScreen> {
+                            AboutAppScreen(
+                                showTermsAndConditions = settingsState.showTermsAndConditions,
+                                onPopBackStack = {
+                                    navController.popBackStack()
+                                },
+                                onShowTermsAndConditions = {
+                                    settingsViewModel.onEvent(
+                                        SettingsEvent.OpenTermsAndConditions(
+                                            true,
+                                        ),
+                                    )
+                                },
+                                onGoToLicenses = {
+                                    navController.navigate(Destination.LibraryScreen)
+                                },
+                                onDismissTermsDialog = {
+                                    settingsViewModel.onEvent(
+                                        SettingsEvent.OpenTermsAndConditions(
+                                            false,
+                                        ),
                                     )
                                 },
                             )
                         }
-                        AnimatedVisibility(settingsState.showDeleteAccountDialog) {
-                            DeleteAccountConfirmationDialog(
-                                loginState = loginState,
-                                onDeleteAccount = { keepContributions ->
-                                    loginViewModel.onEvent(
-                                        LoginEvent.DeleteAccount(keepContributions),
-                                    )
-                                },
-                                onDismissRequest = {
-                                    settingsViewModel.onEvent(SettingsEvent.ShowDeleteAccountDialog(false))
-                                },
-                            )
-                        }
-                        AnimatedVisibility(settingsState.showProfilePictureSettings) {
-                            ProfileSettingsDialog(
-                                onDismiss = {
-                                    settingsViewModel.onEvent(SettingsEvent.ShowProfilePictureSettings(false))
-                                },
-                                loginState = loginState,
-                                onEvent = loginViewModel::onEvent,
-                            )
-                        }
-                    }
-                    composable<Destination.LibraryScreen> {
-                        val libraryViewModel = koinViewModel<LibraryViewModel>()
-                        val ossLibraries by libraryViewModel.ossLibraries.collectAsStateWithLifecycle()
-                        LibraryScreen(
-                            libraries = ossLibraries,
-                            popBackStack = {
-                                navController.popBackStack()
-                            },
-                        )
-                    }
-                    composable<Destination.AboutScreen> {
-                        AboutAppScreen(
-                            showTermsAndConditions = settingsState.showTermsAndConditions,
-                            onPopBackStack = {
-                                navController.popBackStack()
-                            },
-                            onShowTermsAndConditions = {
-                                settingsViewModel.onEvent(SettingsEvent.OpenTermsAndConditions(true))
-                            },
-                            onGoToLicenses = {
-                                navController.navigate(Destination.LibraryScreen)
-                            },
-                            onDismissTermsDialog = {
-                                settingsViewModel.onEvent(SettingsEvent.OpenTermsAndConditions(false))
-                            },
-                        )
                     }
                 }
             }

@@ -10,7 +10,9 @@ dependencies {
     // AndroidX
     implementation(libs.androidx.navigation)
     implementation(libs.exifInterface)
-
+    // Reveal
+    implementation(libs.reveal.compose)
+    implementation(libs.reveal.compose.shapes)
     // Koin
     api(libs.koin.core)
     implementation(libs.koin.core.viewmodel)
@@ -19,7 +21,8 @@ dependencies {
     // Projects
     api(projects.core.settings)
     implementation(projects.core.navigation)
-    implementation(projects.feature.map)
     implementation(projects.core.domain)
+    implementation(projects.core.ui)
+    implementation(projects.feature.map)
     implementation(projects.feature.intro)
 }

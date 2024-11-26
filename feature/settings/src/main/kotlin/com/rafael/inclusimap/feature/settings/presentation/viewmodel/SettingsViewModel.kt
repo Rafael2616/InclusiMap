@@ -35,6 +35,7 @@ class SettingsViewModel(
                     appVersion = settings.appVersion,
                     mapType = settings.mapType.toMapType(),
                     searchHistoryEnabled = settings.searchHistoryEnabled,
+                    isProfileSettingsTipShown = settings.isProfileSettingsTipShown,
                 )
             }
         }
@@ -108,6 +109,15 @@ class SettingsViewModel(
                 viewModelScope.launch(Dispatchers.IO) {
                     val settings = repository.getAllSettingsValues(1) ?: defaultSettings
                     settings.mapType = state.value.mapType.toInt()
+                    repository.setAllSettingsValues(settings)
+                }
+            }
+            is SettingsEvent.SetIsProfileSettingsTipShown -> {
+                _state.update { it.copy(isProfileSettingsTipShown = event.value) }
+
+                viewModelScope.launch(Dispatchers.IO) {
+                    val settings = repository.getAllSettingsValues(1) ?: defaultSettings
+                    settings.isProfileSettingsTipShown = state.value.isProfileSettingsTipShown
                     repository.setAllSettingsValues(settings)
                 }
             }

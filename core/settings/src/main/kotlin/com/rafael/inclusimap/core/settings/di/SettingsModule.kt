@@ -16,7 +16,7 @@ val coreSettingsModule =
                     SettingsDatabase::class.java,
                     SettingsDatabase.DATABASE_NAME,
                 ).fallbackToDestructiveMigration(true)
-                .addMigrations(Migrations.migration1To2)
+                .addMigrations(Migrations.migration1To2, Migrations.migration2To3)
                 .build()
         }
         single {

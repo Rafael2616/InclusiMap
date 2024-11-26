@@ -34,6 +34,7 @@ compose = "1.7.5"
 ktor = "3.0.1"
 zoomable = "1.6.2"
 exif-interface = "1.3.7"
+reveal-compose = "3.1.1"
 
 junit = "4.13.2"
 androidxTest = "1.2.1"
@@ -92,6 +93,8 @@ ktlint-compose-rules = { module = "io.nlopez.compose.rules:ktlint", version.ref 
 lazycolumn-scrollbar = { module = "com.github.nanihadesuka:LazyColumnScrollbar", version.ref = "lazycolumn-scrollbar" }
 zoomable-compose = { module = "net.engawapg.lib:zoomable", version.ref = "zoomable" }
 exifInterface = { module = "androidx.exifinterface:exifinterface", version.ref = "exif-interface" }
+reveal-compose = { module = "com.svenjacobs.reveal:reveal-core", version.ref = "reveal-compose" }
+reveal-compose-shapes = { module = "com.svenjacobs.reveal:reveal-shapes", version.ref = "reveal-compose" }
 
 androidx-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmarkMacroJunit4" }

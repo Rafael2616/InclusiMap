@@ -9,6 +9,9 @@ android.namespace = "com.rafael.inclusimap.core.ui"
 dependencies {
     // AndroidX
     implementation(libs.androidx.activity.compose)
+    // Reveal
+    implementation(libs.reveal.compose.shapes)
+
     // Projects
     api(projects.core.settings)
 }

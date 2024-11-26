@@ -15,5 +15,15 @@ internal class Migrations {
                     connection.execSQL(addSearchHistoryEnabled)
                 }
             }
+
+        val migration2To3 =
+            object : Migration(2, 3) {
+                override fun migrate(connection: SQLiteConnection) {
+                    val addIsProfileSettingsTipShown =
+                        "ALTER TABLE 'settings' ADD COLUMN 'isProfileSettingsTipShown' INTEGER NOT NULL DEFAULT '0'"
+
+                    connection.execSQL(addIsProfileSettingsTipShown)
+                }
+            }
     }
 }

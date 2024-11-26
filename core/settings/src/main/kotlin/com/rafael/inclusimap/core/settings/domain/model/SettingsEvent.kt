@@ -40,4 +40,8 @@ sealed interface SettingsEvent {
     data class ShowProfilePictureSettings(
         val value: Boolean,
     ) : SettingsEvent
+
+    data class SetIsProfileSettingsTipShown(
+        val value: Boolean,
+    ) : SettingsEvent
 }

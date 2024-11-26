@@ -15,6 +15,8 @@ dependencies {
     implementation(libs.koin.androidx.compose)
     // Material Motion
     implementation(libs.material.motion.compose)
+    // Reveal
+    implementation(libs.reveal.compose)
     // Kotlin
     implementation(libs.kotlinx.serialization.json)
 

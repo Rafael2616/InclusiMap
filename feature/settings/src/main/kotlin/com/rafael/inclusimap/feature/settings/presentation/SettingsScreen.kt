@@ -14,11 +14,13 @@ import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 import com.rafael.inclusimap.feature.intro.presentation.dialogs.AppIntroDialog
 import com.rafael.inclusimap.feature.settings.presentation.components.Preferences
 import com.rafael.inclusimap.feature.settings.presentation.components.SettingsTopBar
+import com.svenjacobs.reveal.RevealCanvasState
 
 @Composable
 fun SettingsScreen(
     navController: NavController,
     state: SettingsState,
+    revealCanvasState: RevealCanvasState,
     onEvent: (SettingsEvent) -> Unit,
     userProfilePicture: ImageBitmap?,
 ) {
@@ -28,7 +30,9 @@ fun SettingsScreen(
     SettingsTopBar(
         navController,
         userProfilePicture,
+        state,
         latestOnEvent,
+        revealCanvasState,
     ) { innerPadding ->
         Preferences(
             innerPadding,
