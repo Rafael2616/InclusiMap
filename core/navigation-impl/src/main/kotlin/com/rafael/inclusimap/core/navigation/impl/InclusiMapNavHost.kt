@@ -125,11 +125,12 @@ fun InclusiMapNavHost(
                                 settingsState = settingsState,
                                 onSettingsEvent = settingsViewModel::onEvent,
                                 appIntroState = appIntroState,
+                                loginState = loginState,
+                                revealCanvasState = revealCanvasState,
+                                onTryReconnect = loginViewModel::checkServerIsAvailable,
                                 setShowAppIntro = appIntroViewModel::setShowAppIntro,
                                 allowedShowUserProfilePicture = loginViewModel::allowedShowUserProfilePicture,
                                 downloadUserProfilePicture = loginViewModel::downloadUserProfilePicture,
-                                loginState = loginState,
-                                onTryReconnect = loginViewModel::checkServerIsAvailable,
                             )
                         }
                         composable<Destination.SettingsScreen> {

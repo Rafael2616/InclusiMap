@@ -35,6 +35,7 @@ import com.rafael.inclusimap.feature.map.placedetails.presentation.viewmodel.Pla
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchEvent
 import com.rafael.inclusimap.feature.map.search.presentation.viewmodel.SearchViewModel
 import com.rafael.inclusimap.feature.report.presentation.viewmodel.ReportViewModel
+import com.svenjacobs.reveal.RevealCanvasState
 import kotlin.reflect.typeOf
 import org.koin.compose.viewmodel.koinViewModel
 import soup.compose.material.motion.animation.materialSharedAxisXIn
@@ -48,6 +49,7 @@ fun MapNavHost(
     onSettingsEvent: (SettingsEvent) -> Unit,
     appIntroState: AppIntroState,
     loginState: LoginState,
+    revealCanvasState: RevealCanvasState,
     onTryReconnect: () -> Unit,
     setShowAppIntro: (Boolean) -> Unit,
     allowedShowUserProfilePicture: suspend (String) -> Boolean,
@@ -152,6 +154,7 @@ fun MapNavHost(
                     isServerAvailable = loginState.isServerAvailable,
                     onTryReconnect = onTryReconnect,
                     isCheckingServerAvailability = loginState.isCheckingServerAvailability,
+                    revealCanvasState = revealCanvasState,
                 )
             }
             composable<Destination.ContributionsScreen> {

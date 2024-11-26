@@ -22,6 +22,9 @@ dependencies {
     // Room
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
+    // Reveal
+    implementation(libs.reveal.compose)
+    implementation(libs.reveal.compose.shapes)
     // Koin
     api(libs.koin.core)
     api(libs.koin.android)
@@ -30,6 +33,7 @@ dependencies {
 
     // Projects
     implementation(projects.core.domain)
+    implementation(projects.core.ui)
     implementation(projects.core.navigation)
     implementation(projects.core.resources)
     implementation(projects.core.services)
