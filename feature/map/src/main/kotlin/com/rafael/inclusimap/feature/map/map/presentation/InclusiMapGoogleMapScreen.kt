@@ -442,9 +442,6 @@ fun InclusiMapGoogleMapScreen(
             firstTimeAnimation = false
             isPresentationMode = true
         }
-        delay(2.seconds)
-        isPresentationMode = true
-        revealState.reveal(RevealKeys.PLACE_DETAILS_TIP)
     }
 
     LaunchedEffect(
