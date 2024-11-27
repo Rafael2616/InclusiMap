@@ -23,4 +23,6 @@ dependencies {
     implementation(projects.core.navigation)
     implementation(projects.core.services)
     implementation(projects.feature.auth)
+
+    implementation(libs.lottie.compose)
 }

@@ -35,7 +35,6 @@ import androidx.compose.material.icons.outlined.ArrowOutward
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Place
-import androidx.compose.material.icons.outlined.SentimentDissatisfied
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -72,6 +71,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieClipSpec
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.rafael.inclusimap.core.domain.model.icon
 import com.rafael.inclusimap.core.domain.model.toCategoryName
 import com.rafael.inclusimap.core.domain.util.formatDate
@@ -814,11 +818,16 @@ fun LazyListScope.noContributionsFoundedScreen(
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.fillMaxWidth(),
                 )
-                Icon(
-                    imageVector = Icons.Outlined.SentimentDissatisfied,
-                    contentDescription = null,
-                    modifier = Modifier.size(55.dp),
-                    tint = MaterialTheme.colorScheme.primary,
+                val composition by rememberLottieComposition(LottieCompositionSpec.Url("https://lottie.host/3d996af0-62b2-4c41-ab5e-1440fc44672b/4BkRprduAP.lottie"))
+                val progress by animateLottieCompositionAsState(
+                    composition,
+                    iterations = 2,
+                    clipSpec = LottieClipSpec.Progress(0f, 1f),
+                )
+                LottieAnimation(
+                    composition = composition,
+                    progress = { progress },
+                    modifier = Modifier.size(320.dp),
                 )
             }
         }
