@@ -245,7 +245,7 @@ fun InclusiMapGoogleMapScreen(
                                 place.comments.map { it.accessibilityRate }.average().toFloat(),
                             )
                         }
-                        //  if (isPresentationMode && state.allMappedPlaces.find { it.id == "fd9aa418-bc04-46fe-8974-f0bb8c400969" } != place) return@forEach
+                        if (isPresentationMode && state.allMappedPlaces.find { it.id == "fd9aa418-bc04-46fe-8974-f0bb8c400969" } != place) return@forEach
                         Marker(
                             state = remember(place.position) {
                                 MarkerState(
