@@ -139,41 +139,46 @@ fun InclusiMapGoogleMapScreen(
     }
     var isFindNorthBtnClicked by remember { mutableStateOf(false) }
     var isPresentationMode by remember { mutableStateOf(false) }
-    val onRevealableClick: (Any) -> Unit = { key ->
-        scope.launch {
-            when (key) {
-                RevealKeys.ADD_PLACE_TIP -> {
-                    delay(1.seconds)
-                    addPlaceBottomSheetState.show()
-                    revealState.hide()
-                    isPresentationMode = false
-                }
-                RevealKeys.PLACE_DETAILS_TIP -> {
-                    latestOnEvent(InclusiMapEvent.OnMappedPlaceSelected(state.allMappedPlaces.find { it.id == "fd9aa418-bc04-46fe-8974-f0bb8c400969" } ?: return@launch))
-                    openPlaceDetailsBottomSheet = true
-                    revealState.hide()
-                }
-            }
-        }
-    }
-    val onOverlayClick: (Any) -> Unit = { key ->
-        scope.launch {
-            when (key) {
-                RevealKeys.ADD_PLACE_TIP -> {
-                    revealState.hide()
-                    isPresentationMode = false
-                }
-                RevealKeys.PLACE_DETAILS_TIP -> revealState.reveal(RevealKeys.ADD_PLACE_TIP)
-            }
-        }
-    }
 
     Reveal(
         revealCanvasState = revealCanvasState,
         revealState = revealState,
-        onRevealableClick = { key -> onRevealableClick(key) },
-        onOverlayClick = { key -> onOverlayClick(key) },
-        overlayContent = { key -> OverlayContent(key) },
+        onRevealableClick = { key ->
+            scope.launch {
+                when (key) {
+                    RevealKeys.ADD_PLACE_TIP -> {
+                        delay(1.seconds)
+                        addPlaceBottomSheetState.show()
+                        revealState.hide()
+                        isPresentationMode = false
+                    }
+
+                    RevealKeys.PLACE_DETAILS_TIP -> {
+                        latestOnEvent(
+                            InclusiMapEvent.OnMappedPlaceSelected(
+                                state.allMappedPlaces.find { it.id == "fd9aa418-bc04-46fe-8974-f0bb8c400969" }
+                                    ?: return@launch,
+                            ),
+                        )
+                        openPlaceDetailsBottomSheet = true
+                        revealState.hide()
+                    }
+                }
+            }
+        },
+        onOverlayClick = { key ->
+            scope.launch {
+                when (key) {
+                    RevealKeys.ADD_PLACE_TIP -> {
+                        revealState.hide()
+                        isPresentationMode = false
+                    }
+
+                    RevealKeys.PLACE_DETAILS_TIP -> revealState.reveal(RevealKeys.ADD_PLACE_TIP)
+                }
+            }
+        },
+        overlayContent = { key -> if (isPresentationMode) OverlayContent(key) },
     ) {
         Box(
             modifier = modifier
@@ -240,7 +245,7 @@ fun InclusiMapGoogleMapScreen(
                                 place.comments.map { it.accessibilityRate }.average().toFloat(),
                             )
                         }
-                        if (isPresentationMode && state.allMappedPlaces.find { it.id == "fd9aa418-bc04-46fe-8974-f0bb8c400969" } != place) return@forEach
+                        //  if (isPresentationMode && state.allMappedPlaces.find { it.id == "fd9aa418-bc04-46fe-8974-f0bb8c400969" } != place) return@forEach
                         Marker(
                             state = remember(place.position) {
                                 MarkerState(
@@ -268,9 +273,10 @@ fun InclusiMapGoogleMapScreen(
                     }
                 }
             }
-            AddPlaceRevelation(revealState)
-            PlaceDetailsRevelation(revealState)
-
+            if (isPresentationMode) {
+                AddPlaceRevelation(revealState)
+                PlaceDetailsRevelation(revealState)
+            }
             if (!isFullScreenMode && !isNorth && state.isMapLoaded) {
                 FindNorthWidget(
                     cameraPositionState = cameraPositionState,
@@ -614,6 +620,7 @@ fun RevealOverlayScope.OverlayContent(
             modifier = modifier
                 .align(verticalArrangement = RevealOverlayArrangement.Top),
         )
+
         RevealKeys.PLACE_DETAILS_TIP -> OverlayText(
             text = "Clique no marcador para\nver os detalhes do local",
             arrow = Arrow.bottom(),

@@ -48,7 +48,7 @@ fun MapTypeToggleButton(
     modifier: Modifier = Modifier,
 ) {
     var showMapTypes by remember { mutableStateOf(false) }
-    val mapTypes = GoogleMapType.getMapTypes()
+    val mapTypes = remember { GoogleMapType.getMapTypes() }
     val orientation = LocalConfiguration.current.orientation
     val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
 
