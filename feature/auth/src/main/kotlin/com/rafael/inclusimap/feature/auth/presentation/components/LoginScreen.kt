@@ -57,11 +57,6 @@ fun LoginScreen(
     var email by remember { mutableStateOf("") }
     var canLogin by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val toast = Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT)
-    val passwordIncorrectToast =
-        Toast.makeText(context, "A senha está incorreta", Toast.LENGTH_LONG)
-    val inexistentUserToast =
-        Toast.makeText(context, "Não foi encontrado um usuário com esse email!", Toast.LENGTH_LONG)
     var showPassword by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val firstItemShape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp)
@@ -193,7 +188,8 @@ fun LoginScreen(
                 onClick = {
                     canLogin = true
                     if (email.isEmpty() || password.isEmpty()) {
-                        toast.show()
+                        Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT)
+                            .show()
                         return@Button
                     }
                     onLogin(
@@ -210,10 +206,12 @@ fun LoginScreen(
         }
     }
     if (!state.isPasswordCorrect && !state.isRegistering && canLogin) {
-        passwordIncorrectToast.show()
+        Toast.makeText(context, "A senha está incorreta", Toast.LENGTH_LONG)
+            .show()
     }
     if (!state.userAlreadyRegistered && !state.isRegistering && canLogin && email.isNotEmpty()) {
-        inexistentUserToast.show()
+        Toast.makeText(context, "Não foi encontrado um usuário com esse email!", Toast.LENGTH_LONG)
+            .show()
     }
     if (state.isLoggedIn && canLogin) {
         Toast.makeText(context, "Logado com sucesso!", Toast.LENGTH_LONG).show()

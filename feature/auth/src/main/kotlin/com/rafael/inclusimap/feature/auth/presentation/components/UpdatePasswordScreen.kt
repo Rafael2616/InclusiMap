@@ -59,7 +59,6 @@ fun UpdatePasswordScreen(
     var confirmPassword by remember { mutableStateOf("") }
     var canUpdate by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val toast = Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT)
     var showPassword by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     var isValidPassword by remember { mutableStateOf(true) }
@@ -186,7 +185,8 @@ fun UpdatePasswordScreen(
                 onClick = {
                     canUpdate = true
                     if (password.isEmpty() || confirmPassword.isEmpty()) {
-                        toast.show()
+                        Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT)
+                            .show()
                         return@Button
                     }
                     if (password != confirmPassword) {

@@ -70,31 +70,12 @@ fun RegistrationScreen(
     var canLogin by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val minNameLength by remember { mutableIntStateOf(3) }
-    val toast = Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT)
-    val invalidEmailToast = Toast.makeText(context, "O email é inválido", Toast.LENGTH_SHORT)
-    val invalidPasswordToast = Toast.makeText(context, "A senha é inválida", Toast.LENGTH_SHORT)
-    val differentPasswordToast =
-        Toast.makeText(context, "A senha deve ser igual", Toast.LENGTH_LONG)
     var showPassword by remember { mutableStateOf(false) }
     var isValidPassword by remember { mutableStateOf(true) }
     var isValidEmail by remember { mutableStateOf(true) }
     val focusManager = LocalFocusManager.current
-    val existentUserToast =
-        Toast.makeText(
-            context,
-            "Já existe um usuário cadastrado com esse email!",
-            Toast.LENGTH_LONG,
-        )
     var termsAndConditionsAccepted by remember { mutableStateOf(true) }
-    val termsAndConditionsNotAllowedToast =
-        Toast.makeText(context, "Aceite os termos e condições", Toast.LENGTH_SHORT)
     var showTermsAndConditionsDialog by remember { mutableStateOf(false) }
-    val shortNameToast =
-        Toast.makeText(
-            context,
-            "O nome precisa ter no mínimo $minNameLength letras",
-            Toast.LENGTH_SHORT,
-        )
     var userAlreadyRegistered by remember(state.userAlreadyRegistered) { mutableStateOf(state.userAlreadyRegistered) }
     val firstItemShape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp)
     val lastItemShape = RoundedCornerShape(0.dp, 0.dp, 12.dp, 12.dp)
@@ -316,27 +297,36 @@ fun RegistrationScreen(
                     canLogin = true
                     userAlreadyRegistered = false
                     if (userName.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-                        toast.show()
+                        Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT)
+                            .show()
                         return@Button
                     }
                     if (userName.length < minNameLength) {
-                        shortNameToast.show()
+                        Toast.makeText(
+                            context,
+                            "O nome precisa ter no mínimo $minNameLength letras",
+                            Toast.LENGTH_SHORT,
+                        ).show()
                         return@Button
                     }
                     if (password != confirmPassword) {
-                        differentPasswordToast.show()
+                        Toast.makeText(context, "A senha deve ser igual", Toast.LENGTH_LONG)
+                            .show()
                         return@Button
                     }
                     if (!isValidEmail) {
-                        invalidEmailToast.show()
+                        Toast.makeText(context, "O email é inválido", Toast.LENGTH_SHORT)
+                            .show()
                         return@Button
                     }
                     if (!isValidPassword) {
-                        invalidPasswordToast.show()
+                        Toast.makeText(context, "A senha é inválida", Toast.LENGTH_SHORT)
+                            .show()
                         return@Button
                     }
                     if (!termsAndConditionsAccepted) {
-                        termsAndConditionsNotAllowedToast.show()
+                        Toast.makeText(context, "Aceite os termos e condições", Toast.LENGTH_SHORT)
+                            .show()
                         return@Button
                     }
                     onRegister(
@@ -357,7 +347,11 @@ fun RegistrationScreen(
     }
     DisposableEffect(userAlreadyRegistered, state.isRegistering) {
         if (userAlreadyRegistered && !state.isRegistering && canLogin && email.isNotEmpty()) {
-            existentUserToast.show()
+            Toast.makeText(
+                context,
+                "Já existe um usuário cadastrado com esse email!",
+                Toast.LENGTH_LONG,
+            ).show()
         }
         onDispose { }
     }
