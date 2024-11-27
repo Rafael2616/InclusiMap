@@ -26,4 +26,3 @@ fun OverlayText(text: String, arrow: Arrow, modifier: Modifier = Modifier) {
         )
     }
 }
-

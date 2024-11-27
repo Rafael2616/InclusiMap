@@ -544,7 +544,7 @@ fun InclusiMapGoogleMapScreen(
 
 enum class RevealKeys {
     ADD_PLACE_TIP,
-    PLACE_DETAILS_TIP
+    PLACE_DETAILS_TIP,
 }
 
 @Composable
@@ -569,30 +569,32 @@ fun BoxScope.Revelation(
 
 @Composable
 fun BoxScope.PlaceDetailsRevelation(
-    revealState: RevealState
+    revealState: RevealState,
+    modifier: Modifier = Modifier,
 ) {
     Revelation(
         revealState,
         RevealKeys.ADD_PLACE_TIP,
         Alignment.TopEnd,
         RevealShape.Circle,
-        Modifier
+        modifier
             .padding(top = 200.dp, end = 80.dp)
             .size(50.dp)
             .clip(CircleShape),
-        )
+    )
 }
 
 @Composable
 fun BoxScope.AddPlaceRevelation(
-    revealState: RevealState
+    revealState: RevealState,
+    modifier: Modifier = Modifier,
 ) {
     Revelation(
         revealState,
         RevealKeys.PLACE_DETAILS_TIP,
         Alignment.Center,
         RevealShape.RoundRect(16.dp),
-        Modifier
+        modifier
             .fillMaxWidth(0.55f)
             .height(300.dp),
     )
@@ -601,19 +603,20 @@ fun BoxScope.AddPlaceRevelation(
 @Composable
 fun RevealOverlayScope.OverlayContent(
     key: Any,
+    modifier: Modifier = Modifier,
 ) {
     when (key) {
         RevealKeys.ADD_PLACE_TIP -> OverlayText(
             text = "Clique e segure para\nadicionar novos locais",
             arrow = Arrow.bottom(),
-            modifier = Modifier
-                .align(verticalArrangement = RevealOverlayArrangement.Top)
+            modifier = modifier
+                .align(verticalArrangement = RevealOverlayArrangement.Top),
         )
         RevealKeys.PLACE_DETAILS_TIP -> OverlayText(
             text = "Clique no marcador para\nver os detalhes do local",
             arrow = Arrow.bottom(),
             modifier = Modifier
-                .align(verticalArrangement = RevealOverlayArrangement.Top)
+                .align(verticalArrangement = RevealOverlayArrangement.Top),
         )
     }
 }

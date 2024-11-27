@@ -159,5 +159,5 @@ internal fun SettingsTopBar(
 }
 
 enum class RevealKeys {
-    PROFILE_SETTINGS
+    PROFILE_SETTINGS,
 }

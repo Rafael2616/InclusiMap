@@ -13,7 +13,7 @@ data class SettingsEntity(
     var mapType: Int,
     var appVersion: String,
     var searchHistoryEnabled: Boolean,
-    var isProfileSettingsTipShown : Boolean
+    var isProfileSettingsTipShown: Boolean,
 ) {
     companion object {
         fun getDefaultSettings(): SettingsEntity =
@@ -25,7 +25,7 @@ data class SettingsEntity(
                 appVersion = "0",
                 mapType = 1,
                 searchHistoryEnabled = true,
-                isProfileSettingsTipShown = false
+                isProfileSettingsTipShown = false,
             )
     }
 }
