@@ -595,8 +595,9 @@ fun BoxScope.AddPlaceRevelation(
         Alignment.Center,
         RevealShape.RoundRect(16.dp),
         modifier
+            .padding(bottom = 70.dp)
             .fillMaxWidth(0.55f)
-            .height(300.dp),
+            .height(200.dp),
     )
 }
 
