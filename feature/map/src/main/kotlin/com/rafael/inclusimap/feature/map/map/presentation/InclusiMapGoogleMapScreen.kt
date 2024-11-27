@@ -512,7 +512,8 @@ fun InclusiMapGoogleMapScreen(
                 async {
                     cameraPositionState.animate(
                         CameraUpdateFactory.newLatLngZoom(
-                            LatLng(position.first, position.second), 18f,
+                            LatLng(position.first, position.second),
+                            18f,
                         ),
                         2500,
                     )
