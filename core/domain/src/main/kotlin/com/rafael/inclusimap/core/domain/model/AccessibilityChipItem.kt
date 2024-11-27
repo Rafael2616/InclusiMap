@@ -20,7 +20,7 @@ data class AccessibilityChipItem(
                 name = "Acessibilidade mediana",
                 type = AccessibilityType.MEDIUM,
                 color = Color.Yellow,
-                description = "O local possui algumas adaptações para acomodar cadeirantes, pórem faltam alguns recursos para atender aos requisitos de acessilidade completa",
+                description = "O local possui algumas adaptações para acomodar cadeirantes, pórem faltam alguns recursos para atender aos requisitos de acessibilidade completa",
             ),
             AccessibilityChipItem(
                 name = "Sem acessibilidade",

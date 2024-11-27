@@ -61,7 +61,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -84,6 +83,7 @@ import com.rafael.inclusimap.core.domain.util.toColor
 import com.rafael.inclusimap.core.navigation.Destination
 import com.rafael.inclusimap.core.navigation.types.Location
 import com.rafael.inclusimap.feature.contributions.domain.ContributionsState
+import com.rafael.inclusimap.feature.contributions.domain.model.ContributionItem
 import com.rafael.inclusimap.feature.contributions.domain.model.ContributionType
 import com.rafael.inclusimap.feature.contributions.domain.model.ContributionsEvent
 import com.rafael.inclusimap.feature.contributions.presentation.dialogs.ContributionsHelpDialog
@@ -821,7 +821,7 @@ fun LazyListScope.noContributionsFoundedScreen(
                 val composition by rememberLottieComposition(LottieCompositionSpec.Url("https://lottie.host/3d996af0-62b2-4c41-ab5e-1440fc44672b/4BkRprduAP.lottie"))
                 val progress by animateLottieCompositionAsState(
                     composition,
-                    iterations = 2,
+                    iterations = 1,
                     clipSpec = LottieClipSpec.Progress(0f, 1f),
                 )
                 LottieAnimation(
@@ -881,10 +881,3 @@ fun LazyListScope.connectionErrorScreen(
         }
     }
 }
-
-data class ContributionItem(
-    val icon: ImageVector,
-    val name: String,
-    val type: ContributionType,
-    val quantity: Int,
-)
