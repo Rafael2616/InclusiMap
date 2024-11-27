@@ -30,7 +30,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -53,7 +52,6 @@ fun LoginScreen(
     onGoToRecover: () -> Unit,
     onLogin: (RegisteredUser) -> Unit,
     modifier: Modifier = Modifier,
-    defaultRoundedShape: Shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
 ) {
     var password by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -66,6 +64,8 @@ fun LoginScreen(
         Toast.makeText(context, "Não foi encontrado um usuário com esse email!", Toast.LENGTH_LONG)
     var showPassword by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
+    val firstItemShape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp)
+    val lastItemShape = RoundedCornerShape(0.dp, 0.dp, 12.dp, 12.dp)
 
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
@@ -92,7 +92,7 @@ fun LoginScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(defaultRoundedShape),
+                    .clip(firstItemShape),
                 placeholder = {
                     Text(text = "E-mail")
                 },
@@ -112,7 +112,7 @@ fun LoginScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(defaultRoundedShape),
+                    .clip(lastItemShape),
                 placeholder = {
                     Text(text = "Senha")
                 },

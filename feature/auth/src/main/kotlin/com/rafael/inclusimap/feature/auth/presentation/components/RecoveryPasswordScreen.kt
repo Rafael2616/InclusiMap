@@ -27,7 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -48,7 +47,6 @@ fun RecoveryPasswordScreen(
     onValidateToken: (String) -> Unit,
     onResetProcess: () -> Unit,
     modifier: Modifier = Modifier,
-    defaultRoundedShape: Shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
 ) {
     var email by remember { mutableStateOf(state.user?.email.orEmpty()) }
     var receivedToken by remember { mutableStateOf("") }
@@ -56,6 +54,8 @@ fun RecoveryPasswordScreen(
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     var isValidEmail by remember { mutableStateOf(true) }
+    val firstItemShape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp)
+    val lastItemShape = RoundedCornerShape(0.dp, 0.dp, 12.dp, 12.dp)
 
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
@@ -83,7 +83,7 @@ fun RecoveryPasswordScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(defaultRoundedShape),
+                    .clip(firstItemShape),
                 placeholder = {
                     Text(text = "Email")
                 },
@@ -104,7 +104,7 @@ fun RecoveryPasswordScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(defaultRoundedShape),
+                        .clip(lastItemShape),
                     placeholder = {
                         Text(text = "Código de verificação")
                     },

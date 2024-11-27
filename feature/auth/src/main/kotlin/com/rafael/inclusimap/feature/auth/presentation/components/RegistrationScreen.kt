@@ -35,7 +35,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -63,7 +62,6 @@ fun RegistrationScreen(
     onRegister: (User) -> Unit,
     onGoToLogin: () -> Unit,
     modifier: Modifier = Modifier,
-    defaultRoundedShape: Shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
 ) {
     var userName by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -98,6 +96,9 @@ fun RegistrationScreen(
             Toast.LENGTH_SHORT,
         )
     var userAlreadyRegistered by remember(state.userAlreadyRegistered) { mutableStateOf(state.userAlreadyRegistered) }
+    val firstItemShape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp)
+    val lastItemShape = RoundedCornerShape(0.dp, 0.dp, 12.dp, 12.dp)
+
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
         modifier = modifier,
@@ -124,7 +125,7 @@ fun RegistrationScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(defaultRoundedShape),
+                    .clip(firstItemShape),
                 placeholder = {
                     Text(text = "Nome completo")
                 },
@@ -158,8 +159,7 @@ fun RegistrationScreen(
                     isValidEmail = isValidEmail(it)
                 },
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(defaultRoundedShape),
+                    .fillMaxWidth(),
                 placeholder = {
                     Text(text = "E-mail")
                 },
@@ -179,8 +179,7 @@ fun RegistrationScreen(
                     isValidPassword = isValidPassword(it)
                 },
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(defaultRoundedShape),
+                    .fillMaxWidth(),
                 placeholder = {
                     Text(text = "Senha")
                 },
@@ -218,7 +217,7 @@ fun RegistrationScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(defaultRoundedShape),
+                    .clip(lastItemShape),
                 placeholder = {
                     Text(text = "Confirmar senha")
                 },
