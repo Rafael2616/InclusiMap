@@ -438,9 +438,10 @@ fun InclusiMapGoogleMapScreen(
                 )
             }.await()
             locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            isPresentationMode = true
+            delay(2.seconds)
             revealState.reveal(RevealKeys.PLACE_DETAILS_TIP)
             firstTimeAnimation = false
-            isPresentationMode = true
         }
     }
 
@@ -592,7 +593,7 @@ fun BoxScope.AddPlaceRevelation(
         Alignment.Center,
         RevealShape.RoundRect(16.dp),
         Modifier
-            .fillMaxWidth(0.6f)
+            .fillMaxWidth(0.55f)
             .height(300.dp),
     )
 }
