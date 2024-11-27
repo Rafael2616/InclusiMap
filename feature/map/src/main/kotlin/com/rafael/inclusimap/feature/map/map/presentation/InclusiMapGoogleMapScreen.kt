@@ -326,7 +326,6 @@ fun InclusiMapGoogleMapScreen(
                 if (isPresentationMode) {
                     scope.launch {
                         revealState.reveal(RevealKeys.ADD_PLACE_TIP)
-                        isPresentationMode = false
                     }
                 }
             },
@@ -355,7 +354,9 @@ fun InclusiMapGoogleMapScreen(
                 latestOnPlaceDetailsEvent(PlaceDetailsEvent.SetIsEditingPlace(false))
             },
             onAddNewPlace = { newPlace ->
-                latestOnEvent(InclusiMapEvent.OnAddNewMappedPlace(newPlace))
+                if (!isPresentationMode) {
+                    latestOnEvent(InclusiMapEvent.OnAddNewMappedPlace(newPlace))
+                }
             },
             mapState = state,
             onEditNewPlace = {

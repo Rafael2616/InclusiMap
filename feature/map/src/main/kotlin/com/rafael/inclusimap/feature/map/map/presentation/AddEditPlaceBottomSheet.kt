@@ -34,6 +34,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -375,6 +376,11 @@ fun AddEditPlaceBottomSheet(
                 horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.End),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                OutlinedButton(
+                    onClick = { onDismiss() },
+                ) {
+                    Text(text = "Cancelar")
+                }
                 Button(
                     onClick = {
                         tryAddUpdate = true
