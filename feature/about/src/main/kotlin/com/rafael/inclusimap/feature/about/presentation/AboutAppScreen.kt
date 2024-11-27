@@ -191,7 +191,7 @@ fun AboutAppScreen(
                                 )
                             }
                             SubcomposeAsyncImage(
-                                model = author.image,
+                                model = author.imageUri,
                                 contentScale = ContentScale.Crop,
                                 contentDescription = null,
                                 modifier = Modifier
