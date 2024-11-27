@@ -139,6 +139,7 @@ fun InclusiMapGoogleMapScreen(
     }
     var isFindNorthBtnClicked by remember { mutableStateOf(false) }
     var isPresentationMode by remember { mutableStateOf(false) }
+    val isSystemInDarkTheme = isSystemInDarkTheme()
 
     Reveal(
         revealCanvasState = revealCanvasState,
@@ -212,10 +213,10 @@ fun InclusiMapGoogleMapScreen(
                     println("latitude ${it.latitude}" + "," + it.longitude)
                 },
                 mapColorScheme = when {
-                    settingsState.isFollowingSystemOn && isSystemInDarkTheme() -> ComposeMapColorScheme.DARK
-                    settingsState.isFollowingSystemOn && !isSystemInDarkTheme() -> ComposeMapColorScheme.LIGHT
+                    settingsState.isFollowingSystemOn && isSystemInDarkTheme -> ComposeMapColorScheme.DARK
+                    settingsState.isFollowingSystemOn && !isSystemInDarkTheme -> ComposeMapColorScheme.LIGHT
                     settingsState.isDarkThemeOn -> ComposeMapColorScheme.DARK
-                    else -> ComposeMapColorScheme.LIGHT
+                    else -> ComposeMapColorScheme.DARK
                 },
                 onMapLoaded = {
                     latestOnEvent(InclusiMapEvent.OnMapLoad)
@@ -397,9 +398,7 @@ fun InclusiMapGoogleMapScreen(
             isInternetAvailable = isInternetAvailable,
             isRetrying = isCheckingServerAvailability,
             isServerAvailable = isServerAvailable,
-            onRetry = {
-                onTryReconnect()
-            },
+            onRetry = { onTryReconnect() },
         )
     }
 
@@ -428,8 +427,10 @@ fun InclusiMapGoogleMapScreen(
         onDispose { }
     }
 
-    DisposableEffect(state.allMappedPlaces.isEmpty() || state.useAppWithoutInternet && isInternetAvailable) {
-        latestOnEvent(InclusiMapEvent.OnLoadPlaces)
+    DisposableEffect(state.allMappedPlaces, state.useAppWithoutInternet, isInternetAvailable) {
+        if (state.allMappedPlaces.isEmpty() || state.useAppWithoutInternet && isInternetAvailable) {
+            latestOnEvent(InclusiMapEvent.OnLoadPlaces)
+        }
         onDispose { }
     }
 
@@ -511,11 +512,7 @@ fun InclusiMapGoogleMapScreen(
                 async {
                     cameraPositionState.animate(
                         CameraUpdateFactory.newLatLngZoom(
-                            LatLng(
-                                position.first,
-                                position.second,
-                            ),
-                            18f,
+                            LatLng(position.first, position.second), 18f,
                         ),
                         2500,
                     )
@@ -541,7 +538,7 @@ fun InclusiMapGoogleMapScreen(
         }
     }
 
-    DisposableEffect(cameraPositionState.position) {
+    DisposableEffect(cameraPositionState.position.bearing, cameraPositionState.position.tilt) {
         if (!cameraPositionState.position.bearing.inNorthRange() || cameraPositionState.position.tilt !in TILT_RANGE) {
             isNorth = false
         }
