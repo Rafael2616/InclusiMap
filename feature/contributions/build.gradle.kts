@@ -17,12 +17,14 @@ dependencies {
     // Koin
     implementation(libs.koin.core)
     implementation(libs.koin.core.viewmodel)
+    // Lottie
+    implementation(libs.lottie.compose)
 
     // Projects
     implementation(projects.core.domain)
     implementation(projects.core.navigation)
+    implementation(projects.core.resources)
     implementation(projects.core.services)
     implementation(projects.feature.auth)
 
-    implementation(libs.lottie.compose)
 }

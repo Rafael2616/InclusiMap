@@ -40,7 +40,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -82,6 +81,7 @@ import com.rafael.inclusimap.core.domain.util.removeTime
 import com.rafael.inclusimap.core.domain.util.toColor
 import com.rafael.inclusimap.core.navigation.Destination
 import com.rafael.inclusimap.core.navigation.types.Location
+import com.rafael.inclusimap.core.resources.R
 import com.rafael.inclusimap.feature.contributions.domain.ContributionsState
 import com.rafael.inclusimap.feature.contributions.domain.model.ContributionItem
 import com.rafael.inclusimap.feature.contributions.domain.model.ContributionType
@@ -818,7 +818,7 @@ fun LazyListScope.noContributionsFoundedScreen(
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.fillMaxWidth(),
                 )
-                val composition by rememberLottieComposition(LottieCompositionSpec.Url("https://lottie.host/3d996af0-62b2-4c41-ab5e-1440fc44672b/4BkRprduAP.lottie"))
+                val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.no_contributions_anim))
                 val progress by animateLottieCompositionAsState(
                     composition,
                     iterations = 1,
@@ -872,10 +872,21 @@ fun LazyListScope.connectionErrorScreen(
                 Text(
                     text = "Verifique sua conexão com a internet e tente novamente!",
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Normal,
+                    fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center,
-                    color = LocalContentColor.current.copy(alpha = 0.8f),
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.fillMaxWidth(),
+                )
+                val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.no_internet_anim))
+                val progress by animateLottieCompositionAsState(
+                    composition,
+                    iterations = 1,
+                    clipSpec = LottieClipSpec.Progress(0f, 1f),
+                )
+                LottieAnimation(
+                    composition = composition,
+                    progress = { progress },
+                    modifier = Modifier.size(250.dp),
                 )
             }
         }
