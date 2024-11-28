@@ -6,11 +6,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imeNestedScroll
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -50,7 +48,6 @@ import com.rafael.inclusimap.feature.auth.presentation.components.UpdatePassword
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun UnifiedLoginScreen(
     loginState: LoginState,
@@ -90,7 +87,6 @@ fun UnifiedLoginScreen(
                 .navigationBarsPadding()
                 .statusBarsPadding()
                 .fillMaxWidth(if (isLandscape) 0.5f else 0.85f)
-                .imeNestedScroll()
                 .imePadding()
                 .shadow(
                     elevation = 20.dp,

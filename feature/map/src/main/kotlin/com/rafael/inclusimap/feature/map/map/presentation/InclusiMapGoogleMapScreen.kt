@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -573,7 +574,7 @@ fun BoxScope.Revelation(
 }
 
 @Composable
-fun BoxScope.PlaceDetailsRevelation(
+fun BoxScope.AddPlaceRevelation(
     revealState: RevealState,
     modifier: Modifier = Modifier,
 ) {
@@ -583,14 +584,15 @@ fun BoxScope.PlaceDetailsRevelation(
         Alignment.TopEnd,
         RevealShape.Circle,
         modifier
-            .padding(top = 200.dp, end = 80.dp)
+            .navigationBarsPadding()
+            .padding(top = 200.dp, end = 90.dp)
             .size(50.dp)
             .clip(CircleShape),
     )
 }
 
 @Composable
-fun BoxScope.AddPlaceRevelation(
+fun BoxScope.PlaceDetailsRevelation(
     revealState: RevealState,
     modifier: Modifier = Modifier,
 ) {
