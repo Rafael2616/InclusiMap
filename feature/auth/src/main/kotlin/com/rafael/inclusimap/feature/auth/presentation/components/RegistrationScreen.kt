@@ -345,6 +345,7 @@ fun RegistrationScreen(
             }
         }
     }
+
     DisposableEffect(userAlreadyRegistered, state.isRegistering) {
         if (userAlreadyRegistered && !state.isRegistering && canLogin && email.isNotEmpty()) {
             Toast.makeText(

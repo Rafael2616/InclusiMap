@@ -23,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -205,18 +206,35 @@ fun LoginScreen(
             }
         }
     }
-    if (!state.isPasswordCorrect && !state.isRegistering && canLogin) {
-        Toast.makeText(context, "A senha está incorreta", Toast.LENGTH_LONG)
-            .show()
+
+    DisposableEffect(state.isPasswordCorrect, state.isRegistering, canLogin) {
+        if (!state.isPasswordCorrect && !state.isRegistering && canLogin) {
+            Toast.makeText(context, "A senha está incorreta", Toast.LENGTH_LONG)
+                .show()
+        }
+        onDispose { }
     }
-    if (!state.userAlreadyRegistered && !state.isRegistering && canLogin && email.isNotEmpty()) {
-        Toast.makeText(context, "Não foi encontrado um usuário com esse email!", Toast.LENGTH_LONG)
-            .show()
+    DisposableEffect(state.userAlreadyRegistered, state.isRegistering, canLogin, email) {
+        if (!state.userAlreadyRegistered && !state.isRegistering && canLogin && email.isNotEmpty()) {
+            Toast.makeText(
+                context,
+                "Não foi encontrado um usuário com esse email!",
+                Toast.LENGTH_LONG,
+            )
+                .show()
+        }
+        onDispose { }
     }
-    if (state.isLoggedIn && canLogin) {
-        Toast.makeText(context, "Logado com sucesso!", Toast.LENGTH_LONG).show()
+    DisposableEffect(state.isLoggedIn, canLogin) {
+        if (state.isLoggedIn && canLogin) {
+            Toast.makeText(context, "Logado com sucesso!", Toast.LENGTH_LONG).show()
+        }
+        onDispose { }
     }
-    if (state.networkError && canLogin) {
-        Toast.makeText(context, "Ocorreu um erro na conexão!", Toast.LENGTH_LONG).show()
+    DisposableEffect(state.networkError, canLogin) {
+        if (state.networkError && canLogin) {
+            Toast.makeText(context, "Ocorreu um erro na conexão!", Toast.LENGTH_LONG).show()
+        }
+        onDispose { }
     }
 }

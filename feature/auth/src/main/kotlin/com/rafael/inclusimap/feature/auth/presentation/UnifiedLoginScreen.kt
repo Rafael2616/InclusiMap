@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -212,7 +213,10 @@ fun UnifiedLoginScreen(
         }
     }
 
-    if (loginState.isTokenValid) {
-        isRecoveryScreen = false
+    DisposableEffect(loginState.isTokenValid) {
+        if (loginState.isTokenValid) {
+            isRecoveryScreen = false
+        }
+        onDispose { }
     }
 }
