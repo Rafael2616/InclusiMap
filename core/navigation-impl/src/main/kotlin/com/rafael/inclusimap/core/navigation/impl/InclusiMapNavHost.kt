@@ -135,22 +135,13 @@ fun InclusiMapNavHost(
                         }
                         composable<Destination.SettingsScreen> {
                             SettingsScreen(
-                                navController,
-                                settingsState,
+                                navController = navController,
+                                isLoggedIn = loginState.isLoggedIn,
+                                state = settingsState,
                                 onEvent = settingsViewModel::onEvent,
                                 userProfilePicture = loginState.userProfilePicture,
                                 revealCanvasState = revealCanvasState,
                             )
-                            LaunchedEffect(loginState.isLoggedIn) {
-                                if (!loginState.isLoggedIn) {
-                                    with(settingsViewModel) {
-                                        onEvent(SettingsEvent.ShowLogoutDialog(false))
-                                        onEvent(SettingsEvent.ShowDeleteAccountDialog(false))
-                                        onEvent(SettingsEvent.SetIsProfileSettingsTipShown(false))
-                                    }
-                                    navController.clearBackStack(Destination.MapHost)
-                                }
-                            }
                             AnimatedVisibility(settingsState.showLogoutDialog) {
                                 LogoutConfirmationDialog(
                                     isLoginOut = loginState.isLoginOut,
