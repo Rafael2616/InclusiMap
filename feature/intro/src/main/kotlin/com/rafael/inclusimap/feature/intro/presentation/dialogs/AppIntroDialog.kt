@@ -25,11 +25,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewDynamicColors
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -79,10 +80,12 @@ fun AppIntroDialog(
                                 .background(
                                     Brush.horizontalGradient(
                                         listOf(
-                                            Color.Cyan,
-                                            MaterialTheme.colorScheme.primaryContainer,
+                                            MaterialTheme.colorScheme.primary,
+                                            MaterialTheme.colorScheme.primary,
+                                            MaterialTheme.colorScheme.primary,
+                                            MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp),
                                         ),
-                                        tileMode = TileMode.Repeated,
+                                        tileMode = TileMode.Clamp,
                                     ),
                                     RoundedCornerShape(16.dp),
                                 ),
@@ -90,8 +93,8 @@ fun AppIntroDialog(
                             Text(
                                 text = "Bem vindo ao InclusiMap,\n${userName.split(" ")[0]}",
                                 fontSize = 24.sp,
-                                color = Color.Black,
-                                fontWeight = FontWeight.Light,
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                fontWeight = FontWeight.W400,
                                 modifier = Modifier.padding(12.dp),
                             )
                         }
@@ -165,6 +168,8 @@ fun AppIntroDialog(
 }
 
 @Preview
+@PreviewLightDark
+@PreviewDynamicColors
 @Composable
 fun AppIntroDialogPreview() {
     AppIntroDialog(
