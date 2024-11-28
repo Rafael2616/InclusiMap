@@ -442,7 +442,7 @@ fun InclusiMapGoogleMapScreen(
                         state.defaultLocationLatLng,
                         15f,
                     ),
-                    durationMs = 3500,
+                    durationMs = 3200,
                 )
             }.await()
             locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
