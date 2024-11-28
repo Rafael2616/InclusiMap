@@ -2,6 +2,8 @@ package com.rafael.gradle
 
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
+import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 internal fun Project.configureComposeAndroid() {
     plugins.withId("org.jetbrains.kotlin.android") {
@@ -20,4 +22,20 @@ internal fun Project.configureComposeAndroid() {
             "androidTestImplementation"(libs.findLibrary("androidx-compose-ui-test-junit4").get())
         }
     }
+    tasks.withType<KotlinJvmCompile>().configureEach {
+        compilerOptions {
+            freeCompilerArgs.addAll(
+                "-P",
+                "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=${composeCompilerReportsDir()}",
+                "-P",
+                "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=${composeCompilerMetricsDir()}"
+            )
+        }
+    }
 }
+
+private fun Project.composeCompilerMetricsDir() =
+    "${layout.buildDirectory.get().asFile.absolutePath}/compose_metrics"
+
+private fun Project.composeCompilerReportsDir() =
+    "${layout.buildDirectory.get().asFile.absolutePath}/compose_reports"

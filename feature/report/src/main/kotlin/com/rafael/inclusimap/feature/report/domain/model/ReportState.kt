@@ -1,7 +1,7 @@
 package com.rafael.inclusimap.feature.report.domain.model
 
 data class ReportState(
-    var isReported: Boolean = false,
-    var isReporting: Boolean = false,
-    var isError: Boolean = false,
+    val isReported: Boolean = false,
+    val isReporting: Boolean = false,
+    val isError: Boolean = false,
 )

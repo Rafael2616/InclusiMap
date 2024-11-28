@@ -89,13 +89,15 @@ class InclusiMapGoogleMapViewModel(
         _state.update { it.copy(currentLocation = mapState) }
         viewModelScope.launch(Dispatchers.IO) {
             val currentState = inclusiMapRepository.getPosition(1) ?: InclusiMapEntity.getDefault()
-            currentState.lat = mapState.target.latitude
-            currentState.lng = mapState.target.longitude
-            currentState.zoom = mapState.zoom
-            currentState.tilt = mapState.tilt
-            currentState.bearing = mapState.bearing
-
-            inclusiMapRepository.updatePosition(currentState)
+            val updatedState = currentState.copy(
+                lat = mapState.target.latitude,
+                lng = mapState.target.longitude,
+                zoom = mapState.zoom,
+                tilt = mapState.tilt,
+                bearing = mapState.bearing,
+            )
+            println("Updating map state: $updatedState")
+            inclusiMapRepository.updatePosition(updatedState)
         }
     }
 
