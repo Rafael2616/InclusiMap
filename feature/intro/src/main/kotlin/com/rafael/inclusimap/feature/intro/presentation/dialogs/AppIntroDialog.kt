@@ -59,7 +59,7 @@ fun AppIntroDialog(
             modifier = modifier
                 .navigationBarsPadding()
                 .statusBarsPadding()
-                .fillMaxWidth(if (isLandscape) 0.5f else 0.85f)
+                .fillMaxWidth(if (isLandscape) 0.55f else 0.9f)
                 .wrapContentHeight()
                 .clip(RoundedCornerShape(24.dp)),
             colors = CardDefaults.cardColors(
@@ -95,7 +95,7 @@ fun AppIntroDialog(
                                 fontSize = 24.sp,
                                 color = MaterialTheme.colorScheme.onPrimary,
                                 fontWeight = FontWeight.W400,
-                                modifier = Modifier.padding(12.dp),
+                                modifier = Modifier.padding(vertical = 12.dp, horizontal = 8.dp),
                             )
                         }
                     }
