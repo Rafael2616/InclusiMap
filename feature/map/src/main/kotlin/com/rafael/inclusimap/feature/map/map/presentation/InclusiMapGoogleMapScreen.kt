@@ -50,6 +50,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.rafael.inclusimap.core.domain.model.toCategoryName
 import com.rafael.inclusimap.core.domain.network.InternetConnectionState
+import com.rafael.inclusimap.core.domain.util.Constants.PLACE_DEMO_ID
 import com.rafael.inclusimap.core.navigation.types.Location
 import com.rafael.inclusimap.core.settings.domain.model.SettingsState
 import com.rafael.inclusimap.core.ui.components.OverlayText
@@ -158,7 +159,7 @@ fun InclusiMapGoogleMapScreen(
                     RevealKeys.PLACE_DETAILS_TIP -> {
                         latestOnEvent(
                             InclusiMapEvent.OnMappedPlaceSelected(
-                                state.allMappedPlaces.find { it.id == "fd9aa418-bc04-46fe-8974-f0bb8c400969" }
+                                state.allMappedPlaces.find { it.id == PLACE_DEMO_ID }
                                     ?: return@launch,
                             ),
                         )

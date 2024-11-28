@@ -10,4 +10,5 @@ object Constants {
     const val INCLUSIMAP_SERVER_FOLDER_ID = "1GrxALABKRdTBFqc-K1rPjIA0zCjdPcpB"
     const val INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID = "1QQ4LQiNd_RELG_HKKwfDj0PsXFKivRu3"
     const val MAX_IMAGE_NUMBER = 25
+    const val PLACE_DEMO_ID = "fd9aa418-bc04-46fe-8974-f0bb8c400969"
 }
