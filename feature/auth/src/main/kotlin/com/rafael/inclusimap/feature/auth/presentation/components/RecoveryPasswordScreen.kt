@@ -85,7 +85,7 @@ fun RecoveryPasswordScreen(
                     .fillMaxWidth()
                     .clip(firstItemShape),
                 placeholder = {
-                    Text(text = "Email")
+                    Text(text = "E-mail")
                 },
                 isError = canUpdate && email.isEmpty() || !isValidEmail,
                 singleLine = true,

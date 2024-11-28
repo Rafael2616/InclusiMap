@@ -6,7 +6,7 @@ Termos de serviço:
 
 2- O que é feito com seus dados?
 
-    Seu email funciona como um ID (Identificador Único), ele é utilizado para definir e fazer associações dos locais que você interage/cadastra para possibilitar a postuma edição ou exclusão de comentários, imagens ou locais adicionados por você, além de garantir que ninguém mais consiga cadastrar e entrar no serviço com seu email.
+    Seu e-mail funciona como um ID (Identificador Único), ele é utilizado para definir e fazer associações dos locais que você interage/cadastra para possibilitar a postuma edição ou exclusão de comentários, imagens ou locais adicionados por você, além de garantir que ninguém mais consiga cadastrar e entrar no serviço com seu email.
     Seu nome é utilizado para que outros usuários consigam identificar quem publicou um comentário ou uma foto.
     Sua foto serve como identificação para os outros usuários.
 
@@ -18,7 +18,7 @@ Termos de serviço:
 
 4- O que acontece quando você exclui sua conta?
 
-    Quando você exclui sua conta, todas as informações associadas a você como: email, senha, ID, foto de perfil e nome de usuário são excluidos do nosso servidor
+    Quando você exclui sua conta, todas as informações associadas a você como: e-mail, senha, ID, foto de perfil e nome de usuário são excluidos do nosso servidor
     Quando você opta por apagar tudo ao excluir sua conta, além dos dados anteriores, todas as interações realizadas também são excluidas, como: comentários, locais adicionadas e imagens postadas.
     No entanto, uma cópia de dados como: seu email, ID e nome de usuário são mantidos por 72 horas nos nossos servidores, para fins de análise e são automaticamente deletados após esse período.
 
