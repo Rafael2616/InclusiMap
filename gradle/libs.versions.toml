@@ -6,7 +6,7 @@ versionCode = "7"
 versionName = "1.1.5"
 jvmTarget = "21"
 
-agp = "8.7.2"
+agp = "8.7.3"
 kotlin = "2.1.0"
 licensee = "1.12.0"
 ksp = "2.1.0-1.0.29"
