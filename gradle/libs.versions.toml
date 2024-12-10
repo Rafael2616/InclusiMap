@@ -12,7 +12,7 @@ licensee = "1.12.0"
 ksp = "2.1.0-1.0.29"
 spotless = "7.0.0.BETA4"
 
-googleApiClient = "2.7.0"
+googleApiClient = "2.7.1"
 googleDriveApi = "v3-rev20241027-2.0.0"
 coreKtx = "1.15.0"
 lifecycle = "2.8.7"
