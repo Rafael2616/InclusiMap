@@ -18,3 +18,4 @@ local.properties
 /app/src/main/resources/places_credentials.txt
 /app/src/main/resources/mailsender_credentials.properties
 keystore.properties
+diagrams.plantuml
