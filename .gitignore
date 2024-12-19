@@ -19,3 +19,5 @@ local.properties
 /app/src/main/resources/mailsender_credentials.properties
 keystore.properties
 diagrams.plantuml
+/usecasediagrams.puml
+/build-logic/.kotlin/errors/errors-1734648280845.log
