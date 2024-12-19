@@ -7,10 +7,7 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
-.DS_Store
 /build
-/captures
-.externalNativeBuild
 .cxx
 local.properties
 /.kotlin
@@ -19,5 +16,5 @@ local.properties
 /app/src/main/resources/mailsender_credentials.properties
 keystore.properties
 diagrams.plantuml
-/usecasediagrams.puml
+usecasediagrams.puml
 /build-logic/.kotlin
