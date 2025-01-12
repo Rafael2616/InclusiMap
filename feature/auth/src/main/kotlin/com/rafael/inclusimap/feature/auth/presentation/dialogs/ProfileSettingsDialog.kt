@@ -315,10 +315,14 @@ fun ProfileSettingsDialog(
                                     )
                                 }
                             },
+                            isError = newName.length < 3 && newName.isNotEmpty() && editUserName,
                         )
                         IconButton(
                             onClick = {
-                                editUserName = !editUserName
+                                if (!loginState.isUpdatingUserName) {
+                                    editUserName = !editUserName
+                                    return@IconButton
+                                }
                                 if (!editUserName) {
                                     newName = loginState.user?.name.orEmpty()
                                     focusRequester.freeFocus()
@@ -417,6 +421,7 @@ fun ProfileSettingsDialog(
                                             ).show()
                                             return@Button
                                         }
+                                        editUserName = false
                                         onEvent(LoginEvent.UpdateUserName(newName))
                                     }
                                     if (allowOtherUsersToSeeProfilePictureOptedIn != loginState.user?.showProfilePictureOptedIn) {
