@@ -364,6 +364,7 @@ class LoginViewModel(
                                                     showProfilePictureOptedIn = userObj.showProfilePictureOptedIn,
                                                     isBanned = userObj.isBanned,
                                                 ),
+                                                isUserBanned = userObj.isBanned,
                                                 userProfilePicture = userImageByteArray.run {
                                                     BitmapFactory.decodeByteArray(
                                                         userImageByteArray.toByteArray(),
@@ -391,7 +392,7 @@ class LoginViewModel(
             if (_state.value.userAlreadyRegistered && _state.value.isPasswordCorrect && !_state.value.networkError && _state.value.user != null) {
                 _state.update {
                     it.copy(
-                        isLoggedIn = true,
+                        isLoggedIn = !state.value.isUserBanned,
                         isPasswordCorrect = true,
                     )
                 }
