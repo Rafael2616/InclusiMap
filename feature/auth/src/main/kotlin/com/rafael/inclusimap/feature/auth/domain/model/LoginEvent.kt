@@ -16,4 +16,5 @@ sealed interface LoginEvent {
     data class SendPasswordResetEmail(val email: String) : LoginEvent
     data class ValidateToken(val token: String) : LoginEvent
     data object InvalidateUpdatePasswordProcess : LoginEvent
+    data class SetIsBanned(val isBanned: Boolean) : LoginEvent
 }

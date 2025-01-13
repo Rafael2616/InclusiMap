@@ -123,8 +123,7 @@ fun InclusiMapNavHost(
                             AnimatedVisibility(loginState.isUserBanned) {
                                 UserBannedDialog(
                                     onLogin = {
-                                        loginViewModel.onEvent(LoginEvent.OnLogout)
-                                        navController.navigate(Destination.LoginScreen(false))
+                                        loginViewModel.onEvent(LoginEvent.SetIsBanned(false))
                                     },
                                 )
                             }

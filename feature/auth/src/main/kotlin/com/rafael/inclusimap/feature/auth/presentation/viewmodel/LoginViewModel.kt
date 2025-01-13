@@ -120,6 +120,11 @@ class LoginViewModel(
             is LoginEvent.SendPasswordResetEmail -> recoveryPasswordProcess(event.email)
             is LoginEvent.ValidateToken -> validateToken(event.token)
             LoginEvent.InvalidateUpdatePasswordProcess -> invalidateUpdatePasswordProcess()
+            is LoginEvent.SetIsBanned -> {
+                _state.update {
+                    it.copy(isUserBanned = event.isBanned)
+                }
+            }
         }
     }
 
