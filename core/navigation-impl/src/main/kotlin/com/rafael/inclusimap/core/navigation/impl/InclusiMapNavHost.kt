@@ -25,6 +25,7 @@ import com.rafael.inclusimap.feature.auth.presentation.UnifiedLoginScreen
 import com.rafael.inclusimap.feature.auth.presentation.dialogs.DeleteAccountConfirmationDialog
 import com.rafael.inclusimap.feature.auth.presentation.dialogs.LogoutConfirmationDialog
 import com.rafael.inclusimap.feature.auth.presentation.dialogs.ProfileSettingsDialog
+import com.rafael.inclusimap.feature.auth.presentation.dialogs.UserBannedDialog
 import com.rafael.inclusimap.feature.auth.presentation.viewmodel.LoginViewModel
 import com.rafael.inclusimap.feature.contributions.presentation.LibraryScreen
 import com.rafael.inclusimap.feature.contributions.presentation.viewmodel.LibraryViewModel
@@ -118,6 +119,15 @@ fun InclusiMapNavHost(
                                 },
                                 isEditPasswordModeFromSettings = it.toRoute<Destination.LoginScreen>().isEditPasswordMode,
                             )
+
+                            AnimatedVisibility(loginState.isUserBanned) {
+                                UserBannedDialog(
+                                    onLogin = {
+                                        loginViewModel.onEvent(LoginEvent.OnLogout)
+                                        navController.navigate(Destination.LoginScreen(false))
+                                    },
+                                )
+                            }
                         }
                         composable<Destination.MapHost> {
                             MapNavHost(

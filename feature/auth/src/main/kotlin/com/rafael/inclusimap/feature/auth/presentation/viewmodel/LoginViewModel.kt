@@ -54,7 +54,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class LoginViewModel(
@@ -82,6 +81,7 @@ class LoginViewModel(
                             email = loginData.userEmail!!,
                             password = loginData.userPassword!!,
                             showProfilePictureOptedIn = loginData.showProfilePictureOptedIn,
+                            isBanned = false,
                         ),
                         userProfilePicture = loginData.profilePicture?.let { picture ->
                             BitmapFactory.decodeByteArray(
@@ -139,6 +139,7 @@ class LoginViewModel(
             email = newUser.email,
             password = newUser.password,
             showProfilePictureOptedIn = newUser.showProfilePictureOptedIn,
+            isBanned = false,
         )
         viewModelScope.launch(Dispatchers.IO) {
             driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID)
@@ -356,6 +357,7 @@ class LoginViewModel(
                                                     email = userObj.email,
                                                     password = userObj.password,
                                                     showProfilePictureOptedIn = userObj.showProfilePictureOptedIn,
+                                                    isBanned = userObj.isBanned,
                                                 ),
                                                 userProfilePicture = userImageByteArray.run {
                                                     BitmapFactory.decodeByteArray(
@@ -745,6 +747,7 @@ class LoginViewModel(
                 }
             }
         }.invokeOnCompletion {
+            checkUserIsBanned(2 * 60 * 1000 /* 2 minutes */)
             // Download user profile picture
             viewModelScope.launch(Dispatchers.IO) {
                 val picture = downloadUserProfilePicture(state.value.user?.email)
@@ -1278,6 +1281,47 @@ class LoginViewModel(
                 .collect { remainingTime ->
                     _state.update { it.copy(tokenExpirationTimer = remainingTime) }
                 }
+        }
+    }
+
+    private fun checkUserIsBanned(intervalInMinutes: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            while (true) {
+                checkUserIsBanned()
+                delay(intervalInMinutes)
+            }
+        }
+    }
+
+    private fun checkUserIsBanned() {
+        viewModelScope.launch(Dispatchers.IO) {
+            async {
+                driveService.listFiles(state.value.userPathID ?: return@async)
+                    .onSuccess { result ->
+                        result.find { userFile -> userFile.name == state.value.user?.email + ".json" }
+                            .also { userLoginFile ->
+                                println("Checking if user is banned")
+                                val userLoginFileContent =
+                                    userLoginFile?.id?.let { fileId ->
+                                        driveService.getFileContent(fileId)
+                                            ?.decodeToString()
+                                    }
+
+                                if (userLoginFileContent == null) {
+                                    return@async
+                                }
+                                val userObj =
+                                    json.decodeFromString<User>(userLoginFileContent)
+
+                                _state.update {
+                                    it.copy(isUserBanned = userObj.isBanned)
+                                }
+                                if (userObj.isBanned) {
+                                    logout()
+                                }
+                            }
+                    }
+            }
         }
     }
 }

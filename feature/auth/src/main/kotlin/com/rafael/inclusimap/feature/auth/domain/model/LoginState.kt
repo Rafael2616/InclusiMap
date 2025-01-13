@@ -44,4 +44,5 @@ data class LoginState(
     val userExists: Boolean = true,
     val isServerAvailable: Boolean = true,
     val isCheckingServerAvailability: Boolean = false,
+    val isUserBanned: Boolean = false,
 )

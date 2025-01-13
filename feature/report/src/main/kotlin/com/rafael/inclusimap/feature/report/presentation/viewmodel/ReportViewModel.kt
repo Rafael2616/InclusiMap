@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class ReportViewModel(
@@ -44,6 +43,7 @@ class ReportViewModel(
                         password = loginData.userPassword!!,
                         id = loginData.userId!!,
                         showProfilePictureOptedIn = loginData.showProfilePictureOptedIn,
+                        isBanned = false,
                     )
                 val json =
                     Json {
