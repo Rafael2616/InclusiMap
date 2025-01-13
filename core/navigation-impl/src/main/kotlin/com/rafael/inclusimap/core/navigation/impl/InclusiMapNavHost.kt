@@ -176,9 +176,6 @@ fun InclusiMapNavHost(
                                         loginViewModel.onEvent(
                                             LoginEvent.DeleteAccount(keepContributions),
                                         )
-                                        settingsViewModel.onEvent(
-                                            SettingsEvent.SetIsProfileSettingsTipShown(false),
-                                        )
                                     },
                                     onDismissRequest = {
                                         settingsViewModel.onEvent(

@@ -2,6 +2,7 @@ package com.rafael.inclusimap.feature.auth.presentation.dialogs
 
 import android.content.res.Configuration
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -56,6 +57,7 @@ fun DeleteAccountConfirmationDialog(
     var deleteProcessStarted by remember { mutableStateOf(true) }
     val orientation = LocalConfiguration.current.orientation
     val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
+    var showPasswordConfirmationDialog by remember { mutableStateOf(false) }
 
     BasicAlertDialog(
         onDismissRequest = {
@@ -191,7 +193,7 @@ fun DeleteAccountConfirmationDialog(
                         OutlinedButton(
                             onClick = {
                                 deleteProcessStarted = false
-                                onDeleteAccount(keepContributions)
+                                showPasswordConfirmationDialog = true
                             },
                             colors = ButtonColors(
                                 containerColor = MaterialTheme.colorScheme.error,
@@ -217,5 +219,18 @@ fun DeleteAccountConfirmationDialog(
     }
     if (loginState.deleteStep == DeleteProcess.SUCCESS && !deleteProcessStarted) {
         Toast.makeText(context, "Conta deletada com sucesso!", Toast.LENGTH_LONG).show()
+    }
+
+    AnimatedVisibility(showPasswordConfirmationDialog) {
+        DeleteAccountPasswordConfirmationDialog(
+            loginState = loginState,
+            onDismissRequest = {
+                showPasswordConfirmationDialog = false
+            },
+            onPasswordConfirmed = {
+                showPasswordConfirmationDialog = false
+                onDeleteAccount(keepContributions)
+            },
+        )
     }
 }
