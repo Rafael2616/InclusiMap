@@ -753,7 +753,7 @@ class LoginViewModel(
                 }
             }
         }.invokeOnCompletion {
-            checkUserIsBanned(2 * 60 * 1000 /* 2 minutes */)
+            checkUserIsBanned(60 * 1000 /* 1 minute */)
             // Download user profile picture
             viewModelScope.launch(Dispatchers.IO) {
                 val picture = downloadUserProfilePicture(state.value.user?.email)
@@ -1306,7 +1306,7 @@ class LoginViewModel(
                     .onSuccess { result ->
                         result.find { userFile -> userFile.name == state.value.user?.email + ".json" }
                             .also { userLoginFile ->
-                                println("Checking if user is banned")
+                                println("Checking if user is banned...")
                                 val userLoginFileContent =
                                     userLoginFile?.id?.let { fileId ->
                                         driveService.getFileContent(fileId)
@@ -1322,10 +1322,14 @@ class LoginViewModel(
                                 _state.update {
                                     it.copy(isUserBanned = userObj.isBanned)
                                 }
+                                println("User is banned: ${userObj.isBanned}")
                                 if (userObj.isBanned) {
                                     logout()
                                 }
                             }
+                    }
+                    .onError {
+                        println("Failed to check if user is banned")
                     }
             }
         }

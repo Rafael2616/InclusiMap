@@ -225,17 +225,6 @@ fun LoginScreen(
         }
         onDispose { }
     }
-    DisposableEffect(state.isUserBanned) {
-        if (state.isUserBanned) {
-            Toast.makeText(
-                context,
-                "Essa conta foi banida de usar esse aplicativo!",
-                Toast.LENGTH_LONG,
-            )
-                .show()
-        }
-        onDispose { }
-    }
     DisposableEffect(state.isLoggedIn, canLogin) {
         if (state.isLoggedIn && canLogin) {
             Toast.makeText(context, "Logado com sucesso!", Toast.LENGTH_LONG).show()

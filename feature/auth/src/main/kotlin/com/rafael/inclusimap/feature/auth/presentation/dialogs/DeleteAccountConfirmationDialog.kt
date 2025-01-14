@@ -192,7 +192,6 @@ fun DeleteAccountConfirmationDialog(
                     if (!loginState.isDeletingAccount && !loginState.isLoginOut) {
                         OutlinedButton(
                             onClick = {
-                                deleteProcessStarted = false
                                 showPasswordConfirmationDialog = true
                             },
                             colors = ButtonColors(
@@ -228,6 +227,7 @@ fun DeleteAccountConfirmationDialog(
                 showPasswordConfirmationDialog = false
             },
             onPasswordConfirmed = {
+                deleteProcessStarted = false
                 showPasswordConfirmationDialog = false
                 onDeleteAccount(keepContributions)
             },

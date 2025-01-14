@@ -97,7 +97,7 @@ fun DeleteAccountPasswordConfirmationDialog(
                     isError = isPasswordVerified && insertedPassword != loginState.user?.password,
                     shape = RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp),
                 )
-                Spacer(modifier = Modifier.height(30.dp))
+                Spacer(modifier = Modifier.height(25.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
@@ -124,7 +124,7 @@ fun DeleteAccountPasswordConfirmationDialog(
                                 disabledContentColor = MaterialTheme.colorScheme.onErrorContainer,
                             ),
                         ) {
-                            Text(text = "Confirmar e excluir")
+                            Text(text = "Excluir")
                         }
                     }
                 }
@@ -133,8 +133,9 @@ fun DeleteAccountPasswordConfirmationDialog(
 
     val context = LocalContext.current
     DisposableEffect(isPasswordVerified, insertedPassword) {
-        if (isPasswordVerified && insertedPassword != loginState.user?.password)
-        Toast.makeText(context, "A senha está incorreta!", Toast.LENGTH_LONG).show()
+        if (isPasswordVerified && insertedPassword != loginState.user?.password) {
+            Toast.makeText(context, "A senha está incorreta!", Toast.LENGTH_LONG).show()
+        }
         onDispose { }
     }
 }
