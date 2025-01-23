@@ -50,7 +50,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class PlaceDetailsViewModel(
@@ -754,35 +753,31 @@ class PlaceDetailsViewModel(
         }
     }
 
-    private suspend fun addNewContribution(contribution: Contribution) =
-        contributionsRepository.addNewContribution(contribution)
+    private suspend fun addNewContribution(contribution: Contribution) = contributionsRepository.addNewContribution(contribution)
 
-    private suspend fun addNewContributions(contributions: List<Contribution>) =
-        contributionsRepository.addNewContributions(contributions)
+    private suspend fun addNewContributions(contributions: List<Contribution>) = contributionsRepository.addNewContributions(contributions)
 
-    private suspend fun removeContribution(contribution: Contribution) =
-        contributionsRepository.removeContribution(contribution)
+    private suspend fun removeContribution(contribution: Contribution) = contributionsRepository.removeContribution(contribution)
 
-    private suspend fun findUserNameByEmail(email: String) =
-        suspendCancellableCoroutine { continuation ->
-            viewModelScope.launch(Dispatchers.IO) {
-                driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { users ->
-                    val userFiles = users.find { it.name == email }
-                    if (userFiles?.id == null) {
-                        continuation.resume(null)
-                        return@launch
+    private suspend fun findUserNameByEmail(email: String) = suspendCancellableCoroutine { continuation ->
+        viewModelScope.launch(Dispatchers.IO) {
+            driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { users ->
+                val userFiles = users.find { it.name == email }
+                if (userFiles?.id == null) {
+                    continuation.resume(null)
+                    return@launch
+                }
+                driveService.listFiles(userFiles.id).onSuccess { userDataFiles ->
+                    val userContentString = userDataFiles.find { it.name == "$email.json" }?.id?.let {
+                        driveService.getFileContent(it)
                     }
-                    driveService.listFiles(userFiles.id).onSuccess { userDataFiles ->
-                        val userContentString = userDataFiles.find { it.name == "$email.json" }?.id?.let {
-                            driveService.getFileContent(it)
-                        }
-                            ?.decodeToString()
-                        val user = userContentString?.let {
-                            json.decodeFromString<User>(userContentString)
-                        }
-                        continuation.resume(user?.name)
+                        ?.decodeToString()
+                    val user = userContentString?.let {
+                        json.decodeFromString<User>(userContentString)
                     }
+                    continuation.resume(user?.name)
                 }
             }
         }
+    }
 }

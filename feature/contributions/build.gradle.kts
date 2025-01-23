@@ -26,5 +26,4 @@ dependencies {
     implementation(projects.core.resources)
     implementation(projects.core.services)
     implementation(projects.feature.auth)
-
 }

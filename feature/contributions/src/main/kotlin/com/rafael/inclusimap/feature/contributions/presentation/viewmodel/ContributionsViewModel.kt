@@ -435,6 +435,5 @@ class ContributionsViewModel(
         }
     }
 
-    private suspend fun removeContribution(contribution: Contribution) =
-        contributionsRepository.removeContribution(contribution)
+    private suspend fun removeContribution(contribution: Contribution) = contributionsRepository.removeContribution(contribution)
 }

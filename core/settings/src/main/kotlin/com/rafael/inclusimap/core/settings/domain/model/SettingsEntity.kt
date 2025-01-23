@@ -16,16 +16,15 @@ data class SettingsEntity(
     var isProfileSettingsTipShown: Boolean,
 ) {
     companion object {
-        fun getDefaultSettings(): SettingsEntity =
-            SettingsEntity(
-                id = 1,
-                isDarkThemeOn = true,
-                isDynamicColorsOn = true,
-                isFollowingSystemOn = true,
-                appVersion = "0",
-                mapType = 1,
-                searchHistoryEnabled = true,
-                isProfileSettingsTipShown = false,
-            )
+        fun getDefaultSettings(): SettingsEntity = SettingsEntity(
+            id = 1,
+            isDarkThemeOn = true,
+            isDynamicColorsOn = true,
+            isFollowingSystemOn = true,
+            appVersion = "0",
+            mapType = 1,
+            searchHistoryEnabled = true,
+            isProfileSettingsTipShown = false,
+        )
     }
 }

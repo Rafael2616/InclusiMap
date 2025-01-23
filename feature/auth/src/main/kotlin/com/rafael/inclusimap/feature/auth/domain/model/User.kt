@@ -9,5 +9,5 @@ data class User(
     val email: String,
     var password: String,
     var showProfilePictureOptedIn: Boolean,
-    var isBanned : Boolean,
+    var isBanned: Boolean,
 )

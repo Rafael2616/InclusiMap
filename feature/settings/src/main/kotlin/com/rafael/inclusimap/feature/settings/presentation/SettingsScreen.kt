@@ -58,9 +58,9 @@ fun SettingsScreen(
 
     LaunchedEffect(isLoggedIn) {
         if (!isLoggedIn) {
-            onEvent(SettingsEvent.ShowLogoutDialog(false))
-            onEvent(SettingsEvent.ShowDeleteAccountDialog(false))
-            onEvent(SettingsEvent.SetIsProfileSettingsTipShown(false))
+            latestOnEvent(SettingsEvent.ShowLogoutDialog(false))
+            latestOnEvent(SettingsEvent.ShowDeleteAccountDialog(false))
+            latestOnEvent(SettingsEvent.SetIsProfileSettingsTipShown(false))
             navController.clearBackStack(Destination.MapHost)
         }
     }

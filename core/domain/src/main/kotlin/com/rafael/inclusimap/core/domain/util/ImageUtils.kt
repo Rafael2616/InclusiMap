@@ -30,28 +30,27 @@ private fun rotateBitmap(
     return Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
 }
 
-fun resizedImageAsByteArrayOS(image: ImageBitmap): ByteArrayOutputStream =
-    image.asAndroidBitmap().let { bitmap ->
-        val maxSize = 1024
-        val width = bitmap.width
-        val height = bitmap.height
-        val scale =
-            if (width > height) {
-                maxSize.toFloat() / width
-            } else {
-                maxSize.toFloat() / height
-            }
+fun resizedImageAsByteArrayOS(image: ImageBitmap): ByteArrayOutputStream = image.asAndroidBitmap().let { bitmap ->
+    val maxSize = 1024
+    val width = bitmap.width
+    val height = bitmap.height
+    val scale =
+        if (width > height) {
+            maxSize.toFloat() / width
+        } else {
+            maxSize.toFloat() / height
+        }
 
-        val scaledBitmap =
-            Bitmap.createScaledBitmap(
-                bitmap,
-                (width * scale).toInt(),
-                (height * scale).toInt(),
-                true,
-            )
+    val scaledBitmap =
+        Bitmap.createScaledBitmap(
+            bitmap,
+            (width * scale).toInt(),
+            (height * scale).toInt(),
+            true,
+        )
 
-        val baos = ByteArrayOutputStream()
-        scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 85, baos)
+    val baos = ByteArrayOutputStream()
+    scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 85, baos)
 
-        baos
-    }
+    baos
+}

@@ -45,7 +45,7 @@ import com.rafael.inclusimap.feature.auth.domain.model.LoginState
 fun DeleteAccountPasswordConfirmationDialog(
     loginState: LoginState,
     onDismissRequest: () -> Unit,
-    onPasswordConfirmed: () -> Unit,
+    onPasswordConfirm: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val orientation = LocalConfiguration.current.orientation
@@ -55,7 +55,7 @@ fun DeleteAccountPasswordConfirmationDialog(
 
     BasicAlertDialog(
         onDismissRequest = {
-                onDismissRequest()
+            onDismissRequest()
         },
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
@@ -103,31 +103,31 @@ fun DeleteAccountPasswordConfirmationDialog(
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                        OutlinedButton(
-                            onClick = {
-                                onDismissRequest()
-                            },
-                        ) {
-                            Text(text = "Voltar")
-                        }
-                        OutlinedButton(
-                            onClick = {
-                                isPasswordVerified = true
-                                if (insertedPassword == loginState.user?.password) {
-                                    onPasswordConfirmed()
-                                }
-                            },
-                            colors = ButtonColors(
-                                containerColor = MaterialTheme.colorScheme.error,
-                                contentColor = MaterialTheme.colorScheme.onError,
-                                disabledContainerColor = MaterialTheme.colorScheme.errorContainer,
-                                disabledContentColor = MaterialTheme.colorScheme.onErrorContainer,
-                            ),
-                        ) {
-                            Text(text = "Excluir")
-                        }
+                    OutlinedButton(
+                        onClick = {
+                            onDismissRequest()
+                        },
+                    ) {
+                        Text(text = "Voltar")
+                    }
+                    OutlinedButton(
+                        onClick = {
+                            isPasswordVerified = true
+                            if (insertedPassword == loginState.user?.password) {
+                                onPasswordConfirm()
+                            }
+                        },
+                        colors = ButtonColors(
+                            containerColor = MaterialTheme.colorScheme.error,
+                            contentColor = MaterialTheme.colorScheme.onError,
+                            disabledContainerColor = MaterialTheme.colorScheme.errorContainer,
+                            disabledContentColor = MaterialTheme.colorScheme.onErrorContainer,
+                        ),
+                    ) {
+                        Text(text = "Excluir")
                     }
                 }
+            }
         }
     }
 

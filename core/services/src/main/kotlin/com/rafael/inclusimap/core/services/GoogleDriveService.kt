@@ -39,26 +39,24 @@ class GoogleDriveService {
                 .build()
     }
 
-    suspend fun getFileContent(fileId: String): ByteArray? =
-        withContext(Dispatchers.IO) {
-            try {
-                driveService
-                    .files()
-                    .get(fileId)
-                    .executeMediaAsInputStream()
-                    .readBytes()
-            } catch (e: Exception) {
-                e.printStackTrace()
-                null
-            }
-        }
-
-    fun getFileMetadata(fileId: String): File? =
+    suspend fun getFileContent(fileId: String): ByteArray? = withContext(Dispatchers.IO) {
         try {
-            driveService.files().get(fileId).execute()
-        } catch (_: Exception) {
+            driveService
+                .files()
+                .get(fileId)
+                .executeMediaAsInputStream()
+                .readBytes()
+        } catch (e: Exception) {
+            e.printStackTrace()
             null
         }
+    }
+
+    fun getFileMetadata(fileId: String): File? = try {
+        driveService.files().get(fileId).execute()
+    } catch (_: Exception) {
+        null
+    }
 
     suspend fun listFiles(folderId: String): Result<List<File>, Error> {
         val result = mutableListOf<File>()
@@ -113,72 +111,69 @@ class GoogleDriveService {
         fileContent: InputStream?,
         fileName: String,
         folderId: String,
-    ): String? =
+    ): String? = try {
+        val fileMetadata = File()
+        fileMetadata.name = fileName
+        fileMetadata.parents = listOf(folderId)
+
+        val mimeType =
+            when {
+                fileName.endsWith(".jpg", true) || fileName.endsWith(".jpeg", true) -> "image/jpeg"
+                fileName.endsWith(".png", true) -> "image/png"
+                else -> "application/octet-stream"
+            }
+        val mediaContent = InputStreamContent(mimeType, fileContent)
+
+        val file =
+            driveService
+                .files()
+                .create(fileMetadata, mediaContent)
+                .setFields("id")
+                .execute()
+
+        file.id
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+
+    suspend fun deleteFile(fileId: String): Boolean = withContext(Dispatchers.IO) {
         try {
-            val fileMetadata = File()
-            fileMetadata.name = fileName
-            fileMetadata.parents = listOf(folderId)
-
-            val mimeType =
-                when {
-                    fileName.endsWith(".jpg", true) || fileName.endsWith(".jpeg", true) -> "image/jpeg"
-                    fileName.endsWith(".png", true) -> "image/png"
-                    else -> "application/octet-stream"
-                }
-            val mediaContent = InputStreamContent(mimeType, fileContent)
-
-            val file =
-                driveService
-                    .files()
-                    .create(fileMetadata, mediaContent)
-                    .setFields("id")
-                    .execute()
-
-            file.id
+            driveService.files().delete(fileId).execute()
+            true
         } catch (e: Exception) {
             e.printStackTrace()
-            null
+            false
         }
-
-    suspend fun deleteFile(fileId: String): Boolean =
-        withContext(Dispatchers.IO) {
-            try {
-                driveService.files().delete(fileId).execute()
-                true
-            } catch (e: Exception) {
-                e.printStackTrace()
-                false
-            }
-        }
+    }
 
     suspend fun createFolder(
         folderName: String,
         parentFolderId: String? = null,
-    ): String? =
-        withContext(Dispatchers.IO) {
-            try {
-                val folderMetadata =
-                    File().apply {
-                        name = folderName
-                        mimeType = "application/vnd.google-apps.folder"
-                        if (parentFolderId != null) {
-                            parents = listOf(parentFolderId)
-                        }
+    ): String? = withContext(Dispatchers.IO) {
+        try {
+            val folderMetadata =
+                File().apply {
+                    name = folderName
+                    mimeType = "application/vnd.google-apps.folder"
+                    if (parentFolderId != null) {
+                        parents = listOf(parentFolderId)
                     }
+                }
 
-                val folder =
-                    driveService
-                        .files()
-                        .create(folderMetadata)
-                        .setFields("id")
-                        .execute()
+            val folder =
+                driveService
+                    .files()
+                    .create(folderMetadata)
+                    .setFields("id")
+                    .execute()
 
-                folder.id
-            } catch (e: Exception) {
-                e.printStackTrace()
-                null
-            }
+            folder.id
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
+    }
 
     suspend fun updateFile(
         fileId: String,
@@ -200,31 +195,30 @@ class GoogleDriveService {
         fileName: String,
         content: String,
         parentFolderId: String? = null,
-    ): String? =
-        withContext(Dispatchers.IO) {
-            try {
-                val fileMetadata =
-                    File().apply {
-                        name = fileName
-                        mimeType = "application/json"
-                        if (parentFolderId != null) {
-                            parents = listOf(parentFolderId)
-                        }
+    ): String? = withContext(Dispatchers.IO) {
+        try {
+            val fileMetadata =
+                File().apply {
+                    name = fileName
+                    mimeType = "application/json"
+                    if (parentFolderId != null) {
+                        parents = listOf(parentFolderId)
                     }
+                }
 
-                val mediaContent = ByteArrayContent(fileMetadata.mimeType, content.toByteArray())
+            val mediaContent = ByteArrayContent(fileMetadata.mimeType, content.toByteArray())
 
-                val file =
-                    driveService
-                        .files()
-                        .create(fileMetadata, mediaContent)
-                        .setFields("id")
-                        .execute()
+            val file =
+                driveService
+                    .files()
+                    .create(fileMetadata, mediaContent)
+                    .setFields("id")
+                    .execute()
 
-                file.id
-            } catch (e: Exception) {
-                e.printStackTrace()
-                null
-            }
+            file.id
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
+    }
 }

@@ -171,7 +171,7 @@ fun AppIntroDialog(
 @PreviewLightDark
 @PreviewDynamicColors
 @Composable
-fun AppIntroDialogPreview() {
+private fun AppIntroDialogPreview() {
     AppIntroDialog(
         onDismiss = {},
         userName = "Rafael",

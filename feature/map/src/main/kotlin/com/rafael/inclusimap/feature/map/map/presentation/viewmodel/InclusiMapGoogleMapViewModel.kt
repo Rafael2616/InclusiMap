@@ -26,7 +26,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class InclusiMapGoogleMapViewModel(
@@ -366,12 +365,9 @@ class InclusiMapGoogleMapViewModel(
         }
     }
 
-    private suspend fun addNewContribution(contribution: Contribution) =
-        contributionsRepository.addNewContribution(contribution)
+    private suspend fun addNewContribution(contribution: Contribution) = contributionsRepository.addNewContribution(contribution)
 
-    private suspend fun removeContribution(contribution: Contribution) =
-        contributionsRepository.removeContribution(contribution)
+    private suspend fun removeContribution(contribution: Contribution) = contributionsRepository.removeContribution(contribution)
 
-    private suspend fun removeContributions(contributions: List<Contribution>) =
-        contributionsRepository.removeContributions(contributions)
+    private suspend fun removeContributions(contributions: List<Contribution>) = contributionsRepository.removeContributions(contributions)
 }

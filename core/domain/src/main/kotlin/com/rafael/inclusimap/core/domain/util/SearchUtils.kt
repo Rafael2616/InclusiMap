@@ -35,7 +35,6 @@ fun similarity(
     return 1.0 - (distance.toDouble() / maxLength)
 }
 
-fun normalizeText(text: String): String =
-    Normalizer
-        .normalize(text, Normalizer.Form.NFD)
-        .replace(Regex("\\p{InCombiningDiacriticalMarks}+"), "")
+fun normalizeText(text: String): String = Normalizer
+    .normalize(text, Normalizer.Form.NFD)
+    .replace(Regex("\\p{InCombiningDiacriticalMarks}+"), "")
