@@ -98,7 +98,7 @@ class LoginViewModel(
                 }
             }
         }
-        checkServerIsAvailable()
+        checkServerIsAvailableContinuously(60 * 1000L)
         checkUserExists()
     }
 
@@ -1328,6 +1328,15 @@ class LoginViewModel(
                     .onError {
                         println("Failed to check if user is banned")
                     }
+            }
+        }
+    }
+
+    private fun checkServerIsAvailableContinuously(frequency: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            while (true) {
+                checkServerIsAvailable()
+                delay(frequency)
             }
         }
     }
