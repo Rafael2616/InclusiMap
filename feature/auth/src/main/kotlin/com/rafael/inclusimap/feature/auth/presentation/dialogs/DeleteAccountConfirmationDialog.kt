@@ -226,7 +226,7 @@ fun DeleteAccountConfirmationDialog(
             onDismissRequest = {
                 showPasswordConfirmationDialog = false
             },
-            onPasswordConfirmed = {
+            onPasswordConfirm = {
                 deleteProcessStarted = false
                 showPasswordConfirmationDialog = false
                 onDeleteAccount(keepContributions)
