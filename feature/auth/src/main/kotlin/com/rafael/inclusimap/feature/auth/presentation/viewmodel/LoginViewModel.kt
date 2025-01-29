@@ -82,6 +82,7 @@ class LoginViewModel(
                             password = loginData.userPassword!!,
                             showProfilePictureOptedIn = loginData.showProfilePictureOptedIn,
                             isBanned = false,
+                            isAdmin = false,
                         ),
                         userProfilePicture = loginData.profilePicture?.let { picture ->
                             BitmapFactory.decodeByteArray(
@@ -145,6 +146,7 @@ class LoginViewModel(
             password = newUser.password,
             showProfilePictureOptedIn = newUser.showProfilePictureOptedIn,
             isBanned = false,
+            isAdmin = false,
         )
         viewModelScope.launch(Dispatchers.IO) {
             driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID)
@@ -363,6 +365,7 @@ class LoginViewModel(
                                                     password = userObj.password,
                                                     showProfilePictureOptedIn = userObj.showProfilePictureOptedIn,
                                                     isBanned = userObj.isBanned,
+                                                    isAdmin = userObj.isAdmin,
                                                 ),
                                                 isUserBanned = userObj.isBanned,
                                                 userProfilePicture = userImageByteArray.run {

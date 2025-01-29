@@ -10,4 +10,5 @@ data class User(
     var password: String,
     var showProfilePictureOptedIn: Boolean,
     var isBanned: Boolean,
+    var isAdmin: Boolean = false,
 )
