@@ -100,7 +100,7 @@ class LoginViewModel(
             }
         }
         checkServerIsAvailableContinuously(60 * 1000L)
-        checkUserExists()
+        checkLocalUserExistsContinuously()
     }
 
     fun onEvent(event: LoginEvent) {
@@ -732,7 +732,7 @@ class LoginViewModel(
         }
     }
 
-    private fun checkUserExists() {
+    private fun checkLocalUserExists() {
         viewModelScope.launch(Dispatchers.IO) {
             driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { result ->
                 result.find { it.name == _state.value.user?.email }.also { userExists ->
@@ -757,7 +757,7 @@ class LoginViewModel(
             }
         }.invokeOnCompletion {
             // Do check every minute
-            checkUserIsBanned(60 * 1000)
+            checkUserIsBannedContinuously(60 * 1000)
             // Download user profile picture
             viewModelScope.launch(Dispatchers.IO) {
                 val picture = downloadUserProfilePicture(state.value.user?.email)
@@ -773,6 +773,14 @@ class LoginViewModel(
                 loginData.profilePicture = imageByteArrayOutputStream.toByteArray()
                 repository.updateLoginInfo(loginData)
             }
+        }
+    }
+
+    private fun checkLocalUserExistsContinuously() {
+        checkLocalUserExists()
+        viewModelScope.launch(Dispatchers.IO) {
+            delay(60 * 1000L)
+            checkLocalUserExistsContinuously()
         }
     }
 
@@ -1290,7 +1298,7 @@ class LoginViewModel(
         }
     }
 
-    private fun checkUserIsBanned(intervalInMinutes: Long) {
+    private fun checkUserIsBannedContinuously(intervalInMinutes: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             while (true) {
                 checkUserIsBanned()
