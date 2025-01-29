@@ -3,7 +3,7 @@ minSdk = "26"
 targetSdk = "35"
 compileSdk = "35"
 versionCode = "9"
-versionName = "1.1.7"
+versionName = "1.1.8"
 jvmTarget = "21"
 
 agp = "8.8.0"

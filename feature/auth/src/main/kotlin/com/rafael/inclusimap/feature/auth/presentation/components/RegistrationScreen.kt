@@ -337,6 +337,7 @@ fun RegistrationScreen(
                             password = password,
                             showProfilePictureOptedIn = true,
                             isBanned = false,
+                            isAdmin = false,
                         ),
                     )
                     showTermsAndConditionsDialog = false
