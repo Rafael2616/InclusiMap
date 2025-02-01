@@ -175,9 +175,7 @@ fun PlaceDetailsBottomSheet(
     }
 
     LaunchedEffect(state.currentPlace) {
-        if (state.currentPlace.toAccessibleLocalMarker() != currentPlace) {
-            latestUpdateMappedPlace(state.currentPlace.toAccessibleLocalMarker())
-        }
+        latestUpdateMappedPlace(state.currentPlace.toAccessibleLocalMarker())
     }
 
     LaunchedEffect(Unit) {
@@ -667,7 +665,10 @@ fun AccessibilityResourcesSection(
                             onClick = { },
                             modifier = Modifier
                                 .height(45.dp)
-                                .horizontalPaddingEdgeToEdge(index, state.currentPlace.resources.size),
+                                .horizontalPaddingEdgeToEdge(
+                                    index,
+                                    state.currentPlace.resources.size,
+                                ),
                             enabled = true,
                             leadingIcon = {
                                 Icon(
@@ -694,7 +695,10 @@ fun AccessibilityResourcesSection(
                     },
                     modifier = Modifier
                         .height(45.dp)
-                        .padding(start = if (state.currentPlace.resources.isEmpty()) 16.dp else 0.dp, end = 16.dp),
+                        .padding(
+                            start = if (state.currentPlace.resources.isEmpty()) 16.dp else 0.dp,
+                            end = 16.dp,
+                        ),
                     leadingIcon = {
                         Icon(
                             imageVector = if (state.currentPlace.resources.isEmpty()) Icons.Outlined.Add else Icons.Filled.Edit,
@@ -1200,8 +1204,9 @@ fun CommentSection(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun rememberModalBottomSheetProperties(shouldDismissOnBackPress: Boolean) = remember(shouldDismissOnBackPress) {
-    ModalBottomSheetProperties(
-        shouldDismissOnBackPress = shouldDismissOnBackPress,
-    )
-}
+fun rememberModalBottomSheetProperties(shouldDismissOnBackPress: Boolean) =
+    remember(shouldDismissOnBackPress) {
+        ModalBottomSheetProperties(
+            shouldDismissOnBackPress = shouldDismissOnBackPress,
+        )
+    }
