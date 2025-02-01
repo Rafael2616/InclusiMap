@@ -7,9 +7,9 @@ versionName = "1.1.8"
 jvmTarget = "21"
 
 agp = "8.8.0"
-kotlin = "2.1.20-Beta1"
+kotlin = "2.1.20-Beta2"
 licensee = "1.12.0"
-ksp = "2.1.20-Beta1-1.0.29"
+ksp = "2.1.20-Beta2-1.0.29"
 spotless = "7.0.2"
 
 googleApiClient = "2.7.2"
@@ -17,7 +17,7 @@ googleDriveApi = "v3-rev20250122-2.0.0"
 coreKtx = "1.15.0"
 lifecycle = "2.8.7"
 activityCompose = "1.10.0"
-mapsCompose = "6.4.2"
+mapsCompose = "6.4.3"
 placesApi = "4.1.0"
 core-splashscreen = "1.2.0-alpha02"
 kotlinx-coroutines = "1.10.1"
@@ -67,7 +67,7 @@ androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling
 androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
 androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "compose" }
 androidx-compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "compose" }
-androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version = "1.7.6" }
+androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version = "1.7.7" }
 androidx-compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
 
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
