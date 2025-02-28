@@ -218,7 +218,7 @@ fun InclusiMapGoogleMapScreen(
                     settingsState.isFollowingSystemOn && isSystemInDarkTheme -> ComposeMapColorScheme.DARK
                     settingsState.isFollowingSystemOn && !isSystemInDarkTheme -> ComposeMapColorScheme.LIGHT
                     settingsState.isDarkThemeOn -> ComposeMapColorScheme.DARK
-                    else -> ComposeMapColorScheme.DARK
+                    else -> ComposeMapColorScheme.LIGHT
                 },
                 onMapLoaded = {
                     latestOnEvent(InclusiMapEvent.OnMapLoad)
