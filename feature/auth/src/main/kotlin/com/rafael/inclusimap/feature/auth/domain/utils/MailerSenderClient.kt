@@ -7,6 +7,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import java.io.FileNotFoundException
@@ -15,20 +16,23 @@ import java.util.Properties
 class MailerSenderClient(
     private val client: HttpClient,
 ) {
-    private val apiKey = getApiKey().toString()
-    private val sender = getDomain().toString()
+    private val apiKey = getApiKey()
+    private val sender = getDomain()
 
     suspend fun sendEmail(
         receiver: String,
         subject: String,
         html: String?,
     ) {
-        val request = MailerSendEmailRequest(
-            from = From(sender),
-            to = listOf(To(receiver)),
-            subject = subject,
-            html = html ?: "",
-        )
+        val from = sender?.let { From(it) }
+        val request = from?.let {
+            MailerSendEmailRequest(
+                from = it,
+                to = listOf(To(receiver)),
+                subject = subject,
+                html = html ?: "",
+            )
+        }
 
         try {
             val response = client.post("https://api.mailersend.com/v1/email") {
@@ -41,7 +45,7 @@ class MailerSenderClient(
             if (response.status.value == 202) {
                 println("E-mail sent sucessfully!")
             } else {
-                println("Failed to send email with status code: ${response.status}")
+                println("Failed to send email with status code: ${response.status}, ${response.bodyAsText()}")
             }
         } catch (e: Exception) {
             e.printStackTrace()

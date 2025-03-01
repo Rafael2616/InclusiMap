@@ -100,8 +100,8 @@ class LoginViewModel(
             }
         }
         checkServerIsAvailableContinuously(60 * 1000L)
-        checkLocalUserExistsContinuously()
         checkUserIsBannedContinuously(60 * 1000L)
+        checkLocalUserExists()
     }
 
     fun onEvent(event: LoginEvent) {
@@ -757,29 +757,25 @@ class LoginViewModel(
                 }
             }
         }.invokeOnCompletion {
-            // Download user profile picture
-            viewModelScope.launch(Dispatchers.IO) {
-                val picture = downloadUserProfilePicture(state.value.user?.email)
-                if (picture == state.value.userProfilePicture) return@launch
-
-                _state.update { it.copy(userProfilePicture = picture) }
-
-                val imageByteArrayOutputStream = ByteArrayOutputStream()
-                picture?.asAndroidBitmap()
-                    ?.compress(Bitmap.CompressFormat.JPEG, 70, imageByteArrayOutputStream)
-
-                val loginData = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
-                loginData.profilePicture = imageByteArrayOutputStream.toByteArray()
-                repository.updateLoginInfo(loginData)
-            }
+            setupProfilePicture()
         }
     }
 
-    private fun checkLocalUserExistsContinuously() {
-        checkLocalUserExists()
+    private fun setupProfilePicture() {
+        // Download user profile picture
         viewModelScope.launch(Dispatchers.IO) {
-            delay(60 * 1000L)
-            checkLocalUserExistsContinuously()
+            val picture = downloadUserProfilePicture(state.value.user?.email)
+            if (picture == state.value.userProfilePicture) return@launch
+
+            _state.update { it.copy(userProfilePicture = picture) }
+
+            val imageByteArrayOutputStream = ByteArrayOutputStream()
+            picture?.asAndroidBitmap()
+                ?.compress(Bitmap.CompressFormat.JPEG, 70, imageByteArrayOutputStream)
+
+            val loginData = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
+            loginData.profilePicture = imageByteArrayOutputStream.toByteArray()
+            repository.updateLoginInfo(loginData)
         }
     }
 
