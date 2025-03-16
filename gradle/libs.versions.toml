@@ -34,7 +34,7 @@ compose = "1.7.8"
 ktor = "3.1.1"
 zoomable = "2.1.0"
 exif-interface = "1.4.0"
-reveal-compose = "3.2.0"
+reveal-compose = "3.2.1"
 lottieCompose = "6.6.2"
 
 junit = "4.13.2"
