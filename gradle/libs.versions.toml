@@ -8,7 +8,7 @@ jvmTarget = "21"
 
 agp = "8.9.1"
 kotlin = "2.1.20-RC3"
-licensee = "1.12.0"
+licensee = "1.13.0"
 ksp = "2.1.20-RC3-1.0.31"
 spotless = "7.0.2"
 
