@@ -103,7 +103,7 @@ internal fun SettingsTopBar(
                                 if (!isGoBackClicked) {
                                     isGoBackClicked = true
                                     onEvent(SettingsEvent.ShowAboutAppCard(false))
-                                    navController.popBackStack()
+                                    navController.navigateUp()
                                 }
                             },
                         ) {
