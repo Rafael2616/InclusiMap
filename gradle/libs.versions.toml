@@ -10,7 +10,7 @@ agp = "8.9.1"
 kotlin = "2.1.20-RC3"
 licensee = "1.12.0"
 ksp = "2.1.20-RC3-1.0.31"
-spotless = "7.0.2"
+spotless = "7.0.3"
 
 googleApiClient = "2.7.2"
 googleDriveApi = "v3-rev20250220-2.0.0"
