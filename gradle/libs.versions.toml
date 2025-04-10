@@ -35,7 +35,7 @@ ktor = "3.1.1"
 zoomable = "2.1.0"
 exif-interface = "1.4.0"
 reveal-compose = "3.2.1"
-lottieCompose = "6.6.3"
+lottieCompose = "6.6.6"
 
 junit = "4.13.2"
 androidxTest = "1.2.1"
