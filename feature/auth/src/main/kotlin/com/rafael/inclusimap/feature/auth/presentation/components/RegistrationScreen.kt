@@ -222,7 +222,7 @@ fun RegistrationScreen(
                 enabled = !state.isRegistering,
             )
             Text(
-                text = "A senha deve conter pelo menos 8 dígitos, sendo: 1 letra maiuscula, 1 caractere especial e 1 número",
+                text = "A senha deve conter pelo menos 8 dígitos, sendo: 1 letra maiúscula, 1 caractere especial e 1 número",
                 fontSize = 10.sp,
                 lineHeight = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
