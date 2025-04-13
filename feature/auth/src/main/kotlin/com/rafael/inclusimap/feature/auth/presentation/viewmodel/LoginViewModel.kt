@@ -779,36 +779,34 @@ class LoginViewModel(
         }
     }
 
-    private suspend fun checkUserExists(email: String) =
-        suspendCancellableCoroutine { continuation ->
-            viewModelScope.launch(Dispatchers.IO) {
-                driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { result ->
-                    result.find { it.name == email }.also { userExists ->
-                        continuation.resume(userExists != null)
-                    }
+    private suspend fun checkUserExists(email: String) = suspendCancellableCoroutine { continuation ->
+        viewModelScope.launch(Dispatchers.IO) {
+            driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { result ->
+                result.find { it.name == email }.also { userExists ->
+                    continuation.resume(userExists != null)
                 }
             }
         }
+    }
 
     // This is explained in Terms and conditions
-    private fun copyUserInfoToPosthumousVerification(user: File): Job =
-        viewModelScope.launch(Dispatchers.IO) {
-            val userEmail = repository.getLoginInfo(1)?.userEmail
-            driveService.listFiles(user.id).onSuccess { userFiles ->
-                val userDataFile =
-                    userFiles.find { it.name == state.value.user?.email + ".json" }
-                val userContentString =
-                    driveService.getFileContent(userDataFile?.id ?: return@launch)
-                        ?.decodeToString()
-                driveService.uploadFile(
-                    userContentString?.toByteArray()?.inputStream(),
-                    "$userEmail.json",
-                    "1DaCt5NuNaOjLFafEsyvQfwt9NRO6Eso2", // Posthumous Verification Folder
-                ).also {
-                    println("User data copied to verification directory!")
-                }
+    private fun copyUserInfoToPosthumousVerification(user: File): Job = viewModelScope.launch(Dispatchers.IO) {
+        val userEmail = repository.getLoginInfo(1)?.userEmail
+        driveService.listFiles(user.id).onSuccess { userFiles ->
+            val userDataFile =
+                userFiles.find { it.name == state.value.user?.email + ".json" }
+            val userContentString =
+                driveService.getFileContent(userDataFile?.id ?: return@launch)
+                    ?.decodeToString()
+            driveService.uploadFile(
+                userContentString?.toByteArray()?.inputStream(),
+                "$userEmail.json",
+                "1DaCt5NuNaOjLFafEsyvQfwt9NRO6Eso2", // Posthumous Verification Folder
+            ).also {
+                println("User data copied to verification directory!")
             }
         }
+    }
 
     fun checkServerIsAvailable() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -936,28 +934,27 @@ class LoginViewModel(
         }
     }
 
-    suspend fun allowedShowUserProfilePicture(email: String): Boolean =
-        suspendCancellableCoroutine { continuation ->
-            val job = viewModelScope.launch(Dispatchers.IO) {
-                driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { users ->
-                    users.find { user -> user.name == email }?.also { userPath ->
-                        driveService.listFiles(userPath.id).onSuccess { userFiles ->
-                            val userDataFile = userFiles.find { it.name == "$email.json" }
-                            val userContentString = userDataFile?.id?.let { fileId ->
-                                driveService.getFileContent(fileId)
-                                    ?.decodeToString()
-                            }
-                            val userObj = userContentString?.let { userContent ->
-                                json.decodeFromString<User>(userContent)
-                            }
-                            println("User ${userObj?.email} opted in for show profile picture: ${userObj?.showProfilePictureOptedIn}")
-                            continuation.resume(userObj?.showProfilePictureOptedIn ?: false)
+    suspend fun allowedShowUserProfilePicture(email: String): Boolean = suspendCancellableCoroutine { continuation ->
+        val job = viewModelScope.launch(Dispatchers.IO) {
+            driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { users ->
+                users.find { user -> user.name == email }?.also { userPath ->
+                    driveService.listFiles(userPath.id).onSuccess { userFiles ->
+                        val userDataFile = userFiles.find { it.name == "$email.json" }
+                        val userContentString = userDataFile?.id?.let { fileId ->
+                            driveService.getFileContent(fileId)
+                                ?.decodeToString()
                         }
+                        val userObj = userContentString?.let { userContent ->
+                            json.decodeFromString<User>(userContent)
+                        }
+                        println("User ${userObj?.email} opted in for show profile picture: ${userObj?.showProfilePictureOptedIn}")
+                        continuation.resume(userObj?.showProfilePictureOptedIn == true)
                     }
                 }
             }
-            continuation.invokeOnCancellation { job.cancel() }
         }
+        continuation.invokeOnCancellation { job.cancel() }
+    }
 
     suspend fun downloadUserProfilePicture(email: String?): ImageBitmap? {
         if (email == null) return null
@@ -1230,27 +1227,26 @@ class LoginViewModel(
         }
     }
 
-    private suspend fun findUserNameByEmail(email: String) =
-        suspendCancellableCoroutine { continuation ->
-            viewModelScope.launch(Dispatchers.IO) {
-                driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { users ->
-                    val userFiles = users.find { it.name == email }
-                    driveService.listFiles(userFiles?.id ?: "").onSuccess { userDataFiles ->
-                        val userContentString =
-                            driveService.getFileContent(
-                                userDataFiles.find { it.name == "$email.json" }?.id
-                                    ?: return@launch,
-                            )
-                                ?.decodeToString()
-                        val user = json.decodeFromString<User>(userContentString ?: return@launch)
-                        continuation.resume(user.name)
-                        if (state.value.user == null) {
-                            _state.update { it.copy(user = user) }
-                        }
+    private suspend fun findUserNameByEmail(email: String) = suspendCancellableCoroutine { continuation ->
+        viewModelScope.launch(Dispatchers.IO) {
+            driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { users ->
+                val userFiles = users.find { it.name == email }
+                driveService.listFiles(userFiles?.id ?: "").onSuccess { userDataFiles ->
+                    val userContentString =
+                        driveService.getFileContent(
+                            userDataFiles.find { it.name == "$email.json" }?.id
+                                ?: return@launch,
+                        )
+                            ?.decodeToString()
+                    val user = json.decodeFromString<User>(userContentString ?: return@launch)
+                    continuation.resume(user.name)
+                    if (state.value.user == null) {
+                        _state.update { it.copy(user = user) }
                     }
                 }
             }
         }
+    }
 
     private fun invalidateUpdatePasswordProcess() {
         _state.update {

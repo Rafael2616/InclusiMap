@@ -1204,9 +1204,8 @@ fun CommentSection(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun rememberModalBottomSheetProperties(shouldDismissOnBackPress: Boolean) =
-    remember(shouldDismissOnBackPress) {
-        ModalBottomSheetProperties(
-            shouldDismissOnBackPress = shouldDismissOnBackPress,
-        )
-    }
+fun rememberModalBottomSheetProperties(shouldDismissOnBackPress: Boolean) = remember(shouldDismissOnBackPress) {
+    ModalBottomSheetProperties(
+        shouldDismissOnBackPress = shouldDismissOnBackPress,
+    )
+}
