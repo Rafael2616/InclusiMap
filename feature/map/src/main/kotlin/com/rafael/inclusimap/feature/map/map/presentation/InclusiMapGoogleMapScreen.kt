@@ -141,7 +141,6 @@ fun InclusiMapGoogleMapScreen(
     }
     var isFindNorthBtnClicked by remember { mutableStateOf(false) }
     var isPresentationMode by remember { mutableStateOf(false) }
-    val isSystemInDarkTheme = isSystemInDarkTheme()
 
     Reveal(
         revealCanvasState = revealCanvasState,
@@ -215,8 +214,8 @@ fun InclusiMapGoogleMapScreen(
                     println("latitude ${it.latitude}" + "," + it.longitude)
                 },
                 mapColorScheme = when {
-                    settingsState.isFollowingSystemOn && isSystemInDarkTheme -> ComposeMapColorScheme.DARK
-                    settingsState.isFollowingSystemOn && !isSystemInDarkTheme -> ComposeMapColorScheme.LIGHT
+                    settingsState.isFollowingSystemOn && isSystemInDarkTheme() -> ComposeMapColorScheme.DARK
+                    settingsState.isFollowingSystemOn && !isSystemInDarkTheme() -> ComposeMapColorScheme.LIGHT
                     settingsState.isDarkThemeOn -> ComposeMapColorScheme.DARK
                     else -> ComposeMapColorScheme.LIGHT
                 },
