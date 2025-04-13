@@ -1,4 +1,5 @@
 import app.cash.licensee.LicenseeTask
+import app.cash.licensee.SpdxId
 import app.cash.licensee.UnusedAction.IGNORE
 import com.android.build.gradle.internal.api.ApkVariantOutputImpl
 import java.util.Properties
@@ -118,9 +119,9 @@ baselineProfile {
 }
 
 licensee {
-    allow("Apache-2.0")
-    allow("MIT")
-    allow("BSD-3-Clause")
+    allow(SpdxId.Apache_20)
+    allow(SpdxId.MIT)
+    allow(SpdxId.BSD_3_Clause)
     allowUrl("https://developer.android.com/studio/terms.html")
     allowUrl("https://cloud.google.com/maps-platform/terms/")
 
