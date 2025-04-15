@@ -1021,13 +1021,6 @@ class LoginViewModel(
                                 isErrorUpdatingUserName = true,
                             )
                         }
-                    }.onError {
-                        _state.update {
-                            it.copy(
-                                isUpdatingUserName = false,
-                                isErrorUpdatingUserName = true,
-                            )
-                        }
                     }
             }.await()
         }.invokeOnCompletion {
