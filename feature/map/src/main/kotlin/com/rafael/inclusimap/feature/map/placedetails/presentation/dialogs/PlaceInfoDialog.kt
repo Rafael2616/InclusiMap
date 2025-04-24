@@ -1,5 +1,6 @@
 package com.rafael.inclusimap.feature.map.placedetails.presentation.dialogs
 
+import android.content.ClipData
 import android.content.res.Configuration
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -33,13 +34,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -52,6 +54,7 @@ import com.rafael.inclusimap.core.domain.util.formatDate
 import com.rafael.inclusimap.feature.map.placedetails.domain.util.OpenInGoogleMapContract
 import com.rafael.inclusimap.feature.report.domain.model.Report
 import com.rafael.inclusimap.feature.report.presentation.dialogs.PlaceReportDialog
+import kotlinx.coroutines.launch
 
 @Composable
 fun PlaceInfoDialog(
@@ -63,10 +66,12 @@ fun PlaceInfoDialog(
     modifier: Modifier = Modifier,
 ) {
     var showReportDialog by remember { mutableStateOf(false) }
-    val clipboardManager = LocalClipboardManager.current
+    val clipboardManager = LocalClipboard.current
     val orientation = LocalConfiguration.current.orientation
     val isLandscape = orientation == Configuration.ORIENTATION_LANDSCAPE
-    val launcher = rememberLauncherForActivityResult(OpenInGoogleMapContract(googleMapsPlaceUri)) { }
+    val launcher =
+        rememberLauncherForActivityResult(OpenInGoogleMapContract(googleMapsPlaceUri)) { }
+    val scope = rememberCoroutineScope()
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -171,11 +176,16 @@ fun PlaceInfoDialog(
                     )
                     IconButton(
                         onClick = {
-                            clipboardManager.setText(
-                                AnnotatedString(
-                                    "${currentPlace.position.first.toFloat()}, ${currentPlace.position.second.toFloat()}",
-                                ),
-                            )
+                            scope.launch {
+                                clipboardManager.setClipEntry(
+                                    ClipEntry(
+                                        ClipData.newPlainText(
+                                            "Coordenadas",
+                                            "${currentPlace.position.first.toFloat()}, ${currentPlace.position.second.toFloat()}",
+                                        ),
+                                    ),
+                                )
+                            }
                         },
                         modifier = Modifier
                             .size(24.dp),
@@ -206,11 +216,16 @@ fun PlaceInfoDialog(
                     )
                     IconButton(
                         onClick = {
-                            clipboardManager.setText(
-                                AnnotatedString(
-                                    currentPlace.address + " - ${currentPlace.locatedIn}",
-                                ),
-                            )
+                            scope.launch {
+                                clipboardManager.setClipEntry(
+                                    ClipEntry(
+                                        ClipData.newPlainText(
+                                            "Endereço",
+                                            currentPlace.address + " - ${currentPlace.locatedIn}",
+                                        ),
+                                    ),
+                                )
+                            }
                         },
                         modifier = Modifier
                             .size(24.dp),
