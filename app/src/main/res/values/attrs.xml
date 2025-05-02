@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- places api 4.2.0 resources issue fix, remove when the issue is fixed -->
+<resources>
+    <declare-styleable name="Places4.2ResourcesIssueFix">
+        <attr name="cornerFamily">
+            <enum name="rounded" value="0" />
+            <enum name="cut" value="1" />
+        </attr>
+    <attr name="cornerSize" format="string" />
+</declare-styleable>
+
+</resources>
