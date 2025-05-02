@@ -28,6 +28,7 @@ val authModule = module {
                 AuthMigrations.migration1To2,
                 AuthMigrations.migration2To3,
                 AuthMigrations.migration3To4,
+                AuthMigrations.migration4To5,
             )
             .fallbackToDestructiveMigration(true)
             .build()

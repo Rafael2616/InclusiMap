@@ -81,8 +81,9 @@ class LoginViewModel(
                             email = loginData.userEmail!!,
                             password = loginData.userPassword!!,
                             showProfilePictureOptedIn = loginData.showProfilePictureOptedIn,
-                            isBanned = false,
-                            isAdmin = false,
+                            isBanned = loginData.isBanned,
+                            isAdmin = loginData.isAdmin,
+                            showFirstTimeAnimation = loginData.showFirstTimeAnimation,
                         ),
                         userProfilePicture = loginData.profilePicture?.let { picture ->
                             BitmapFactory.decodeByteArray(
@@ -148,6 +149,7 @@ class LoginViewModel(
             showProfilePictureOptedIn = newUser.showProfilePictureOptedIn,
             isBanned = false,
             isAdmin = false,
+            showFirstTimeAnimation = true,
         )
         viewModelScope.launch(Dispatchers.IO) {
             driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID)
@@ -354,6 +356,12 @@ class LoginViewModel(
                                             userObj.showProfilePictureOptedIn
                                         loginData.profilePicture =
                                             userImageByteArray.toByteArray()
+                                        loginData.tokenHash = null
+                                        loginData.recoveryToken = null
+                                        loginData.tokenExpirationDate = null
+                                        loginData.isBanned = userObj.isBanned
+                                        loginData.isAdmin = userObj.isAdmin
+                                        loginData.showFirstTimeAnimation = userObj.showFirstTimeAnimation == true
                                         repository.updateLoginInfo(loginData)
 
                                         _state.update {
@@ -367,6 +375,7 @@ class LoginViewModel(
                                                     showProfilePictureOptedIn = userObj.showProfilePictureOptedIn,
                                                     isBanned = userObj.isBanned,
                                                     isAdmin = userObj.isAdmin,
+                                                    showFirstTimeAnimation = userObj.showFirstTimeAnimation == true,
                                                 ),
                                                 isUserBanned = userObj.isBanned,
                                                 userProfilePicture = userImageByteArray.run {
@@ -1335,6 +1344,44 @@ class LoginViewModel(
                 checkServerIsAvailable()
                 delay(frequency)
             }
+        }
+    }
+
+    fun onSetPresentationMode(value: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            driveService.listFiles(state.value.userPathID ?: return@launch)
+                .onSuccess { result ->
+                    result.find { userFile -> userFile.name == state.value.user?.email + ".json" }
+                        .also { userLoginFile ->
+                            val userLoginFileContent =
+                                userLoginFile?.id?.let { fileId ->
+                                    driveService.getFileContent(fileId)
+                                        ?.decodeToString()
+                                }
+
+                            if (userLoginFileContent == null) {
+                                return@launch
+                            }
+                            val userObj =
+                                json.decodeFromString<User>(userLoginFileContent)
+
+                            _state.update {
+                                it.copy(user = it.user?.copy( showFirstTimeAnimation =  value))
+                            }
+                            repository.updateLoginInfo(repository.getLoginInfo(1)?.copy(
+                                showFirstTimeAnimation = value
+                            ) ?: LoginEntity.getDefault())
+                            userObj.showFirstTimeAnimation = value
+                            driveService.updateFile(
+                                userLoginFile.id,
+                                userLoginFile.name,
+                                json.encodeToString(userObj).byteInputStream(),
+                            )
+                        }
+                }
+                .onError {
+                    println("Failed to update first time animation value")
+                }
         }
     }
 }

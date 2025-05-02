@@ -338,6 +338,7 @@ fun RegistrationScreen(
                             showProfilePictureOptedIn = true,
                             isBanned = false,
                             isAdmin = false,
+                            showFirstTimeAnimation = true,
                         ),
                     )
                     showTermsAndConditionsDialog = false

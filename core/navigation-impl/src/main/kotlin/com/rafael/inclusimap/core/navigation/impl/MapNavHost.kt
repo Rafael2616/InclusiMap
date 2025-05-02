@@ -54,6 +54,7 @@ fun MapNavHost(
     setShowAppIntro: (Boolean) -> Unit,
     allowedShowUserProfilePicture: suspend (String) -> Boolean,
     downloadUserProfilePicture: suspend (String) -> ImageBitmap?,
+    onSetPresentationMode: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val navController = rememberNavController()
@@ -155,6 +156,8 @@ fun MapNavHost(
                     onTryReconnect = onTryReconnect,
                     isCheckingServerAvailability = loginState.isCheckingServerAvailability,
                     revealCanvasState = revealCanvasState,
+                    onSetPresentationMode = onSetPresentationMode,
+                    isPresentationMode = loginState.user?.showFirstTimeAnimation == true,
                 )
             }
             composable<Destination.ContributionsScreen> {

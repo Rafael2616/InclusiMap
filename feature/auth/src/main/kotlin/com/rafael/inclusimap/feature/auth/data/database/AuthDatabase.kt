@@ -7,7 +7,7 @@ import com.rafael.inclusimap.feature.auth.domain.model.LoginEntity
 
 @Database(
     entities = [LoginEntity::class],
-    version = 4,
+    version = 5,
     exportSchema = false,
 )
 abstract class AuthDatabase : RoomDatabase() {

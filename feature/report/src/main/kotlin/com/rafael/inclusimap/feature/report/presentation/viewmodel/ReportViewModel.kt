@@ -43,8 +43,9 @@ class ReportViewModel(
                         password = loginData.userPassword!!,
                         id = loginData.userId!!,
                         showProfilePictureOptedIn = loginData.showProfilePictureOptedIn,
-                        isBanned = false,
-                        isAdmin = false,
+                        isBanned = loginData.isBanned,
+                        isAdmin = loginData.isAdmin,
+                        showFirstTimeAnimation = loginData.showFirstTimeAnimation,
                     )
                 val json =
                     Json {

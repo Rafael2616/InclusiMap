@@ -23,6 +23,7 @@ fun SettingsScreen(
     navController: NavController,
     isLoggedIn: Boolean,
     state: SettingsState,
+    showFirstTimeAnimation: Boolean?,
     revealCanvasState: RevealCanvasState,
     onEvent: (SettingsEvent) -> Unit,
     userProfilePicture: ImageBitmap?,
@@ -36,6 +37,7 @@ fun SettingsScreen(
         state,
         latestOnEvent,
         revealCanvasState,
+        showFirstTimeAnimation,
     ) { innerPadding ->
         Preferences(
             innerPadding,

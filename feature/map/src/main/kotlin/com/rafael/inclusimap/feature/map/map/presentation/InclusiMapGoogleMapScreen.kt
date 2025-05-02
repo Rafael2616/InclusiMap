@@ -101,6 +101,7 @@ fun InclusiMapGoogleMapScreen(
     isCheckingServerAvailability: Boolean,
     userName: String,
     userEmail: String,
+    isPresentationMode: Boolean,
     userProfilePicture: ImageBitmap?,
     isFullScreenMode: Boolean,
     onReport: (Report) -> Unit,
@@ -108,6 +109,7 @@ fun InclusiMapGoogleMapScreen(
     location: Location?,
     allowedShowUserProfilePicture: suspend (String) -> Boolean,
     downloadUserProfilePicture: suspend (String) -> ImageBitmap?,
+    onSetPresentationMode: (Boolean) -> Unit,
     cameraPositionState: CameraPositionState,
     modifier: Modifier = Modifier,
 ) {
@@ -140,7 +142,6 @@ fun InclusiMapGoogleMapScreen(
         )
     }
     var isFindNorthBtnClicked by remember { mutableStateOf(false) }
-    var isPresentationMode by remember { mutableStateOf(false) }
 
     Reveal(
         revealCanvasState = revealCanvasState,
@@ -152,7 +153,7 @@ fun InclusiMapGoogleMapScreen(
                         delay(1.seconds)
                         addPlaceBottomSheetState.show()
                         revealState.hide()
-                        isPresentationMode = false
+                        onSetPresentationMode(false)
                     }
 
                     RevealKeys.PLACE_DETAILS_TIP -> {
@@ -173,7 +174,7 @@ fun InclusiMapGoogleMapScreen(
                 when (key) {
                     RevealKeys.ADD_PLACE_TIP -> {
                         revealState.hide()
-                        isPresentationMode = false
+                        onSetPresentationMode(false)
                     }
 
                     RevealKeys.PLACE_DETAILS_TIP -> revealState.reveal(RevealKeys.ADD_PLACE_TIP)
@@ -310,7 +311,7 @@ fun InclusiMapGoogleMapScreen(
         }
     }
 
-    AnimatedVisibility(appIntroState.showAppIntro) {
+    AnimatedVisibility(appIntroState.showAppIntro && firstTimeAnimation != true) {
         AppIntroDialog(
             userName = userName,
             onDismiss = {
@@ -447,7 +448,7 @@ fun InclusiMapGoogleMapScreen(
                 )
             }.await()
             locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-            isPresentationMode = true
+            onSetPresentationMode(true)
             delay(2.seconds)
             revealState.reveal(RevealKeys.PLACE_DETAILS_TIP)
             firstTimeAnimation = false

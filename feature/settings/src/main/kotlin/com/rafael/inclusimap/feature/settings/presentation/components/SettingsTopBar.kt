@@ -52,6 +52,7 @@ internal fun SettingsTopBar(
     state: SettingsState,
     onEvent: (SettingsEvent) -> Unit,
     revealCanvasState: RevealCanvasState,
+    showFirstTimeAnimation: Boolean?,
     modifier: Modifier = Modifier,
     content: @Composable (PaddingValues) -> Unit,
 ) {
@@ -160,6 +161,7 @@ internal fun SettingsTopBar(
     }
 
     LaunchedEffect(state.isProfileSettingsTipShown) {
+        if (showFirstTimeAnimation == true) return@LaunchedEffect
         if (!state.isProfileSettingsTipShown) {
             delay(1.5.seconds)
             revealState.reveal(RevealKeys.PROFILE_SETTINGS)

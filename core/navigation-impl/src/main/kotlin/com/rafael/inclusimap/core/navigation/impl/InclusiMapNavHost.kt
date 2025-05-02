@@ -81,7 +81,6 @@ fun InclusiMapNavHost(
                                     loginViewModel.onEvent(
                                         LoginEvent.OnLogin(registeredUser),
                                     )
-                                    appIntroViewModel.setShowAppIntro(true)
                                 },
                                 onRegister = {
                                     loginViewModel.onEvent(
@@ -140,6 +139,7 @@ fun InclusiMapNavHost(
                                 setShowAppIntro = appIntroViewModel::setShowAppIntro,
                                 allowedShowUserProfilePicture = loginViewModel::allowedShowUserProfilePicture,
                                 downloadUserProfilePicture = loginViewModel::downloadUserProfilePicture,
+                                onSetPresentationMode = loginViewModel::onSetPresentationMode,
                             )
                         }
                         composable<Destination.SettingsScreen> {
@@ -150,6 +150,7 @@ fun InclusiMapNavHost(
                                 onEvent = settingsViewModel::onEvent,
                                 userProfilePicture = loginState.userProfilePicture,
                                 revealCanvasState = revealCanvasState,
+                                showFirstTimeAnimation = loginState.user?.showFirstTimeAnimation,
                             )
                             AnimatedVisibility(settingsState.showLogoutDialog) {
                                 LogoutConfirmationDialog(
@@ -163,9 +164,6 @@ fun InclusiMapNavHost(
                                     },
                                     onLogout = {
                                         loginViewModel.onEvent(LoginEvent.OnLogout)
-                                        settingsViewModel.onEvent(
-                                            SettingsEvent.SetIsProfileSettingsTipShown(false),
-                                        )
                                     },
                                 )
                             }

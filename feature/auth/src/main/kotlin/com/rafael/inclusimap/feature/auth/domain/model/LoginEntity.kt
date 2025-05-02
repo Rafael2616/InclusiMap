@@ -18,6 +18,9 @@ data class LoginEntity(
     var tokenHash: String? = null,
     var recoveryToken: String? = null,
     var tokenExpirationDate: Long? = null,
+    var isBanned: Boolean = false,
+    var isAdmin: Boolean = false,
+    var showFirstTimeAnimation: Boolean = true,
 ) {
     companion object {
         fun getDefault() = LoginEntity(
@@ -33,6 +36,9 @@ data class LoginEntity(
             tokenHash = null,
             recoveryToken = null,
             tokenExpirationDate = null,
+            isBanned = false,
+            isAdmin = false,
+            showFirstTimeAnimation = true,
         )
     }
 

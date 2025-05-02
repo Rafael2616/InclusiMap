@@ -11,4 +11,5 @@ data class User(
     var showProfilePictureOptedIn: Boolean,
     var isBanned: Boolean,
     var isAdmin: Boolean,
+    var showFirstTimeAnimation: Boolean? = null,
 )
