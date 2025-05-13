@@ -7,9 +7,9 @@ versionName = "1.1.11"
 jvmTarget = "21"
 
 agp = "8.9.2"
-kotlin = "2.1.20"
+kotlin = "2.1.21"
 licensee = "1.13.0"
-ksp = "2.1.20-2.0.1"
+ksp = "2.1.21-2.0.1"
 spotless = "7.0.3"
 
 googleApiClient = "2.7.2"
