@@ -1,6 +1,7 @@
 package com.rafael.inclusimap.feature.auth.presentation.viewmodel
 
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.decodeToImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafael.inclusimap.core.services.GoogleDriveService
@@ -79,13 +80,7 @@ class LoginViewModel(
                             isAdmin = loginData.isAdmin,
                             showFirstTimeAnimation = loginData.showFirstTimeAnimation,
                         ),
-//                        userProfilePicture = loginData.profilePicture?.let { picture ->
-//                            BitmapFactory.decodeByteArray(
-//                                picture,
-//                                0,
-//                                picture.size,
-//                            )?.asImageBitmap()
-//                        },
+                        userProfilePicture = loginData.profilePicture?.decodeToImageBitmap(),
                         userPathID = loginData.userPathID,
                         tokenHash = loginData.tokenHash,
                         recoveryToken = loginData.recoveryToken,
@@ -328,15 +323,7 @@ class LoginViewModel(
                                         }
                                         _state.update { it.copy(userPathID = user.id) }
                                         println("Working on user path: ${_state.value.userPathID}")
-//                                        val userImageByteArray = ByteArrayOutputStream()
-//                                        async {
-//                                            downloadUserProfilePicture(userObj.email)?.asAndroidBitmap()
-//                                                ?.compress(
-//                                                    Bitmap.CompressFormat.JPEG,
-//                                                    100,
-//                                                    userImageByteArray,
-//                                                )
-//                                        }.await()
+                                        val userImageByteArray = downloadUserProfilePicture(userObj.email)
                                         val loginData =
                                             repository.getLoginInfo(1)
                                                 ?: LoginEntity.getDefault()
@@ -348,8 +335,8 @@ class LoginViewModel(
                                         loginData.isLoggedIn = true
                                         loginData.showProfilePictureOptedIn =
                                             userObj.showProfilePictureOptedIn
-//                                        loginData.profilePicture =
-//                                            userImageByteArray.toByteArray()
+                                        loginData.profilePicture =
+                                            userImageByteArray
                                         loginData.tokenHash = null
                                         loginData.recoveryToken = null
                                         loginData.tokenExpirationDate = null
@@ -770,14 +757,9 @@ class LoginViewModel(
             val picture = downloadUserProfilePicture(state.value.user?.email)
             if (picture == state.value.userProfilePicture) return@launch
 
-            _state.update { it.copy(userProfilePicture = picture) }
-
-//            val imageByteArrayOutputStream = ByteArrayOutputStream()
-//            picture?.asAndroidBitmap()
-//                ?.compress(Bitmap.CompressFormat.JPEG, 70, imageByteArrayOutputStream)
-
+            _state.update { it.copy(userProfilePicture = picture?.decodeToImageBitmap()) }
             val loginData = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
-//            loginData.profilePicture = imageByteArrayOutputStream.toByteArray()
+            loginData.profilePicture = picture
             repository.updateLoginInfo(loginData)
         }
     }
@@ -843,7 +825,7 @@ class LoginViewModel(
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
-            resizedImageAsByteArray(image)
+            val resizedImage = resizedImageAsByteArray(image)
 
             driveService.listFiles(state.value.userPathID ?: return@launch)
                 .onSuccess { userFiles ->
@@ -863,24 +845,21 @@ class LoginViewModel(
                 }
             println("Old picture deleted successfully")
 
-//            val picture = ByteArrayInputStream(resizedImage.toByteArray())
-//            val pictureId = driveService.uploadFile(
-//                picture,
-//                "picture.jpg",
-//                state.value.userPathID ?: return@launch,
-//            )
-//            if (pictureId != null) {
-//                _state.update {
-//                    it.copy(userProfilePicture = image)
-//                }
-//                // Update in local database
-//                val user = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
-//                repository.updateLoginInfo(
-//                    user.copy(
-//                        profilePicture = resizedImage.toByteArray(),
-//                    ),
-//                )
-//            }
+            val pictureId = driveService.uploadFile(
+                resizedImage,
+                "picture.jpg",
+                state.value.userPathID ?: return@launch,
+            )
+            if (pictureId != null) {
+                _state.update {
+                    it.copy(userProfilePicture = image)
+                }
+                // Update in local database
+                val user = repository.getLoginInfo(1) ?: LoginEntity.getDefault()
+                repository.updateLoginInfo(
+                    user.copy(profilePicture = resizedImage),
+                )
+            }
             println("New picture uploaded successfully")
         }.invokeOnCompletion {
             if (!state.value.isErrorUpdatingProfilePicture) {
@@ -959,7 +938,7 @@ class LoginViewModel(
         continuation.invokeOnCancellation { job.cancel() }
     }
 
-    suspend fun downloadUserProfilePicture(email: String?): ImageBitmap? {
+    suspend fun downloadUserProfilePicture(email: String?): ByteArray? {
         if (email == null) return null
         return suspendCancellableCoroutine { continuation ->
             val job = viewModelScope.launch(Dispatchers.IO) {
@@ -967,14 +946,11 @@ class LoginViewModel(
                     users.find { user -> user.name == email }?.also { userPath ->
                         driveService.listFiles(userPath.id).onSuccess { userFiles ->
                             val userDataFile = userFiles.find { it.name == "picture.jpg" }
-                            userDataFile?.id?.let { fileId ->
+                            val userImageByteArray = userDataFile?.id?.let { fileId ->
                                 driveService.getFileContent(fileId)
                             }
-//                            val userImage = userImageByteArray?.let {
-//                                BitmapFactory.decodeStream(it.inputStream()).asImageBitmap()
-//                            }
-//                            println("User image downloaded successfully: ${userImage != null}")
-//                            continuation.resume(userImage)
+                            println("User image downloaded successfully: ${userImageByteArray != null}")
+                            continuation.resume(userImageByteArray)
                         }
                     }
                 }
