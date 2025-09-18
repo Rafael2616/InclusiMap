@@ -14,7 +14,7 @@ import com.rafael.inclusimap.core.resources.R
 
 @Composable
 actual fun KMPLottieAnimation(res: Int) {
-    val composition by rememberLottieComposition(LottieCompositionSpec.Url())
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(res))
     val progress by animateLottieCompositionAsState(
         composition,
         iterations = 1,
