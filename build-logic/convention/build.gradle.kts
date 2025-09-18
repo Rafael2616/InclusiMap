@@ -27,6 +27,7 @@ dependencies {
     compileOnly(libs.kotlin.gradle)
     compileOnly(libs.spotless.gradle)
     compileOnly(libs.composeCompiler.gradle)
+    compileOnly(libs.compose.gradle)
 }
 
 gradlePlugin {
@@ -37,20 +38,24 @@ gradlePlugin {
             implementationClass = "SpotlessConventionPlugin"
         }
         register("library") {
-            id = "com.rafael.library"
-            implementationClass = "AndroidLibraryConventionPlugin"
+            id = "com.rafael.multiplatform.library"
+            implementationClass = "MultiplatformLibraryConventionPlugin"
         }
         register("composeLibrary") {
-            id = "com.rafael.compose.library"
-            implementationClass = "AndroidLibraryComposeConventionPlugin"
+            id = "com.rafael.compose.multiplatform.library"
+            implementationClass = "MultiplatformLibraryComposeConventionPlugin"
         }
         register("application") {
-            id = "com.rafael.application"
+            id = "com.rafael.android.application"
             implementationClass = "AndroidApplicationConventionPlugin"
         }
         register("composeApplication") {
-            id = "com.rafael.compose.application"
+            id = "com.rafael.compose.android.application"
             implementationClass = "AndroidApplicationComposeConventionPlugin"
+        }
+        register("androidLibrary") {
+            id = "com.rafael.android.library"
+            implementationClass = "AndroidLibraryConventionPlugin"
         }
     }
 }

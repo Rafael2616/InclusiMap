@@ -1,49 +1,53 @@
 [versions]
 minSdk = "26"
-targetSdk = "35"
-compileSdk = "35"
+targetSdk = "36"
+compileSdk = "36"
 versionCode = "11"
 versionName = "1.1.11"
 jvmTarget = "21"
 
-agp = "8.10.0"
-kotlin = "2.1.21"
+agp = "8.13.0"
+kotlin = "2.2.20"
 licensee = "1.13.0"
-ksp = "2.1.21-2.0.1"
-spotless = "7.0.3"
+ksp = "2.2.20-2.0.3"
+spotless = "7.2.1"
 
-googleApiClient = "2.7.2"
+googleApiClient = "2.8.1"
 googleDriveApi = "v3-rev20250506-2.0.0"
-coreKtx = "1.16.0"
-lifecycle = "2.9.0"
-activityCompose = "1.10.1"
-mapsCompose = "6.6.0"
-placesApi = "4.2.0"
-core-splashscreen = "1.2.0-beta02"
+coreKtx = "1.17.0"
+activityCompose = "1.11.0"
+mapsCompose = "6.10.0"
+placesApi = "4.4.1"
+core-splashscreen = "1.2.0-rc01"
 kotlinx-coroutines = "1.10.2"
-lazycolumn-scrollbar = "2.2.0"
-room = "2.7.1"
-koin = "4.0.4"
-coil = "3.2.0"
-navigation = "2.9.0"
-kotlinx-serialization = "1.8.1"
+room = "2.8.0"
+koin = "4.1.1"
+coil = "3.3.0"
+kotlinx-serialization = "1.9.0"
 material-motion-compose = "2.0.1"
-compose-rules = "0.4.22"
-material3 = "1.3.2"
-compose = "1.8.1"
-ktor = "3.1.3"
-zoomable = "2.7.0"
+compose-rules = "0.4.27"
+navigation-compose = "2.9.0"
+lifecycle-compose = "2.9.4"
+jetbrains-compose = "1.9.0"
+ktor = "3.3.0"
+zoomable = "2.8.1"
 exif-interface = "1.4.1"
-reveal-compose = "3.2.1"
-lottieCompose = "6.6.6"
+reveal-compose = "4.0.0"
+lottieCompose = "6.6.9"
 
 junit = "4.13.2"
-androidxTest = "1.2.1"
-espressoCore = "3.6.1"
+androidxTest = "1.3.0"
+espressoCore = "3.7.0"
 uiautomator = "2.3.0"
-benchmarkMacroJunit4 = "1.3.4"
+benchmarkMacroJunit4 = "1.4.1"
 profileinstaller = "1.4.1"
-baselineprofile = "1.3.4"
+baselineprofile = "1.4.1"
+uiTestManifest = "1.9.1"
+sqlite = "2.6.0"
+filekit = "0.8.8"
+moko-permissions = "0.20.1"
+
+pods-google-maps = "10.0.0"
 
 [libraries]
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
@@ -54,21 +58,15 @@ androidx-activity-compose = { group = "androidx.activity", name = "activity-comp
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "core-splashscreen" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
-androidx-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "navigation" }
+androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
 
-# These dependencies are called from build logic´s compose plugin but are erroneously marked as unused here.
-androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
-androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
-androidx-compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
-androidx-compose-animation = { module = "androidx.compose.animation:animation", version.ref = "compose" }
-androidx-compose-runtime = { module = "androidx.compose.runtime:runtime", version.ref = "compose" }
-androidx-compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose" }
-androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
-androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
-androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "compose" }
-androidx-compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "compose" }
-androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version = "1.7.8" }
-androidx-compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
+jetbrains-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
+jetbrains-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle-compose" }
+jetbrains-lifecycle-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle-compose" }
+jetbrains-compose-backhandler = { module = "org.jetbrains.compose.ui:ui-backhandler", version.ref = "jetbrains-compose" }
+
+androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "uiTestManifest" }
+androidx-compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "uiTestManifest" }
 
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 coil-compose-core = { module = "io.coil-kt.coil3:coil-compose-core", version.ref = "coil" }
@@ -77,6 +75,8 @@ ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "k
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
+ktor-client-ios = { module = "io.ktor:ktor-client-ios", version.ref = "ktor" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 
 google-api-client = { module = "com.google.api-client:google-api-client", version.ref = "googleApiClient" }
 google-api-services-drive = { module = "com.google.apis:google-api-services-drive", version.ref = "googleDriveApi" }
@@ -88,12 +88,16 @@ koin-core-viewmodel = { module = "io.insert-koin:koin-core-viewmodel", version.r
 koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
 koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
 
+moko-permissions = { module = "dev.icerock.moko:permissions", version.ref = "moko-permissions" }
+moko-permissions-location = { module = "dev.icerock.moko:permissions-location", version.ref = "moko-permissions" }
+moko-permissions-compose = { module = "dev.icerock.moko:permissions-compose", version.ref = "moko-permissions" }
+filekit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "filekit" }
+filekit-compose = { module = "io.github.vinceglb:filekit-compose", version.ref = "filekit" }
 lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "lottieCompose" }
 maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "mapsCompose" }
 places = { module = "com.google.android.libraries.places:places", version.ref = "placesApi" }
 material-motion-compose = { module = "io.github.fornewid:material-motion-compose-core", version.ref = "material-motion-compose" }
 ktlint-compose-rules = { module = "io.nlopez.compose.rules:ktlint", version.ref = "compose-rules" }
-lazycolumn-scrollbar = { module = "com.github.nanihadesuka:LazyColumnScrollbar", version.ref = "lazycolumn-scrollbar" }
 zoomable-compose = { module = "net.engawapg.lib:zoomable", version.ref = "zoomable" }
 exifInterface = { module = "androidx.exifinterface:exifinterface", version.ref = "exif-interface" }
 reveal-compose = { module = "com.svenjacobs.reveal:reveal-core", version.ref = "reveal-compose" }
@@ -111,6 +115,7 @@ android-gradle = { module = "com.android.tools.build:gradle", version.ref = "agp
 spotless-gradle = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 kotlin-gradle = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 composeCompiler-gradle = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
+compose-gradle = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "jetbrains-compose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -118,6 +123,9 @@ android-library = { id = "com.android.library", version.ref = "agp" }
 android-test = { id = "com.android.test", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 jetbrains-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+jetbrains-compose = { id = "org.jetbrains.compose", version.ref = "jetbrains-compose" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlin-cocoapods = { id = "org.jetbrains.kotlin.native.cocoapods", version.ref = "kotlin" }
 androidx-room = { id = "androidx.room", version.ref = "room" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
@@ -126,10 +134,11 @@ licensee = { id = "app.cash.licensee", version.ref = "licensee" }
 baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprofile" }
 
 rafael-spotless = { id = "com.rafael.spotless", version = "unspecified" }
-rafael-library = { id = "com.rafael.library", version = "unspecified" }
-rafael-library-compose = { id = "com.rafael.compose.library", version = "unspecified" }
-rafael-application = { id = "com.rafael.application", version = "unspecified" }
-rafael-application-compose = { id = "com.rafael.compose.application", version = "unspecified" }
+rafael-android-library = { id = "com.rafael.android.library", version = "unspecified" }
+rafael-multiplatform-library = { id = "com.rafael.multiplatform.library", version = "unspecified" }
+rafael-multiplatform-library-compose = { id = "com.rafael.compose.multiplatform.library", version = "unspecified" }
+rafael-android-application = { id = "com.rafael.android.application", version = "unspecified" }
+rafael-android-application-compose = { id = "com.rafael.compose.android.application", version = "unspecified" }
 
 [bundles]
 koin = [
@@ -138,17 +147,4 @@ koin = [
     "koin-core", "koin-core-viewmodel",
     "koin-compose",
     "koin-compose-viewmodel"
-]
-compose = [
-    "androidx-lifecycle-runtime-compose",
-    "androidx-lifecycle-viewmodel-compose",
-    "androidx-compose-ui",
-    "androidx-compose-animation",
-    "androidx-compose-runtime",
-    "androidx-compose-foundation",
-    "androidx-compose-ui-tooling-preview",
-    "androidx-compose-ui-test-manifest",
-    "androidx-compose-ui-test-junit4",
-    "androidx-compose-material-icons-extended",
-    "androidx-compose-material3",
 ]

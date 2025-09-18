@@ -1,28 +1,27 @@
 plugins {
-    alias(libs.plugins.rafael.library)
-    alias(libs.plugins.rafael.library.compose)
+    alias(libs.plugins.rafael.multiplatform.library)
+    alias(libs.plugins.rafael.multiplatform.library.compose)
     alias(libs.plugins.rafael.spotless)
 }
 
 android.namespace = "com.rafael.inclusimap.feature.settings"
 
-dependencies {
-    // AndroidX
-    implementation(libs.androidx.navigation)
-    implementation(libs.exifInterface)
-    // Reveal
-    implementation(libs.reveal.compose)
-    implementation(libs.reveal.compose.shapes)
-    // Koin
-    api(libs.koin.core)
-    implementation(libs.koin.core.viewmodel)
-    implementation(libs.koin.core)
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation(libs.reveal.compose)
+            implementation(libs.reveal.compose.shapes)
+            implementation(libs.androidx.room.runtime)
+            implementation(libs.koin.core)
+            implementation(libs.koin.core.viewmodel)
 
-    // Projects
-    api(projects.core.settings)
-    implementation(projects.core.navigation)
-    implementation(projects.core.domain)
-    implementation(projects.core.ui)
-    implementation(projects.feature.map)
-    implementation(projects.feature.intro)
+            // Projects
+            implementation(projects.core.ui)
+            implementation(projects.core.util)
+            implementation(projects.libs.mapsInterop)
+        }
+        androidMain.dependencies {
+            implementation(libs.exifInterface)
+        }
+    }
 }

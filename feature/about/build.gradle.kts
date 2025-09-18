@@ -1,6 +1,6 @@
 plugins {
-    alias(libs.plugins.rafael.library)
-    alias(libs.plugins.rafael.library.compose)
+    alias(libs.plugins.rafael.multiplatform.library)
+    alias(libs.plugins.rafael.multiplatform.library.compose)
     alias(libs.plugins.rafael.spotless)
 }
 
@@ -16,14 +16,22 @@ android {
     }
 }
 
-dependencies {
-    // Coil
-    implementation(libs.coil.compose)
-    implementation(libs.coil.compose.core)
-    implementation(libs.coil.network)
-    implementation(libs.ktor.client.android)
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation(libs.coil.compose)
+            implementation(libs.coil.compose.core)
+            implementation(libs.coil.network)
 
-    // Projects
-    implementation(projects.core.resources)
-    implementation(projects.feature.intro)
+            // Projects
+            implementation(projects.core.ui)
+            implementation(projects.core.resources)
+        }
+        androidMain.dependencies {
+            implementation(libs.ktor.client.android)
+        }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.ios)
+        }
+    }
 }

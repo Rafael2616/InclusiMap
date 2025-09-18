@@ -1,29 +1,30 @@
 plugins {
-    alias(libs.plugins.rafael.library)
-    alias(libs.plugins.rafael.library.compose)
+    alias(libs.plugins.rafael.multiplatform.library)
+    alias(libs.plugins.rafael.multiplatform.library.compose)
     alias(libs.plugins.rafael.spotless)
     alias(libs.plugins.kotlin.serialization)
 }
 
 android.namespace = "com.rafael.inclusimap.feature.contributions"
 
-dependencies {
-    // AndroidX
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.navigation)
-    implementation(libs.exifInterface)
-    // Kotlin
-    implementation(libs.kotlinx.serialization.json)
-    // Koin
-    implementation(libs.koin.core)
-    implementation(libs.koin.core.viewmodel)
-    // Lottie
-    implementation(libs.lottie.compose)
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.koin.core)
+            implementation(libs.koin.core.viewmodel)
 
-    // Projects
-    implementation(projects.core.domain)
-    implementation(projects.core.navigation)
-    implementation(projects.core.resources)
-    implementation(projects.core.services)
-    implementation(projects.feature.auth)
+            // Projects
+            implementation(projects.core.resources)
+            implementation(projects.core.services)
+            implementation(projects.core.ui)
+            implementation(projects.core.util)
+            implementation(projects.feature.auth)
+            implementation(projects.libs.mapsInterop)
+        }
+        androidMain.dependencies {
+            implementation(libs.exifInterface)
+            implementation(libs.lottie.compose)
+        }
+    }
 }

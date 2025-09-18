@@ -1,11 +1,13 @@
 plugins {
-    alias(libs.plugins.rafael.library)
-    alias(libs.plugins.rafael.library.compose)
+    alias(libs.plugins.rafael.multiplatform.library)
+    alias(libs.plugins.rafael.multiplatform.library.compose)
     alias(libs.plugins.rafael.spotless)
 }
 
 android.namespace = "com.rafael.inclusimap.core.resources"
 
-dependencies {
-    implementation(libs.androidx.core.splashscreen)
+compose.resources {
+    generateResClass = always
+    packageOfResClass = "com.rafael.inclusimap.core.resources"
+    publicResClass = true
 }
