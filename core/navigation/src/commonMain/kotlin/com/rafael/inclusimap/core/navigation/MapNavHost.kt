@@ -9,7 +9,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -57,7 +56,7 @@ fun MapNavHost(
     onTryReconnect: () -> Unit,
     setShowAppIntro: (Boolean) -> Unit,
     allowedShowUserProfilePicture: suspend (String) -> Boolean,
-    downloadUserProfilePicture: suspend (String) -> ImageBitmap?,
+    downloadUserProfilePicture: suspend (String) -> ByteArray?,
     onSetPresentationMode: (Boolean) -> Unit,
     snackBarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,

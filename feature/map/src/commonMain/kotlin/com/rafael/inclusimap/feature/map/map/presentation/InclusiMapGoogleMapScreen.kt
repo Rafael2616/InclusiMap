@@ -69,7 +69,7 @@ fun InclusiMapGoogleMapScreen(
     reportState: ReportState,
     location: Location?,
     allowedShowUserProfilePicture: suspend (String) -> Boolean,
-    downloadUserProfilePicture: suspend (String) -> ImageBitmap?,
+    downloadUserProfilePicture: suspend (String) -> ByteArray?,
     onSetPresentationMode: (Boolean) -> Unit,
     isFollowingSystemOn: Boolean,
     isDarkThemeOn: Boolean,

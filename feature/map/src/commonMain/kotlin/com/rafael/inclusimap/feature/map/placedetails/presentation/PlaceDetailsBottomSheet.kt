@@ -79,6 +79,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.decodeToImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -138,7 +139,7 @@ fun PlaceDetailsBottomSheet(
     onUpdateMappedPlace: (AccessibleLocalMarker) -> Unit,
     reportState: ReportState,
     allowedShowUserProfilePicture: suspend (String) -> Boolean,
-    downloadUserProfilePicture: suspend (String) -> ImageBitmap?,
+    downloadUserProfilePicture: suspend (String) -> ByteArray?,
     snackBarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,
 ) {
@@ -727,7 +728,7 @@ fun CommentSection(
     bottomSheetState: SheetState,
     onShouldShowUnsavedCommentDialog: (Boolean) -> Unit,
     allowedShowUserProfilePicture: suspend (String) -> Boolean,
-    downloadUserProfilePicture: suspend (String) -> ImageBitmap?,
+    downloadUserProfilePicture: suspend (String) -> ByteArray?,
     snackBarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,
 ) {
@@ -1092,7 +1093,7 @@ fun CommentSection(
                                 latestAllowedShowUserProfilePicture(comment.email)
                         }
                         LaunchedEffect(allowedShowUserPicture == true) {
-                            userProfilePicture = latestDownloadUserProfilePicture(comment.email)
+                            userProfilePicture = latestDownloadUserProfilePicture(comment.email)?.decodeToImageBitmap()
                         }
                         Row(
                             modifier = Modifier.fillMaxWidth(),
