@@ -20,7 +20,6 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(libs.coil.compose)
-            implementation(libs.coil.compose.core)
             implementation(libs.coil.network)
 
             // Projects

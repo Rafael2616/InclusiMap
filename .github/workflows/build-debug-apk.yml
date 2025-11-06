@@ -1,5 +1,4 @@
 name: build-debug-apk
-
 on:
   push:
     branches: [ "master" ]

@@ -15,15 +15,13 @@ kotlin {
             api(libs.koin.core)
             implementation(libs.koin.core.viewmodel)
             implementation(libs.ktor.client.core)
+            implementation(libs.filekit.compose)
 
             // Projects
             implementation(projects.core.ui)
             implementation(projects.core.util)
             implementation(projects.core.services)
             implementation(projects.core.resources)
-        }
-        androidMain.dependencies {
-            implementation(libs.exifInterface)
         }
     }
 }

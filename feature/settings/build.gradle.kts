@@ -20,8 +20,5 @@ kotlin {
             implementation(projects.core.util)
             implementation(projects.libs.mapsInterop)
         }
-        androidMain.dependencies {
-            implementation(libs.exifInterface)
-        }
     }
 }

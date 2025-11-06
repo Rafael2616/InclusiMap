@@ -23,8 +23,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
@@ -79,7 +79,7 @@ fun AccessibilityResourcesSelectionDialog(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                TabRow(
+                PrimaryTabRow(
                     selectedTabIndex = 0,
                     modifier = Modifier.fillMaxWidth(),
                     containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(8.dp),
@@ -215,14 +215,7 @@ fun AccessibilityResourcesSelectionDialog(
                             if (placeAccessibilityResources != state.currentPlace.resources.map { it.resource }) {
                                 Button(
                                     onClick = {
-//                                        Toast.makeText(
-//                                            context,
-//                                            "Atualizando...",
-//                                            Toast.LENGTH_SHORT,
-//                                        ).show()
-//                                        onUpdateAccessibilityResources(
-//                                            placeAccessibilityResources,
-//                                        )
+                                        onUpdateAccessibilityResources(placeAccessibilityResources)
                                         onDismiss()
                                     },
                                     enabled = isInternetAvailable,

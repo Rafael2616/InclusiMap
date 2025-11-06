@@ -1,6 +1,5 @@
 package com.rafael.inclusimap.feature.contributions.presentation.viewmodel
 
-import androidx.compose.ui.graphics.decodeToImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafael.inclusimap.core.services.GoogleDriveService
@@ -162,31 +161,13 @@ class ContributionsViewModel(
                             println("Place ID: $placeID for image contribution: ${contribution.fileId}")
 
                             driveService.getFileContent(contribution.fileId)?.let { content ->
-//                                val tempFile = File.createTempFile(
-//                                    "downloaded_image_${contribution.fileId}",
-//                                    ".jpg",
-//                                )
-//                                tempFile.outputStream().use { content.inputStream().copyTo(it) }
-//
-//                                val exifInterface = ExifInterface(tempFile.absolutePath)
-//                                val orientation = exifInterface.getAttributeInt(
-//                                    ExifInterface.TAG_ORIENTATION,
-//                                    ExifInterface.ORIENTATION_NORMAL,
-//                                )
-//
-//                                val options = BitmapFactory.Options().apply { inSampleSize = 3 }
-//                                val bitmap =
-//                                    BitmapFactory.decodeFile(tempFile.absolutePath, options)
-//                                val adjustedBitmap =
-//                                    rotateImage(bitmap, orientation).asImageBitmap()
-
                                 println("Image founded for contribution: ${contribution.fileId}")
                                 _state.update {
                                     it.copy(
                                         userContributions = it.userContributions.copy(
                                             images = it.userContributions.images + PlaceImageWithPlace(
                                                 placeImage = PlaceImage(
-                                                    image = content.decodeToImageBitmap(),
+                                                    image = content,
                                                     userEmail = userEmail,
                                                     placeID = placeID ?: return@async,
                                                     name = contribution.fileId,

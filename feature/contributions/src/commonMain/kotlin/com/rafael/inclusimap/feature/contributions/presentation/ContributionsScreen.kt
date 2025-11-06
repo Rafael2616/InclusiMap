@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -67,6 +66,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 import com.rafael.inclusimap.core.ui.isLandscape
 import com.rafael.inclusimap.core.util.map.formatDate
 import com.rafael.inclusimap.core.util.map.model.Location
@@ -639,18 +639,13 @@ fun ContributionsScreen(
                                                                         modifier = Modifier
                                                                             .padding(3.dp),
                                                                     ) {
-                                                                        Image(
-                                                                            bitmap = image.placeImage.image,
+                                                                        AsyncImage(
+                                                                            model = image.placeImage.image,
                                                                             contentDescription = null,
                                                                             contentScale = ContentScale.Crop,
                                                                             modifier = Modifier
                                                                                 .height(130.dp)
-                                                                                .aspectRatio(image.placeImage.image.width / image.placeImage.image.height.toFloat())
-                                                                                .clip(
-                                                                                    RoundedCornerShape(
-                                                                                        8.dp,
-                                                                                    ),
-                                                                                ),
+                                                                                .clip(RoundedCornerShape(8.dp)),
                                                                         )
                                                                     }
                                                                 }

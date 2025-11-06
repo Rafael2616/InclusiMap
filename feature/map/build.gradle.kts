@@ -19,6 +19,7 @@ kotlin {
             implementation(libs.reveal.compose.shapes)
             implementation(libs.koin.core)
             implementation(libs.koin.core.viewmodel)
+            implementation(libs.coil.compose)
             implementation(libs.zoomable.compose)
             implementation(libs.filekit.core)
             implementation(libs.filekit.compose)
@@ -35,7 +36,6 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.maps.compose)
-            implementation(libs.exifInterface)
         }
     }
 

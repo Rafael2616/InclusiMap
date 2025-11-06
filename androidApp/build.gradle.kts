@@ -1,7 +1,6 @@
 import app.cash.licensee.LicenseeTask
 import app.cash.licensee.SpdxId
 import app.cash.licensee.UnusedAction.LOG
-import com.android.build.gradle.internal.api.ApkVariantOutputImpl
 import java.util.Properties
 
 plugins {
@@ -65,12 +64,8 @@ android {
         }
     }
 
-    applicationVariants.all {
-        outputs.all {
-            (this as? ApkVariantOutputImpl)?.outputFileName =
-                "InclusiMap v$versionName.apk"
-        }
-    }
+    base.archivesName = "InclusiMap v${libs.versions.versionName.get()}"
+
     androidComponents.onVariants { variant ->
         val variantNameCapt = variant.name.replaceFirstChar { it.uppercase() }
         val licenseeTask = tasks.named<LicenseeTask>("licenseeAndroid$variantNameCapt")

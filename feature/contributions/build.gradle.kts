@@ -13,6 +13,7 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.koin.core)
             implementation(libs.koin.core.viewmodel)
+            implementation(libs.coil.compose)
 
             // Projects
             implementation(projects.core.resources)
@@ -23,7 +24,6 @@ kotlin {
             implementation(projects.libs.mapsInterop)
         }
         androidMain.dependencies {
-            implementation(libs.exifInterface)
             implementation(libs.lottie.compose)
         }
     }

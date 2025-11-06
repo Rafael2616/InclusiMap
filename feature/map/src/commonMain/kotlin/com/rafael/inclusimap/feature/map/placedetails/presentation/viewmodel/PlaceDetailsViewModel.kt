@@ -41,7 +41,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.json.Json
-import org.jetbrains.compose.resources.decodeToImageBitmap
 
 class PlaceDetailsViewModel(
     private val driveService: GoogleDriveService,
@@ -283,8 +282,7 @@ class PlaceDetailsViewModel(
 
                         val placeImage = PlaceImage(
                             userEmail = file.name.extractUserEmail(),
-                            image = fileContent?.decodeToImageBitmap()
-                                ?: return@async, // adjustedBitmap, todo
+                            image = fileContent ?: return@async,
                             placeID = placeDetails.id ?: return@async,
                             name = file.name,
                         )
@@ -302,7 +300,6 @@ class PlaceDetailsViewModel(
                                 },
                             ).also {
                                 println("Loaded image $index with name ${file.name} with id ${file.id}")
-//                                tempFile.delete()
                             }
                         }
                         if (_state.value.currentPlace.images.size == _state.value.currentPlace.imageFolder?.size) {
@@ -413,7 +410,7 @@ class PlaceDetailsViewModel(
 
                     val image = PlaceImage(
                         userEmail = userEmail,
-                        image = image.decodeToImageBitmap(),
+                        image = image,
                         placeID = imageId ?: return@async,
                         name = imageFileName,
                     )

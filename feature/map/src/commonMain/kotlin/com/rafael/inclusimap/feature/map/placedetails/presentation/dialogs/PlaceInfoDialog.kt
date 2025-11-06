@@ -63,7 +63,7 @@ fun PlaceInfoDialog(
     modifier: Modifier = Modifier,
 ) {
     var showReportDialog by remember { mutableStateOf(false) }
-    LocalClipboard.current
+    val clipboardManager = LocalClipboard.current
     val scope = rememberCoroutineScope()
 
     Dialog(
@@ -170,15 +170,11 @@ fun PlaceInfoDialog(
                     IconButton(
                         onClick = {
                             scope.launch {
-                                // Todo
-//                                clipboardManager.setClipEntry(
-//                                    ClipEntry(
-//                                        ClipData.newPlainText(
-//                                            "Coordenadas",
-//                                            "${currentPlace.position.first.toFloat()}, ${currentPlace.position.second.toFloat()}",
-//                                        ),
-//                                    ),
-//                                )
+                                clipboardManager.setClipEntry(
+                                    clipboardManager.getClipEntry().apply {
+                                        "${currentPlace.position.first.toFloat()}, ${currentPlace.position.second.toFloat()}"
+                                    }
+                                )
                             }
                         },
                         modifier = Modifier
@@ -211,14 +207,11 @@ fun PlaceInfoDialog(
                     IconButton(
                         onClick = {
                             scope.launch {
-//                                clipboardManager.setClipEntry(
-//                                    ClipEntry(
-//                                        ClipData.newPlainText(
-//                                            "Endereço",
-//                                            currentPlace.address + " - ${currentPlace.locatedIn}",
-//                                        ),
-//                                    ),
-//                                )
+                                clipboardManager.setClipEntry(
+                                    clipboardManager.getClipEntry().apply {
+                                        currentPlace.address + " - ${currentPlace.locatedIn}"
+                                    }
+                                )
                             }
                         },
                         modifier = Modifier

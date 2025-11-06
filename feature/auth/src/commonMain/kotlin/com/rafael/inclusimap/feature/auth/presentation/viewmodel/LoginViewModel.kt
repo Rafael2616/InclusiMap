@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.decodeToImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafael.inclusimap.core.services.GoogleDriveService
+import com.rafael.inclusimap.core.services.domain.DriveFile
 import com.rafael.inclusimap.core.util.map.Constants.INCLUSIMAP_IMAGE_FOLDER_ID
 import com.rafael.inclusimap.core.util.map.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID
 import com.rafael.inclusimap.core.util.map.Constants.INCLUSIMAP_SERVER_FOLDER_ID
@@ -12,7 +13,6 @@ import com.rafael.inclusimap.core.util.map.Constants.INCLUSIMAP_USERS_FOLDER_ID
 import com.rafael.inclusimap.core.util.map.extractPlaceUserEmail
 import com.rafael.inclusimap.core.util.map.extractUserEmail
 import com.rafael.inclusimap.core.util.map.model.AccessibleLocalMarker
-import com.rafael.inclusimap.core.util.map.model.File
 import com.rafael.inclusimap.core.util.resizedImageAsByteArray
 import com.rafael.inclusimap.feature.auth.data.repository.MailerSenderClient
 import com.rafael.inclusimap.feature.auth.domain.model.DeleteProcess
@@ -359,13 +359,7 @@ class LoginViewModel(
                                                     showFirstTimeAnimation = userObj.showFirstTimeAnimation == true,
                                                 ),
                                                 isUserBanned = userObj.isBanned,
-//                                                userProfilePicture = userImageByteArray.run {
-//                                                    BitmapFactory.decodeByteArray(
-//                                                        userImageByteArray.toByteArray(),
-//                                                        0,
-//                                                        userImageByteArray.toByteArray().size,
-//                                                    )?.asImageBitmap()
-//                                                },
+                                                userProfilePicture = userImageByteArray?.decodeToImageBitmap(),
                                             )
                                         }
                                     }
@@ -511,18 +505,18 @@ class LoginViewModel(
                         userPath.name == _state.value.user?.email
                     }
                     if (thisUserPath != null) {
-//                        copyUserInfoToPosthumousVerification(thisUserPath).invokeOnCompletion {
-//                            viewModelScope.launch(Dispatchers.IO) {
-//                                driveService.listFiles(thisUserPath.id).onSuccess {
-//                                    it.forEach { file ->
-//                                        if (file.name != "contributions.json") {
-//                                            println("Deleting file: ${file.name}")
-//                                            driveService.deleteFile(file.id)
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                        }
+                        copyUserInfoToPosthumousVerification(thisUserPath).invokeOnCompletion {
+                            viewModelScope.launch(Dispatchers.IO) {
+                                driveService.listFiles(thisUserPath.id).onSuccess {
+                                    it.forEach { file ->
+                                        if (file.name != "contributions.json") {
+                                            println("Deleting file: ${file.name}")
+                                            driveService.deleteFile(file.id)
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }.onFailure {
                     _state.update {
@@ -775,7 +769,7 @@ class LoginViewModel(
     }
 
     // This is explained in Terms and conditions
-    private fun copyUserInfoToPosthumousVerification(user: File): Job = viewModelScope.launch(Dispatchers.IO) {
+    private fun copyUserInfoToPosthumousVerification(user: DriveFile): Job = viewModelScope.launch(Dispatchers.IO) {
         val userEmail = repository.getLoginInfo(1)?.userEmail
         driveService.listFiles(user.id).onSuccess { userFiles ->
             val userDataFile =

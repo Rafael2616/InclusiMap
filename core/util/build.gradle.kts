@@ -23,7 +23,6 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.google.api.services.drive)
-            implementation(libs.exifInterface)
             implementation(libs.koin.android)
         }
     }

@@ -1,6 +1,5 @@
 package com.rafael.inclusimap.feature.map.placedetails.presentation.dialogs
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -40,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.decodeToImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import coil3.compose.AsyncImage
 import com.rafael.inclusimap.core.util.map.extractImageDate
 import com.rafael.inclusimap.core.util.map.model.PlaceImage
 import kotlinx.coroutines.launch
@@ -67,7 +68,6 @@ fun FullScreenImageViewDialog(
         initialItem = index,
         itemCount = { images.size },
     )
-//    val width = LocalView.current.width
     val width = 1080f
     var currentImageIndex by remember { mutableIntStateOf(index) }
     val scope = rememberCoroutineScope()
@@ -114,10 +114,11 @@ fun FullScreenImageViewDialog(
                     ) { index ->
                         images[index]?.let { image ->
                             currentImageIndex = index
+                            val img = image.image.decodeToImageBitmap()
                             zoomState.setContentSize(
                                 Size(
-                                    width = image.image.width.toFloat(),
-                                    height = image.image.height.toFloat(),
+                                    width = img.width.toFloat(),
+                                    height = img.height.toFloat(),
                                 ),
                             )
                             if (state.isScrollInProgress) {
@@ -129,12 +130,12 @@ fun FullScreenImageViewDialog(
                                     .fillMaxWidth(),
                                 contentAlignment = Alignment.Center,
                             ) {
-                                Image(
-                                    bitmap = image.image,
+                                AsyncImage(
+                                    model = image.image,
                                     contentDescription = null,
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier
-                                        .aspectRatio(image.image.width / image.image.height.toFloat())
+                                        .aspectRatio(img.width / img.height.toFloat())
                                         .zoomable(
                                             zoomState = zoomState,
                                             onTap = {},

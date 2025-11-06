@@ -99,7 +99,7 @@ actual fun BoxScope.GoogleMapsView(
         !cameraPositionState.isMoving,
         state.allMappedPlaces,
         state.isMapLoaded,
-    ) { mutableStateOf(cameraPositionState.position.zoom >= 15f) }
+    ) { mutableStateOf(cameraPositionState.position.zoom >= 10f) }
     val onPlaceTravelScope = rememberCoroutineScope()
     var firstTimeAnimation by remember { mutableStateOf<Boolean?>(null) }
     LaunchedEffect(Unit) {

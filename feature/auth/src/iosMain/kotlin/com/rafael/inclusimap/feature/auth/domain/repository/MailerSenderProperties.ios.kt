@@ -2,10 +2,10 @@ package com.rafael.inclusimap.feature.auth.domain.repository
 
 actual class MailerSenderProperties {
     actual fun getApiKey(): String? {
-        TODO("Not yet implemented")
+        return "ios getApiKey() not yet implemented" // Todo
     }
 
     actual fun getDomain(): String? {
-        TODO("Not yet implemented")
+        return "ios getDomain() not yet implemented" //Todo
     }
 }

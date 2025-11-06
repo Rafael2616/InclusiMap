@@ -54,6 +54,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.decodeToImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -67,6 +68,9 @@ import com.rafael.inclusimap.core.ui.isLandscape
 import com.rafael.inclusimap.core.util.network.InternetConnectionState
 import com.rafael.inclusimap.feature.auth.domain.model.LoginEvent
 import com.rafael.inclusimap.feature.auth.domain.model.LoginState
+import io.github.vinceglb.filekit.dialogs.FileKitType
+import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
+import io.github.vinceglb.filekit.readBytes
 import kotlinx.coroutines.launch
 
 @Composable
@@ -79,24 +83,16 @@ fun ProfileSettingsDialog(
 ) {
     var profilePicture by remember { mutableStateOf(loginState.userProfilePicture) }
     val latestOnDismiss by rememberUpdatedState(onDismiss)
-//    val launcher = rememberLauncherForActivityResult(
-//        contract = ActivityResultContracts.PickVisualMedia(),
-//    ) { uri ->
-//        uri?.let {
-//            profilePicture = context.contentResolver.openInputStream(it)?.use { image ->
-//                val bitmap = BitmapFactory.decodeStream(image)
-//                val imageOrientation =
-//                    context.contentResolver.openFileDescriptor(uri, "r")?.use { fd ->
-//                        ExifInterface(fd.fileDescriptor).getAttributeInt(
-//                            ExifInterface.TAG_ORIENTATION,
-//                            ExifInterface.ORIENTATION_NORMAL,
-//                        )
-//                    } ?: ExifInterface.ORIENTATION_NORMAL
-//
-//                rotateImage(bitmap, imageOrientation).asImageBitmap()
-//            } ?: return@let
-//        }
-//    }
+    val scope = rememberCoroutineScope()
+    val launcher = rememberFilePickerLauncher(
+        type = FileKitType.Image,
+    ) { file ->
+        file?.let {
+            scope.launch {
+                profilePicture = file.readBytes().decodeToImageBitmap()
+            }
+        }
+    }
     var allowOtherUsersToSeeProfilePictureOptedIn by remember {
         mutableStateOf(
             loginState.user?.showProfilePictureOptedIn ?: false,
@@ -108,7 +104,6 @@ fun ProfileSettingsDialog(
     val isInternetAvailable by internetState.state.collectAsStateWithLifecycle()
     val focusRequester = remember { FocusRequester() }
     var editUserName by remember { mutableStateOf(false) }
-    val snackBarScope = rememberCoroutineScope()
     val isErrorUpdatingUserInfos by remember(loginState) {
         derivedStateOf {
             loginState.isErrorUpdatingUserName && loginState.isErrorUpdatingProfilePicture && loginState.isErrorRemovingProfilePicture && loginState.isErrorAllowingPictureOptedIn
@@ -119,6 +114,7 @@ fun ProfileSettingsDialog(
             loginState.isPictureOptedInSuccessfullyChanged && loginState.isUserNameUpdated && loginState.isProfilePictureUpdated && loginState.isProfilePictureRemoved
         }
     }
+
     Dialog(
         onDismissRequest = {
             onDismiss()
@@ -156,7 +152,6 @@ fun ProfileSettingsDialog(
                         fontWeight = FontWeight.SemiBold,
                         textAlign = TextAlign.Start,
                         softWrap = true,
-
                     )
                 }
                 profilePicture?.let { image ->
@@ -169,11 +164,7 @@ fun ProfileSettingsDialog(
                                 .size(120.dp)
                                 .clip(CircleShape)
                                 .clickable {
-//                                    launcher.launch(
-//                                        PickVisualMediaRequest(
-//                                            ActivityResultContracts.PickVisualMedia.ImageOnly,
-//                                        ),
-//                                    )
+                                    launcher.launch()
                                 },
                         )
                     }
@@ -186,11 +177,7 @@ fun ProfileSettingsDialog(
                                 .clip(CircleShape)
                                 .background(MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp))
                                 .clickable {
-//                                    launcher.launch(
-//                                        PickVisualMediaRequest(
-//                                            ActivityResultContracts.PickVisualMedia.ImageOnly,
-//                                        ),
-//                                    )
+                                    launcher.launch()
                                 },
                             contentAlignment = Alignment.Center,
                         ) {
@@ -409,7 +396,7 @@ fun ProfileSettingsDialog(
                                     }
                                     if (newName != loginState.user?.name) {
                                         if (newName.length < 3) {
-                                            snackBarScope.launch {
+                                            scope.launch {
                                                 snackBarHostState.currentSnackbarData?.dismiss()
                                                 snackBarHostState.showSnackbar("O nome deve ter no mínimo 3 caracteres")
                                                 return@launch
@@ -419,7 +406,11 @@ fun ProfileSettingsDialog(
                                         onEvent(LoginEvent.UpdateUserName(newName))
                                     }
                                     if (allowOtherUsersToSeeProfilePictureOptedIn != loginState.user?.showProfilePictureOptedIn) {
-                                        onEvent(LoginEvent.OnAllowPictureOptedIn(allowOtherUsersToSeeProfilePictureOptedIn))
+                                        onEvent(
+                                            LoginEvent.OnAllowPictureOptedIn(
+                                                allowOtherUsersToSeeProfilePictureOptedIn,
+                                            ),
+                                        )
                                     }
                                     shouldDismissDialog = true
                                 },

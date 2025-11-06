@@ -93,6 +93,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
 import com.rafael.inclusimap.core.util.map.formatDate
 import com.rafael.inclusimap.core.util.map.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.util.map.model.PlaceImage
@@ -118,13 +119,13 @@ import com.rafael.inclusimap.feature.map.placedetails.presentation.util.horizont
 import com.rafael.inclusimap.feature.report.domain.model.Report
 import com.rafael.inclusimap.feature.report.domain.model.ReportState
 import com.rafael.libs.maps.interop.model.MapsLatLng
-import io.github.vinceglb.filekit.compose.rememberFilePickerLauncher
-import io.github.vinceglb.filekit.core.PickerMode
-import io.github.vinceglb.filekit.core.PickerType
+import io.github.vinceglb.filekit.dialogs.FileKitMode
+import io.github.vinceglb.filekit.dialogs.FileKitType
+import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
+import io.github.vinceglb.filekit.readBytes
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
-// TODO
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaceDetailsBottomSheet(
@@ -435,7 +436,7 @@ fun ImageSection(
     var showDeleteImageConfirmationDialog by remember { mutableStateOf(false) }
     var selectedImage by remember { mutableStateOf<PlaceImage?>(null) }
     val launcher =
-        rememberFilePickerLauncher(type = PickerType.Image, mode = PickerMode.Multiple()) { files ->
+        rememberFilePickerLauncher(type = FileKitType.Image, mode = FileKitMode.Multiple()) { files ->
             files.takeIf { !it.isNullOrEmpty() }?.let { files ->
                 if (files.size + state.currentPlace.images.size > MAX_IMAGE_NUMBER) {
                     snackBarHostState.currentSnackbarData?.dismiss()
@@ -482,8 +483,8 @@ fun ImageSection(
             state.currentPlace.images.forEachIndexed { index, image ->
                 image?.let {
                     item {
-                        Image(
-                            bitmap = it.image,
+                        AsyncImage(
+                            model = it.image,
                             contentDescription = null,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier

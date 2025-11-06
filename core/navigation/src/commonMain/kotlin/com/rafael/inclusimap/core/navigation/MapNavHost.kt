@@ -63,8 +63,6 @@ fun MapNavHost(
 ) {
     val navController = rememberNavController()
     var isFullScreenMode by remember { mutableStateOf(false) }
-    // Todo
-//    val cameraPositionState = rememberCameraPositionState()
     val placeDetailsViewModel = koinViewModel<PlaceDetailsViewModel>()
     val placeDetailsState by placeDetailsViewModel.state.collectAsStateWithLifecycle()
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
