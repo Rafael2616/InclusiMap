@@ -178,6 +178,7 @@ fun PlaceSearchLayout(
                 expanded = searchState.expanded,
                 onExpandedChange = { onSearchEvent(SearchEvent.SetExpanded(it)) },
                 colors = SearchBarDefaults.colors(
+                    containerColor = MaterialTheme.colorScheme.surface,
                     dividerColor = MaterialTheme.colorScheme.surface,
                 ),
             ) {
