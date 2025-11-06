@@ -21,7 +21,6 @@ import androidx.compose.material.icons.twotone.ManageAccounts
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
@@ -32,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -178,8 +178,7 @@ fun PlaceSearchLayout(
                 expanded = searchState.expanded,
                 onExpandedChange = { onSearchEvent(SearchEvent.SetExpanded(it)) },
                 colors = SearchBarDefaults.colors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    dividerColor = MaterialTheme.colorScheme.surface,
+                    dividerColor = Color.Transparent,
                 ),
             ) {
                 PlaceSearchScreen(
