@@ -1,0 +1,216 @@
+@startuml
+left to right direction
+title Diagrama de Casos de Uso - Recurso Locais
+
+actor "Usuário" as User
+
+usecase "Cadastrar Local Acessível" as UC1
+usecase "Adicionar Comentários" as UC2
+usecase "Avaliar Local" as UC3
+usecase "Atualizar Recursos de Acessibilidade" as UC4
+usecase "Enviar Imagens de Locais" as UC5
+usecase "Visualizar Detalhes do Local" as UC6
+usecase "Excluir Imagem do Local" as UC7
+usecase "Deletar Comentário" as UC8
+usecase "Obter Locais Mais Próximos" as UC9
+
+User --> UC1
+User --> UC2
+User --> UC3
+User --> UC4
+User --> UC5
+User --> UC6
+User --> UC7
+User --> UC8
+User --> UC9
+
+UC2 .> UC6 : include
+UC5 .> UC1 : include
+UC3 .> UC6 : include
+UC4 .> UC6 : include
+UC8 .> UC2 : include
+UC7 .> UC6 : include
+@enduml
+
+
+@startuml
+left to right direction
+title Diagrama de Casos de Uso - Recurso Autenticação
+
+actor "Usuário" as User
+
+usecase "Registrar Novo Usuário" as UC1
+usecase "Login" as UC2
+usecase "Logout" as UC3
+usecase "Atualizar Senha" as UC4
+usecase "Excluir Conta" as UC5
+usecase "Adicionar/Editar Foto de Perfil" as UC6
+usecase "Remover Foto de Perfil" as UC7
+usecase "Atualizar Nome de Usuário" as UC8
+usecase "Permitir Foto de Perfil Pública" as UC9
+usecase "Enviar E-mail de Recuperação de Senha" as UC10
+usecase "Validar Token de Recuperação" as UC11
+
+User --> UC1
+User --> UC2
+User --> UC3
+User --> UC4
+User --> UC5
+User --> UC6
+User --> UC7
+User --> UC8
+User --> UC9
+User --> UC10
+User --> UC11
+
+UC4 .> UC10 : include
+UC10 .> UC11 : include
+@enduml
+
+
+
+@startuml
+left to right direction
+title Diagrama de Casos de Uso - Recurso Contribuições
+
+actor "Usuário" as User
+
+usecase "Enviar Contribuição de Imagem" as UC1
+usecase "Enviar Contribuição de Comentário" as UC2
+usecase "Enviar Contribuição de Local" as UC3
+usecase "Atualizar Recursos de Acessibilidade" as UC4
+usecase "Visualizar Contribuições" as UC5
+usecase "Excluir Contribuição" as UC6
+usecase "Filtrar Contribuições por Tipo" as UC7
+
+User --> UC1
+User --> UC2
+User --> UC3
+User --> UC4
+User --> UC5
+User --> UC6
+User --> UC7
+
+UC5 .> UC7 : include
+@enduml
+
+
+
+@startuml
+left to right direction
+title Diagrama de Casos de Uso - Recurso Mapa
+
+actor "Usuário" as User
+
+usecase "Carregar Locais no Mapa" as UC1
+usecase "Selecionar Local Mapeado" as UC2
+usecase "Selecionar Local Não Mapeado" as UC3
+usecase "Adicionar Novo Local Mapeado" as UC4
+usecase "Atualizar Local Mapeado" as UC5
+usecase "Excluir Local Mapeado" as UC6
+usecase "Definir Tipo de Mapa" as UC7
+usecase "Animar Mapa" as UC8
+usecase "Viajar para Local Específico" as UC9
+usecase "Definir Permissão de Localização" as UC10
+usecase "Usar App Sem Internet" as UC11
+
+User --> UC1
+User --> UC2
+User --> UC3
+User --> UC4
+User --> UC5
+User --> UC6
+User --> UC7
+User --> UC8
+User --> UC9
+User --> UC10
+User --> UC11
+
+UC1 .> UC11 : include
+UC8 .> UC9 : include
+@enduml
+
+
+
+@startuml
+left to right direction
+title Diagrama de Casos de Uso - Recurso Report
+
+actor "Usuário" as User
+
+usecase "Reportar Local" as UC1
+usecase "Reportar Comentário" as UC2
+usecase "Reportar Imagem" as UC3
+usecase "Reportar Outro Problema" as UC4
+usecase "Enviar Report" as UC5
+usecase "Verificar Estado do Report" as UC6
+
+User --> UC1
+User --> UC2
+User --> UC3
+User --> UC4
+
+
+UC5 --> UC6 : include
+UC1 --> UC5 : include
+UC2 --> UC5 : include
+UC3 --> UC5 : include
+UC4 --> UC5 : include
+
+@enduml
+
+@startuml
+' Definição do estilo do diagrama
+skinparam classAttributeIconSize 0
+skinparam classFontSize 14
+skinparam classBackgroundColor #F8F8F8
+skinparam shadowing true
+
+' Interface Componente
+interface FileSystemComponent {
+    +showDetails(indent: String)
+}
+
+' Classe Folha (Leaf)
+class File {
+    - name: String
+    +showDetails(indent: String)
+}
+
+' Classe Composto (Composite)
+class Folder {
+    - name: String
+    - children: List<FileSystemComponent>
+    +add(component: FileSystemComponent)
+    +remove(component: FileSystemComponent)
+    +showDetails(indent: String)
+}
+
+' Relacionamentos
+FileSystemComponent <|-- File
+FileSystemComponent <|-- Folder
+
+
+@enduml
+
+@startuml
+interface Componente {
+    +operacao()
+}
+
+class Folha {
+    +operacao()
+}
+
+class Composto {
+    +operacao()
+    +adicionar(c: Componente)
+    +remover(c: Componente)
+    +obterFilho(i: int)
+}
+
+Componente <|-- Folha
+Componente <|-- Composto
+Composto o-- Componente : "filhos"
+
+@enduml
