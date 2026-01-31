@@ -89,7 +89,7 @@ fun ContributionsScreen(
     state: ContributionsState,
     onEvent: (ContributionsEvent) -> Unit,
     userName: String,
-    userPicture: ImageBitmap?,
+    userPicture: ByteArray?,
     onNavigateBack: () -> Unit,
     onGoToMap: (Location) -> Unit,
     snackBarHostState: SnackbarHostState,
@@ -446,8 +446,8 @@ fun ContributionsScreen(
                                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                                                 ) {
                                                     if (userPicture != null) {
-                                                        Image(
-                                                            bitmap = userPicture,
+                                                        AsyncImage(
+                                                            model = userPicture,
                                                             contentDescription = null,
                                                             contentScale = ContentScale.Crop,
                                                             modifier = Modifier

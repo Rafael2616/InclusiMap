@@ -2,47 +2,36 @@
 minSdk = "26"
 targetSdk = "36"
 compileSdk = "36"
-versionCode = "12"
-versionName = "1.2.0-rc"
+versionCode = "13"
+versionName = "1.2.0-rc2"
 jvmTarget = "21"
 
-agp = "8.13.0"
-kotlin = "2.2.21"
+agp = "9.0.0"
+kotlin = "2.3.0"
 licensee = "1.14.1"
 ksp = "2.3.1"
-spotless = "8.0.0"
+spotless = "8.2.1"
 
-googleApiClient = "2.8.1"
-googleDriveApi = "v3-rev20251019-2.0.0"
 coreKtx = "1.17.0"
-activityCompose = "1.11.0"
-mapsCompose = "6.12.1"
-placesApi = "5.0.0"
+activityCompose = "1.12.3"
+mapsCompose = "8.0.0"
+placesApi = "5.1.1"
 core-splashscreen = "1.2.0"
 kotlinx-coroutines = "1.10.2"
-room = "2.8.3"
+room = "2.8.4"
 koin = "4.1.1"
 coil = "3.3.0"
-kotlinx-serialization = "1.9.0"
+kotlinx-serialization = "1.10.0"
 material-motion-compose = "2.0.1"
-compose-rules = "0.4.27"
+compose-rules = "0.5.6"
 navigation-compose = "2.9.1"
-lifecycle-compose = "2.9.5"
-jetbrains-compose = "1.9.2"
-ktor = "3.3.2"
-zoomable = "2.8.2"
+lifecycle-compose = "2.10.0"
+jetbrains-compose = "1.10.0"
+ktor = "3.4.0"
+zoomable = "2.10.0"
 reveal-compose = "4.0.0"
-lottieCompose = "6.7.0"
-
-junit = "4.13.2"
-androidxTest = "1.3.0"
-espressoCore = "3.7.0"
-uiautomator = "2.3.0"
-benchmarkMacroJunit4 = "1.4.1"
-profileinstaller = "1.4.1"
-baselineprofile = "1.4.1"
-uiTestManifest = "1.9.4"
-sqlite = "2.6.1"
+lottieCompose = "6.7.1"
+sqlite = "2.6.2"
 filekit = "0.12.0"
 moko-permissions = "0.20.1"
 
@@ -58,14 +47,19 @@ androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", versi
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
+androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel", version.ref = "lifecycle-compose" }
 
-jetbrains-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
-jetbrains-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle-compose" }
-jetbrains-lifecycle-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle-compose" }
+jetbrains-compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "jetbrains-compose" }
+jetbrains-compose-material3 = { module = "org.jetbrains.compose.material3:material3", version = "1.9.0" }
+jetbrains-compose-material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version = "1.7.3" }
+jetbrains-compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "jetbrains-compose" }
+jetbrains-compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "jetbrains-compose" }
+jetbrains-compose-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "jetbrains-compose" }
+jetbrains-compose-animation = { module = "org.jetbrains.compose.animation:animation", version.ref = "jetbrains-compose" }
 jetbrains-compose-backhandler = { module = "org.jetbrains.compose.ui:ui-backhandler", version.ref = "jetbrains-compose" }
-
-androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "uiTestManifest" }
-androidx-compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "uiTestManifest" }
+jetbrains-compose-ui-tooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "jetbrains-compose" }
+jetbrains-compose-ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "jetbrains-compose" }
+jetbrains-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
 
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 coil-network = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
@@ -75,9 +69,6 @@ ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 ktor-client-ios = { module = "io.ktor:ktor-client-ios", version.ref = "ktor" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
-
-google-api-client = { module = "com.google.api-client:google-api-client", version.ref = "googleApiClient" }
-google-api-services-drive = { module = "com.google.apis:google-api-services-drive", version.ref = "googleDriveApi" }
 
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
@@ -99,13 +90,6 @@ zoomable-compose = { module = "net.engawapg.lib:zoomable", version.ref = "zoomab
 reveal-compose = { module = "com.svenjacobs.reveal:reveal-core", version.ref = "reveal-compose" }
 reveal-compose-shapes = { module = "com.svenjacobs.reveal:reveal-shapes", version.ref = "reveal-compose" }
 
-androidx-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
-androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmarkMacroJunit4" }
-androidx-profileinstaller = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "profileinstaller" }
-junit = { group = "junit", name = "junit", version.ref = "junit" }
-androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidxTest" }
-androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
-
 # Build-logic dependencies
 android-gradle = { module = "com.android.tools.build:gradle", version.ref = "agp" }
 spotless-gradle = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
@@ -116,18 +100,16 @@ compose-gradle = { module = "org.jetbrains.compose:compose-gradle-plugin", versi
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
+android-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 android-test = { id = "com.android.test", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 jetbrains-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 jetbrains-compose = { id = "org.jetbrains.compose", version.ref = "jetbrains-compose" }
-kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-cocoapods = { id = "org.jetbrains.kotlin.native.cocoapods", version.ref = "kotlin" }
 androidx-room = { id = "androidx.room", version.ref = "room" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 licensee = { id = "app.cash.licensee", version.ref = "licensee" }
-baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprofile" }
 
 rafael-spotless = { id = "com.rafael.spotless", version = "unspecified" }
 rafael-android-library = { id = "com.rafael.android.library", version = "unspecified" }

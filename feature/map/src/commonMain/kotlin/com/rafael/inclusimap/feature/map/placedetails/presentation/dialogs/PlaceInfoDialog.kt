@@ -59,6 +59,7 @@ fun PlaceInfoDialog(
     googleMapsPlaceId: String?,
     onDismiss: () -> Unit,
     onReport: (Report) -> Unit,
+    userEmail: String,
     snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,
 ) {
@@ -239,8 +240,8 @@ fun PlaceInfoDialog(
                         .clickable {
                             openInGoogleMap(
                                 latLng = MapsLatLng(
-                                    currentPlace.position.first.toDouble(),
-                                    currentPlace.position.second.toDouble(),
+                                    currentPlace.position.first,
+                                    currentPlace.position.second,
                                 ),
                                 placeID = googleMapsPlaceId,
                             )
@@ -270,6 +271,7 @@ fun PlaceInfoDialog(
             localMarker = currentPlace,
             onDismiss = { showReportDialog = false },
             onReport = { onReport(it) },
+            userEmail = userEmail,
             snackbarHostState = snackbarHostState,
         )
     }

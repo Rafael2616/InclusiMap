@@ -27,7 +27,7 @@ import com.rafael.inclusimap.feature.intro.domain.model.AppIntroState
 import com.rafael.inclusimap.feature.intro.presentation.dialogs.AppIntroDialog
 import com.rafael.inclusimap.feature.map.map.domain.model.InclusiMapEvent
 import com.rafael.inclusimap.feature.map.map.presentation.InclusiMapGoogleMapScreen
-import com.rafael.inclusimap.feature.map.map.presentation.InclusiMapScaffold
+import com.rafael.inclusimap.feature.map.map.presentation.components.InclusiMapScaffold
 import com.rafael.inclusimap.feature.map.map.presentation.viewmodel.InclusiMapGoogleMapViewModel
 import com.rafael.inclusimap.feature.map.placedetails.presentation.viewmodel.PlaceDetailsViewModel
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchEvent

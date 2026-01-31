@@ -4,9 +4,11 @@ plugins {
     alias(libs.plugins.rafael.spotless)
 }
 
-android.namespace = "com.rafael.inclusimap.feature.settings"
-
 kotlin {
+    android {
+        namespace = "com.rafael.inclusimap.feature.settings"
+        compileSdk = libs.versions.compileSdk.get().toInt()
+    }
     sourceSets {
         commonMain.dependencies {
             implementation(libs.reveal.compose)
@@ -14,6 +16,7 @@ kotlin {
             implementation(libs.androidx.room.runtime)
             implementation(libs.koin.core)
             implementation(libs.koin.core.viewmodel)
+            implementation(libs.coil.compose)
 
             // Projects
             implementation(projects.core.ui)

@@ -131,7 +131,7 @@ import kotlinx.coroutines.launch
 fun PlaceDetailsBottomSheet(
     userEmail: String,
     userName: String,
-    userPicture: ImageBitmap?,
+    userPicture: ByteArray?,
     inclusiMapState: InclusiMapState,
     onDismiss: () -> Unit,
     onReport: (Report) -> Unit,
@@ -171,7 +171,7 @@ fun PlaceDetailsBottomSheet(
 
     DisposableEffect(Unit) {
         currentPlace?.let { place ->
-            latestEvent(PlaceDetailsEvent.SetCurrentPlace(place))
+            latestEvent(PlaceDetailsEvent.SetCurrentPlace(place, userEmail))
         }
         onDispose {}
     }
@@ -345,6 +345,7 @@ fun PlaceDetailsBottomSheet(
                 showPlaceInfo = false
             },
             onReport = onReport,
+            userEmail = userEmail,
             isInternetAvailable = isInternetAvailable,
             googleMapsPlaceId = state.nearestPlaceUri,
             snackbarHostState = snackBarHostState,
@@ -413,7 +414,7 @@ fun PlaceDetailsBottomSheet(
                 showAccessibilityResourcesSelectionDialog = false
             },
             onUpdateAccessibilityResources = {
-                latestEvent(PlaceDetailsEvent.OnUpdatePlaceAccessibilityResources(it))
+                latestEvent(PlaceDetailsEvent.OnUpdatePlaceAccessibilityResources(it, userEmail))
             },
         )
     }
@@ -450,6 +451,7 @@ fun ImageSection(
                         PlaceDetailsEvent.OnUploadPlaceImages(
                             files.map { it.readBytes() },
                             state.currentPlace.id ?: return@launch,
+                            userEmail,
                         ),
                     )
                     onShowUploadImagesProgress()
@@ -626,6 +628,14 @@ fun ImageSection(
             isDeleted = state.isImageDeleted,
         )
     }
+    LaunchedEffect(state.isImageDeleted) {
+        if (state.isImageDeleted) {
+            snackBarHostState.currentSnackbarData?.dismiss()
+            snackBarHostState.showSnackbar("Imagem excluída!")
+            selectedImage = null
+            showDeleteImageConfirmationDialog = false
+        }
+    }
 }
 
 @Composable
@@ -723,7 +733,7 @@ fun CommentSection(
     state: PlaceDetailsState,
     isInternetAvailable: Boolean,
     onEvent: (PlaceDetailsEvent) -> Unit,
-    userPicture: ImageBitmap?,
+    userPicture: ByteArray?,
     userName: String,
     userEmail: String,
     bottomSheetState: SheetState,
@@ -921,7 +931,7 @@ fun CommentSection(
                                                     return@launch
                                                 }
                                                 latestEvent(
-                                                    PlaceDetailsEvent.OnSendComment(userComment),
+                                                    PlaceDetailsEvent.OnSendComment(userComment, userEmail, userName),
                                                 )
                                                 snackBarHostState.currentSnackbarData?.dismiss()
                                                 snackBarHostState.showSnackbar("Comentário adicionado!")
@@ -945,7 +955,7 @@ fun CommentSection(
                         ),
                         keyboardActions = KeyboardActions(
                             onSend = {
-                                latestEvent(PlaceDetailsEvent.OnSendComment(userComment))
+                                latestEvent(PlaceDetailsEvent.OnSendComment(userComment, userEmail, userName))
                             },
                         ),
                         enabled = isInternetAvailable,
@@ -956,8 +966,8 @@ fun CommentSection(
                 if (state.isUserCommented && !state.isEditingComment) {
                     Row {
                         if (userPicture != null) {
-                            Image(
-                                bitmap = userPicture,
+                            AsyncImage(
+                                model = userPicture,
                                 contentDescription = null,
                                 modifier = Modifier
                                     .size(30.dp)
@@ -1048,7 +1058,7 @@ fun CommentSection(
                                     Text(text = "Remover")
                                 },
                                 onClick = {
-                                    latestEvent(PlaceDetailsEvent.OnDeleteComment)
+                                    latestEvent(PlaceDetailsEvent.OnDeleteComment(userEmail))
                                     userComment = ""
                                     scope.launch {
                                         snackBarHostState.currentSnackbarData?.dismiss()

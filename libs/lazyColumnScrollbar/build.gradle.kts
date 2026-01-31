@@ -11,30 +11,9 @@ object MySettings {
     val namespace = "my.nanihadesuka.lazycolumnscrollbar"
 }
 
-android {
-    namespace = MySettings.namespace
-
-    buildFeatures {
-        compose = true
-    }
-
-    defaultConfig {
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables {
-            useSupportLibrary = true
-        }
-    }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFile("proguard-rules.pro")
-        }
-    }
-
-    testOptions {
-        unitTests {
-            isIncludeAndroidResources = true
-        }
+kotlin {
+    android {
+        namespace = MySettings.namespace
+        compileSdk = libs.versions.compileSdk.get().toInt()
     }
 }

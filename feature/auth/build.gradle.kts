@@ -5,9 +5,11 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
-android.namespace = "com.rafael.inclusimap.feature.auth"
-
 kotlin {
+    android {
+        namespace = "com.rafael.inclusimap.feature.auth"
+        compileSdk = libs.versions.compileSdk.get().toInt()
+    }
     sourceSets {
         commonMain.dependencies {
             implementation(libs.androidx.room.runtime)
@@ -16,6 +18,7 @@ kotlin {
             implementation(libs.koin.core.viewmodel)
             implementation(libs.ktor.client.core)
             implementation(libs.filekit.compose)
+            implementation(libs.coil.compose)
 
             // Projects
             implementation(projects.core.ui)

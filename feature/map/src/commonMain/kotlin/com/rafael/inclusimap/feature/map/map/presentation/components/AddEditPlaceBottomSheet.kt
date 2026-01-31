@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.sp
 import com.rafael.inclusimap.core.util.map.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.util.map.model.PlaceCategory
 import com.rafael.inclusimap.core.util.map.model.icon
+import com.rafael.inclusimap.core.util.map.model.toAccessibleLocalMarker
 import com.rafael.inclusimap.core.util.map.model.toCategoryName
 import com.rafael.inclusimap.core.util.map.model.toPlaceCategory
 import com.rafael.inclusimap.feature.map.map.domain.model.InclusiMapState
@@ -62,10 +63,12 @@ import com.rafael.inclusimap.feature.map.map.presentation.dialog.AddNewPlaceConf
 import com.rafael.inclusimap.feature.map.map.presentation.dialog.DeletePlaceConfirmationDialog
 import com.rafael.inclusimap.feature.map.placedetails.domain.model.PlaceDetailsState
 import com.rafael.libs.maps.interop.model.MapsLatLng
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalUuidApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalUuidApi::class, ExperimentalTime::class)
 @Composable
 fun AddEditPlaceBottomSheet(
     latlng: MapsLatLng,
@@ -422,20 +425,18 @@ fun AddEditPlaceBottomSheet(
 //                            ).show()
 //                            return@Button
 //                        }
-//                        if (placeDetailsState.isEditingPlace) {
-//                            onEditNewPlace(
-//                                placeDetailsState.currentPlace.copy(
-//                                    title = placeName,
-//                                    category = selectedPlaceCategory,
-//                                    address = placeAddress,
-//                                    locatedIn = placeLocatedIn,
-//                                ).toAccessibleLocalMarker(),
-//                            )
-//                            Toast.makeText(context, "Atualizando local...", Toast.LENGTH_SHORT)
-//                                .show()
-//                        } else {
-//                            showConfirmationDialog = true
-//                        }
+                        if (placeDetailsState.isEditingPlace) {
+                            onEditNewPlace(
+                                placeDetailsState.currentPlace.copy(
+                                    title = placeName,
+                                    category = selectedPlaceCategory,
+                                    address = placeAddress,
+                                    locatedIn = placeLocatedIn,
+                                ).toAccessibleLocalMarker(),
+                            )
+                        } else {
+                            showConfirmationDialog = true
+                        }
                     },
                 ) {
                     Text(text = if (placeDetailsState.isEditingPlace) "Atualizar" else "Adicionar")
@@ -470,12 +471,13 @@ fun AddEditPlaceBottomSheet(
                         category = selectedPlaceCategory,
                         position = latlng.latitude to latlng.longitude,
                         authorEmail = userEmail,
-//                        time = Date().toInstant().toString(),
+                        time = Clock.System.now().toEpochMilliseconds().toString(),
                         id = Uuid.random().toString(),
                         address = placeAddress,
                         locatedIn = placeLocatedIn,
                     ),
                 )
+                showConfirmationDialog = false
             },
         )
     }

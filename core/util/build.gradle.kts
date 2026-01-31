@@ -5,9 +5,11 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
-android.namespace = "com.rafael.inclusimap.core.util"
-
 kotlin {
+    android {
+        namespace = "com.rafael.inclusimap.core.util"
+        compileSdk = libs.versions.compileSdk.get().toInt()
+    }
     sourceSets {
         commonMain.dependencies {
             implementation(libs.coil.compose)
@@ -17,12 +19,10 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.moko.permissions)
             implementation(libs.moko.permissions.location)
-            implementation(libs.jetbrains.viewmodel.compose)
             // Projects
             implementation(projects.core.resources)
         }
         androidMain.dependencies {
-            implementation(libs.google.api.services.drive)
             implementation(libs.koin.android)
         }
     }

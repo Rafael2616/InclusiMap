@@ -1,3 +1,4 @@
+
 plugins {
     alias(libs.plugins.rafael.multiplatform.library)
     alias(libs.plugins.rafael.spotless)
@@ -5,9 +6,11 @@ plugins {
     alias(libs.plugins.androidx.room)
 }
 
-android.namespace = "com.rafael.inclusimap.core.di"
-
 kotlin {
+    android {
+        namespace = "com.rafael.inclusimap.core.di"
+        compileSdk = libs.versions.compileSdk.get().toInt()
+    }
     sourceSets {
         commonMain.dependencies {
             implementation(libs.koin.core.viewmodel)
@@ -38,12 +41,6 @@ kotlin {
             implementation(libs.ktor.client.android)
         }
     }
-}
-
-ksp {
-    arg("room.schemaLocation", "$projectDir/schemas")
-    arg("room.incremental", "true")
-    arg("room.generateKotlin", "true")
 }
 
 room {

@@ -6,7 +6,7 @@ import com.rafael.libs.maps.interop.model.MapType
 @Stable
 data class SettingsState(
     val isDarkThemeOn: Boolean = true,
-    val isDynamicColorsOn: Boolean = true,
+    val isDynamicColorsOn: Boolean = false,
     val isFollowingSystemOn: Boolean = true,
     val isAboutShown: Boolean = false,
     val mapType: MapType = MapType.NORMAL,

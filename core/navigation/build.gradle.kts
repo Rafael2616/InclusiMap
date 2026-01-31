@@ -5,9 +5,11 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
-android.namespace = "com.rafael.inclusimap.core.navigation_impl"
-
 kotlin {
+    android {
+        namespace = "com.rafael.inclusimap.core.navigation"
+        compileSdk = libs.versions.compileSdk.get().toInt()
+    }
     sourceSets {
         commonMain.dependencies {
             implementation(libs.jetbrains.navigation.compose)

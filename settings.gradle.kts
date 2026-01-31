@@ -29,7 +29,6 @@ dependencyResolutionManagement {
 }
 
 include(":androidApp")
-include(":baseline-profile")
 
 include(":core:di")
 include(":core:util")

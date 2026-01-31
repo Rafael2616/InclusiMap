@@ -2,12 +2,10 @@ package com.rafael.inclusimap.feature.map.map.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rafael.inclusimap.core.services.GoogleDriveService
-import com.rafael.inclusimap.core.util.map.Constants.INCLUSIMAP_IMAGE_FOLDER_ID
-import com.rafael.inclusimap.core.util.map.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID
-import com.rafael.inclusimap.core.util.map.extractPlaceID
+import com.rafael.inclusimap.core.services.AwsFileApiService
+import com.rafael.inclusimap.core.util.map.Constants.INCLUSIMAP_IMAGE_FOLDER_PATH
+import com.rafael.inclusimap.core.util.map.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_PATH
 import com.rafael.inclusimap.core.util.map.model.AccessibleLocalMarker
-import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
 import com.rafael.inclusimap.feature.contributions.domain.model.Contribution
 import com.rafael.inclusimap.feature.contributions.domain.model.ContributionType
 import com.rafael.inclusimap.feature.contributions.domain.repository.ContributionsRepository
@@ -31,8 +29,7 @@ import kotlinx.serialization.json.Json
 class InclusiMapGoogleMapViewModel(
     private val accessibleLocalsRepository: AccessibleLocalsRepository,
     private val inclusiMapRepository: InclusiMapRepository,
-    private val driveService: GoogleDriveService,
-    private val loginRepository: LoginRepository,
+    private val awsService: AwsFileApiService,
     private val contributionsRepository: ContributionsRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(InclusiMapState())
@@ -40,13 +37,6 @@ class InclusiMapGoogleMapViewModel(
     private val json = Json {
         ignoreUnknownKeys = true
         prettyPrint = true
-    }
-    private var userEmail: MutableStateFlow<String?> = MutableStateFlow(null)
-
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            userEmail.update { loginRepository.getLoginInfo(1)?.userEmail }
-        }
     }
 
     fun onEvent(event: InclusiMapEvent) {
@@ -206,19 +196,9 @@ class InclusiMapGoogleMapViewModel(
         }
         viewModelScope.launch(Dispatchers.IO) {
             val placeFileId = accessibleLocalsRepository.saveAccessibleLocal(newPlace)
-            if (placeFileId == null) {
-                _state.update {
-                    it.copy(
-                        isErrorAddingNewPlace = true,
-                        isAddingNewPlace = false,
-                        isPlaceAdded = false,
-                    )
-                }
-                return@launch
-            }
             addNewContribution(
                 Contribution(
-                    fileId = placeFileId,
+                    fileId = placeFileId ?: return@launch,
                     type = ContributionType.PLACE,
                 ),
             )
@@ -235,15 +215,6 @@ class InclusiMapGoogleMapViewModel(
                     isErrorAddingNewPlace = false,
                     isAddingNewPlace = false,
                     isPlaceAdded = true,
-                )
-            }
-            delay(1000)
-        }.invokeOnCompletion {
-            _state.update {
-                it.copy(
-                    isErrorAddingNewPlace = false,
-                    isAddingNewPlace = false,
-                    isPlaceAdded = false,
                 )
             }
         }
@@ -288,72 +259,35 @@ class InclusiMapGoogleMapViewModel(
             )
         }
         println("Initializing Deleting place job: $placeID")
-        var placeImageId: String? = null
         viewModelScope.launch(Dispatchers.IO) {
-            driveService.listFiles(INCLUSIMAP_IMAGE_FOLDER_ID).onSuccess {
-                it.find { it.name.extractPlaceID() == placeID }?.also { placeImageFolder ->
-                    placeImageId = placeImageFolder.id
-                    driveService.listFiles(placeImageFolder.id).onSuccess { images ->
-                        val contributions = images.map { contribution ->
-                            Contribution(
-                                fileId = contribution.id,
-                                type = ContributionType.IMAGE,
-                            )
-                        }
-                        removeContributions(contributions)
-                    }
-                }
-            }
-            driveService.deleteFile(placeImageId ?: return@launch)
-        }.invokeOnCompletion {
-            viewModelScope.launch(Dispatchers.IO) {
-                driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID).onSuccess {
-                    val fileId = it.find { it.name.extractPlaceID() == placeID }?.id
-                    accessibleLocalsRepository.deleteAccessibleLocal(placeID)
-                    accessibleLocalsRepository.updateAccessibleLocalStored(
-                        AccessibleLocalsEntity(
-                            id = 1,
-                            locals = json.encodeToString<List<AccessibleLocalMarker>>(state.value.allMappedPlaces.filter { it.id != placeID }),
-                        ),
-                    )
-                    if (fileId == null) {
-                        _state.update {
-                            it.copy(
-                                isErrorDeletingPlace = true,
-                                isDeletingPlace = false,
-                                isPlaceDeleted = false,
-                            )
-                        }
-                        println("File ID is null, returning...")
-                        return@launch
-                    }
-                    removeContribution(
-                        Contribution(
-                            fileId = fileId,
-                            type = ContributionType.PLACE,
-                        ),
-                    )
-                    _state.update {
-                        it.copy(
-                            isErrorDeletingPlace = false,
-                            isDeletingPlace = false,
-                            isPlaceDeleted = true,
-                            allMappedPlaces = _state.value.allMappedPlaces.filter { it.id != placeID },
-                        )
-                    }
-                    println("Place deleted successfully")
-                    delay(1000)
-                }
-            }.invokeOnCompletion {
+            val newLocals = state.value.allMappedPlaces.filter { it.id != placeID }
+            awsService.deleteFile("$INCLUSIMAP_IMAGE_FOLDER_PATH/$placeID")
+            awsService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_PATH).onSuccess {
+                accessibleLocalsRepository.deleteAccessibleLocal(placeID)
+                accessibleLocalsRepository.updateAccessibleLocalStored(
+                    AccessibleLocalsEntity(
+                        id = 1,
+                        locals = json.encodeToString<List<AccessibleLocalMarker>>(newLocals),
+                    ),
+                )
                 _state.update {
                     it.copy(
                         isErrorDeletingPlace = false,
                         isDeletingPlace = false,
-                        isPlaceDeleted = false,
+                        isPlaceDeleted = true,
+                        allMappedPlaces = _state.value.allMappedPlaces.filter { it.id != placeID },
                     )
                 }
-                println("Job completed")
+                println("Place deleted successfully")
             }
+            _state.update {
+                it.copy(
+                    isErrorDeletingPlace = false,
+                    isDeletingPlace = false,
+                    isPlaceDeleted = false,
+                )
+            }
+            println("Job completed")
         }
     }
 
@@ -365,9 +299,12 @@ class InclusiMapGoogleMapViewModel(
         }
     }
 
-    private suspend fun addNewContribution(contribution: Contribution) = contributionsRepository.addNewContribution(contribution)
+    private suspend fun addNewContribution(contribution: Contribution) =
+        contributionsRepository.addNewContributions(listOf(contribution))
 
-    private suspend fun removeContribution(contribution: Contribution) = contributionsRepository.removeContribution(contribution)
+    private suspend fun removeContribution(contribution: Contribution) =
+        contributionsRepository.removeContribution(contribution)
 
-    private suspend fun removeContributions(contributions: List<Contribution>) = contributionsRepository.removeContributions(contributions)
+    private suspend fun removeContributions(contributions: List<Contribution>) =
+        contributionsRepository.removeContributions(contributions)
 }

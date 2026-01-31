@@ -1,6 +1,6 @@
 package com.rafael.inclusimap.core.di.database
 
-import com.rafael.inclusimap.core.services.GoogleDriveService
+import com.rafael.inclusimap.core.services.AwsFileApiService
 import com.rafael.inclusimap.feature.auth.data.repository.LoginRepositoryImpl
 import com.rafael.inclusimap.feature.intro.data.repository.AppIntroRepositoryImpl
 import com.rafael.inclusimap.feature.map.map.data.repository.AccessibleLocalsRepositoryImpl
@@ -16,7 +16,7 @@ val entitiesModule = module {
     }
     single {
         AccessibleLocalsRepositoryImpl(
-            get<GoogleDriveService>(),
+            get<AwsFileApiService>(),
             get<InclusiMapDatabase>().accessibleLocalsDao(),
         )
     }

@@ -64,6 +64,7 @@ fun PlaceReportDialog(
     localMarker: AccessibleLocalMarker,
     onDismiss: () -> Unit,
     onReport: (Report) -> Unit,
+    userEmail: String,
     snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,
 ) {
@@ -254,7 +255,7 @@ fun PlaceReportDialog(
                                                 type = reportType,
                                                 content = report,
                                                 reportedLocal = localMarker,
-                                                user = null, // User will handled in the viewmodel
+                                                userEmail = userEmail,
                                             ),
                                         )
                                         onDismiss()

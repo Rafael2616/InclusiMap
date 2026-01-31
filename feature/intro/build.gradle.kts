@@ -4,9 +4,13 @@ plugins {
     alias(libs.plugins.rafael.spotless)
 }
 
-android.namespace = "com.rafael.inclusimap.feature.intro"
-
 kotlin {
+    android {
+        namespace = "com.rafael.inclusimap.feature.intro"
+        compileSdk = libs.versions.compileSdk.get().toInt()
+        androidResources.enable = true
+    }
+
     sourceSets {
         commonMain.dependencies {
             implementation(libs.androidx.room.runtime)

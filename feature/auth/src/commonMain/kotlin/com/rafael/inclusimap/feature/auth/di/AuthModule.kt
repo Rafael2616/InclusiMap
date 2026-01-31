@@ -1,5 +1,6 @@
 package com.rafael.inclusimap.feature.auth.di
 
+import com.rafael.inclusimap.core.services.AwsFileApiService
 import com.rafael.inclusimap.feature.auth.data.repository.LoginRepositoryImpl
 import com.rafael.inclusimap.feature.auth.data.repository.MailerSenderClient
 import com.rafael.inclusimap.feature.auth.presentation.viewmodel.LoginViewModel
@@ -13,6 +14,7 @@ val authModule = module {
         LoginViewModel(
             get<LoginRepositoryImpl>(),
             get<MailerSenderClient>(),
+            get<AwsFileApiService>(),
         )
     }
 }

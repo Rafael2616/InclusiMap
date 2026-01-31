@@ -10,14 +10,7 @@ class MultiplatformLibraryComposeConventionPlugin : Plugin<Project> {
                 apply("org.jetbrains.kotlin.plugin.compose")
                 apply("org.jetbrains.compose")
             }
-
-//            extensions.configure<LibraryExtension> {
-//                configureComposeAndroid(this)
-//            }
-
-            plugins.withId("org.jetbrains.kotlin.plugin.compose") {
-                configureComposeMultiplatform()
-            }
+            configureComposeMultiplatform()
         }
     }
 }

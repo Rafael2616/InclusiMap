@@ -5,15 +5,18 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
-android.namespace = "com.rafael.inclusimap.feature.map_search"
-
 kotlin {
+    android {
+        namespace = "com.rafael.inclusimap.feature.map_search"
+        compileSdk = libs.versions.compileSdk.get().toInt()
+    }
     sourceSets {
         commonMain.dependencies {
             implementation(libs.androidx.room.runtime)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.koin.core)
             implementation(libs.koin.core.viewmodel)
+            implementation(libs.coil.compose)
 
             // Projects
             implementation(projects.core.resources)

@@ -7,8 +7,9 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.scale
 import java.io.ByteArrayOutputStream
+import org.jetbrains.compose.resources.decodeToImageBitmap
 
-actual fun resizedImageAsByteArray(image: ImageBitmap): ByteArray = image.asAndroidBitmap().let { bitmap ->
+actual fun compressByteArray(image: ByteArray): ByteArray = image.decodeToImageBitmap().asAndroidBitmap().let { bitmap ->
     val maxSize = 1024
     val width = bitmap.width
     val height = bitmap.height
@@ -23,23 +24,24 @@ actual fun resizedImageAsByteArray(image: ImageBitmap): ByteArray = image.asAndr
         bitmap.scale((width * scale).toInt(), (height * scale).toInt())
 
     val baos = ByteArrayOutputStream()
-    scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 85, baos)
+    scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos)
 
     baos.toByteArray()
 }
 
 
 private fun rotateBitmap(
-    source: ImageBitmap,
+    source: ByteArray,
     angle: Float,
 ): ImageBitmap {
     val matrix = Matrix().apply { postRotate(angle) }
+    val sourceBitmap = source.decodeToImageBitmap().asAndroidBitmap()
     return Bitmap.createBitmap(
-        source.asAndroidBitmap(),
+        sourceBitmap,
         0,
         0,
-        source.width,
-        source.height,
+        sourceBitmap.width,
+        sourceBitmap.height,
         matrix,
         true,
     ).asImageBitmap()

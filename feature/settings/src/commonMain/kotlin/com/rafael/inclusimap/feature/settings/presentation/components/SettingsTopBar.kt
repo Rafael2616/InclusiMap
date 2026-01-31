@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.rafael.inclusimap.core.ui.components.OverlayText
 import com.rafael.inclusimap.feature.settings.domain.model.SettingsEvent
 import com.rafael.inclusimap.feature.settings.domain.model.SettingsState
@@ -43,7 +44,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 internal fun SettingsTopBar(
     onNavigateBack: () -> Unit,
-    userProfilePicture: ImageBitmap?,
+    userProfilePicture: ByteArray?,
     state: SettingsState,
     onEvent: (SettingsEvent) -> Unit,
     revealCanvasState: RevealCanvasState,
@@ -114,8 +115,8 @@ internal fun SettingsTopBar(
                                 },
                             ) {
                                 userProfilePicture?.let { image ->
-                                    Image(
-                                        bitmap = image,
+                                    AsyncImage(
+                                        model = image,
                                         contentDescription = "Profile picture",
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier

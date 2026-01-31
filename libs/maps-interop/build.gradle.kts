@@ -7,9 +7,11 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
-android.namespace = "com.rafael.libs.maps_interop"
-
 kotlin {
+    android {
+        namespace = "com.rafael.libs.maps_interop"
+        compileSdk = libs.versions.compileSdk.get().toInt()
+    }
     sourceSets {
         commonMain.dependencies {
             implementation(libs.maps.compose)

@@ -2,11 +2,11 @@ package com.rafael.inclusimap.feature.map.placedetails.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rafael.inclusimap.core.services.GoogleDriveService
+import com.rafael.inclusimap.core.services.AwsFileApiService
 import com.rafael.inclusimap.core.services.PlacesApiService
-import com.rafael.inclusimap.core.util.map.Constants.INCLUSIMAP_IMAGE_FOLDER_ID
-import com.rafael.inclusimap.core.util.map.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID
-import com.rafael.inclusimap.core.util.map.Constants.INCLUSIMAP_USERS_FOLDER_ID
+import com.rafael.inclusimap.core.util.map.Constants.INCLUSIMAP_IMAGE_FOLDER_PATH
+import com.rafael.inclusimap.core.util.map.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_PATH
+import com.rafael.inclusimap.core.util.map.Constants.INCLUSIMAP_USERS_FOLDER_PATH
 import com.rafael.inclusimap.core.util.map.extractPlaceID
 import com.rafael.inclusimap.core.util.map.extractUserEmail
 import com.rafael.inclusimap.core.util.map.model.AccessibilityResource
@@ -17,15 +17,13 @@ import com.rafael.inclusimap.core.util.map.model.PlaceImage
 import com.rafael.inclusimap.core.util.map.model.Resource
 import com.rafael.inclusimap.core.util.map.model.toAccessibleLocalMarker
 import com.rafael.inclusimap.core.util.map.model.toFullAccessibleLocalMarker
-import com.rafael.inclusimap.feature.auth.domain.model.User
-import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
+import com.rafael.inclusimap.core.util.compressByteArray
 import com.rafael.inclusimap.feature.contributions.domain.model.Contribution
 import com.rafael.inclusimap.feature.contributions.domain.model.ContributionType
 import com.rafael.inclusimap.feature.contributions.domain.repository.ContributionsRepository
 import com.rafael.inclusimap.feature.map.map.domain.model.MapConstants.MAX_IMAGE_NUMBER
 import com.rafael.inclusimap.feature.map.placedetails.domain.model.PlaceDetailsEvent
 import com.rafael.inclusimap.feature.map.placedetails.domain.model.PlaceDetailsState
-import com.rafael.inclusimap.feature.map.placedetails.domain.model.toFile
 import com.rafael.libs.maps.interop.model.MapsLatLng
 import kotlin.coroutines.resume
 import kotlin.time.Clock.System
@@ -43,16 +41,13 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.json.Json
 
 class PlaceDetailsViewModel(
-    private val driveService: GoogleDriveService,
+    private val awsService: AwsFileApiService,
     private val placesApiService: PlacesApiService,
-    private val loginRepository: LoginRepository,
     private val contributionsRepository: ContributionsRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(PlaceDetailsState())
     val state = _state.asStateFlow()
-    private var userName = ""
-    private var userEmail = ""
     private val json = Json {
         prettyPrint = true
         ignoreUnknownKeys = true
@@ -63,18 +58,20 @@ class PlaceDetailsViewModel(
             is PlaceDetailsEvent.OnUploadPlaceImages -> onUploadPlaceImages(
                 event.imagesContent,
                 event.placeId,
+                event.userEmail,
             )
 
             PlaceDetailsEvent.OnDestroyPlaceDetails -> onDestroyPlaceDetailsScreen()
-            is PlaceDetailsEvent.SetCurrentPlace -> setCurrentPlace(event.place)
+            is PlaceDetailsEvent.SetCurrentPlace -> setCurrentPlace(event.place, event.userEmail)
             is PlaceDetailsEvent.OnDeletePlaceImage -> onDeletePlaceImage(event.image)
             is PlaceDetailsEvent.SetUserAccessibilityRate -> setUserAccessibilityRate(event.rate)
-            is PlaceDetailsEvent.OnSendComment -> onSendComment(event.comment)
+            is PlaceDetailsEvent.OnSendComment -> onSendComment(event.comment, event.userEmail, event.userName)
             is PlaceDetailsEvent.SetIsUserCommented -> _state.update { it.copy(isUserCommented = event.isCommented) }
-            PlaceDetailsEvent.OnDeleteComment -> onDeleteComment()
+            is PlaceDetailsEvent.OnDeleteComment -> onDeleteComment(event.userEmail)
             is PlaceDetailsEvent.SetIsEditingPlace -> _state.update { it.copy(isEditingPlace = event.isEditing) }
             is PlaceDetailsEvent.OnUpdatePlaceAccessibilityResources -> onUpdatePlaceAccessibilityResources(
                 event.resources,
+                event.userEmail,
             )
 
             is PlaceDetailsEvent.SetIsEditingComment -> _state.update { it.copy(isEditingComment = event.isEditing) }
@@ -83,7 +80,7 @@ class PlaceDetailsViewModel(
         }
     }
 
-    private fun setCurrentPlace(place: AccessibleLocalMarker) {
+    private fun setCurrentPlace(place: AccessibleLocalMarker, userEmail: String) {
         viewModelScope.launch(Dispatchers.IO) {
             async {
                 _state.update { it ->
@@ -115,18 +112,11 @@ class PlaceDetailsViewModel(
                 loadImagesFromCache(place)
             }
         }
-        loadUserComment(place)
-        updatePlaceCommentsAuthorName(place)
+        loadUserComment(place, userEmail)
     }
 
-    private fun loadUserComment(place: AccessibleLocalMarker) {
+    private fun loadUserComment(place: AccessibleLocalMarker, userEmail: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            async {
-                loginRepository.getLoginInfo(1)?.let {
-                    userName = it.userName ?: return@async
-                    userEmail = it.userEmail ?: return@async
-                }
-            }.await()
         }.invokeOnCompletion {
             val userComment = state.value.loadedPlaces.find { existingPlace ->
                 existingPlace.id == place.id
@@ -138,46 +128,6 @@ class PlaceDetailsViewModel(
                     userComment = userComment?.body ?: "",
                     userCommentDate = userComment?.postDate ?: "",
                     userAccessibilityRate = userComment?.accessibilityRate ?: 0,
-                )
-            }
-        }
-    }
-
-    private fun updatePlaceCommentsAuthorName(place: AccessibleLocalMarker) {
-        viewModelScope.launch(Dispatchers.IO) {
-            println("Updating place comments author name")
-            _state.update {
-                it.copy(
-                    currentPlace = it.currentPlace.copy(
-                        comments = it.currentPlace.comments.map {
-                            Comment(
-                                name = findUserNameByEmail(it.email) ?: it.name,
-                                id = it.id,
-                                body = it.body,
-                                email = it.email,
-                                postDate = it.postDate,
-                                accessibilityRate = it.accessibilityRate,
-                            )
-                        },
-                    ),
-                    loadedPlaces = it.loadedPlaces.map {
-                        if (it.id == place.id) {
-                            it.copy(
-                                comments = it.comments.map {
-                                    Comment(
-                                        name = findUserNameByEmail(it.email) ?: it.name,
-                                        id = it.id,
-                                        body = it.body,
-                                        email = it.email,
-                                        postDate = it.postDate,
-                                        accessibilityRate = it.accessibilityRate,
-                                    )
-                                },
-                            )
-                        } else {
-                            it
-                        }
-                    },
                 )
             }
         }
@@ -197,23 +147,11 @@ class PlaceDetailsViewModel(
     }
 
     private fun loadImages(placeDetails: AccessibleLocalMarker) {
+        val imageFolderID =
+            "$INCLUSIMAP_IMAGE_FOLDER_PATH/${placeDetails.id}_${placeDetails.authorEmail}"
         _state.update { it.copy(allImagesLoaded = false) }
         viewModelScope.launch(Dispatchers.IO) {
-            async {
-                driveService.listFiles(
-                    INCLUSIMAP_IMAGE_FOLDER_ID,
-                ).onSuccess { imageRepositoryFolder ->
-                    _state.update {
-                        it.copy(
-                            inclusiMapImageRepositoryFolder = imageRepositoryFolder,
-                        )
-                    }
-                }
-            }.await()
             _state.update {
-                val imageFolderID = state.value.inclusiMapImageRepositoryFolder.find { subPaths ->
-                    subPaths.name == placeDetails.id + "_" + placeDetails.authorEmail
-                }?.id
                 it.copy(
                     currentPlace = it.currentPlace.copy(
                         imageFolderId = imageFolderID,
@@ -228,7 +166,7 @@ class PlaceDetailsViewModel(
                 )
             }
             if (_state.value.currentPlace.imageFolderId.isNullOrEmpty() ||
-                driveService.listFiles(_state.value.currentPlace.imageFolderId ?: "").getOrNull()
+                awsService.listFiles(_state.value.currentPlace.imageFolderId ?: "").getOrNull()
                     ?.isEmpty() == true
             ) {
                 _state.update { it.copy(allImagesLoaded = true) }
@@ -238,15 +176,13 @@ class PlaceDetailsViewModel(
             async {
                 val folderId = state.value.currentPlace.imageFolderId
                 folderId?.let {
-                    driveService.listFiles(folderId).onSuccess { imageFolder ->
+                    awsService.listFiles(folderId).onSuccess { imageFolder ->
                         _state.update {
                             it.copy(
-                                currentPlace = it.currentPlace.copy(
-                                    imageFolder = imageFolder.map { it.toFile() },
-                                ),
+                                currentPlace = it.currentPlace.copy(imageFolder = imageFolder),
                                 loadedPlaces = it.loadedPlaces.map { place ->
                                     if (place.id == placeDetails.id) {
-                                        place.copy(imageFolder = imageFolder.map { it.toFile() })
+                                        place.copy(imageFolder = imageFolder)
                                     } else {
                                         place
                                     }
@@ -265,26 +201,27 @@ class PlaceDetailsViewModel(
                         _state.update {
                             it.copy(allImagesLoaded = true)
                         }
-                        println("Max image limit reached, skipping image ${file.name}")
+                        println("Max image limit reached, skipping image $index")
                         return@async
                     }
 
                     try {
-                        val fileContent = driveService.getFileContent(file.id)
+                        val fileContent =
+                            awsService.downloadImage("$imageFolderID/$file").getOrNull()
 
                         if (placeDetails.id != _state.value.currentPlace.id) {
                             return@async
                         }
-                        if (file.name in _state.value.currentPlace.images.map { it?.name }) {
-                            println("Skipping already loaded image ${file.name}")
+                        if (file.hashCode() in _state.value.currentPlace.images.map { it?.hashCode() }) {
+                            println("Skipping already loaded image $file")
                             return@async
                         }
 
                         val placeImage = PlaceImage(
-                            userEmail = file.name.extractUserEmail(),
+                            userEmail = file?.extractUserEmail(),
                             image = fileContent ?: return@async,
                             placeID = placeDetails.id ?: return@async,
-                            name = file.name,
+                            name = file ?: return@async,
                         )
                         _state.update {
                             it.copy(
@@ -299,7 +236,7 @@ class PlaceDetailsViewModel(
                                     }
                                 },
                             ).also {
-                                println("Loaded image $index with name ${file.name} with id ${file.id}")
+                                println("Loaded image $index with name $file")
                             }
                         }
                         if (_state.value.currentPlace.images.size == _state.value.currentPlace.imageFolder?.size) {
@@ -359,6 +296,7 @@ class PlaceDetailsViewModel(
     private fun onUploadPlaceImages(
         images: List<ByteArray>,
         placeId: String,
+        userEmail: String,
     ) {
         _state.update {
             it.copy(
@@ -370,39 +308,33 @@ class PlaceDetailsViewModel(
         }
 
         viewModelScope.launch(Dispatchers.IO) {
-            async {
-                driveService.listFiles(INCLUSIMAP_IMAGE_FOLDER_ID).onSuccess { placeImagesFolder ->
-                    val placeImageFolderExists =
-                        placeImagesFolder.find { it.name.extractPlaceID() == placeId }?.id
-                    _state.update {
-                        it.copy(
-                            currentPlace = it.currentPlace.copy(
-                                imageFolderId = placeImageFolderExists ?: driveService.createFolder(
-                                    _state.value.currentPlace.id + "_" + _state.value.currentPlace.authorEmail,
-                                    INCLUSIMAP_IMAGE_FOLDER_ID,
-                                ),
-                            ),
-                        )
-                    }
+            awsService.listFiles(INCLUSIMAP_IMAGE_FOLDER_PATH).onSuccess { placeImagesFolder ->
+                val placeImageFolderExists =
+                    placeImagesFolder.find { it.extractPlaceID() == placeId }
+                val folderId =
+                    INCLUSIMAP_IMAGE_FOLDER_PATH + "/" + _state.value.currentPlace.id + "_" + _state.value.currentPlace.authorEmail
+                _state.update {
+                    it.copy(
+                        currentPlace = it.currentPlace.copy(
+                            imageFolderId = placeImageFolderExists ?: folderId,
+                        ),
+                    )
                 }
-            }.await()
+            }
 
             var imagesFileIds = emptyList<String?>()
-            images.mapIndexed { index, image ->
-                val imageFileName =
-                    "${_state.value.currentPlace.id}_$userEmail-${
-                        System.now().toEpochMilliseconds()
-                    }.jpg"
+            val compressedImages = images.map { compressByteArray(it) }
+            compressedImages.mapIndexed { index, image ->
+                val imageFileName = "${_state.value.currentPlace.id}_$userEmail-${
+                    System.now().toEpochMilliseconds()
+                }.jpg"
+                val imageFilePath = "${_state.value.currentPlace.imageFolderId}/$imageFileName"
 
                 async {
-                    val imageId = driveService.uploadFile(
-                        fileContent = image,
-                        fileName = imageFileName,
-                        folderId = _state.value.currentPlace.imageFolderId ?: return@async,
-                    )
+                    val isSuccessful = awsService.uploadImage(imageFilePath, image).getOrNull()
 
-                    if (imageId == null) {
-                        println("Error uploading image $imageFileName")
+                    if (isSuccessful != 200) {
+                        println("Error uploading image $imageFilePath")
                         _state.update {
                             it.copy(isErrorUploadingImages = true)
                         }
@@ -411,7 +343,7 @@ class PlaceDetailsViewModel(
                     val image = PlaceImage(
                         userEmail = userEmail,
                         image = image,
-                        placeID = imageId ?: return@async,
+                        placeID = placeId,
                         name = imageFileName,
                     )
 
@@ -430,7 +362,7 @@ class PlaceDetailsViewModel(
                             imagesUploadedSize = it.imagesUploadedSize.plus(1),
                         )
                     }
-                    imagesFileIds = imagesFileIds + imageId
+                    imagesFileIds = (imagesFileIds + imageFileName).distinct()
                     if (index == images.size - 1) {
                         println("All images uploaded successfully for $placeId")
                         println(state.value.loadedPlaces.find { it.id == placeId }?.images?.size)
@@ -445,7 +377,6 @@ class PlaceDetailsViewModel(
                 )
             }
             addNewContributions(contributions)
-        }.invokeOnCompletion {
             _state.update {
                 it.copy(isUploadingImages = false)
             }
@@ -461,67 +392,44 @@ class PlaceDetailsViewModel(
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
-            val folderId = state.value.currentPlace.imageFolderId
-            println("Working on folder id: $folderId")
-            folderId?.let {
-                driveService.listFiles(folderId).onSuccess { files ->
-                    val imageId = files.find { it.name == image.name }?.id
-                    println("Image: ${image.name}, $imageId")
-                    if (imageId == null) {
-                        _state.update {
-                            it.copy(
-                                isErrorDeletingImage = true,
-                                isDeletingImage = false,
-                            )
+            val imagePath =
+                "$INCLUSIMAP_IMAGE_FOLDER_PATH/${state.value.currentPlace.id}_${state.value.currentPlace.authorEmail}/${image.name}"
+            println("Working on folder id: $imagePath")
+            awsService.deleteFile(imagePath)
+            removeContribution(
+                Contribution(
+                    fileId = imagePath,
+                    type = ContributionType.IMAGE,
+                ),
+            )
+            _state.update {
+                it.copy(
+                    currentPlace = it.currentPlace.copy(
+                        images = it.currentPlace.images - image,
+                    ),
+                    loadedPlaces = it.loadedPlaces.map { place ->
+                        if (place.id == it.currentPlace.id) {
+                            place.copy(images = it.currentPlace.images - image)
+                        } else {
+                            place
                         }
-                        println("Image not found in folder")
-                        return@launch
-                    }
-                    driveService.deleteFile(imageId)
-                    removeContribution(
-                        Contribution(
-                            fileId = imageId,
-                            type = ContributionType.IMAGE,
-                        ),
-                    )
-                    _state.update {
-                        it.copy(
-                            currentPlace = it.currentPlace.copy(
-                                images = it.currentPlace.images - image,
-                            ),
-                            loadedPlaces = it.loadedPlaces.map { place ->
-                                if (place.id == it.currentPlace.id) {
-                                    place.copy(images = it.currentPlace.images - image)
-                                } else {
-                                    place
-                                }
-                            },
-                            isImageDeleted = true,
-                        )
-                    }
-                }.onFailure {
-                    _state.update {
-                        it.copy(
-                            isErrorDeletingImage = true,
-                            isDeletingImage = false,
-                        )
-                    }
-                    return@launch
-                }
+                    },
+                    isImageDeleted = true,
+                )
             }
             delay(500)
         }.invokeOnCompletion {
             _state.update {
                 it.copy(
                     isDeletingImage = false,
-                    isImageDeleted = false,
+                    isImageDeleted = true,
                 )
             }
         }
     }
 
     @OptIn(ExperimentalTime::class)
-    private fun onSendComment(comment: String) {
+    private fun onSendComment(comment: String, userEmail: String, userName: String) {
         _state.update {
             it.copy(
                 trySendComment = true,
@@ -559,40 +467,32 @@ class PlaceDetailsViewModel(
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
-            driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
-                .onSuccess { places ->
-                    places.find { it.name.extractPlaceID() == _state.value.currentPlace.id }
-                        .also { place ->
-                            val placeJson = driveService.getFileContent(place?.id ?: return@launch)
-                            val json = Json {
-                                ignoreUnknownKeys = true
-                                prettyPrint = true
-                            }
-                            val placeString = json.decodeFromString<AccessibleLocalMarker>(
-                                placeJson?.decodeToString() ?: return@launch,
-                            )
-                            val filteredComments =
-                                placeString.comments.filterNot { it.email == userEmail }
-                            val updatedPlace =
-                                placeString.copy(comments = filteredComments + userComment)
-                            val updatedPlaceString = json.encodeToString(updatedPlace)
-                            driveService.updateFile(
-                                place.id,
-                                placeString.id + "_" + placeString.authorEmail + ".json",
-                                updatedPlaceString.encodeToByteArray(),
-                            )
-                            addNewContribution(
-                                Contribution(
-                                    fileId = place.id,
-                                    type = ContributionType.COMMENT,
-                                ),
-                            )
-                        }
-                }
+            val placePath =
+                INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_PATH + "/" + _state.value.currentPlace.id + "_" + _state.value.currentPlace.authorEmail + ".json"
+            val place = awsService.downloadFile(placePath).getOrNull()
+
+            val placeString = json.decodeFromString<AccessibleLocalMarker>(
+                place?.decodeToString() ?: return@launch,
+            )
+            val filteredComments =
+                placeString.comments.filterNot { it.email == userEmail }
+            val updatedPlace =
+                placeString.copy(comments = filteredComments + userComment)
+            val updatedPlaceString = json.encodeToString(updatedPlace)
+            awsService.uploadFile(
+                placePath,
+                updatedPlaceString,
+            )
+            addNewContribution(
+                Contribution(
+                    fileId = placeString.id!!,
+                    type = ContributionType.COMMENT,
+                ),
+            )
         }
     }
 
-    private fun onDeleteComment() {
+    private fun onDeleteComment(userEmail: String) {
         _state.update {
             it.copy(
                 userComment = "",
@@ -612,38 +512,23 @@ class PlaceDetailsViewModel(
             )
         }
         viewModelScope.launch(Dispatchers.IO) {
-            driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
-                .onSuccess { places ->
-                    places.find { it.name.extractPlaceID() == _state.value.currentPlace.id }
-                        .also { place ->
-                            val placeJson = driveService.getFileContent(place?.id ?: return@launch)
-                            val json = Json {
-                                ignoreUnknownKeys = true
-                                prettyPrint = true
-                            }
-                            val placeString = json.decodeFromString<AccessibleLocalMarker>(
-                                placeJson?.decodeToString() ?: return@launch,
-                            )
+            val place = state.value.currentPlace
+            val updatedPlace = place.toAccessibleLocalMarker().copy(
+                comments = place.comments.filterNot { it.email == userEmail },
+            )
+            val updatedPlaceString = json.encodeToString(updatedPlace)
 
-                            val updatedPlace = placeString.copy(
-                                comments = placeString.comments.filterNot { it.email == userEmail },
-                            )
-                            val updatedPlaceString = json.encodeToString(updatedPlace)
+            awsService.uploadFile(
+                INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_PATH + "/" + _state.value.currentPlace.id + place.id + "_" + place.authorEmail + ".json",
+                updatedPlaceString,
+            )
 
-                            driveService.updateFile(
-                                place.id,
-                                placeString.id + "_" + placeString.authorEmail + ".json",
-                                updatedPlaceString.encodeToByteArray(),
-                            )
-
-                            removeContribution(
-                                Contribution(
-                                    fileId = place.id,
-                                    type = ContributionType.COMMENT,
-                                ),
-                            )
-                        }
-                }
+            removeContribution(
+                Contribution(
+                    fileId = place.id!!,
+                    type = ContributionType.COMMENT,
+                ),
+            )
         }
     }
 
@@ -655,7 +540,7 @@ class PlaceDetailsViewModel(
     }
 
     @OptIn(ExperimentalTime::class)
-    private fun onUpdatePlaceAccessibilityResources(updatedResources: List<Resource>) {
+    private fun onUpdatePlaceAccessibilityResources(updatedResources: List<Resource>, userEmail: String) {
         val updatedResourcesBuilder = updatedResources.map { resource ->
             AccessibilityResource(
                 resource = resource,
@@ -669,29 +554,20 @@ class PlaceDetailsViewModel(
         }
 
         viewModelScope.launch(Dispatchers.IO) {
-            driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
-                .onSuccess { places ->
-                    places.find { it.name.extractPlaceID() == _state.value.currentPlace.id }
-                        .also { place ->
-                            val placeJson = driveService.getFileContent(place?.id ?: return@launch)
-                            val placeString = json.decodeFromString<AccessibleLocalMarker>(
-                                placeJson?.decodeToString() ?: return@launch,
-                            )
-                            val updatedPlace = placeString.copy(resources = updatedResourcesBuilder)
-                            val updatedPlaceString = json.encodeToString(updatedPlace)
-                            driveService.updateFile(
-                                place.id,
-                                placeString.id + "_" + placeString.authorEmail + ".json",
-                                updatedPlaceString.encodeToByteArray(),
-                            )
-                            addNewContribution(
-                                Contribution(
-                                    fileId = place.id,
-                                    type = ContributionType.ACCESSIBLE_RESOURCES,
-                                ),
-                            )
-                        }
-                }
+            val placePath =
+                INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_PATH + "/" + _state.value.currentPlace.id + "_" + _state.value.currentPlace.authorEmail + ".json"
+            val updatedPlace = state.value.currentPlace.copy(resources = updatedResourcesBuilder)
+            val updatedPlaceString = json.encodeToString(updatedPlace.toAccessibleLocalMarker())
+            awsService.uploadFile(
+                placePath,
+                updatedPlaceString,
+            )
+            addNewContribution(
+                Contribution(
+                    fileId = updatedPlace.id!!,
+                    type = ContributionType.ACCESSIBLE_RESOURCES,
+                ),
+            )
         }
     }
 
@@ -704,32 +580,12 @@ class PlaceDetailsViewModel(
         }
     }
 
-    private suspend fun addNewContribution(contribution: Contribution) = contributionsRepository.addNewContribution(contribution)
+    private suspend fun addNewContribution(contribution: Contribution) =
+        contributionsRepository.addNewContributions(listOf(contribution))
 
-    private suspend fun addNewContributions(contributions: List<Contribution>) = contributionsRepository.addNewContributions(contributions)
+    private suspend fun addNewContributions(contributions: List<Contribution>) =
+        contributionsRepository.addNewContributions(contributions)
 
-    private suspend fun removeContribution(contribution: Contribution) = contributionsRepository.removeContribution(contribution)
-
-    private suspend fun findUserNameByEmail(email: String) = suspendCancellableCoroutine { continuation ->
-        viewModelScope.launch(Dispatchers.IO) {
-            driveService.listFiles(INCLUSIMAP_USERS_FOLDER_ID).onSuccess { users ->
-                val userFiles = users.find { it.name == email }
-                if (userFiles?.id == null) {
-                    continuation.resume(null)
-                    return@launch
-                }
-                driveService.listFiles(userFiles.id).onSuccess { userDataFiles ->
-                    val userContentString =
-                        userDataFiles.find { it.name == "$email.json" }?.id?.let {
-                            driveService.getFileContent(it)
-                        }
-                            ?.decodeToString()
-                    val user = userContentString?.let {
-                        json.decodeFromString<User>(userContentString)
-                    }
-                    continuation.resume(user?.name)
-                }
-            }
-        }
-    }
+    private suspend fun removeContribution(contribution: Contribution) =
+        contributionsRepository.removeContribution(contribution)
 }

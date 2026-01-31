@@ -217,12 +217,13 @@ actual fun BoxScope.GoogleMapsView(
                     async {
                         cameraPositionState.animate(
                             with(cameraPositionState.position) {
-                                CameraUpdateFactory.newLatLngZoom(
-                                    LatLng(
-                                        target.latitude,
-                                        target.longitude,
+                                CameraUpdateFactory.newCameraPosition(
+                                    CameraPosition(
+                                        target,
+                                        zoom,
+                                        0f,
+                                        0f,
                                     ),
-                                    zoom,
                                 )
                             },
                         )

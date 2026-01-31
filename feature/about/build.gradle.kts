@@ -4,19 +4,11 @@ plugins {
     alias(libs.plugins.rafael.spotless)
 }
 
-android {
-    namespace = "com.rafael.inclusimap.feature.about"
-
-    buildFeatures {
-        buildConfig = true
-    }
-
-    defaultConfig {
-        buildConfigField("String", "VERSION_NAME", "\"${libs.versions.versionName.get()}\"")
-    }
-}
-
 kotlin {
+    android {
+        namespace = "com.rafael.inclusimap.feature.about"
+        compileSdk = libs.versions.compileSdk.get().toInt()
+    }
     sourceSets {
         commonMain.dependencies {
             implementation(libs.coil.compose)

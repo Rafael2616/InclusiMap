@@ -63,7 +63,7 @@ fun InclusiMapGoogleMapScreen(
     userName: String,
     userEmail: String,
     isPresentationMode: Boolean,
-    userProfilePicture: ImageBitmap?,
+    userProfilePicture: ByteArray?,
     isFullScreenMode: Boolean,
     onReport: (Report) -> Unit,
     reportState: ReportState,
@@ -222,7 +222,7 @@ fun InclusiMapGoogleMapScreen(
             mapState = state,
             onEditNewPlace = {
                 latestOnEvent(InclusiMapEvent.OnUpdateMappedPlace(it))
-                latestOnPlaceDetailsEvent(PlaceDetailsEvent.SetCurrentPlace(it))
+                latestOnPlaceDetailsEvent(PlaceDetailsEvent.SetCurrentPlace(it, userEmail))
             },
             onDeletePlace = {
                 latestOnEvent(InclusiMapEvent.OnDeleteMappedPlace(it))
@@ -280,6 +280,13 @@ fun InclusiMapGoogleMapScreen(
         latestOnEvent(InclusiMapEvent.GetCurrentState)
         if (!showAppIntro) firstTimeAnimation = false
         onDispose { }
+    }
+
+    LaunchedEffect(firstTimeAnimation) {
+        if (firstTimeAnimation == true) {
+            delay(500L)
+            revealState.reveal(RevealKeys.PLACE_DETAILS_TIP)
+        }
     }
 
     DisposableEffect(state.allMappedPlaces, state.useAppWithoutInternet, isInternetAvailable) {

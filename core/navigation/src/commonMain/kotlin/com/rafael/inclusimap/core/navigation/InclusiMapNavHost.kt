@@ -14,7 +14,9 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
@@ -43,6 +45,7 @@ import com.rafael.inclusimap.feature.settings.presentation.SettingsScreen
 import com.rafael.inclusimap.feature.settings.presentation.viewmodel.SettingsViewModel
 import com.svenjacobs.reveal.RevealCanvas
 import com.svenjacobs.reveal.rememberRevealCanvasState
+import kotlinx.coroutines.delay
 import org.koin.compose.viewmodel.koinViewModel
 import soup.compose.material.motion.animation.materialSharedAxisXIn
 import soup.compose.material.motion.animation.materialSharedAxisXOut
@@ -93,50 +96,45 @@ fun InclusiMapNavHost(
                     popExitTransition = { materialSharedAxisXOut(isRtl, slideDistance) },
                 ) {
                     composable<Destination.LoginScreen> {
-                        UnifiedLoginScreen(
-                            loginState = loginState,
-                            onLogin = { registeredUser ->
-                                loginViewModel.onEvent(
-                                    LoginEvent.OnLogin(registeredUser),
-                                )
-                            },
-                            onRegister = {
-                                loginViewModel.onEvent(
-                                    LoginEvent.OnRegisterNewUser(it),
-                                )
-                                appIntroViewModel.setShowAppIntro(true)
-                            },
-                            modifier = Modifier.consumeWindowInsets(innerPadding),
-                            onUpdatePassword = { newPassword ->
-                                loginViewModel.onEvent(
-                                    LoginEvent.UpdatePassword(newPassword),
-                                )
-                            },
-                            onCancel = navController::popBackStack,
-                            onPopBackStack = {
-                                navController.popBackStack()
-                                loginViewModel.onEvent(
-                                    LoginEvent.SetIsPasswordChanged(false),
-                                )
-                            },
-                            onSendRecoverEmail = { email ->
-                                loginViewModel.onEvent(
-                                    LoginEvent.SendPasswordResetEmail(email),
-                                )
-                            },
-                            onValidateToken = { token ->
-                                loginViewModel.onEvent(
-                                    LoginEvent.ValidateToken(token),
-                                )
-                            },
-                            onResetUpdateProcess = {
-                                loginViewModel.onEvent(LoginEvent.InvalidateUpdatePasswordProcess)
-                            },
-                            isEditPasswordModeFromSettings = it.toRoute<Destination.LoginScreen>().isEditPasswordMode,
-                            termsAndConditionsDialog = { onDismiss ->
-                                TermsAndConditionsDialog(onDismiss)
-                            },
-                        )
+                        var showLoginScreen by remember { mutableStateOf(false) }
+                        LaunchedEffect(Unit) {
+                            delay(500)
+                            showLoginScreen = true
+                        }
+                        if (showLoginScreen) {
+                            UnifiedLoginScreen(
+                                loginState = loginState,
+                                onLogin = { registeredUser ->
+                                    loginViewModel.onEvent(LoginEvent.OnLogin(registeredUser))
+                                },
+                                onRegister = {
+                                    loginViewModel.onEvent(LoginEvent.OnRegisterNewUser(it))
+                                    appIntroViewModel.setShowAppIntro(true)
+                                },
+                                modifier = Modifier.consumeWindowInsets(innerPadding),
+                                onUpdatePassword = { newPassword ->
+                                    loginViewModel.onEvent(LoginEvent.UpdatePassword(newPassword))
+                                },
+                                onCancel = navController::popBackStack,
+                                onPopBackStack = {
+                                    navController.popBackStack()
+                                    loginViewModel.onEvent(LoginEvent.SetIsPasswordChanged(false))
+                                },
+                                onSendRecoverEmail = { email ->
+                                    loginViewModel.onEvent(LoginEvent.SendPasswordResetEmail(email))
+                                },
+                                onValidateToken = { token ->
+                                    loginViewModel.onEvent(LoginEvent.ValidateToken(token))
+                                },
+                                onResetUpdateProcess = {
+                                    loginViewModel.onEvent(LoginEvent.InvalidateUpdatePasswordProcess)
+                                },
+                                isEditPasswordModeFromSettings = it.toRoute<Destination.LoginScreen>().isEditPasswordMode,
+                                termsAndConditionsDialog = { onDismiss ->
+                                    TermsAndConditionsDialog(onDismiss)
+                                },
+                            )
+                        }
 
                         AnimatedVisibility(loginState.isUserBanned) {
                             UserBannedDialog(

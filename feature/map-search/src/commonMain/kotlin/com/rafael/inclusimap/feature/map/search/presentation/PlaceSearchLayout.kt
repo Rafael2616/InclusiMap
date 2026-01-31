@@ -38,6 +38,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.rafael.inclusimap.core.resources.Res
 import com.rafael.inclusimap.core.resources.ic_splash
 import com.rafael.inclusimap.core.ui.isLandscape
@@ -56,7 +57,7 @@ fun PlaceSearchLayout(
     onNavigateToSettings: () -> Unit,
     onTravelToPlace: (String) -> Unit,
     focusRequester: FocusRequester,
-    profilePicture: ImageBitmap?,
+    profilePicture: ByteArray?,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -145,19 +146,20 @@ fun PlaceSearchLayout(
                                 }
                             }
                             if (!searchState.expanded) {
-                                if (profilePicture != null) {
-                                    Image(
+                                 profilePicture?.let {
+                                    AsyncImage(
                                         modifier = Modifier
                                             .size(40.dp)
                                             .clip(CircleShape)
                                             .clickable {
                                                 onNavigateToSettings()
                                             },
-                                        bitmap = profilePicture,
+                                        model = profilePicture,
                                         contentDescription = null,
                                         contentScale = ContentScale.Crop,
                                     )
-                                } else {
+                                }
+                                if (profilePicture == null) {
                                     IconButton(
                                         onClick = {
                                             onNavigateToSettings()

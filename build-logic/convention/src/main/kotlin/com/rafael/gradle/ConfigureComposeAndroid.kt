@@ -1,27 +1,21 @@
 package com.rafael.gradle
 
-import com.android.build.api.dsl.CommonExtension
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
 
-internal fun Project.configureComposeAndroid(
-    androidExtension: CommonExtension<*, *, *, *, *, *>
-) {
-    androidExtension.apply {
-        // Just using the infrastructure
-        composeMultiplatformExtension {
-            val compose = dependencies
-            dependencies {
-                "implementation"(compose.foundation)
-                "implementation"(compose.material3)
-                "implementation"(compose.materialIconsExtended)
-                "implementation"(compose.runtime)
-                "implementation"(compose.ui)
-                "implementation"(compose.uiUtil)
-                "implementation"(compose.animation)
-                "debugImplementation"(compose.uiTooling)
-//                "debugImplementation"(libs.findLibrary("androidx-ui-test-manifest").get())
-            }
+internal fun Project.configureComposeAndroid() {
+    // Just using the infrastructure
+    composeMultiplatformExtension {
+        dependencies {
+            "implementation"(libs.findLibrary("jetbrains-compose-foundation").get())
+            "implementation"(libs.findLibrary("jetbrains-compose-material3").get())
+            "implementation"(libs.findLibrary("jetbrains-compose-material-icons-extended").get())
+            "implementation"(libs.findLibrary("jetbrains-compose-runtime").get())
+            "implementation"(libs.findLibrary("jetbrains-compose-ui").get())
+            "implementation"(libs.findLibrary("jetbrains-compose-animation").get())
+            "implementation"(libs.findLibrary("androidx-lifecycle-viewmodel").get())
+
+            "debugImplementation"(libs.findLibrary("jetbrains-compose-ui-tooling").get())
         }
     }
 }

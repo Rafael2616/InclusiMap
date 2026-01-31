@@ -5,9 +5,12 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
-android.namespace = "com.rafael.inclusimap.feature.library_info"
 
 kotlin {
+    android {
+        namespace = "com.rafael.inclusimap.feature.library_info"
+        compileSdk = libs.versions.compileSdk.get().toInt()
+    }
     sourceSets {
         commonMain.dependencies {
             implementation(libs.kotlinx.serialization.json)

@@ -2,9 +2,8 @@ package com.rafael.inclusimap.feature.contributions.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rafael.inclusimap.core.services.GoogleDriveService
-import com.rafael.inclusimap.core.util.map.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID
-import com.rafael.inclusimap.core.util.map.extractPlaceID
+import com.rafael.inclusimap.core.services.AwsFileApiService
+import com.rafael.inclusimap.core.util.map.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_PATH
 import com.rafael.inclusimap.core.util.map.formatDate
 import com.rafael.inclusimap.core.util.map.model.AccessibleLocalMarker
 import com.rafael.inclusimap.core.util.map.model.PlaceImage
@@ -32,7 +31,7 @@ import kotlinx.serialization.json.Json
 
 class ContributionsViewModel(
     private val loginRepository: LoginRepository,
-    private val driveService: GoogleDriveService,
+    private val awsService: AwsFileApiService,
     private val contributionsRepository: ContributionsRepository,
 ) : ViewModel() {
     private val json = Json {
@@ -57,75 +56,58 @@ class ContributionsViewModel(
                 )
             }
             val userEmail = loginRepository.getLoginInfo(1)?.userEmail
-            val userPathId = loginRepository.getLoginInfo(1)?.userPathID ?: return@launch
-            driveService.listFiles(userPathId).onSuccess { userFiles ->
-                val userContributionsFile = userFiles.find { it.name == "contributions.json" }
-                    ?.also { contributionsFile ->
-                        val userContributionsString =
-                            driveService.getFileContent(contributionsFile.id)
-                                ?.decodeToString()
-                        val userContributions = json.decodeFromString<List<Contribution>>(
-                            userContributionsString ?: return@launch,
-                        )
-
-                        val commentsContributions =
-                            userContributions.filter { it.type == ContributionType.COMMENT }
-                        val placesContributions =
-                            userContributions.filter { it.type == ContributionType.PLACE }
-                        val imageContributions =
-                            userContributions.filter { it.type == ContributionType.IMAGE }
-                        val resourcesContributions =
-                            userContributions.filter { it.type == ContributionType.ACCESSIBLE_RESOURCES }
-
-                        _state.update {
-                            it.copy(
-                                contributionsSize = ContributionsSize(
-                                    comments = commentsContributions.size,
-                                    places = placesContributions.size,
-                                    images = imageContributions.size,
-                                    resources = resourcesContributions.size,
-                                ),
-                            )
-                        }
-                        if (!_state.value.allCommentsContributionsLoaded || state.value.userContributions.comments.size != commentsContributions.size) {
-                            loadCommentContributions(commentsContributions)
-                        }
-
-                        if (!_state.value.allPlacesContributionsLoaded || state.value.userContributions.places.size != placesContributions.size) {
-                            loadPlaceContributions(placesContributions)
-                        }
-
-                        if (!_state.value.allImagesContributionsLoaded || state.value.userContributions.images.size != imageContributions.size) {
-                            loadImageContributions(
-                                userEmail ?: return@launch,
-                                imageContributions,
-                            )
-                        }
-                        if (!_state.value.allResourcesContributionsLoaded || state.value.userContributions.resources.size != resourcesContributions.size) {
-                            loadResourcesContributions(resourcesContributions)
-                        }
-                        removeInexistentContributions(
-                            imageContributions,
-                            placesContributions,
-                            commentsContributions,
-                        )
-                    }
-                if (userContributionsFile == null) {
+            val contributionsFile =
+                awsService.downloadFile("Users/$userEmail/contributions.json").getOrNull() ?: run {
                     _state.update {
-                        it.copy(
-                            allCommentsContributionsLoaded = true,
-                            allPlacesContributionsLoaded = true,
-                            allImagesContributionsLoaded = true,
-                            allResourcesContributionsLoaded = true,
-                        )
+                        it.copy(errorWhileConnectingToServer = true)
                     }
-                    return@launch
+                    null
                 }
-            }.onFailure {
-                _state.update {
-                    it.copy(errorWhileConnectingToServer = true)
-                }
+
+            val userContributions = json.decodeFromString<List<Contribution>>(
+                contributionsFile?.decodeToString() ?: return@launch,
+            )
+            val commentsContributions =
+                userContributions.filter { it.type == ContributionType.COMMENT }
+            val placesContributions =
+                userContributions.filter { it.type == ContributionType.PLACE }
+            val imageContributions =
+                userContributions.filter { it.type == ContributionType.IMAGE }
+            val resourcesContributions =
+                userContributions.filter { it.type == ContributionType.ACCESSIBLE_RESOURCES }
+
+            _state.update {
+                it.copy(
+                    contributionsSize = ContributionsSize(
+                        comments = commentsContributions.size,
+                        places = placesContributions.size,
+                        images = imageContributions.size,
+                        resources = resourcesContributions.size,
+                    ),
+                )
             }
+            if (!_state.value.allCommentsContributionsLoaded || state.value.userContributions.comments.size != commentsContributions.size) {
+                loadCommentContributions(commentsContributions)
+            }
+
+            if (!_state.value.allPlacesContributionsLoaded || state.value.userContributions.places.size != placesContributions.size) {
+                loadPlaceContributions(placesContributions)
+            }
+
+            if (!_state.value.allImagesContributionsLoaded || state.value.userContributions.images.size != imageContributions.size) {
+                loadImageContributions(
+                    userEmail ?: return@launch,
+                    imageContributions,
+                )
+            }
+            if (!_state.value.allResourcesContributionsLoaded || state.value.userContributions.resources.size != resourcesContributions.size) {
+                loadResourcesContributions(resourcesContributions)
+            }
+            removeInexistentContributions(
+                imageContributions,
+                placesContributions,
+                commentsContributions,
+            )
         }.invokeOnCompletion {
             _state.update {
                 it.copy(
@@ -154,34 +136,46 @@ class ContributionsViewModel(
                         }
 
                         inProgressFileIds.add(contribution.fileId)
-                        println("Loading image: ${contribution.fileId}")
                         try {
-                            val placeMetadata = driveService.getFileMetadata(contribution.fileId)
-                            val placeID = placeMetadata?.name?.extractPlaceID()
-                            println("Place ID: $placeID for image contribution: ${contribution.fileId}")
+                            val place =
+                                awsService.downloadFile("PlaceData/Paragominas-PA/${contribution.fileId}")
+                                    .getOrNull()
+                            val placeFile = runCatching {
+                                json.decodeFromString<AccessibleLocalMarker>(
+                                    place?.decodeToString() ?: return@async,
+                                )
+                            }.getOrNull()
+                            println("Place ID: ${placeFile?.id} for image contribution: ${contribution.fileId}")
 
-                            driveService.getFileContent(contribution.fileId)?.let { content ->
-                                println("Image founded for contribution: ${contribution.fileId}")
-                                _state.update {
-                                    it.copy(
-                                        userContributions = it.userContributions.copy(
-                                            images = it.userContributions.images + PlaceImageWithPlace(
-                                                placeImage = PlaceImage(
-                                                    image = content,
-                                                    userEmail = userEmail,
-                                                    placeID = placeID ?: return@async,
-                                                    name = contribution.fileId,
-                                                ),
-                                                date = placeMetadata.name.removeTime()
-                                                    ?.formatDate(),
-                                                place = loadPlaceById(placeID)
-                                                    ?: return@async,
-                                                fileId = contribution.fileId,
-                                            ),
-                                        ),
-                                    )
+                            awsService.listFiles("PlaceImages/${placeFile?.id}").getOrNull()
+                                ?.let { content ->
+                                    println("Image founded for contribution: ${contribution.fileId}")
+                                    if (!content.contains(loginRepository.getLoginInfo(1)?.userEmail)) return@async
+                                    awsService.downloadImage("PlaceImages/${placeFile?.id}/$content")
+                                        .getOrNull()?.also { image ->
+                                            _state.update {
+                                                it.copy(
+                                                    userContributions = it.userContributions.copy(
+                                                        images = it.userContributions.images + PlaceImageWithPlace(
+                                                            placeImage = PlaceImage(
+                                                                image = image,
+                                                                userEmail = userEmail,
+                                                                placeID = placeFile?.id ?: return@async,
+                                                                name = contribution.fileId,
+                                                            ),
+                                                            date = placeFile.time.removeTime()
+                                                                ?.formatDate(),
+                                                            place = loadPlaceById(
+                                                                placeFile.id ?: return@async,
+                                                            )
+                                                                ?: return@async,
+                                                            fileId = contribution.fileId,
+                                                        ),
+                                                    ),
+                                                )
+                                            }
+                                        }
                                 }
-                            }
                         } finally {
                             inProgressFileIds.remove(contribution.fileId)
                         }
@@ -212,26 +206,30 @@ class ContributionsViewModel(
             val userEmail = loginRepository.getLoginInfo(1)?.userEmail
             contributions.map { contribution ->
                 async {
-                    driveService.getFileContent(contribution.fileId)
-                        ?.also { content ->
-                            val place =
-                                json.decodeFromString<AccessibleLocalMarker>(content.decodeToString())
-                            val userComment =
-                                place.comments.filterNot { it in state.value.userContributions.comments.map { it.comment } }
-                                    .find { it.email == userEmail }
+                    val placeFile =
+                        awsService.downloadFile("PlaceData/Paragominas-PA/${contribution.fileId}")
+                            .getOrNull()
 
-                            _state.update {
-                                it.copy(
-                                    userContributions = it.userContributions.copy(
-                                        comments = it.userContributions.comments + CommentWithPlace(
-                                            comment = userComment ?: return@async,
-                                            place = place,
-                                            fileId = contribution.fileId,
-                                        ),
-                                    ),
-                                )
-                            }
-                        }
+                    val place = runCatching {
+                        json.decodeFromString<AccessibleLocalMarker>(
+                            placeFile?.decodeToString() ?: return@async,
+                        )
+                    }.getOrNull()
+                    val userComment =
+                        place?.comments?.filterNot { it in state.value.userContributions.comments.map { it.comment } }
+                            ?.find { it.email == userEmail }
+
+                    _state.update {
+                        it.copy(
+                            userContributions = it.userContributions.copy(
+                                comments = it.userContributions.comments + CommentWithPlace(
+                                    comment = userComment ?: return@async,
+                                    place = place,
+                                    fileId = contribution.fileId,
+                                ),
+                            ),
+                        )
+                    }
                 }
             }.awaitAll()
         }.invokeOnCompletion {
@@ -256,21 +254,24 @@ class ContributionsViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             contributions.map { contribution ->
                 async {
-                    driveService.getFileContent(contribution.fileId)
-                        ?.also { content ->
-                            val place =
-                                json.decodeFromString<AccessibleLocalMarker>(content.decodeToString())
-                            _state.update {
-                                it.copy(
-                                    userContributions = it.userContributions.copy(
-                                        resources = it.userContributions.resources + AccessibleLocalMarkerWithFileId(
-                                            place = place,
-                                            fileId = contribution.fileId,
-                                        ),
-                                    ),
-                                )
-                            }
-                        }
+                    val placeFile =
+                        awsService.downloadFile("PlaceData/Paragominas-PA/${contribution.fileId}")
+                            .getOrNull()
+                    val place = runCatching {
+                        json.decodeFromString<AccessibleLocalMarker>(
+                            placeFile?.decodeToString() ?: return@async,
+                        )
+                    }.getOrNull()
+                    _state.update {
+                        it.copy(
+                            userContributions = it.userContributions.copy(
+                                resources = it.userContributions.resources + AccessibleLocalMarkerWithFileId(
+                                    place = place ?: return@async,
+                                    fileId = contribution.fileId,
+                                ),
+                            ),
+                        )
+                    }
                 }
             }.awaitAll()
         }.invokeOnCompletion {
@@ -295,26 +296,26 @@ class ContributionsViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             contributions.map { contribution ->
                 async {
-                    try {
-                        driveService.getFileContent(contribution.fileId)
-                            ?.also { content ->
-                                val place =
-                                    json.decodeFromString<AccessibleLocalMarker>(
-                                        content.decodeToString(),
-                                    )
-                                if (place.id in state.value.userContributions.places.map { it.place.id }) return@async
-                                _state.update {
-                                    it.copy(
-                                        userContributions = it.userContributions.copy(
-                                            places = it.userContributions.places + AccessibleLocalMarkerWithFileId(
-                                                place = place,
-                                                fileId = contribution.fileId,
-                                            ),
-                                        ),
-                                    )
-                                }
-                            }
-                    } catch (_: Exception) {
+                    val placeFile =
+                        awsService.downloadFile("PlaceData/paragominas-PA/${contribution.fileId}")
+                            .getOrNull()
+
+                    val place =
+                      runCatching {
+                          json.decodeFromString<AccessibleLocalMarker>(
+                              placeFile?.decodeToString() ?: return@async,
+                          )
+                      }.getOrNull()
+                    if (place?.id in state.value.userContributions.places.map { it.place.id }) return@async
+                    _state.update {
+                        it.copy(
+                            userContributions = it.userContributions.copy(
+                                places = it.userContributions.places + AccessibleLocalMarkerWithFileId(
+                                    place = place ?: return@async,
+                                    fileId = contribution.fileId,
+                                ),
+                            ),
+                        )
                     }
                 }
             }.awaitAll()
@@ -336,7 +337,8 @@ class ContributionsViewModel(
     private fun removeInexistentPlacesContributions(contributions: List<Contribution>) {
         viewModelScope.launch(Dispatchers.IO) {
             contributions.forEach {
-                val placeExists = driveService.getFileMetadata(it.fileId)
+                val placeExists =
+                    awsService.downloadFile("PlaceData/paragominas-PA/${it.fileId}").getOrNull()
                 if (placeExists != null) return@forEach
                 removeContribution(
                     Contribution(
@@ -352,7 +354,8 @@ class ContributionsViewModel(
     private fun removeInexistentCommentsContributions(contributions: List<Contribution>) {
         viewModelScope.launch(Dispatchers.IO) {
             contributions.forEach {
-                val placeExists = driveService.getFileMetadata(it.fileId)
+                val placeExists =
+                    awsService.downloadFile("PlaceData/paragominas-PA/${it.fileId}").getOrNull()
                 if (placeExists != null) return@forEach
                 removeContribution(
                     Contribution(
@@ -367,18 +370,17 @@ class ContributionsViewModel(
 
     private fun removeInexistentImageContributions(contributions: List<Contribution>) {
         viewModelScope.launch(Dispatchers.IO) {
-            contributions.forEach {
-                val imageExists = driveService.getFileMetadata(it.fileId)
-                if (imageExists != null) return@forEach
-                val reallyExists = driveService.getFileContent(it.fileId)
-                if (reallyExists != null) return@forEach
+            contributions.forEach { contribution ->
+                val image =
+                    awsService.downloadImage("PlaceImages/${contribution.fileId}").getOrNull()
+                if (image != null) return@forEach
                 removeContribution(
                     Contribution(
-                        fileId = it.fileId,
+                        fileId = contribution.fileId,
                         type = ContributionType.IMAGE,
                     ),
                 )
-                println("Removed inexistent image contribution: ${it.fileId}")
+                println("Removed inexistent image contribution: ${contribution.fileId}")
             }
         }
     }
@@ -396,20 +398,17 @@ class ContributionsViewModel(
     private suspend fun loadPlaceById(placeID: String): AccessibleLocalMarker? {
         var place: AccessibleLocalMarker? = null
         return withContext(Dispatchers.IO) {
-            driveService.listFiles(INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_ID)
-                .onSuccess {
-                    val placeFileID =
-                        it.find { it.name.extractPlaceID() == placeID }?.id
-                    println("Place founded with ID: $placeFileID")
-                    if (placeFileID == null) return@withContext null
-                    driveService.getFileContent(placeFileID)?.let { content ->
-                        place =
-                            json.decodeFromString<AccessibleLocalMarker>(content.decodeToString())
-                    }
+            awsService.downloadFile("$INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_PATH/$placeID")
+                .onSuccess { file ->
+                    val placeFile =
+                        json.decodeFromString<AccessibleLocalMarker>(file.decodeToString())
+                    println("Place founded with ID: ${placeFile.id}")
+                    place = placeFile
                 }
             place
         }
     }
 
-    private suspend fun removeContribution(contribution: Contribution) = contributionsRepository.removeContribution(contribution)
+    private suspend fun removeContribution(contribution: Contribution) =
+        contributionsRepository.removeContribution(contribution)
 }

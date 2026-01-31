@@ -6,6 +6,7 @@ import com.rafael.inclusimap.core.di.initKoinAndroid
 class InclusiMapApp : Application() {
     override fun onCreate() {
         super.onCreate()
+        AppExceptionHandler.init(this@InclusiMapApp)
         initKoinAndroid(this@InclusiMapApp)
     }
 }

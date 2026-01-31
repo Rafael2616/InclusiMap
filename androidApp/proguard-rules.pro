@@ -20,20 +20,21 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
-#Google Drive
--keep class com.google.api.client.googleapis.** { *; }
--keep class com.google.api.client.http.** { *; }
--keep class com.google.api.client.json.** { *; }
--keep class com.google.api.client.util.** { *; }
--keep class com.google.api.services.drive.** { *; }
--dontwarn com.google.api.client.**
--dontwarn com.google.api.services.drive.**
-
-#Places Api
--dontwarn android.net.http.AndroidHttpClient
+-dontwarn com.google.j2objc.annotations.ReflectionSupport
+-dontwarn com.google.j2objc.annotations.RetainedWith
 
 #Google Maps
 -dontwarn javax.naming.**
 -dontwarn javax.naming.directory.**
 -dontwarn javax.naming.ldap.**
 -dontwarn org.ietf.jgss.**
+
+# Google Places API
+-dontwarn android.net.http.AndroidHttpClient
+-keep class com.google.android.libraries.places.** { *; }
+-keep class com.google.android.gms.location.places.** { *; }
+-keep class com.google.android.gms.common.api.** { *; }
+
+# ServiceLoader
+-keep class * implements java.util.ServiceLoader
+-keepnames class com.google.android.libraries.places.internal.**

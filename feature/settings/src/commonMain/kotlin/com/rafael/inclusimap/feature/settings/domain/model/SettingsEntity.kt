@@ -19,7 +19,7 @@ data class SettingsEntity(
         fun getDefaultSettings(): SettingsEntity = SettingsEntity(
             id = 1,
             isDarkThemeOn = true,
-            isDynamicColorsOn = true,
+            isDynamicColorsOn = false,
             isFollowingSystemOn = true,
             appVersion = "0",
             mapType = 1,

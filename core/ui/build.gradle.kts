@@ -4,12 +4,17 @@ plugins {
     alias(libs.plugins.rafael.spotless)
 }
 
-android.namespace = "com.rafael.inclusimap.core.ui"
-
 kotlin {
+    android {
+        namespace = "com.rafael.inclusimap.core.ui"
+        compileSdk = libs.versions.compileSdk.get().toInt()
+    }
     sourceSets {
         commonMain.dependencies {
             implementation(libs.reveal.compose.shapes)
+        }
+        androidMain.dependencies {
+            implementation(libs.androidx.activity.compose)
         }
     }
 }

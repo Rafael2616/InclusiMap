@@ -50,7 +50,7 @@ fun BoxScope.FindNorthWidget(
                 MaterialTheme.colorScheme.error
             },
             modifier = Modifier
-                .rotate(degrees = cameraPosition.bearing.toFloat()),
+                .rotate(degrees = cameraPosition.bearing),
         )
     }
 }

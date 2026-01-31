@@ -2,37 +2,28 @@ package com.rafael.gradle
 
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.invoke
 import org.jetbrains.compose.ComposeExtension
-import org.jetbrains.compose.ExperimentalComposeLibrary
 
-@OptIn(ExperimentalComposeLibrary::class)
 internal fun Project.configureComposeMultiplatform() {
         kotlinMultiplatformExtension {
             composeMultiplatformExtension {
-                val compose = dependencies
-                with(sourceSets) {
+                sourceSets {
                     commonMain.dependencies {
-                        implementation(compose.foundation)
-                        implementation(compose.material3)
-                        implementation(compose.materialIconsExtended)
-                        implementation(compose.runtime)
-                        implementation(compose.ui)
-                        implementation(compose.uiUtil)
-                        implementation(compose.animation)
-                        implementation(compose.components.resources)
-                        implementation(compose.components.uiToolingPreview)
+                        implementation(libs.findLibrary("jetbrains-compose-foundation").get())
+                        implementation(libs.findLibrary("jetbrains-compose-material3").get())
+                        implementation(libs.findLibrary("jetbrains-compose-material-icons-extended").get())
+                        implementation(libs.findLibrary("jetbrains-compose-runtime").get())
+                        implementation(libs.findLibrary("jetbrains-compose-ui").get())
+                        implementation(libs.findLibrary("jetbrains-compose-animation").get())
+                        implementation(libs.findLibrary("jetbrains-compose-resources").get())
+                        implementation(libs.findLibrary("jetbrains-compose-ui-tooling-preview").get())
                         implementation(libs.findLibrary("jetbrains-compose-backhandler").get())
-                        implementation(libs.findLibrary("jetbrains-lifecycle-compose").get())
+                        implementation(libs.findLibrary("androidx-lifecycle-viewmodel").get())
                     }
                     androidMain.dependencies {
-                        implementation(compose.preview)
-                        implementation(compose.uiTooling)
-                    }
-                    androidUnitTest.dependencies {
-                        implementation(compose.uiTest)
-                    }
-                    commonTest.dependencies {
-                        implementation(compose.uiTest)
+                        implementation(libs.findLibrary("jetbrains-compose-ui-tooling-preview").get())
+                        implementation(libs.findLibrary("jetbrains-compose-ui-tooling").get())
                     }
                 }
             }

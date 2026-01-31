@@ -4,7 +4,13 @@ plugins {
     alias(libs.plugins.rafael.spotless)
 }
 
-android.namespace = "com.rafael.inclusimap.core.resources"
+kotlin {
+    android {
+        namespace = "com.rafael.inclusimap.core.resources"
+        compileSdk = libs.versions.compileSdk.get().toInt()
+        androidResources.enable = true
+    }
+}
 
 compose.resources {
     generateResClass = always

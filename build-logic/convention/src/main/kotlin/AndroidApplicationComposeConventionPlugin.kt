@@ -14,7 +14,7 @@ class AndroidApplicationComposeConventionPlugin : Plugin<Project> {
             }
 
             extensions.configure<ApplicationExtension> {
-                configureComposeAndroid(this)
+                configureComposeAndroid()
             }
         }
     }

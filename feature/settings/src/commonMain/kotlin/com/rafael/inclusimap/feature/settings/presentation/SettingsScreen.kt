@@ -22,7 +22,7 @@ fun SettingsScreen(
     showFirstTimeAnimation: Boolean?,
     revealCanvasState: RevealCanvasState,
     onEvent: (SettingsEvent) -> Unit,
-    userProfilePicture: ImageBitmap?,
+    userProfilePicture: ByteArray?,
     onNavigateBack: () -> Unit,
     onGoToLoginScreen: (Boolean) -> Unit,
     onGoToAboutAppScreen: () -> Unit,

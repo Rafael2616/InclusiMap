@@ -6,9 +6,11 @@ plugins {
     alias(libs.plugins.kotlin.cocoapods)
 }
 
-android.namespace = "com.rafael.inclusimap.feature.map"
-
 kotlin {
+    android {
+        namespace = "com.rafael.inclusimap.feature.map"
+        compileSdk = libs.versions.compileSdk.get().toInt()
+    }
     sourceSets {
         commonMain.dependencies {
             implementation(libs.kotlinx.coroutines)
@@ -28,7 +30,6 @@ kotlin {
             implementation(projects.core.util)
             implementation(projects.core.resources)
             implementation(projects.core.services)
-            implementation(projects.feature.auth)
             implementation(projects.feature.mapSearch)
             implementation(projects.feature.contributions)
             implementation(projects.feature.report)

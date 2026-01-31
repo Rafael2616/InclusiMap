@@ -1,6 +1,6 @@
 package com.rafael.inclusimap.feature.contributions.data.repository
 
-import com.rafael.inclusimap.core.services.GoogleDriveService
+import com.rafael.inclusimap.core.services.AwsFileApiService
 import com.rafael.inclusimap.feature.auth.domain.repository.LoginRepository
 import com.rafael.inclusimap.feature.contributions.domain.model.Contribution
 import com.rafael.inclusimap.feature.contributions.domain.model.ContributionType
@@ -12,106 +12,49 @@ import kotlinx.serialization.json.Json
 
 class ContributionsRepositoryImpl(
     private val loginRepository: LoginRepository,
-    private val driveService: GoogleDriveService,
+    private val awsService: AwsFileApiService,
 ) : ContributionsRepository {
     private val json = Json {
         prettyPrint = true
         ignoreUnknownKeys = true
     }
 
-    override suspend fun addNewContributions(contributions: List<Contribution>, attempt: Int) {
+    override suspend fun addNewContributions(contributions: List<Contribution>) {
         withContext(Dispatchers.IO) {
             val userPathId = loginRepository.getLoginInfo(1)?.userPathID ?: return@withContext
-            driveService.listFiles(userPathId).onSuccess { userFiles ->
-                val userContributionsFile = userFiles.find { it.name == "contributions.json" }
-                    ?.also { contributionsFile ->
-                        val userContributions =
-                            driveService.getFileContent(contributionsFile.id)
-                        val file = json.decodeFromString<List<Contribution>>(
-                            userContributions?.decodeToString() ?: return@withContext,
-                        )
-                        val updatedContributions = file + contributions
-                        val updatedContributionsString =
-                            json.encodeToString(updatedContributions)
-                        driveService.updateFile(
-                            contributionsFile.id,
-                            "contributions.json",
-                            updatedContributionsString.encodeToByteArray(),
-                        )
-                        println("Contribution added successfully: $contributions")
-                    }
-                if (userContributionsFile == null && attempt < 3) {
-                    driveService.createFile(
-                        "contributions.json",
-                        "[]",
-                        userPathId,
-                    )
-                    println("Contribution file was created now, attempting to add contribution again")
-                    addNewContributions(contributions, attempt + 1)
-                }
-            }
-        }
-    }
+            val contributionsFile =
+                awsService.downloadFile("$userPathId/contributions.json").getOrNull()
 
-    override suspend fun addNewContribution(contribution: Contribution, attempt: Int) {
-        withContext(Dispatchers.IO) {
-            val userPathId = loginRepository.getLoginInfo(1)?.userPathID ?: return@withContext
-            driveService.listFiles(userPathId).onSuccess { userFiles ->
-                val userContributionsFile = userFiles.find { it.name == "contributions.json" }
-                    ?.also { contributionsFile ->
-                        val contributions =
-                            driveService.getFileContent(contributionsFile.id)
-                        val file = json.decodeFromString<List<Contribution>>(
-                            contributions?.decodeToString() ?: return@withContext,
-                        )
-                        if (file.any { it == contribution }) return@withContext
-                        val updatedContributions = file + contribution
-                        val updatedContributionsString =
-                            json.encodeToString(updatedContributions)
-                        driveService.updateFile(
-                            contributionsFile.id,
-                            "contributions.json",
-                            updatedContributionsString.encodeToByteArray(),
-                        )
-                        println("Contribution added successfully" + contribution.fileId)
-                    }
-                if (userContributionsFile == null && attempt < 3) {
-                    driveService.createFile(
-                        "contributions.json",
-                        "[]",
-                        userPathId,
-                    )
-                    println("Contribution file was created now, attempting to add contribution again")
-                    addNewContribution(contribution, attempt + 1)
-                }
-            }
+            val file = json.decodeFromString<List<Contribution>>(
+                contributionsFile?.decodeToString() ?: return@withContext,
+            )
+            val updatedContributions = file + contributions
+            awsService.uploadFile(
+                "$userPathId/contributions.json",
+                json.encodeToString(updatedContributions),
+            ).getOrNull()
+            println("Contribution added successfully: $contributions")
         }
     }
 
     override suspend fun removeContribution(contribution: Contribution) {
         withContext(Dispatchers.IO) {
             val userPathId = loginRepository.getLoginInfo(1)?.userPathID ?: return@withContext
-            driveService.listFiles(userPathId).onSuccess { userFiles ->
-                userFiles.find { it.name == "contributions.json" }
-                    ?.also { contributionsFile ->
-                        val contributions =
-                            driveService.getFileContent(contributionsFile.id)
-                        val file = json.decodeFromString<List<Contribution>>(
-                            contributions?.decodeToString() ?: return@withContext,
-                        )
-                        val updatedContributions =
-                            file.filter { if (contribution.type == ContributionType.PLACE) it.fileId != contribution.fileId else it != contribution }
-
-                        val updatedContributionsString =
-                            json.encodeToString(updatedContributions)
-                        driveService.updateFile(
-                            contributionsFile.id,
-                            "contributions.json",
-                            updatedContributionsString.encodeToByteArray(),
-                        )
-                        println("Contribution removed successfully" + contribution.fileId)
-                    }
+            val contributionsFile =
+                awsService.downloadFile("$userPathId/contributions.json").getOrNull()
+            val file = json.decodeFromString<List<Contribution>>(
+                contributionsFile?.decodeToString() ?: return@withContext,
+            )
+            val updatedContributions = file.filter {
+                if (contribution.type == ContributionType.PLACE) {
+                    it.fileId != contribution.fileId
+                } else it != contribution
             }
+            awsService.uploadFile(
+                "$userPathId/contributions.json",
+                json.encodeToString(updatedContributions),
+            )
+            println("Contribution removed successfully" + contribution.fileId)
         }
     }
 
@@ -119,26 +62,18 @@ class ContributionsRepositoryImpl(
         withContext(Dispatchers.IO) {
             val userPathId =
                 loginRepository.getLoginInfo(1)?.userPathID ?: return@withContext
+            val contributionsFile =
+                awsService.downloadFile("$userPathId/contributions.json").getOrNull()
 
-            driveService.listFiles(userPathId).onSuccess { userFiles ->
-                userFiles.find { it.name == "contributions.json" }
-                    ?.also { contributionsFile ->
-                        val userContributions =
-                            driveService.getFileContent(contributionsFile.id)
-                        val file = json.decodeFromString<List<Contribution>>(
-                            userContributions?.decodeToString() ?: return@withContext,
-                        )
-                        val updatedContributions = file.filter { it !in contributions }
-                        val updatedContributionsString =
-                            json.encodeToString(updatedContributions)
-                        driveService.updateFile(
-                            contributionsFile.id,
-                            "contributions.json",
-                            updatedContributionsString.encodeToByteArray(),
-                        )
-                        println("Contribution removed successfully: $contributions")
-                    }
-            }
+            val file = json.decodeFromString<List<Contribution>>(
+                contributionsFile?.decodeToString() ?: return@withContext,
+            )
+            val updatedContributions = file.filter { it !in contributions }
+            awsService.uploadFile(
+                "$userPathId/contributions.json",
+                json.encodeToString(updatedContributions),
+            )
+            println("Contribution removed successfully: $contributions")
         }
     }
 }

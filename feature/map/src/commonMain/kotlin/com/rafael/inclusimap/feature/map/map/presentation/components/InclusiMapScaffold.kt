@@ -1,4 +1,4 @@
-package com.rafael.inclusimap.feature.map.map.presentation
+package com.rafael.inclusimap.feature.map.map.presentation.components
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,9 +15,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.graphics.ImageBitmap
 import com.rafael.inclusimap.feature.map.map.domain.model.InclusiMapState
 import com.rafael.inclusimap.feature.map.map.domain.model.NavigationBarItem
+import com.rafael.inclusimap.feature.map.map.presentation.MapTypeToggleButton
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchEvent
 import com.rafael.inclusimap.feature.map.search.domain.model.SearchState
 import com.rafael.inclusimap.feature.map.search.presentation.PlaceSearchLayout
@@ -27,7 +27,7 @@ import com.rafael.libs.maps.interop.model.MapType
 fun InclusiMapScaffold(
     state: InclusiMapState,
     searchState: SearchState,
-    userProfilePicture: ImageBitmap?,
+    userProfilePicture: ByteArray?,
     searchEvent: (SearchEvent) -> Unit,
     onMapTypeChange: (MapType) -> Unit,
     onNavigateToSettings: () -> Unit,

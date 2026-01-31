@@ -1,6 +1,5 @@
 package com.rafael.inclusimap.feature.auth.presentation.dialogs
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -54,7 +53,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.decodeToImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -64,6 +62,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
 import com.rafael.inclusimap.core.ui.isLandscape
 import com.rafael.inclusimap.core.util.network.InternetConnectionState
 import com.rafael.inclusimap.feature.auth.domain.model.LoginEvent
@@ -89,7 +88,7 @@ fun ProfileSettingsDialog(
     ) { file ->
         file?.let {
             scope.launch {
-                profilePicture = file.readBytes().decodeToImageBitmap()
+                profilePicture = file.readBytes()
             }
         }
     }
@@ -156,8 +155,8 @@ fun ProfileSettingsDialog(
                 }
                 profilePicture?.let { image ->
                     item {
-                        Image(
-                            bitmap = image,
+                        AsyncImage(
+                            model = image,
                             contentDescription = "Profile picture",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
@@ -383,10 +382,10 @@ fun ProfileSettingsDialog(
                                 )
                             }
                         }
-                        if (profilePicture != loginState.userProfilePicture || loginState.user?.name != newName || loginState.user.showProfilePictureOptedIn != allowOtherUsersToSeeProfilePictureOptedIn) {
+                        if (!profilePicture.contentEquals(loginState.userProfilePicture) || loginState.user?.name != newName || loginState.user.showProfilePictureOptedIn != allowOtherUsersToSeeProfilePictureOptedIn) {
                             Button(
                                 onClick = {
-                                    if (profilePicture != loginState.userProfilePicture) {
+                                    if (!profilePicture.contentEquals(loginState.userProfilePicture)) {
                                         profilePicture?.let {
                                             onEvent(LoginEvent.OnAddEditUserProfilePicture(it))
                                         }

@@ -9,7 +9,6 @@ plugins {
     alias(libs.plugins.rafael.spotless)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.licensee)
-    alias(libs.plugins.baselineprofile)
 }
 
 android {
@@ -82,31 +81,19 @@ android {
 }
 
 dependencies {
-    baselineProfile(projects.baselineProfile)
-    implementation(libs.androidx.profileinstaller)
     // AndroidX
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.activity.compose)
-    // Test
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
 
     // Projects
     implementation(projects.core.navigation)
     implementation(projects.core.di)
 }
 
-baselineProfile {
-    // Don't build on every iteration of a full assemble.
-    // Instead enable generation directly for the release build variant.
-    automaticGenerationDuringBuild = false
-}
-
 licensee {
     allow(SpdxId.Apache_20)
     allow(SpdxId.MIT)
-    allow(SpdxId.BSD_3_Clause)
     allowUrl("https://opensource.org/license/mit")
     allowUrl("https://developer.android.com/studio/terms.html")
     allowUrl("https://cloud.google.com/maps-platform/terms/")

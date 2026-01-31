@@ -1,10 +1,8 @@
 package com.rafael.inclusimap.feature.map.placedetails.domain.model
 
-import com.rafael.inclusimap.core.services.domain.DriveFile
 import com.rafael.inclusimap.core.util.map.model.FullAccessibleLocalMarker
 
 data class PlaceDetailsState(
-    val inclusiMapImageRepositoryFolder: List<DriveFile> = emptyList(),
     val loadedPlaces: List<FullAccessibleLocalMarker> = emptyList(),
     val isCurrentPlaceLoaded: Boolean = false,
     val currentPlace: FullAccessibleLocalMarker = FullAccessibleLocalMarker(),
