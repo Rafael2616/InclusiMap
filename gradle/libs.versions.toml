@@ -1,7 +1,7 @@
 [versions]
 compileSdk = "36"
-versionCode = "13"
-versionName = "1.2.0-rc2"
+versionCode = "14"
+versionName = "1.2.0-rc3"
 
 agp = "9.0.0"
 kotlin = "2.3.0"
@@ -113,11 +113,3 @@ rafael-android-library = { id = "com.rafael.android.library", version = "unspeci
 rafael-multiplatform-library = { id = "com.rafael.multiplatform.library", version = "unspecified" }
 rafael-multiplatform-library-compose = { id = "com.rafael.compose.multiplatform.library", version = "unspecified" }
 rafael-android-application-compose = { id = "com.rafael.compose.android.application", version = "unspecified" }
-
-[bundles]
-koin = [
-    "koin-android",
-    "koin-core",
-    "koin-compose",
-    "koin-core-viewmodel"
-]

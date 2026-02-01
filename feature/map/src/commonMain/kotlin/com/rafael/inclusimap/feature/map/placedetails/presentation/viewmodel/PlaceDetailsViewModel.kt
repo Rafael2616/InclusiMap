@@ -6,7 +6,6 @@ import com.rafael.inclusimap.core.services.AwsFileApiService
 import com.rafael.inclusimap.core.services.PlacesApiService
 import com.rafael.inclusimap.core.util.map.Constants.INCLUSIMAP_IMAGE_FOLDER_PATH
 import com.rafael.inclusimap.core.util.map.Constants.INCLUSIMAP_PARAGOMINAS_PLACE_DATA_FOLDER_PATH
-import com.rafael.inclusimap.core.util.map.Constants.INCLUSIMAP_USERS_FOLDER_PATH
 import com.rafael.inclusimap.core.util.map.extractPlaceID
 import com.rafael.inclusimap.core.util.map.extractUserEmail
 import com.rafael.inclusimap.core.util.map.model.AccessibilityResource
@@ -25,7 +24,6 @@ import com.rafael.inclusimap.feature.map.map.domain.model.MapConstants.MAX_IMAGE
 import com.rafael.inclusimap.feature.map.placedetails.domain.model.PlaceDetailsEvent
 import com.rafael.inclusimap.feature.map.placedetails.domain.model.PlaceDetailsState
 import com.rafael.libs.maps.interop.model.MapsLatLng
-import kotlin.coroutines.resume
 import kotlin.time.Clock.System
 import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.Dispatchers
@@ -37,7 +35,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.json.Json
 
 class PlaceDetailsViewModel(
@@ -65,7 +62,12 @@ class PlaceDetailsViewModel(
             is PlaceDetailsEvent.SetCurrentPlace -> setCurrentPlace(event.place, event.userEmail)
             is PlaceDetailsEvent.OnDeletePlaceImage -> onDeletePlaceImage(event.image)
             is PlaceDetailsEvent.SetUserAccessibilityRate -> setUserAccessibilityRate(event.rate)
-            is PlaceDetailsEvent.OnSendComment -> onSendComment(event.comment, event.userEmail, event.userName)
+            is PlaceDetailsEvent.OnSendComment -> onSendComment(
+                event.comment,
+                event.userEmail,
+                event.userName,
+            )
+
             is PlaceDetailsEvent.SetIsUserCommented -> _state.update { it.copy(isUserCommented = event.isCommented) }
             is PlaceDetailsEvent.OnDeleteComment -> onDeleteComment(event.userEmail)
             is PlaceDetailsEvent.SetIsEditingPlace -> _state.update { it.copy(isEditingPlace = event.isEditing) }
@@ -80,56 +82,45 @@ class PlaceDetailsViewModel(
         }
     }
 
-    private fun setCurrentPlace(place: AccessibleLocalMarker, userEmail: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            async {
-                _state.update { it ->
-                    it.copy(
-                        isCurrentPlaceLoaded = it.loadedPlaces.any { existingPlace -> existingPlace.id == place.id },
-                        allImagesLoaded = it.loadedPlaces.find { existingPlace -> existingPlace.id == place.id }?.images?.isNotEmpty() == true,
-                        currentPlace = place.toFullAccessibleLocalMarker(
-                            images = emptyList(),
-                            imageFolderId = it.loadedPlaces.find { existingPlace -> existingPlace.id == place.id }?.imageFolderId,
-                            imageFolder = null,
-                        ),
-                        loadedPlaces = if (place !in state.value.loadedPlaces.map { it.toAccessibleLocalMarker() }) {
-                            state.value.loadedPlaces + place.toFullAccessibleLocalMarker(
-                                images = emptyList(),
-                                imageFolder = null,
-                                imageFolderId = null,
-                            )
-                        } else {
-                            state.value.loadedPlaces
-                        },
-                    )
-                }
-                delay(300)
-            }.await()
-        }.invokeOnCompletion {
-            if (!state.value.isCurrentPlaceLoaded || state.value.loadedPlaces.find { existingPlace -> existingPlace.id == place.id }?.images?.isEmpty() == true) {
-                loadImages(place)
-            } else {
-                loadImagesFromCache(place)
-            }
+    private fun setCurrentPlace(local: AccessibleLocalMarker, userEmail: String) {
+        val place = state.value.loadedPlaces.find { existingPlace -> existingPlace.id == local.id }
+        val fullPlace = place ?: local.toFullAccessibleLocalMarker(
+            images = emptyList(),
+            imageFolder = null,
+            imageFolderId = null,
+        )
+        _state.update {
+            it.copy(
+                isCurrentPlaceLoaded = place != null,
+                allImagesLoaded = place?.images?.isNotEmpty() == true,
+                currentPlace = fullPlace,
+                loadedPlaces = if (place?.id !in state.value.loadedPlaces.map { it.id }) {
+                    state.value.loadedPlaces + fullPlace
+                } else {
+                    state.value.loadedPlaces
+                },
+            )
         }
-        loadUserComment(place, userEmail)
+        if (!state.value.isCurrentPlaceLoaded || state.value.loadedPlaces.find { existingPlace -> existingPlace.id == place?.id }?.images?.isEmpty() == true) {
+            loadImages(local)
+        } else {
+            loadImagesFromCache(local)
+        }
+        loadUserComment(local, userEmail)
     }
 
     private fun loadUserComment(place: AccessibleLocalMarker, userEmail: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-        }.invokeOnCompletion {
-            val userComment = state.value.loadedPlaces.find { existingPlace ->
-                existingPlace.id == place.id
-            }?.comments?.find { it.email == userEmail }
+        val userComment = state.value.loadedPlaces.find { existingPlace ->
+            existingPlace.id == place.id
+        }?.comments?.find { it.email == userEmail }
 
-            _state.update {
-                it.copy(
-                    isUserCommented = userComment != null,
-                    userComment = userComment?.body ?: "",
-                    userCommentDate = userComment?.postDate ?: "",
-                    userAccessibilityRate = userComment?.accessibilityRate ?: 0,
-                )
-            }
+        _state.update {
+            it.copy(
+                isUserCommented = userComment != null,
+                userComment = userComment?.body ?: "",
+                userCommentDate = userComment?.postDate ?: "",
+                userAccessibilityRate = userComment?.accessibilityRate ?: 0,
+            )
         }
     }
 
@@ -149,50 +140,48 @@ class PlaceDetailsViewModel(
     private fun loadImages(placeDetails: AccessibleLocalMarker) {
         val imageFolderID =
             "$INCLUSIMAP_IMAGE_FOLDER_PATH/${placeDetails.id}_${placeDetails.authorEmail}"
-        _state.update { it.copy(allImagesLoaded = false) }
+        _state.update {
+            it.copy(
+                allImagesLoaded = false,
+                currentPlace = it.currentPlace.copy(
+                    imageFolderId = imageFolderID,
+                ),
+                loadedPlaces = it.loadedPlaces.map { place ->
+                    if (place.id == placeDetails.id) {
+                        place.copy(imageFolderId = imageFolderID)
+                    } else {
+                        place
+                    }
+                },
+            )
+        }
         viewModelScope.launch(Dispatchers.IO) {
-            _state.update {
-                it.copy(
-                    currentPlace = it.currentPlace.copy(
-                        imageFolderId = imageFolderID,
-                    ),
-                    loadedPlaces = it.loadedPlaces.map { place ->
-                        if (place.id == placeDetails.id) {
-                            place.copy(imageFolderId = imageFolderID)
-                        } else {
-                            place
-                        }
-                    },
-                )
-            }
             if (_state.value.currentPlace.imageFolderId.isNullOrEmpty() ||
-                awsService.listFiles(_state.value.currentPlace.imageFolderId ?: "").getOrNull()
+                awsService.listFiles(_state.value.currentPlace.imageFolderId ?: return@launch)
+                    .getOrNull()
                     ?.isEmpty() == true
             ) {
                 _state.update { it.copy(allImagesLoaded = true) }
                 println("No images found for place ${placeDetails.title} ${placeDetails.id}")
                 return@launch
             }
-            async {
-                val folderId = state.value.currentPlace.imageFolderId
-                folderId?.let {
-                    awsService.listFiles(folderId).onSuccess { imageFolder ->
-                        _state.update {
-                            it.copy(
-                                currentPlace = it.currentPlace.copy(imageFolder = imageFolder),
-                                loadedPlaces = it.loadedPlaces.map { place ->
-                                    if (place.id == placeDetails.id) {
-                                        place.copy(imageFolder = imageFolder)
-                                    } else {
-                                        place
-                                    }
-                                },
-                            )
-                        }
+            val folderId = state.value.currentPlace.imageFolderId
+            folderId?.let {
+                awsService.listFiles(folderId).onSuccess { imageFolder ->
+                    _state.update {
+                        it.copy(
+                            currentPlace = it.currentPlace.copy(imageFolder = imageFolder),
+                            loadedPlaces = it.loadedPlaces.map { place ->
+                                if (place.id == placeDetails.id) {
+                                    place.copy(imageFolder = imageFolder)
+                                } else {
+                                    place
+                                }
+                            },
+                        )
                     }
                 }
-            }.await()
-
+            }
             _state.value.currentPlace.imageFolder?.mapIndexed { index, file ->
                 async {
                     // Is expected that this condition never succeeds, but is important to ensure
@@ -235,10 +224,9 @@ class PlaceDetailsViewModel(
                                         place
                                     }
                                 },
-                            ).also {
-                                println("Loaded image $index with name $file")
-                            }
+                            )
                         }
+                        println("Loaded image $index with name $file")
                         if (_state.value.currentPlace.images.size == _state.value.currentPlace.imageFolder?.size) {
                             _state.update {
                                 it.copy(allImagesLoaded = true)
@@ -250,32 +238,25 @@ class PlaceDetailsViewModel(
                     }
                 }
             }?.awaitAll()
-        }.invokeOnCompletion {
-            _state.update { it.copy(allImagesLoaded = true) }
         }
     }
 
     private fun loadImagesFromCache(placeDetails: AccessibleLocalMarker) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val placeWithImages = placeDetails.toFullAccessibleLocalMarker(
-                _state.value.loadedPlaces.find { place -> place.id == placeDetails.id }?.images
-                    ?: emptyList(),
-                _state.value.loadedPlaces.find { place -> place.id == placeDetails.id }?.imageFolder,
-                _state.value.loadedPlaces.find { place -> place.id == placeDetails.id }?.imageFolderId,
-            )
-            println("All images founded:" + _state.value.loadedPlaces.find { place -> place.id == placeDetails.id }?.images?.size)
-            _state.update { it ->
-                it.copy(
-                    currentPlace = placeWithImages,
-                ).also {
-                    checkAllImagesLoaded(
-                        place = placeDetails,
-                        currentImagesSize = it.currentPlace.images.size,
-                        imagesLoadedSize = placeWithImages.imageFolder?.size,
-                    )
-                }
-            }
+        val place = state.value.loadedPlaces.find { place -> place.id == placeDetails.id }
+        val placeWithImages = placeDetails.toFullAccessibleLocalMarker(
+            place?.images ?: emptyList(),
+            place?.imageFolder,
+            place?.imageFolderId,
+        )
+        println("All images founded:" + state.value.loadedPlaces.find { place -> place.id == placeDetails.id }?.images?.size)
+        _state.update {
+            it.copy(currentPlace = placeWithImages)
         }
+        checkAllImagesLoaded(
+            place = placeDetails,
+            currentImagesSize = state.value.currentPlace.images.size,
+            imagesLoadedSize = placeWithImages.imageFolder?.size,
+        )
     }
 
     private fun checkAllImagesLoaded(
@@ -391,10 +372,10 @@ class PlaceDetailsViewModel(
                 isErrorDeletingImage = false,
             )
         }
+        val imagePath =
+            "$INCLUSIMAP_IMAGE_FOLDER_PATH/${state.value.currentPlace.id}_${state.value.currentPlace.authorEmail}/${image.name}"
+        println("Working on folder id: $imagePath")
         viewModelScope.launch(Dispatchers.IO) {
-            val imagePath =
-                "$INCLUSIMAP_IMAGE_FOLDER_PATH/${state.value.currentPlace.id}_${state.value.currentPlace.authorEmail}/${image.name}"
-            println("Working on folder id: $imagePath")
             awsService.deleteFile(imagePath)
             removeContribution(
                 Contribution(
@@ -402,29 +383,22 @@ class PlaceDetailsViewModel(
                     type = ContributionType.IMAGE,
                 ),
             )
-            _state.update {
-                it.copy(
-                    currentPlace = it.currentPlace.copy(
-                        images = it.currentPlace.images - image,
-                    ),
-                    loadedPlaces = it.loadedPlaces.map { place ->
-                        if (place.id == it.currentPlace.id) {
-                            place.copy(images = it.currentPlace.images - image)
-                        } else {
-                            place
-                        }
-                    },
-                    isImageDeleted = true,
-                )
-            }
-            delay(500)
-        }.invokeOnCompletion {
-            _state.update {
-                it.copy(
-                    isDeletingImage = false,
-                    isImageDeleted = true,
-                )
-            }
+        }
+        _state.update {
+            it.copy(
+                currentPlace = it.currentPlace.copy(
+                    images = it.currentPlace.images - image,
+                ),
+                loadedPlaces = it.loadedPlaces.map { place ->
+                    if (place.id == it.currentPlace.id) {
+                        place.copy(images = it.currentPlace.images - image)
+                    } else {
+                        place
+                    }
+                },
+                isDeletingImage = false,
+                isImageDeleted = true,
+            )
         }
     }
 
@@ -540,7 +514,10 @@ class PlaceDetailsViewModel(
     }
 
     @OptIn(ExperimentalTime::class)
-    private fun onUpdatePlaceAccessibilityResources(updatedResources: List<Resource>, userEmail: String) {
+    private fun onUpdatePlaceAccessibilityResources(
+        updatedResources: List<Resource>,
+        userEmail: String,
+    ) {
         val updatedResourcesBuilder = updatedResources.map { resource ->
             AccessibilityResource(
                 resource = resource,

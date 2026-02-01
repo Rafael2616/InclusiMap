@@ -123,7 +123,7 @@ fun AboutAppScreen(
             }
             item {
                 Text(
-                    text = "v1.2.0-rc", // TODO: Dynamically pick this version from the app
+                    text = "v1.2.0-rc3", // TODO: Dynamically pick this version from the app
                     fontSize = 12.sp,
                     lineHeight = 14.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

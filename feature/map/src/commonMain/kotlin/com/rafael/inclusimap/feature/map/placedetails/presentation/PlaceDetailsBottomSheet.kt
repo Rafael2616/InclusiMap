@@ -6,7 +6,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -626,6 +625,7 @@ fun ImageSection(
             isDeletingImage = state.isDeletingImage,
             isInternetAvailable = isInternetAvailable,
             isDeleted = state.isImageDeleted,
+            snackBarHostState = snackBarHostState,
         )
     }
     LaunchedEffect(state.isImageDeleted) {
@@ -1094,7 +1094,7 @@ fun CommentSection(
                 state.currentPlace.comments.filter { comment -> comment.email != userEmail }
                     .forEachIndexed { index, comment ->
                         var userProfilePicture by remember {
-                            mutableStateOf<ImageBitmap?>(null)
+                            mutableStateOf<ByteArray?>(null)
                         }
                         var allowedShowUserPicture by remember {
                             mutableStateOf<Boolean?>(null)
@@ -1104,15 +1104,15 @@ fun CommentSection(
                                 latestAllowedShowUserProfilePicture(comment.email)
                         }
                         LaunchedEffect(allowedShowUserPicture == true) {
-                            userProfilePicture = latestDownloadUserProfilePicture(comment.email)?.decodeToImageBitmap()
+                            userProfilePicture = latestDownloadUserProfilePicture(comment.email)
                         }
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.Top,
                         ) {
                             if (allowedShowUserPicture == true && userProfilePicture != null) {
-                                Image(
-                                    bitmap = userProfilePicture!!,
+                                AsyncImage(
+                                    model = userProfilePicture!!,
                                     contentDescription = null,
                                     modifier = Modifier
                                         .size(30.dp)

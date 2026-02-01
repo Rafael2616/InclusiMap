@@ -99,9 +99,10 @@ actual fun BoxScope.GoogleMapsView(
         !cameraPositionState.isMoving,
         state.allMappedPlaces,
         state.isMapLoaded,
-    ) { mutableStateOf(cameraPositionState.position.zoom >= 10f) }
+    ) { mutableStateOf(cameraPositionState.position.zoom >= 13f) }
     val onPlaceTravelScope = rememberCoroutineScope()
     var firstTimeAnimation by remember { mutableStateOf<Boolean?>(null) }
+
     LaunchedEffect(Unit) {
         cameraPositionState.position = state.currentLocation?.toCameraPosition() ?: CameraPosition(
             state.defaultLocationLatLng.toLatLng(),
@@ -179,7 +180,8 @@ actual fun BoxScope.GoogleMapsView(
                         place.comments.map { it.accessibilityRate }.average().toFloat(),
                     )
                 }
-                if (isPresentationMode && state.allMappedPlaces.find { it.id == "fd9aa418-bc04-46fe-8974-f0bb8c400969" } != place) return@forEach
+                if (isPresentationMode && state.allMappedPlaces
+                    .find { it.id == "fd9aa418-bc04-46fe-8974-f0bb8c400969" }?.id != place.id) return@forEach
                 Marker(
                     state = remember(place.position) {
                         MarkerState(
@@ -325,7 +327,7 @@ actual fun BoxScope.GoogleMapsView(
     }
 
     val defaultPos = rememberCameraPositionState().position
-    DisposableEffect(!cameraPositionState.isMoving) {
+    DisposableEffect(cameraPositionState.isMoving) {
         if (!cameraPositionState.isMoving && cameraPositionState.position != defaultPos) {
             latestOnEvent(InclusiMapEvent.UpdateMapState(cameraPositionState.position.toMapsCameraPosition()))
         }

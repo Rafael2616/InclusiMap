@@ -15,9 +15,11 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,6 +39,7 @@ fun DeleteImageConfirmationDialog(
     isDeletingImage: Boolean,
     isDeleted: Boolean,
     isInternetAvailable: Boolean,
+    snackBarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,
 ) {
     Dialog(
@@ -123,12 +126,11 @@ fun DeleteImageConfirmationDialog(
         }
     }
 
-//    if (isDeleted) {
-//        Toast.makeText(
-//            context,
-//            "Imagem removida!",
-//            Toast.LENGTH_SHORT,
-//        ).show()
-//        onDismiss()
-//    }
+    LaunchedEffect(isDeleted) {
+        if (isDeleted) {
+            snackBarHostState.currentSnackbarData?.dismiss()
+            snackBarHostState.showSnackbar("Imagem removida!")
+            onDismiss()
+        }
+    }
 }
