@@ -1,10 +1,7 @@
 [versions]
-minSdk = "26"
-targetSdk = "36"
 compileSdk = "36"
 versionCode = "13"
 versionName = "1.2.0-rc2"
-jvmTarget = "21"
 
 agp = "9.0.0"
 kotlin = "2.3.0"
@@ -115,7 +112,6 @@ rafael-spotless = { id = "com.rafael.spotless", version = "unspecified" }
 rafael-android-library = { id = "com.rafael.android.library", version = "unspecified" }
 rafael-multiplatform-library = { id = "com.rafael.multiplatform.library", version = "unspecified" }
 rafael-multiplatform-library-compose = { id = "com.rafael.compose.multiplatform.library", version = "unspecified" }
-rafael-android-application = { id = "com.rafael.android.application", version = "unspecified" }
 rafael-android-application-compose = { id = "com.rafael.compose.android.application", version = "unspecified" }
 
 [bundles]

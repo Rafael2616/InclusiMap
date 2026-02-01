@@ -7,7 +7,6 @@ plugins {
 }
 
 object MySettings {
-    val versionName: String = "2.2.0"
     val namespace = "my.nanihadesuka.lazycolumnscrollbar"
 }
 

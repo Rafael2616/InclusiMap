@@ -45,10 +45,6 @@ gradlePlugin {
             id = "com.rafael.compose.multiplatform.library"
             implementationClass = "MultiplatformLibraryComposeConventionPlugin"
         }
-        register("application") {
-            id = "com.rafael.android.application"
-            implementationClass = "AndroidApplicationConventionPlugin"
-        }
         register("composeApplication") {
             id = "com.rafael.compose.android.application"
             implementationClass = "AndroidApplicationComposeConventionPlugin"

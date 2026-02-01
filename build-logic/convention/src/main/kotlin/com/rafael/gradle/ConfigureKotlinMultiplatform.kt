@@ -1,6 +1,5 @@
 package com.rafael.gradle
 
-import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -37,7 +36,9 @@ fun Project.kotlinMultiplatformExtension(block: KotlinMultiplatformExtension.() 
     extensions.configure<KotlinMultiplatformExtension>(block)
 }
 
-val Project.javaVersion: JavaVersion
-    get() = JavaVersion.toVersion(
-        libs.findVersion("jvmTarget").get().toString(),
-    )
+//fun Project.androidLibrary(block: KotlinMultiplatformAndroidLibraryTarget.() -> Unit) {
+//    extensions.configure<KotlinMultiplatformAndroidLibraryTarget>(block)
+//}
+//
+//val Project.androidNamespace: String
+//    get() = "com.rafael.inclusimap.$name"

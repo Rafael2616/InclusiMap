@@ -4,7 +4,7 @@ import app.cash.licensee.UnusedAction.LOG
 import java.util.Properties
 
 plugins {
-    alias(libs.plugins.rafael.android.application)
+    alias(libs.plugins.android.application)
     alias(libs.plugins.rafael.android.application.compose)
     alias(libs.plugins.rafael.spotless)
     alias(libs.plugins.kotlin.serialization)
@@ -16,11 +16,31 @@ android {
 
     defaultConfig {
         applicationId = "com.rafael.inclusimap"
-        minSdk = libs.versions.minSdk.get().toInt()
-        targetSdk = libs.versions.targetSdk.get().toInt()
+        minSdk = 28
+        targetSdk = 36
         versionCode = libs.versions.versionCode.get().toInt()
         versionName = libs.versions.versionName.get()
     }
+
+    compileSdk {
+        version = release(36)
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+
+    packaging.resources.excludes += listOf(
+        "/META-INF/AL2.0",
+        "/META-INF/INDEX.LIST",
+        "/META-INF/LGPL2.1",
+        "/META-INF/LICENSE.md",
+        "/META-INF/LICENSE-notice.md",
+        "/META-INF/DEPENDENCIES",
+        "/META-INF/gradle/incremental.annotation.processors",
+    )
+
     val releaseSigningFile = rootProject.file("keystore.properties")
     val keystoreProperties = Properties()
     val releaseSigningConfig =
