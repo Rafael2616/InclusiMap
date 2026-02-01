@@ -39,6 +39,10 @@ class InclusiMapGoogleMapViewModel(
         prettyPrint = true
     }
 
+    init {
+        getCurrentState()
+    }
+
     fun onEvent(event: InclusiMapEvent) {
         when (event) {
             InclusiMapEvent.OnLoadPlaces -> onLoadPlaces()
@@ -54,7 +58,6 @@ class InclusiMapGoogleMapViewModel(
             InclusiMapEvent.UseAppWithoutInternet -> _state.update { it.copy(useAppWithoutInternet = true) }
             is InclusiMapEvent.ShouldAnimateMap -> _state.update { it.copy(shouldAnimateMap = event.shouldAnimate) }
             is InclusiMapEvent.UpdateMapState -> updateMapState(event.mapState)
-            InclusiMapEvent.GetCurrentState -> getCurrentState()
             InclusiMapEvent.ResetState -> onResetState()
             InclusiMapEvent.LoadCachedPlaces -> loadCachedPlaces()
             is InclusiMapEvent.SetIsContributionsScreen -> _state.update {
@@ -102,10 +105,9 @@ class InclusiMapGoogleMapViewModel(
                         bearing = currentState.bearing,
                         zoom = currentState.zoom,
                     ),
+                    isStateRestored = true,
                 )
             }
-        }.invokeOnCompletion {
-            _state.update { it.copy(isStateRestored = true) }
         }
     }
 

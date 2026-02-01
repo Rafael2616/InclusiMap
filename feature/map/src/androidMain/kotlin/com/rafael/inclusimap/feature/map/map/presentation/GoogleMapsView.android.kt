@@ -103,7 +103,7 @@ actual fun BoxScope.GoogleMapsView(
     val onPlaceTravelScope = rememberCoroutineScope()
     var firstTimeAnimation by remember { mutableStateOf<Boolean?>(null) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(Unit, state.isStateRestored) {
         cameraPositionState.position = state.currentLocation?.toCameraPosition() ?: CameraPosition(
             state.defaultLocationLatLng.toLatLng(),
             15f,
@@ -181,7 +181,8 @@ actual fun BoxScope.GoogleMapsView(
                     )
                 }
                 if (isPresentationMode && state.allMappedPlaces
-                    .find { it.id == "fd9aa418-bc04-46fe-8974-f0bb8c400969" }?.id != place.id) return@forEach
+                        .find { it.id == "fd9aa418-bc04-46fe-8974-f0bb8c400969" }?.id != place.id
+                ) return@forEach
                 Marker(
                     state = remember(place.position) {
                         MarkerState(

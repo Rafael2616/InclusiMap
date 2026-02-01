@@ -19,7 +19,6 @@ sealed interface InclusiMapEvent {
     data object UseAppWithoutInternet : InclusiMapEvent
     data class ShouldAnimateMap(val shouldAnimate: Boolean) : InclusiMapEvent
     data class UpdateMapState(val mapState: MapsCameraPosition) : InclusiMapEvent
-    data object GetCurrentState : InclusiMapEvent
     data class SetCurrentPlaceById(val placeId: String) : InclusiMapEvent
     data object ResetState : InclusiMapEvent
     data class OnTravelToPlace(val placeId: String) : InclusiMapEvent

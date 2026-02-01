@@ -277,7 +277,6 @@ fun InclusiMapGoogleMapScreen(
 
     DisposableEffect(Unit) {
         latestOnEvent(InclusiMapEvent.LoadCachedPlaces)
-        latestOnEvent(InclusiMapEvent.GetCurrentState)
         if (!showAppIntro) firstTimeAnimation = false
         onDispose { }
     }
