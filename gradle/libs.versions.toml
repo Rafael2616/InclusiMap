@@ -6,7 +6,7 @@ versionName = "1.2.0-rc3"
 agp = "9.0.0"
 kotlin = "2.3.0"
 licensee = "1.14.1"
-ksp = "2.3.1"
+ksp = "2.3.5"
 spotless = "8.2.1"
 
 coreKtx = "1.17.0"
@@ -32,7 +32,7 @@ sqlite = "2.6.2"
 filekit = "0.12.0"
 moko-permissions = "0.20.1"
 
-pods-google-maps = "10.0.0"
+pods-google-maps = "10.8.0"
 
 [libraries]
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
