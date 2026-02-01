@@ -1,36 +1,27 @@
 plugins {
-    alias(libs.plugins.rafael.library)
-    alias(libs.plugins.rafael.library.compose)
+    alias(libs.plugins.rafael.multiplatform.library)
+    alias(libs.plugins.rafael.multiplatform.library.compose)
     alias(libs.plugins.rafael.spotless)
-    alias(libs.plugins.androidx.room)
-    alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialization)
 }
 
-android.namespace = "com.rafael.inclusimap.feature.map_search"
+kotlin {
+    android {
+        namespace = "com.rafael.inclusimap.feature.map_search"
+        compileSdk = libs.versions.compileSdk.get().toInt()
+    }
+    sourceSets {
+        commonMain.dependencies {
+            implementation(libs.androidx.room.runtime)
+            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.koin.core)
+            implementation(libs.koin.core.viewmodel)
+            implementation(libs.coil.compose)
 
-dependencies {
-    // Androidx
-    implementation(libs.androidx.room.runtime)
-    ksp(libs.androidx.room.compiler)
-    implementation(libs.kotlinx.serialization.json)
-    // Google Maps
-    implementation(libs.maps.compose)
-    // Koin
-    api(libs.koin.core)
-    implementation(libs.koin.android)
-    implementation(libs.koin.core.viewmodel)
-    // Projects
-    implementation(projects.core.domain)
-    implementation(projects.core.resources)
-}
-
-ksp {
-    arg("room.schemaLocation", "$projectDir/schemas")
-    arg("room.incremental", "true")
-    arg("room.generateKotlin", "true")
-}
-
-room {
-    schemaDirectory("$projectDir/schemas")
+            // Projects
+            implementation(projects.core.resources)
+            implementation(projects.core.ui)
+            implementation(projects.core.util)
+        }
+    }
 }

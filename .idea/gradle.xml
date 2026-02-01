@@ -18,23 +18,20 @@
         </compositeConfiguration>
         <option name="testRunner" value="CHOOSE_PER_TEST" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleJvm" value="temurin-21 (2)" />
+        <option name="gradleJvm" value="#GRADLE_LOCAL_JAVA_HOME" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/baseline-profile" />
+            <option value="$PROJECT_DIR$/androidApp" />
             <option value="$PROJECT_DIR$/build-logic" />
             <option value="$PROJECT_DIR$/build-logic/convention" />
             <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/core/di" />
-            <option value="$PROJECT_DIR$/core/domain" />
             <option value="$PROJECT_DIR$/core/navigation" />
-            <option value="$PROJECT_DIR$/core/navigation-impl" />
             <option value="$PROJECT_DIR$/core/resources" />
             <option value="$PROJECT_DIR$/core/services" />
-            <option value="$PROJECT_DIR$/core/settings" />
             <option value="$PROJECT_DIR$/core/ui" />
+            <option value="$PROJECT_DIR$/core/util" />
             <option value="$PROJECT_DIR$/feature" />
             <option value="$PROJECT_DIR$/feature/about" />
             <option value="$PROJECT_DIR$/feature/auth" />
@@ -45,9 +42,13 @@
             <option value="$PROJECT_DIR$/feature/map-search" />
             <option value="$PROJECT_DIR$/feature/report" />
             <option value="$PROJECT_DIR$/feature/settings" />
+            <option value="$PROJECT_DIR$/libs" />
+            <option value="$PROJECT_DIR$/libs/lazyColumnScrollbar" />
+            <option value="$PROJECT_DIR$/libs/maps-interop" />
           </set>
         </option>
       </GradleProjectSettings>
     </option>
+    <option name="parallelModelFetch" value="true" />
   </component>
 </project>

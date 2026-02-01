@@ -1,0 +1,9 @@
+platform :ios, '18.2'
+target 'iosApp' do
+
+  use_frameworks!
+
+    pod 'map', :path => '../feature/map'
+    pod 'GoogleMaps', '10.0.0'
+
+end

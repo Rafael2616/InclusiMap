@@ -1,0 +1,529 @@
+@startuml
+
+title Diagrama de Classes do recurso Locais
+
+interface AcessibleLocal {
+  + position: Pair<Double, Double>
+  + title: String
+  + category: PlaceCategory?
+  + authorId: String
+  + comments: List<Comment>
+  + time: String
+  - id: String? (PK)
+  + address: String
+  + locatedIn: String
+  + resources: List<AccessibilityResource>
+  + images: List<PlaceImage?>,
+  + imageFolder: List<File>?,
+  + imageFolderId: String?,
+}
+
+class Comment {
+  - postDate: String
+  - id: Int (PK)
+  - name: String
+  - email: String
+  - body: String
+  - accessibilityRate: Int
+
+  + Comment(...)
+}
+
+class User {
+    - id: String (Pk)
+    - name: String
+    - email: String
+    - password: String
+    - showProfilePictureOptedIn: Boolean
+    - acessibleLocals: List<AcessibleLocal>
+
+    + User(...)
+}
+
+class PlaceImage {
+    - userEmail: String?
+    - image: ImageBitmap
+    - placeID: String (PK)
+    - name: String
+
+    + PlaceImage(...)
+}
+
+class PlaceCategory {
+    - entry: Int
+    - name: String
+    - icon: ByteArray
+
+    + PlaceCategory(entry: Int, name: String, icon: ByteArray)
+}
+
+class AccessibilityResource {
+    - resource: Resource
+    - lastModified: String
+    - lastModifiedBy: String
+
+    + AccessibilityResource(...)
+}
+
+enum Resource {
+    WHEELCHAIR("Cadeira de rodas")
+    RAMP("Rampa acessível")
+    ELEVATOR("Elevador adaptado")
+    WIDE_CORRIDORS("Corredores espaçosos")
+    FEW_ELEVATIONS("Poucas elevações")
+    ADAPTED_BATHROOM("Banheiro adaptado")
+    PRIORITY_CHECKOUT("Caixa preferencial")
+    SPECIAL_PARKING("Estacionamento especial")
+    ADAPTED_CART("Carrinho adaptado")
+    HUMAN_ASSISTANCE("Assistência humana")
+    AUTOMATIC_DOOR("Porta automática ou de fácil manuseio")
+    NOT_APPLICABLE("Não aplicável")
+}
+
+class AccessibilityChipItem {
+    - name: String
+    - color: Color
+    - type: AccessibilityType
+    - description: String
+
+    + AccessibilityChipItem(...)
+}
+
+enum AccessibilityType {
+    ACCESSIBLE,
+    MEDIUM,
+    INACCESSIBLE,
+    UNKNOWN,
+}
+
+class PlaceDetailsViewModel {
+    - _state: MutableStateFlow<PlaceDetailsState>
+
+    + onEvent(event: PlaceDetailsEvent)
+    - onUploadPlaceImages(uris: List<Uri>, context: Context, placeId: String)
+    - onDestroyPlaceDetailsScreen()
+    - setCurrentPlace(place: Place)
+    - onDeletePlaceImage(image: PlaceImage)
+    - setUserAccessibilityRate(rate: Int)
+    - onSendComment(comment: String)
+    - onDeleteComment()
+    - onUpdatePlaceAccessibilityResources(resources: List<AccessibilityResource>)
+    - getNearestPlaceUri(latLng: LatLng)
+}
+
+enum PlaceDetailsEvent {
+    OnUploadPlaceImages,
+    OnDestroyPlaceDetails,
+    SetCurrentPlace,
+    OnDeletePlaceImage,
+    SetUserAccessibilityRate,
+    OnSendComment,
+    SetIsUserCommented,
+    OnDeleteComment,
+    SetIsEditingPlace,
+    OnUpdatePlaceAccessibilityResources,
+    SetIsEditingComment,
+    SetIsTrySendComment,
+    GetCurrentNearestPlaceUri
+}
+
+PlaceDetailsViewModel --> PlaceDetailsEvent : handles >
+PlaceDetailsViewModel --> AcessibleLocal : updates >
+AccessibilityChipItem --> AccessibilityType : has
+
+AcessibleLocal "1" -- "*" Comment : has >
+AcessibleLocal "1" -- "*" AccessibilityResource : has >
+AcessibleLocal "1" -- "*" PlaceCategory : has >
+AcessibleLocal "1" -- "*" PlaceImage    : has >
+Resource "1" -- "*" AccessibilityResource : has >
+
+User "1" -- "*" AcessibleLocal : has >
+@enduml
+
+
+
+@startuml
+
+title Diagrama de Classes do recurso Autenticação
+
+class User {
+    - id: String (PK)
+    - name: String
+    - email: String
+    - password: String
+    - showProfilePictureOptedIn: Boolean
+    - acessibleLocals: List<AcessibleLocal>
+
+    + User(id: String, name: String, email: String, password: String, showProfilePictureOptedIn: Boolean)
+}
+
+class RegisteredUser {
+  - email: String (PK)
+  - password: String
+
+  + RegisteredUser(email: String, password: String)
+}
+
+class LoginViewModel {
+    - _state: MutableStateFlow<LoginState>
+
+    + onEvent(event: LoginEvent)
+    - login(registeredUser: RegisteredUser)
+    - registerNewUser(user: User)
+    - logout()
+    - updatePassword(password: String)
+    - deleteAccount(keepContributions: Boolean)
+    - addEditProfilePicture(image: ImageBitmap)
+    - onDeleteProfilePicture()
+    - updateUserName(name: String)
+    - allowUserToSeeProfilePicture(value: Boolean)
+    - recoveryPasswordProcess(email: String)
+    - validateToken(token: String)
+}
+
+enum LoginEvent {
+    OnLogin,
+    OnRegisterNewUser,
+    OnLogout,
+    UpdatePassword,
+    SetIsPasswordChanged,
+    DeleteAccount,
+    OnAddEditUserProfilePicture,
+    OnRemoveUserProfilePicture,
+    UpdateUserName,
+    OnAllowPictureOptedIn,
+    SendPasswordResetEmail,
+    ValidateToken,
+}
+
+interface LoginRepository {
+    + getLoginInfo(id: Int): LoginState?
+    + updateLoginInfo(loginEntity: LoginState)
+}
+
+class LoginState {
+  - id: Int (PK)
+  - isLoggedIn: Boolean
+  - user: User
+  - userPathID: String?
+  - showProfilePictureOptedIn: Boolean
+  - profilePicture: ByteArray?
+  - tokenHash: String?
+  - recoveryToken: String?
+  - tokenExpirationDate: Long?
+
+  + LoginState(...)
+}
+
+LoginViewModel --> LoginEvent : handles >
+LoginViewModel --> LoginState : updates >
+
+LoginState "1" -- "*" User : has >
+RegisteredUser "1" -- "*" User : contains >
+LoginRepository "1" -- "*" LoginState : updates >
+
+@enduml
+
+
+
+@startuml
+title Diagrama de Classes do recurso Contribuições
+
+class Contributions {
+    - images: List<PlaceImageWithPlace>
+    - comments: List<CommentWithPlace>
+    - places: List<AccessibleLocalMarkerWithFileId>
+    - resources: List<AccessibleLocalMarkerWithFileId>
+
+    + Contributions(...)
+}
+
+class Contribution {
+    - type: ContributionType
+    - fileId: String (PK)
+
+    + Contribution(...)
+}
+
+enum ContributionType {
+    IMAGE,
+    COMMENT,
+    PLACE,
+    ACCESSIBLE_RESOURCES
+}
+
+class PlaceImageWithPlace {
+    - placeImage: PlaceImage
+    - place: AccessibleLocalMarker
+    - date: String?
+    - fileId: String (PK)
+
+    + PlaceImageWithPlace(...)
+}
+
+class CommentWithPlace {
+    - comment: Comment
+    - place: AccessibleLocalMarker
+    - fileId: String (PK)
+
+    + CommentWithPlace(...)
+}
+
+class AccessibleLocalMarkerWithFileId {
+    - place: AccessibleLocalMarker
+    - fileId: String (PK)
+
+    + AccessibleLocalMarkerWithFileId(...)
+}
+
+Contributions "1" -- "*" PlaceImageWithPlace : contains >
+Contributions "1" -- "*" CommentWithPlace : contains >
+Contributions "1" -- "*" AccessibleLocalMarkerWithFileId : contains >
+
+Contribution --> ContributionType : has >
+@enduml
+
+
+
+@startuml
+title Diagrama de Classes do recurso Mapa
+
+class GoogleMapType {
+    - type: MapType
+    - name: String
+    - icon: ImageVector
+    - id: Int (PK)
+
+    + GoogleMapType(...)
+}
+
+class MapCameraState {
+    - id: Int (PK)
+    - zoom: Float
+    - lat: Double
+    - lng: Double
+    - tilt: Float
+    - bearing: Float
+
+    + MapCameraState(...)
+}
+
+interface InclusiMapEvent {
+    + OnLoadPlaces
+    + OnMappedPlaceSelected
+    + OnUnmappedPlaceSelected
+    + OnAddNewMappedPlace
+    + SetLocationPermissionGranted
+    + OnUpdateMappedPlace
+    + OnDeleteMappedPlace
+    + OnFailToLoadPlaces
+    + OnFailToConnectToServer
+    + OnMapLoad
+    + LoadCachedPlaces
+    + UseAppWithoutInternet
+    + ShouldAnimateMap
+    + UpdateMapState
+    + GetCurrentState
+    + SetCurrentPlaceById
+    + ResetState
+    + OnTravelToPlace
+    + SetShouldTravel
+    + SetIsContributionsScreen
+    + SetMapType
+}
+
+class InclusiMapState {
+    - isMyLocationFound: Boolean
+    - isMapLoaded: Boolean
+    - shouldAnimateMap: Boolean
+    - isLocationPermissionGranted: Boolean
+    - selectedUnmappedPlaceLatLng: LatLng?
+    - selectedMappedPlace: AccessibleLocalMarker?
+    - defaultLocationLatLng: LatLng
+    - currentLocation: MapCameraState?
+    - allMappedPlaces: List<AccessibleLocalMarker>
+    - failedToLoadPlaces: Boolean
+    - failedToGetNewPlaces: Boolean
+    - failedToConnectToServer: Boolean
+    - useAppWithoutInternet: Boolean
+    - shouldTravel: Boolean
+    - isTraveling: Boolean
+    - isAddingNewPlace: Boolean
+    - isErrorAddingNewPlace: Boolean
+    - isPlaceAdded: Boolean
+    - isDeletingPlace: Boolean
+    - isErrorDeletingPlace: Boolean
+    - isPlaceDeleted: Boolean
+    - isContributionsScreen: Boolean
+    - isStateRestored: Boolean
+    - mapType: GoogleMapType
+    - id: Int (PK)
+
+    + InclusiMapState(...)
+}
+
+class InclusiMapViewModel {
+    - _state: MutableStateFlow<InclusiMapState>
+
+    + onEvent(event: InclusiMapEvent)
+    - onLoadPlaces()
+    - onMapLoad()
+    - onMappedPlaceSelected(place: AccessibleLocalMarker)
+    - onUnmappedPlaceSelected(latLng: LatLng)
+    - onAddNewMappedPlace(newPlace: AccessibleLocalMarker)
+    - setLocationPermissionGranted(isGranted: Boolean)
+    - onUpdateMappedPlace(placeUpdated: AccessibleLocalMarker)
+    - onDeleteMappedPlace(placeId: String)
+    - loadCachedPlaces()
+    - updateMapState(mapState: CameraPosition)
+    - getCurrentState()
+    - onResetState()
+    - setPlaceById(placeId: String)
+    - onTravelToPlace(placeId: String)
+}
+
+InclusiMapViewModel --> InclusiMapEvent : handles >
+InclusiMapViewModel --> InclusiMapState : updates >
+
+InclusiMapState  --> GoogleMapType : has >
+InclusiMapState --> MapCameraState : has >
+@enduml
+
+
+
+@startuml
+
+title Diagrama de Classes do recurso Report
+
+class ReportViewModel {
+    - _state: MutableStateFlow<ReportState
+
+    + onReport(report: Report)
+}
+
+class ReportState {
+    - isReported: Boolean
+    - isReporting: Boolean
+    - isError: Boolean
+}
+
+enum ReportType {
+    LOCAL,
+    COMMENT,
+    IMAGE,
+    OTHER
+}
+
+class Report {
+    - type: ReportType
+    - content: String
+    - reportedLocal: AccessibleLocalMarker
+    - user: User?
+
+    + Report(...)
+}
+
+interface AccessibleLocal {
+  + position: Pair<Double, Double>
+  + title: String
+  + category: PlaceCategory?
+  + authorId: String
+  + comments: List<Comment>
+  + time: String
+  - id: String? (PK)
+  + address: String
+  + locatedIn: String
+  + resources: List<AccessibilityResource>
+  + images: List<PlaceImage?>,
+  + imageFolder: List<File>?,
+  + imageFolderId: String?,
+}
+
+class User {
+    - id: String (Pk)
+    - name: String
+    - email: String
+    - password: String
+    - showProfilePictureOptedIn: Boolean
+    - acessibleLocals: List<AcessibleLocal>
+
+    + User(...)
+}
+ReportViewModel --> ReportState : updates >
+ReportViewModel --> Report : handles >
+Report --> ReportType : has >
+Report --> AccessibleLocal : has >
+Report --> User : has >
+@enduml
+
+
+@startuml
+class Product {
+    -id: String
+    -name: String
+    -quantidade: Int
+    -dataVencimento: String
+    -region: Region
+}
+
+class Vendedor {
+    -id: String
+    -nome: String
+    -dataNascimento: String
+    -codidoCadastro: String
+    -produto: List<Product>
+}
+
+class Region {
+   -id: String
+   -nome: String
+   -states: List<State>
+}
+
+class State {
+    -id
+    -nome: String
+}
+
+Product -> Vendedor : has >
+Product -> Region : has >
+Region -> State : has >
+
+@enduml
+
+
+@startuml
+actor "Usuario" as User
+
+usecase "Realizar compra" as RF01
+
+User --> RF01
+@enduml
+
+
+
+
+@startuml
+class Presentation {
+    - telas
+    - componentes
+}
+
+class ViewModel {
+   - atualiza os dados da interface
+   + gerencia os eventoss de clique
+}
+
+class Domain {
+  - models
+  - repositorios
+}
+
+class Data {
+  - repositorios
+}
+
+ViewModel -> Presentation : gerencia
+ViewModel -> Data : comunica
+ViewModel -> Domain : comunica
+@enduml

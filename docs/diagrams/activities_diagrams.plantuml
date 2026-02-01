@@ -1,0 +1,112 @@
+@startuml
+
+' -------------------- Diagrama de Atividade - Recurso Locais --------------------
+title Diagrama de Atividade - Locais
+
+start
+:Usuário acessa detalhes do local;
+partition PlaceDetailsViewModel {
+    :Recebe evento (PlaceDetailsEvent);
+    if (Evento é Upload de Imagens?) then (sim)
+        :onUploadPlaceImages();
+    elseif (Evento é Deletar Imagem?) then (sim)
+        :onDeletePlaceImage();
+    elseif (Evento é Enviar Comentário?) then (sim)
+        :onSendComment();
+    elseif (Evento é Atualizar Recursos?) then (sim)
+        :onUpdatePlaceAccessibilityResources();
+    else
+        :Outro evento;
+    endif
+}
+stop
+
+@enduml
+
+@startuml
+
+' -------------------- Diagrama de Atividade - Recurso Autenticação --------------------
+title Diagrama de Atividade - Autenticação
+
+start
+:Usuário abre tela de login;
+partition LoginViewModel {
+    :Recebe evento LoginEvent;
+    if (Evento é Login?) then (sim)
+        :login(RegisteredUser);
+    elseif (Evento é Registrar?) then (sim)
+        :registerNewUser(User);
+    elseif (Evento é Logout?) then (sim)
+        :logout();
+    elseif (Evento é Atualizar Senha?) then (sim)
+        :updatePassword();
+    elseif (Evento é Deletar Conta?) then (sim)
+        :deleteAccount();
+    else
+        :Outro evento;
+    endif
+}
+stop
+
+@enduml
+
+@startuml
+
+' -------------------- Diagrama de Atividade - Recurso Contribuições --------------------
+title Diagrama de Atividade - Contribuições
+
+start
+:Usuário acessa contribuições;
+partition Contributions {
+    :Carrega lista de imagens;
+    :Carrega lista de comentários;
+    :Carrega lista de locais;
+    :Carrega lista de recursos;
+}
+stop
+
+@enduml
+
+@startuml
+
+' -------------------- Diagrama de Atividade - Recurso Mapa --------------------
+title Diagrama de Atividade - Mapa
+
+start
+:Usuário abre o mapa;
+partition InclusiMapViewModel {
+    :onLoadPlaces();
+    if (Seleciona lugar no mapa?) then (sim)
+        :onMappedPlaceSelected();
+    elseif (Seleciona local não mapeado?) then (sim)
+        :onUnmappedPlaceSelected();
+    elseif (Adiciona novo local?) then (sim)
+        :onAddNewMappedPlace();
+    elseif (Deleta local?) then (sim)
+        :onDeleteMappedPlace();
+    else
+        :Outro evento;
+    endif
+}
+stop
+
+@enduml
+
+@startuml
+
+' -------------------- Diagrama de Atividade - Recurso Report --------------------
+title Diagrama de Atividade - Report
+
+start
+:Usuário envia um report;
+partition ReportViewModel {
+    :onReport(Report);
+    if (Report enviado com sucesso?) then (sim)
+        :Atualiza ReportState para isReported=true;
+    else
+        :Atualiza ReportState para isError=true;
+    endif
+}
+stop
+
+@enduml

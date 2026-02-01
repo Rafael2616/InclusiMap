@@ -28,15 +28,13 @@ dependencyResolutionManagement {
     }
 }
 
-include(":app")
+include(":androidApp")
 
 include(":core:di")
-include(":core:domain")
+include(":core:util")
 include(":core:ui")
 include(":core:resources")
-include(":core:settings")
 include(":core:navigation")
-include(":core:navigation-impl")
 include(":core:services")
 
 include(":feature:auth")
@@ -49,4 +47,5 @@ include(":feature:map")
 include(":feature:map-search")
 include(":feature:library-info")
 
-include(":baseline-profile")
+include(":libs:lazyColumnScrollbar")
+include(":libs:maps-interop")

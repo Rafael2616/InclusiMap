@@ -1,35 +1,34 @@
 plugins {
-    alias(libs.plugins.rafael.library)
-    alias(libs.plugins.rafael.library.compose)
+    alias(libs.plugins.rafael.multiplatform.library)
+    alias(libs.plugins.rafael.multiplatform.library.compose)
     alias(libs.plugins.rafael.spotless)
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.androidx.room)
 }
 
-android.namespace = "com.rafael.inclusimap.feature.intro"
+kotlin {
+    android {
+        namespace = "com.rafael.inclusimap.feature.intro"
+        compileSdk = libs.versions.compileSdk.get().toInt()
+        androidResources.enable = true
+    }
 
-dependencies {
-    // Room
-    ksp(libs.androidx.room.compiler)
-    implementation(libs.androidx.room.runtime)
-    // Koin
-    api(libs.koin.core)
-    implementation(libs.koin.core.viewmodel)
-    implementation(libs.koin.android)
-    // Scrollbar
-    implementation(libs.lazycolumn.scrollbar)
+    sourceSets {
+        commonMain.dependencies {
+            implementation(libs.androidx.room.runtime)
+            implementation(libs.koin.core)
+            implementation(libs.koin.core.viewmodel)
 
-    // Projects
-    implementation(projects.core.domain)
-    implementation(projects.core.resources)
+            // Projects
+            implementation(projects.core.ui)
+            implementation(projects.core.resources)
+            implementation(projects.libs.lazyColumnScrollbar)
+        }
+        androidMain.dependencies {
+            implementation(libs.koin.android)
+        }
+    }
 }
 
-ksp {
-    arg("room.schemaLocation", "$projectDir/schemas")
-    arg("room.incremental", "true")
-    arg("room.generateKotlin", "true")
-}
-
-room {
-    schemaDirectory("$projectDir/schemas")
+compose.resources {
+    packageOfResClass = "com.rafael.inclusimap.feature.intro"
+    generateResClass = always
 }

@@ -3,19 +3,13 @@ plugins {
     alias(libs.plugins.androidx.room).apply(false)
     alias(libs.plugins.android.application).apply(false)
     alias(libs.plugins.android.library).apply(false)
+    alias(libs.plugins.android.multiplatform.library).apply(false)
     alias(libs.plugins.android.test).apply(false)
     alias(libs.plugins.spotless).apply(false)
     alias(libs.plugins.ksp).apply(false)
-    alias(libs.plugins.kotlin.android).apply(false)
+    alias(libs.plugins.kotlin.cocoapods).apply(false)
     alias(libs.plugins.kotlin.serialization).apply(false)
     alias(libs.plugins.jetbrains.compose.compiler).apply(false)
+    alias(libs.plugins.jetbrains.compose).apply(false)
     alias(libs.plugins.licensee).apply(false)
-    alias(libs.plugins.baselineprofile).apply(false)
-
-//    This is not working on Gradle 8.11
-//    alias(libs.plugins.rafael.spotless).apply(false)
-//    alias(libs.plugins.rafael.library).apply(false)
-//    alias(libs.plugins.rafael.library.compose).apply(false)
-//    alias(libs.plugins.rafael.application).apply(false)
-//    alias(libs.plugins.rafael.application.compose).apply(false)
 }
