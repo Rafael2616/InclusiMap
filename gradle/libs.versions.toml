@@ -4,7 +4,7 @@ versionCode = "14"
 versionName = "1.2.0-rc3"
 
 agp = "9.0.0"
-kotlin = "2.3.0"
+kotlin = "2.3.10"
 licensee = "1.14.1"
 ksp = "2.3.5"
 spotless = "8.2.1"
